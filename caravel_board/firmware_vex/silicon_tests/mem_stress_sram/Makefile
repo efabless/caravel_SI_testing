@@ -12,7 +12,7 @@ TOOLCHAIN_PREFIX=riscv64
 
 .SUFFIXES:
 
-PATTERN = mem_stress
+PATTERN = mem_stress_sram
 
 hex:  ${PATTERN:=.hex}
 
@@ -20,9 +20,9 @@ hex:  ${PATTERN:=.hex}
 	cd ../../gpio_config; python3 ../../gpio_config/gpio_config_builder.py
 
 %.elf: %.c ../../sections.lds ../../crt0_vex.S ../../gpio_config/gpio_config_data.c
-	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-gcc -I../../ -I../../generated/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../../sections.lds,--strip-debug -ffreestanding -nostdlib -o $@ ../../crt0_vex.S ../../isr.c ../../gpio_program.c $<
+	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-gcc -I../../ -I../../generated/ -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../../sections.lds,--strip-debug -ffreestanding -nostdlib -o $@ ../../crt0_vex.S ../../isr.c ../../gpio_program.c $<
 
-	${TOOLCHAIN_PATH}riscv32-unknown-linux-gnu-objdump -s  mem_stress.elf > mem_stress.lst
+	${TOOLCHAIN_PATH}riscv32-unknown-linux-gnu-objdump -s  mem_stress_sram.elf > mem_stress_sram.lst
 
 %.hex: %.elf
 	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-objcopy -O verilog $< $@
@@ -34,12 +34,12 @@ hex:  ${PATTERN:=.hex}
 client: client.c
 	gcc client.c -o client
 
-flash: mem_stress.hex
-	python3 ../util/caravel_hkflash.py mem_stress.hex
+flash: mem_stress_sram.hex
+	python3 ../util/caravel_hkflash.py mem_stress_sram.hex
 	python3 ../util/caravel_hkstop.py
 
-flash2: mem_stress.hex
-	python3 ../util/caravel_flash.py mem_stress.hex
+flash2: mem_stress_sram.hex
+	python3 ../util/caravel_flash.py mem_stress_sram.hex
 
 # ---- Clean ----
 

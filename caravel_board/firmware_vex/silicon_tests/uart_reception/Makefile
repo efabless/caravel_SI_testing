@@ -46,6 +46,3 @@ clean:
 	rm -f *.elf *.hex *.bin *.vvp *.vcd
 
 .PHONY: clean hex all flash
-
-
-

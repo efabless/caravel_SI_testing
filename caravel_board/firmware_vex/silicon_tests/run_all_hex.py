@@ -39,3 +39,4 @@ for dir in dirs:
         continue
     os.system(f'make hex')
     os.rename(f'{testname}.hex',f'{testname}_sram.hex')
+

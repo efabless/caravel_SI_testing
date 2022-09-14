@@ -20,6 +20,7 @@ del dirs[0]
 file_path =f'{os.getcwd()}/../sections.lds'
 
 change_ram(" > sram"," > dff",file_path)
+# print(f'{os.getcwd()}/../sections.lds')
 for dir in dirs:
     os.chdir(dir)
     testname = os.path.basename(dir)
@@ -39,4 +40,5 @@ for dir in dirs:
         continue
     os.system(f'make hex')
     os.rename(f'{testname}.hex',f'{testname}_sram.hex')
+
 

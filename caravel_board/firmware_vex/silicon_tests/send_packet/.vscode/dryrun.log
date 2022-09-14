@@ -1,0 +1,26 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory '/home/rady/caravel/Mpw2/caravel-mpw2-debug-RTL/caravel_mgmt_soc_litex/verilog/dv/tests-SI/send_packet'
+ 
+/ciic/tools/bin/riscv32-unknown-linux-gnu-gcc -g \
+-I/home/rady/caravel/Mpw2/caravel-mpw2-debug-RTL/caravel_mgmt_soc_litex/verilog/dv/firmware \
+-I/home/rady/caravel/Mpw2/caravel-mpw2-debug-RTL/caravel_mgmt_soc_litex/verilog/dv/generated \
+-I/home/rady/caravel/Mpw2/caravel-mpw2-debug-RTL/caravel_mgmt_soc_litex/verilog/dv/ \
+-I/home/rady/caravel/Mpw2/caravel-mpw2-debug-RTL/caravel_mgmt_soc_litex/verilog/common \
+-I/home/rady/caravel/Mpw2/caravel-mpw2-debug-RTL/caravel_mgmt_soc_litex/verilog/dv/tests-SI/common \
+  -march=rv32i      -mabi=ilp32 -D__vexriscv__ \
+-Wl,-Bstatic,-T,/home/rady/caravel/Mpw2/caravel-mpw2-debug-RTL/caravel_mgmt_soc_litex/verilog/dv/firmware/sections.lds,--strip-debug \
+-ffreestanding -nostdlib -o send_packet.elf /home/rady/caravel/Mpw2/caravel-mpw2-debug-RTL/caravel_mgmt_soc_litex/verilog/dv/firmware/crt0_vex.S /home/rady/caravel/Mpw2/caravel-mpw2-debug-RTL/caravel_mgmt_soc_litex/verilog/dv/firmware/isr.c send_packet.c
+/ciic/tools/bin/riscv32-unknown-linux-gnu-objcopy -O verilog send_packet.elf send_packet.hex 
+# to fix flash base address
+sed -ie 's/@10/@00/g' send_packet.hex
+ 
+iverilog -Ttyp -DFUNCTIONAL -DSIM -DUSE_POWER_PINS -DUNIT_DELAY=#1 \
+	-f /home/rady/caravel/Mpw2/caravel-mpw2-debug-RTL/caravel_mgmt_soc_litex/verilog/includes/includes.rtl.caravel \
+	-o send_packet.vvp /home/rady/caravel/Mpw2/caravel-mpw2-debug-RTL/caravel/verilog/rtl/__user_project_wrapper.v send_packet_tb.v
+tail -n 10 verilog.log | mail -s "send_packet.vvp-TT" mostafa.rady@efabless.com
+vvp  send_packet.vvp
+mv send_packet.vcd RTL-send_packet.vcd
+/ciic/tools/bin/riscv32-unknown-linux-gnu-objdump -d -S send_packet.elf > send_packet.lst
+rm send_packet.elf send_packet.vvp
+make: Leaving directory '/home/rady/caravel/Mpw2/caravel-mpw2-debug-RTL/caravel_mgmt_soc_litex/verilog/dv/tests-SI/send_packet'
+ 

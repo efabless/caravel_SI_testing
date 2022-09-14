@@ -1,0 +1,23 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel_mgmt_soc_litex/verilog/dv/tests-SI/cpu_bitbang_22_o'
+/ciic/tools/rv32/bin/riscv32-unknown-linux-gnu-gcc -g \
+-I/home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel_mgmt_soc_litex/verilog/dv/firmware \
+-I/home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel_mgmt_soc_litex/verilog/dv/generated \
+-I/home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel_mgmt_soc_litex/verilog/dv/ \
+-I/home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel_mgmt_soc_litex/verilog/dv/tests-SI/common \
+-I/home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel_mgmt_soc_litex/verilog/common \
+  -march=rv32i      -mabi=ilp32 -D__vexriscv__ \
+-Wl,-Bstatic,-T,/home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel_mgmt_soc_litex/verilog/dv/firmware/sections.lds,--strip-debug \
+-ffreestanding -nostdlib -o cpu_bitbang_22_o.elf /home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel_mgmt_soc_litex/verilog/dv/firmware/crt0_vex.S /home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel_mgmt_soc_litex/verilog/dv/firmware/isr.c cpu_bitbang_22_o.c
+/ciic/tools/rv32/bin/riscv32-unknown-linux-gnu-objcopy -O verilog cpu_bitbang_22_o.elf cpu_bitbang_22_o.hex 
+# to fix flash base address
+sed -ie 's/@10/@00/g' cpu_bitbang_22_o.hex
+iverilog -Ttyp -DFUNCTIONAL -DSIM -DUSE_POWER_PINS -DUNIT_DELAY=#1 \
+	-f /home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel_mgmt_soc_litex/verilog/includes/includes.rtl.caravel \
+	-o cpu_bitbang_22_o.vvp /home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel/verilog/rtl/__user_project_wrapper.v cpu_bitbang_22_o_tb.v
+vvp  cpu_bitbang_22_o.vvp
+mv cpu_bitbang_22_o.vcd RTL-cpu_bitbang_22_o.vcd
+/ciic/tools/rv32/bin/riscv32-unknown-linux-gnu-objdump -d -S cpu_bitbang_22_o.elf > cpu_bitbang_22_o.lst
+rm cpu_bitbang_22_o.vvp cpu_bitbang_22_o.elf
+make: Leaving directory '/home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel_mgmt_soc_litex/verilog/dv/tests-SI/cpu_bitbang_22_o'
+ 

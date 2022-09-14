@@ -1,0 +1,7 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel_mgmt_soc_litex/verilog/dv/tests-SI/mem_sram_test'
+make: Leaving directory '/home/rady/caravel/Mpw2/caravel-mpw2-debug-sdf/caravel-mpw2-debug/caravel_mgmt_soc_litex/verilog/dv/tests-SI/mem_sram_test'
+ 
+make: *** No rule to make target 'mem_sram_test.vcd', needed by 'all'.
+make: *** No rule to make target 'mem_sram_test.lst', needed by 'all'.
+

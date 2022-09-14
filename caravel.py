@@ -34,6 +34,11 @@ class Test:
 
 
     def receive_packet(self):
+        """recieves packet using the wire protocol, uses the gpio_mgmt I/O
+
+        Returns:
+            int: pulse count
+        """
         unit = 1000
         ones = 0
         pulses = 0
@@ -60,6 +65,11 @@ class Test:
         return pulses
 
     def reset(self, duration=1):
+        """applies reset to the caravel board
+
+        Args:
+            duration (int, optional): duration of reset. Defaults to 1.
+        """
         logging.info("   applying reset on channel 0 device 1")
         self.rstb.set_value(0)
         time.sleep(duration)
@@ -67,17 +77,48 @@ class Test:
         time.sleep(duration)
         logging.info("   reset done")
 
+    def apply_reset(self):
+        """applies reset to the caravel board
+
+        Args:
+            duration (int, optional): duration of reset. Defaults to 1.
+        """
+        logging.info("   applying reset on channel 0 device 1")
+        self.rstb.set_value(0)
+
+    def release_reset(self):
+        """applies reset to the caravel board
+
+        Args:
+            duration (int, optional): duration of reset. Defaults to 1.
+        """
+        logging.info("   releasing reset on channel 0 device 1")
+        self.rstb.set_value(1)
+
     def flash(self, hex_file):
+        """flashes the caravel board with hex file, 
+        uses caravel_board/firmware_vex/util/caravel_hkflash.py script
+
+        Args:
+            hex_file (string): path to hex file
+        """
         subprocess.call(
             f"python3 caravel_board/firmware_vex/util/caravel_hkflash.py {hex_file}",
             shell=True,
         )
 
     def change_voltage(self):
+        """
+        changes voltage output of the device connected to `VCORE` power supply
+        """
         self.device1v8.supply.set_voltage(self.voltage)
 
     def exec_flashing(self):
+        """
+        Automates flashing based on sram of DFFRAM, and test name
+        """
         logging.info("   Flashing CPU")
+        self.powerup_sequence()
         if self.sram == 1:
             self.flash(f"caravel_board/hex_files/sram/{self.test_name}.hex")
         else:
@@ -88,23 +129,33 @@ class Test:
         self.reset()
 
     def powerup_sequence(self):
-        self.device3v3.supply.turn_off()
+        """
+        Power supply powerup sequence:
+            turns off both devices
+            turns on device and change voltage to the required one
+        """
         self.device1v8.supply.turn_off()
-        time.sleep(1)
-        logging.info("   Turning on VIO")
-        self.device3v3.supply.turn_on()
+        self.device3v3.supply.turn_off()
+        time.sleep(5)
+        logging.info("   Turning on VIO with 3.3v")
         self.device3v3.supply.set_voltage(3.3)
         time.sleep(1)
-        logging.info("   Turning on VCORE")
-        self.device1v8.supply.turn_on()
+        logging.info(f"   Turning on VCORE with {self.voltage}v")
+        self.device1v8.supply.set_voltage(self.voltage)
         time.sleep(1)
 
     def turn_off_devices(self):
+        """
+        turns off all devices
+        """
         self.device1v8.supply.turn_off()
         self.device3v3.supply.turn_off()
         self.deviced.supply.turn_off()
 
     def close_devices(self):
+        """
+        turns off devices and closes them
+        """
         self.device1v8.supply.turn_off()
         self.device3v3.supply.turn_off()
         self.deviced.supply.turn_off()
@@ -114,6 +165,9 @@ class Test:
 
 
 class Device:
+    """
+    Device class to initialize devices
+    """
     def __init__(self, device, id, dio_map):
         self.ad_device = device
         self.id = id
@@ -364,6 +418,14 @@ def count_pulses(packet_data):
 
 
 def connect_devices(devices):
+    """connects devices based on their serial number
+
+    Args:
+        devices (list): all devices connected
+
+    Returns:
+        [type]: [description]
+    """
     if devices:
         for device_info in devices:
             if device_info.serial_number[-3:] == b"1F8":

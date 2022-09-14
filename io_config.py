@@ -92,12 +92,11 @@ def modify_hex(hex_file, c_file):
 
 def exec_flash(test):
     logging.info("   Flashing CPU")
+    test.apply_reset()
     test.powerup_sequence()
     test.flash(f"caravel_board/firmware_vex/{test.test_name}/{test.test_name}.hex")
     test.powerup_sequence()
-    logging.info(f"   changing VCORE voltage to {test.voltage}v")
-    test.device1v8.supply.set_voltage(test.voltage)
-    test.reset()
+    test.release_reset()
 
 def init_ios(device1_data, device2_data, device3_data):
     device1_dio_map = {
@@ -164,7 +163,7 @@ def run_test(test):
         elif phase > 0 and pulse_count == 1:
             rst = rst + 1
             end_pulses = end_pulses + 1
-        else:
+        elif pulse_count > 1:
             end_pulses = 0
             if rst < 2:
                 channel = (pulse_count - 2) + (9 * rst)
@@ -216,7 +215,7 @@ def run_test_h(test):
             rst = rst + 1
             phase = phase + 1
             end_pulses = end_pulses + 1
-        else:
+        elif pulse_count > 1:
             end_pulses = 0
             if rst == 0:
                 channel = 37 - (pulse_count - 2)
@@ -224,7 +223,12 @@ def run_test_h(test):
                 channel = 28 - (pulse_count - 2)
             phase = phase + 1
             print(f"start sending pulses to gpio[{channel}]")
-            io = test.device3v3.dio_map[channel]
+            if channel > 13 and channel < 22:
+                io = test.deviced.dio_map[channel]
+            elif channel > 21:
+                io = test.device3v3.dio_map[channel]
+            else:
+                io = test.device1v8.dio_map[channel]
             state = "HI"
             timeout = time.time() + 0.5
             accurate_delay(12.5)
@@ -250,13 +254,13 @@ def run_test_h(test):
 def change_config(channel, gpio_l, gpio_h, part, voltage, start_time):
     end_time = (time.time() - start_time) / 60.
     if channel > 18:
-        if gpio_h.get_config(channel - 19) == "H_INDEPENDENT":
-            gpio_h.set_config(channel - 19, "H_DEPENDENT")
-            gpio_h.increment_fail_count(channel - 19)
-        elif gpio_h.get_config(channel - 19) == "H_DEPENDENT":
-            gpio_h.set_config(channel - 19, "H_INDEPENDENT")
-            gpio_h.increment_fail_count(channel - 19)
-        if gpio_h.get_fail_count(channel - 19) > 1:
+        if gpio_h.get_config(37 - channel) == "H_INDEPENDENT":
+            gpio_h.set_config(37 - channel, "H_DEPENDENT")
+            gpio_h.increment_fail_count(37 - channel)
+        elif gpio_h.get_config(37 - channel) == "H_DEPENDENT":
+            gpio_h.set_config(37 - channel, "H_INDEPENDENT")
+            gpio_h.increment_fail_count(37 - channel)
+        if gpio_h.get_fail_count(37 - channel) > 1:
             gpio_h.gpio_failed()
             print(f"gpio[{channel}] not working")
             print("Final configuration for gpio_l: ", gpio_l.array)
@@ -267,12 +271,11 @@ def change_config(channel, gpio_l, gpio_h, part, voltage, start_time):
             f.write(f"voltage: {voltage}\n")
             f.write("Final configuration: \n")
             f.write(f"configuration failed in gpio[{channel}], anything after is invalid\n")
-            f.write(f"gpio low array of 0 to 18: {gpio_l.array}\n")
-            f.write(f"gpio low array of 37 to 19: {gpio_h.array}\n")
-            f.write(f"Execution took {end_time} minutes\n")
+            f.write(f"gpio from 37 to 19: {gpio_h.array}\n")
+            f.write(f"Execution time: {end_time} minutes\n")
             f.close()
             test.turn_off_devices()
-
+        
     else:
         if gpio_l.get_config(channel) == "H_INDEPENDENT":
             gpio_l.set_config(channel, "H_DEPENDENT")
@@ -291,13 +294,13 @@ def change_config(channel, gpio_l, gpio_h, part, voltage, start_time):
             f.write(f"voltage: {voltage}\n")
             f.write("Final configuration: \n")
             f.write(f"configuration failed in gpio[{channel}], anything after is invalid\n")
-            f.write(f"gpio low array of 0 to 18: {gpio_l.array}\n")
-            f.write(f"Execution took {end_time} minutes\n")
+            f.write(f"gpio from 0 to 18: {gpio_l.array}\n")
+            f.write(f"Execution time: {end_time} minutes\n")
             f.close()
             test.turn_off_devices()
     return gpio_l, gpio_h
 
-def choose_test(test, test_name, gpio_l, gpio_h, start_time, high=False):
+def choose_test(test, test_name, gpio_l, gpio_h, start_time, part, chain="low", high=False):
     test_result = False
     while not test_result:
         test.test_name = test_name
@@ -312,11 +315,30 @@ def choose_test(test, test_name, gpio_l, gpio_h, start_time, high=False):
             print("Test Passed!")
             print("Final configuration for gpio_l: ", gpio_l.array)
             print("Final configuration for gpio_h: ", gpio_h.array)
+            test_passed(test, start_time, part, gpio_l, gpio_h, chain)
         else:
             if gpio_h.get_gpio_failed() is False and gpio_l.get_gpio_failed() is False:
-                gpio_l, gpio_h = change_config(channel_failed, gpio_l, gpio_h, args.part, test.voltage, start_time)
+                gpio_l, gpio_h = change_config(channel_failed, gpio_l, gpio_h, part, test.voltage, start_time)
             else:
                 break
+
+
+def test_passed(test, start_time, part, gpio_l, gpio_h, chain):
+    end_time = (time.time() - start_time) / 60.
+    
+    print("Configuring the ios took: ", end_time, "minutes")
+
+    f = open(f"{part}.txt", 'a')
+    f.write(f"\n\nPart: {part}\n")
+    f.write(f"voltage: {test.voltage}\n")
+    f.write(f"configuration of {chain} chain was successful\n")
+    f.write(f"Final configuration of {chain} chain: \n")
+    if chain == "low":
+        f.write(f"gpio from 0 to 18: {gpio_l.array}\n")
+    elif chain == "high":
+        f.write(f"gpio from 37 to 19: {gpio_h.array}\n")
+    f.write(f"Execution time: {end_time} minutes\n")
+    f.close() 
 
 
 
@@ -345,7 +367,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
-
+    
     # open multiple devices
     devices = device.open_devices()
     # connect devices using hardcoded serial numbers
@@ -364,32 +386,36 @@ if __name__ == "__main__":
     gpio_h = Gpio()
 
     start_time = time.time()
+    start_program = time.time()
+    part = args.part
+
+    if os.path.exists(f"./{part}.txt"):
+        os.remove(f"./{part}.txt")
 
     if args.voltage:
         test.voltage = float(args.voltage)
-        test.change_voltage()
 
     if args.gpio_output:
         if args.voltage_all:
             for i in range(0, 7):
+                start_time = time.time()
                 gpio_l = Gpio()
                 gpio_h = Gpio()
                 test.voltage = 1.8 - i * 0.05
-                test.change_voltage()
-                choose_test(test, "config_io_o", gpio_l, gpio_h, start_time)
+                choose_test(test, "config_io_o", gpio_l, gpio_h, start_time, part=part)
         else:
-            choose_test(test, "config_io_o", gpio_l, gpio_h, start_time)
+            choose_test(test, "config_io_o", gpio_l, gpio_h, start_time, part=part)
 
     if args.gpio_output_all:
         if args.voltage_all:
             for i in range(0, 7):
+                start_time = time.time()
                 gpio_l = Gpio()
                 gpio_h = Gpio()
                 test.voltage = 1.8 - i * 0.05
-                test.change_voltage()
-                choose_test(test, "config_io_o_all", gpio_l, gpio_h, start_time)
+                choose_test(test, "config_io_o_all", gpio_l, gpio_h, start_time, part)
         else:
-            choose_test(test, "config_io_o_all", gpio_l, gpio_h, start_time)
+            choose_test(test, "config_io_o_all", gpio_l, gpio_h, start_time, part)
 
     if args.gpio_output_h:
         if args.voltage_all:
@@ -397,48 +423,39 @@ if __name__ == "__main__":
                 gpio_l = Gpio()
                 gpio_h = Gpio()
                 test.voltage = 1.8 - i * 0.05
-                test.change_voltage()
-                choose_test(test, "config_io_o_h", gpio_l, gpio_h, start_time, True)
+                choose_test(test, "config_io_o_h", gpio_l, gpio_h, start_time, part, "high", True)
         else:
-            choose_test(test, "config_io_o_h", gpio_l, gpio_h, start_time, True)
+            choose_test(test, "config_io_o_h", gpio_l, gpio_h, start_time, part, "high", True)
 
-
+    
     if args.chain:
         if args.voltage_all:
             for i in range(0, 7):
+                start_time = time.time()
                 gpio_l = Gpio()
                 gpio_h = Gpio()
                 test.voltage = 1.8 - i * 0.05
-                test.change_voltage()
-                choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time)
+                choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
         else:
-            choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time)
+            choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
+        
+        gpio_l = Gpio()
+        gpio_h = Gpio()
+        start_time = time.time()
 
         if args.voltage_all:
             for i in range(0, 7):
+                start_time = time.time()
                 gpio_l = Gpio()
                 gpio_h = Gpio()
                 test.voltage = 1.8 - i * 0.05
-                test.change_voltage()
-                choose_test(test, "config_io_o_h", gpio_l, gpio_h, start_time, True)
+                choose_test(test, "config_io_o_h", gpio_l, gpio_h, start_time, part, "high", True)
         else:
-            choose_test(test, "config_io_o_h", gpio_l, gpio_h, start_time, True)
+            choose_test(test, "config_io_o_h", gpio_l, gpio_h, start_time, part, "high", True)
 
-
-
-    end_time = (time.time() - start_time) / 60.
-
-    print("Configuring the ios took: ", end_time, "minutes")
-
-    f = open(f"{args.part}.txt", 'a')
-    f.write(f"\n\nPart: {args.part}\n")
-    f.write(f"voltage: {test.voltage}\n")
-    f.write("Final configuration: \n")
-    f.write(f"gpio high array of 0 to 18: {gpio_l.array}\n")
-    f.write(f"gpio low array of 37 to 19: {gpio_h.array}\n")
-    f.write(f"Execution took {end_time} minutes\n")
-    f.close()
-
-
+    end_time = (time.time() - start_program) / 60.
+    f = open(f"{part}.txt", 'a')
+    f.write(f"\n\nTotal Execution time: {end_time} minutes")
+    f.close() 
     test.close_devices()
     exit(0)

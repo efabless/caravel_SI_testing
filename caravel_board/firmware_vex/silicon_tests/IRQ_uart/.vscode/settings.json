@@ -1,7 +1,0 @@
-{
-    "makefile.extensionOutputFolder": "./.vscode",
-    "files.associations": {
-        "defs.h": "c",
-        "csr.h": "c"
-    }
-}

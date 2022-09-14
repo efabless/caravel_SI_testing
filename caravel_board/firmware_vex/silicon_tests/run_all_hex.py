@@ -18,6 +18,7 @@ def change_ram(str,new_str,file_path):
 dirs = [x[0] for x in os.walk(os.getcwd())]
 del dirs[0]
 file_path =f'{os.getcwd()}/../sections.lds'
+
 change_ram(" > sram"," > dff",file_path)
 # print(f'{os.getcwd()}/../sections.lds')
 for dir in dirs:
@@ -27,9 +28,17 @@ for dir in dirs:
     if testname == "common": 
         continue
     os.system(f'make clean')
-    # os.system(f'make hex')
-    # os.rename(f'{testname}.hex',f'{testname}_dff.hex')
+    os.system(f'make hex')
+    os.rename(f'{testname}.hex',f'{testname}_dff.hex')
 
 change_ram(" > dff"," > sram",file_path)
+for dir in dirs:
+    os.chdir(dir)
+    testname = os.path.basename(dir)
+    print(testname)
+    if testname == "common": 
+        continue
+    os.system(f'make hex')
+    os.rename(f'{testname}.hex',f'{testname}_sram.hex')
 
 

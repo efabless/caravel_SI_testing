@@ -58,7 +58,7 @@ def init_ios(device1_data, device2_data, device3_data):
 def process_data(test):
     phase = 0
     for passing in test.passing_criteria:
-        pulse_count = test.receive_packet()
+        pulse_count = test.receive_packet(250)
         print(pulse_count)
         if pulse_count == passing:
             print(f"pass phase {phase}")

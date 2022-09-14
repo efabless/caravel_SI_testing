@@ -33,7 +33,7 @@ class Test:
         self.passing_criteria = passing_criteria
 
 
-    def receive_packet(self):
+    def receive_packet(self, pulse_width=25):
         """recieves packet using the wire protocol, uses the gpio_mgmt I/O
 
         Returns:
@@ -45,9 +45,9 @@ class Test:
         while self.gpio_mgmt.get_value() != False:
             pass
         state = "LOW"
-        accurate_delay(12.5)
+        accurate_delay(pulse_width/2.)
         for i in range(0, 30):
-            accurate_delay(25)
+            accurate_delay(pulse_width)
             x = self.gpio_mgmt.get_value()
             if state == "LOW":
                 if x == True:

@@ -120,9 +120,9 @@ class Test:
         logging.info("   Flashing CPU")
         self.powerup_sequence()
         if self.sram == 1:
-            self.flash(f"caravel_board/hex_files/sram/{self.test_name}.hex")
+            self.flash(f"caravel_board/firmware_vex/silicon_tests/{self.test_name}/{self.test_name}_sram.hex")
         else:
-            self.flash(f"caravel_board/hex_files/dffram/{self.test_name}.hex")
+            self.flash(f"caravel_board/firmware_vex/silicon_tests/{self.test_name}/{self.test_name}_dff.hex")
         self.powerup_sequence()
         logging.info(f"   changing VCORE voltage to {self.voltage}v")
         self.device1v8.supply.set_voltage(self.voltage)

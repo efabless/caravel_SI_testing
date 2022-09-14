@@ -41,6 +41,7 @@ extern uint32_t flashio_worker_end;
 #define reg_uart_data   (*(volatile uint32_t*) CSR_UART_RXTX_ADDR)
 #define reg_uart_txfull   (*(volatile uint32_t*) CSR_UART_TXFULL_ADDR)
 #define reg_uart_enable (*(volatile uint32_t*) CSR_UART_ENABLED_OUT_ADDR)
+#define reg_uart_irq_en    (*(volatile uint32_t*) CSR_UART_EV_ENABLE_ADDR)
 
 // DEBUG (0x2000_0000)
 //#define reg_uart_clkdiv (*(volatile uint32_t*)0x20000000)
@@ -168,10 +169,11 @@ extern uint32_t flashio_worker_end;
 #define FLASH_ENABLE		0x80000000
 
 // Counter-Timer 0 Configuration
-#define reg_timer0_config (*(volatile uint32_t*) CSR_TIMER0_EN_ADDR)
+#define reg_timer0_config (*(volatile uint32_t*) CSR_TIMER0_EN_ADDR) // this is enable not config
 #define reg_timer0_update  (*(volatile uint32_t*) CSR_TIMER0_UPDATE_VALUE_ADDR)
 #define reg_timer0_value  (*(volatile uint32_t*) CSR_TIMER0_VALUE_ADDR)
 #define reg_timer0_data   (*(volatile uint32_t*) CSR_TIMER0_LOAD_ADDR)
+#define reg_timer0_data_periodic  (*(volatile uint32_t*) CSR_TIMER0_RELOAD_ADDR)
 #define reg_timer0_irq_en   (*(volatile uint32_t*) CSR_TIMER0_EV_ENABLE_ADDR)
 
 // Bit fields for Counter-timer configuration
@@ -221,6 +223,13 @@ extern uint32_t flashio_worker_end;
 // Bit fields for reg_irq_source
 #define IRQ7_SOURCE 0x01
 #define IRQ8_SOURCE 0x02
+// Added IRQ bit enable
+#define reg_user0_irq_en   (*(volatile uint32_t*) CSR_USER_IRQ_0_EV_ENABLE_ADDR)
+#define reg_user1_irq_en   (*(volatile uint32_t*) CSR_USER_IRQ_1_EV_ENABLE_ADDR)
+#define reg_user2_irq_en   (*(volatile uint32_t*) CSR_USER_IRQ_2_EV_ENABLE_ADDR)
+#define reg_user3_irq_en   (*(volatile uint32_t*) CSR_USER_IRQ_3_EV_ENABLE_ADDR)
+#define reg_user4_irq_en   (*(volatile uint32_t*) CSR_USER_IRQ_4_EV_ENABLE_ADDR) // mprj[7]
+#define reg_user5_irq_en   (*(volatile uint32_t*) CSR_USER_IRQ_5_EV_ENABLE_ADDR)
 
 // Individual bit fields for the GPIO pad control
 #define MGMT_ENABLE	      0x0001

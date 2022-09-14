@@ -74,12 +74,15 @@ void main()
     send_packet(1); // configuration finished
     while (1){
         send_packet(3); // send 4 pulses at all gpios 
-        reg_mprj_datal = 0xFFFFFFFF;
-        reg_mprj_datah = 0x3F;
-        count_down(PULSE_WIDTH);  
-        reg_mprj_datah = 0x0;
-        reg_mprj_datal = 0x0;  
-        count_down(PULSE_WIDTH); 
+        for ( i = 0; i < 4; i++)
+        {
+            reg_mprj_datal = 0xFFFFFFFF;
+            reg_mprj_datah = 0x3F;
+            count_down(PULSE_WIDTH);  
+            reg_mprj_datah = 0x0;
+            reg_mprj_datal = 0x0;  
+            count_down(PULSE_WIDTH); 
+        }
     }
 }
 

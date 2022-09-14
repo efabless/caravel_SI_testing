@@ -12,7 +12,7 @@ TOOLCHAIN_PREFIX=riscv64
 
 .SUFFIXES:
 
-PATTERN = cpu_bitbang_0_i
+PATTERN = cpu_bitbang_37_i
 
 hex:  ${PATTERN:=.hex}
 
@@ -22,7 +22,7 @@ hex:  ${PATTERN:=.hex}
 %.elf: %.c ../../sections.lds ../../crt0_vex.S ../../gpio_config/gpio_config_data.c
 	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-gcc -I../../ -I../../generated/ -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../../sections.lds,--strip-debug -ffreestanding -nostdlib -o $@ ../../crt0_vex.S ../../isr.c ../../gpio_program.c $<
 
-	${TOOLCHAIN_PATH}riscv32-unknown-linux-gnu-objdump -s  cpu_bitbang_0_i.elf > cpu_bitbang_0_i.lst
+	${TOOLCHAIN_PATH}riscv32-unknown-linux-gnu-objdump -s  cpu_bitbang_37_i.elf > cpu_bitbang_37_i.lst
 
 %.hex: %.elf
 	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-objcopy -O verilog $< $@
@@ -34,12 +34,12 @@ hex:  ${PATTERN:=.hex}
 client: client.c
 	gcc client.c -o client
 
-flash: cpu_bitbang_0_i.hex
-	python3 ../util/caravel_hkflash.py cpu_bitbang_0_i.hex
+flash: cpu_bitbang_37_i.hex
+	python3 ../util/caravel_hkflash.py cpu_bitbang_37_i.hex
 	python3 ../util/caravel_hkstop.py
 
-flash2: cpu_bitbang_0_i.hex
-	python3 ../util/caravel_flash.py cpu_bitbang_0_i.hex
+flash2: cpu_bitbang_37_i.hex
+	python3 ../util/caravel_flash.py cpu_bitbang_37_i.hex
 
 # ---- Clean ----
 

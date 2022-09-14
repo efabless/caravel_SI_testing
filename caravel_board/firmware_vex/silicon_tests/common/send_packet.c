@@ -1,4 +1,4 @@
-#define  PULSE_WIDTH   250000
+#define  PULSE_WIDTH   5000000
  
 
 void count_down(const int d)

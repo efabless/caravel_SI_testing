@@ -25,7 +25,7 @@ for dir in dirs:
     os.chdir(dir)
     testname = os.path.basename(dir)
     print(testname)
-    if testname == "common": 
+    if testname in ["common", "mem_stress_dff"]:
         continue
     os.system(f'make clean')
     os.system(f'make hex')
@@ -36,7 +36,7 @@ for dir in dirs:
     os.chdir(dir)
     testname = os.path.basename(dir)
     print(testname)
-    if testname == "common": 
+    if testname in ["common", "mem_stress_sram"]: 
         continue
     os.system(f'make hex')
     os.rename(f'{testname}.hex',f'{testname}_sram.hex')

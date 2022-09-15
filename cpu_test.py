@@ -291,14 +291,16 @@ if __name__ == "__main__":
                 run_test(test, writer, False)
         if args.mem_stress:
             test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
-            arr = [100, 200, 400, 600, 1200, 1600]
-            for i in arr:
-                if args.voltage_all:
-                    test.sram = 1
-                    test.test_name = f"mem_stress_{i}"
-                    run_test(test, writer, True)
-                else:
-                    run_test(test, writer, False)
+            test.test_name = f"mem_stress_sram"
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
+            test.test_name = f"mem_stress_dff"
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
         if args.irq_timer:
             test.test_name = "IRQ_timer"
             test.passing_criteria = [1, 5, 3, 3, 3]
@@ -343,26 +345,43 @@ if __name__ == "__main__":
                 run_test(test, writer, False, True,  36)
 
         if args.all:
-            # test.passing_criteria = [1, 2, 3, 4, 5, 1, 1, 1]
-            # test.test_name = "cpu_stress"
-            # run_test(test, writer)
-            # test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
-            # arr = [100, 200, 400, 600, 1200, 1600]
-            # for i in arr:
-            #     test.sram = 1
-            #     test.test_name = f"mem_stress_{i}"
-            #     run_test(test, writer)
+            test.passing_criteria = [1, 2, 3, 4, 5, 1, 1, 1]
+            test.test_name = "cpu_stress"
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
+            test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
+            test.test_name = f"mem_stress_sram"
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
+            test.test_name = f"mem_stress_dff"
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
             test.passing_criteria = [1, 5, 3, 3, 3]
             test.test_name = "IRQ_timer"
-            run_test(test, writer)
-            test.passing_criteria = [1, 5, 3, 3, 3]
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
             test.test_name = "timer0_oneshot"
-            run_test(test, writer)
-            test.passing_criteria = [1, 5, 3, 3, 3]
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
             test.test_name = "IRQ_uart"
-            run_test(test, writer)
-            test.passing_criteria = [1, 5, 3, 3, 3]
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
             test.test_name = "timer0_periodic"
-            run_test(test, writer)
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
 
     test.close_devices()

@@ -59,7 +59,6 @@ def process_data(test):
     phase = 0
     for passing in test.passing_criteria:
         pulse_count = test.receive_packet(250)
-        print(pulse_count)
         if pulse_count == passing:
             print(f"pass phase {phase}")
             phase = phase + 1
@@ -307,21 +306,21 @@ if __name__ == "__main__":
             else:
                 run_test(test, writer, False)
         if args.timer0_oneshot:
-            test.passing_criteria = [1, 5, 7, 3, 3, 3]
+            test.passing_criteria = [1, 5, 3, 3, 3]
             test.test_name = "timer0_oneshot"
             if args.voltage_all:
                 run_test(test, writer, True)
             else:
                 run_test(test, writer, False)
         if args.irq_uart:
-            test.passing_criteria = [1, 5, 7, 3, 3, 3]
+            test.passing_criteria = [1, 5, 3, 3, 3]
             test.test_name = "IRQ_uart"
             if args.voltage_all:
                 run_test(test, writer, True)
             else:
                 run_test(test, writer, False)
         if args.timer0_periodic:
-            test.passing_criteria = [1, 5, 7, 3, 3, 3]
+            test.passing_criteria = [1, 5, 3, 3, 3]
             test.test_name = "timer0_periodic"
             if args.voltage_all:
                 run_test(test, writer, True)

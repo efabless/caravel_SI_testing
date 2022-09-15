@@ -59,6 +59,7 @@ def process_data(test):
     phase = 0
     for passing in test.passing_criteria:
         pulse_count = test.receive_packet(250)
+        print(pulse_count)
         if pulse_count == passing:
             print(f"pass phase {phase}")
             phase = phase + 1

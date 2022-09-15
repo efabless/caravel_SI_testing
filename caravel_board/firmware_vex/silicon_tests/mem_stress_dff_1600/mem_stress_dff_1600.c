@@ -18,7 +18,7 @@
       send packet with size = 7
    
 */
-#define BYTE_SIZE 1200
+#define BYTE_SIZE 1600
 #define SHORT_SIZE BYTE_SIZE/2
 #define INT_SIZE BYTE_SIZE/4
 void main()

@@ -12,7 +12,7 @@ TOOLCHAIN_PREFIX=riscv64
 
 .SUFFIXES:
 
-PATTERN = mem_stress_dff
+PATTERN = mem_stress_sram_200
 
 hex:  ${PATTERN:=.hex}
 
@@ -22,7 +22,7 @@ hex:  ${PATTERN:=.hex}
 %.elf: %.c sections.lds ../../crt0_vex.S ../../gpio_config/gpio_config_data.c
 	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-gcc -I../../ -I../../generated/ -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,sections.lds,--strip-debug -ffreestanding -nostdlib -o $@ ../../crt0_vex.S ../../isr.c ../../gpio_program.c $<
 
-	${TOOLCHAIN_PATH}riscv32-unknown-linux-gnu-objdump -s  mem_stress_dff.elf > mem_stress_dff.lst
+	${TOOLCHAIN_PATH}riscv32-unknown-linux-gnu-objdump -s  mem_stress_sram_200.elf > mem_stress_sram_200.lst
 
 %.hex: %.elf
 	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-objcopy -O verilog $< $@
@@ -34,12 +34,12 @@ hex:  ${PATTERN:=.hex}
 client: client.c
 	gcc client.c -o client
 
-flash: mem_stress_dff.hex
-	python3 ../util/caravel_hkflash.py mem_stress_dff.hex
+flash: mem_stress_sram_200.hex
+	python3 ../util/caravel_hkflash.py mem_stress_sram_200.hex
 	python3 ../util/caravel_hkstop.py
 
-flash2: mem_stress_dff.hex
-	python3 ../util/caravel_flash.py mem_stress_dff.hex
+flash2: mem_stress_sram_200.hex
+	python3 ../util/caravel_flash.py mem_stress_sram_200.hex
 
 # ---- Clean ----
 

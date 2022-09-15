@@ -30,6 +30,7 @@ SECTIONS
 		KEEP(*(.text.isr))
 
 		*(.text .stub .text.* .gnu.linkonce.t.*)
+		. = ALIGN(256);
 		_etext = .;
 	} > flash
 

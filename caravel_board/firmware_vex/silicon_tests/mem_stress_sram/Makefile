@@ -19,8 +19,8 @@ hex:  ${PATTERN:=.hex}
 ../../gpio_config/gpio_config_data.c: ../../gpio_config/gpio_config_def.py
 	cd ../../gpio_config; python3 ../../gpio_config/gpio_config_builder.py
 
-%.elf: %.c ../../sections.lds ../../crt0_vex.S ../../gpio_config/gpio_config_data.c
-	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-gcc -I../../ -I../../generated/ -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../../sections.lds,--strip-debug -ffreestanding -nostdlib -o $@ ../../crt0_vex.S ../../isr.c ../../gpio_program.c $<
+%.elf: %.c sections.lds ../../crt0_vex.S ../../gpio_config/gpio_config_data.c
+	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-gcc -I../../ -I../../generated/ -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,sections.lds,--strip-debug -ffreestanding -nostdlib -o $@ ../../crt0_vex.S ../../isr.c ../../gpio_program.c $<
 
 	${TOOLCHAIN_PATH}riscv32-unknown-linux-gnu-objdump -s  mem_stress_sram.elf > mem_stress_sram.lst
 

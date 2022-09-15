@@ -319,7 +319,7 @@
         send packet size = 3 
         send packet size = 3  
 
-## mem_dff
+## mem_dff_test
 ### Test access all bytes of dffmemory by using openRam memory as cpu initializer 
     @ start of test 
         send packet with size = 1
@@ -330,7 +330,7 @@
         send packet with size = 3
         send packet with size = 3
 
-## sram_test
+## mem_sram_test
 ### Test access all bytes of openRam by using dffmemory memory as cpu initializer 
     @ start of test 
         send packet with size = 1

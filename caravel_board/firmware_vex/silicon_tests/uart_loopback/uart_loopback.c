@@ -21,7 +21,7 @@
 #include "bitbang.c"
 
 void wait_for_char(char *c){
-    int time_out = 10000;
+    int time_out = 1000000;
     bool is_found = false;
     for (int i = 0; i < time_out; i++)
     {

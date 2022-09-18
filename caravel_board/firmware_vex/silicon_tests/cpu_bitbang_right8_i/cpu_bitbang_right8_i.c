@@ -138,7 +138,7 @@
 */
 
 void wait_for_pattern(int pattern){
-    int time_out = 100;
+    int time_out = 1000000;
     bool is_found = false;
     // waiting for  
     send_packet(5); // waiting for input

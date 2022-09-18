@@ -62,7 +62,7 @@ void main(){
     old_value = reg_timer0_value;
     // value us decrementing until it reachs zero
     bool is_pass = false;
-    int timeout = 4000; 
+    int timeout = 400000; 
     for (int i = 0; i < timeout; i++){
         reg_timer0_update = 1; // update reg_timer0_value with new counter value
         value = reg_timer0_value;

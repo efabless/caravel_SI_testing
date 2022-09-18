@@ -6,7 +6,7 @@
       send packet with size = 1
    @ error reading 
       send packet with size = 9
-   @ pass 64 bytes 
+   @ pass 1 bytes 
       send packet with size = 5
    @ test finish 
       send packet with size = 3
@@ -34,11 +34,9 @@ void main()
    for (int i = 0; i < openram_size; i++){
     unsigned char data = (i + 7)*13;
     if (data != *(openram_start_address++)){
-        send_packet(9);
+        send_packet(9); //error
     }
-    if (i%64 == 0 && i != 0){
-       send_packet(5);
-    }
+    send_packet(5); // pass 1 byte
    }
 
 

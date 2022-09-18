@@ -22,7 +22,8 @@
 
 #include <defs.h>
 #include "send_packet.c"
-#include "bitbang.c"
+// #include "bitbang.c"
+#include "../../gpio_config/gpio_config_io.c"
 
 /*
 Testing timer interrupts 
@@ -56,19 +57,20 @@ void main(){
 
     // setting bit 7 as input 
     reg_mprj_io_7 = GPIO_MODE_MGMT_STD_INPUT_NOPULL;
+    gpio_config_io();
     //  bitbang approach
-    if(1){
-        clear_registers();	
-        clock_in_right_o_left_i_standard(0); // 7	and 30	
-        clock_in_right_o_left_i_standard(0); // 6	and 31	
-        clock_in_right_o_left_i_standard(0); // 5	and 32	
-        clock_in_right_o_left_i_standard(0); // 4	and 33	
-        clock_in_right_o_left_i_standard(0); // 3	and 34	
-        clock_in_right_o_left_i_standard(0); // 2	and 35	
-        clock_in_right_o_left_i_standard(0); // 1	and 36	
-        clock_in_right_o_left_i_standard(0); // 0	and 37	
-        load();		         // 0   and 37 and load
-    }
+    // if(1){
+    //     clear_registers();	
+    //     clock_in_right_o_left_i_standard(0); // 7	and 30	
+    //     clock_in_right_o_left_i_standard(0); // 6	and 31	
+    //     clock_in_right_o_left_i_standard(0); // 5	and 32	
+    //     clock_in_right_o_left_i_standard(0); // 4	and 33	
+    //     clock_in_right_o_left_i_standard(0); // 3	and 34	
+    //     clock_in_right_o_left_i_standard(0); // 2	and 35	
+    //     clock_in_right_o_left_i_standard(0); // 1	and 36	
+    //     clock_in_right_o_left_i_standard(0); // 0	and 37	
+    //     load();		         // 0   and 37 and load
+    // }
 
     // automatic bitbang approach
     if(0){

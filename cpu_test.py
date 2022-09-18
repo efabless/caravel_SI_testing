@@ -89,7 +89,7 @@ def process_mem(test):
             print(f"start test")
         if pulse_count == 5:
             print(f"passed mem size {mem_size}")
-            mem_size = mem_size + 8
+            mem_size = mem_size + 1
         if pulse_count == 3:
             if phase > 1:
                 print("Test finished")

@@ -59,7 +59,6 @@ def process_data(test):
     phase = 0
     for passing in test.passing_criteria:
         pulse_count = test.receive_packet(250)
-        print(pulse_count)
         if pulse_count == passing:
             print(f"pass phase {phase}")
             phase = phase + 1
@@ -81,6 +80,32 @@ def process_data(test):
             print(f"{test.test_name} test Passed with {test.voltage}v supply on DFFRAM!")
             return True
 
+def process_mem(test):
+    phase = 0
+    mem_size = 64
+    while True:
+        pulse_count = test.receive_packet(250)
+        if pulse_count == 1:
+            print(f"start test")
+        if pulse_count == 5:
+            print(f"passed mem size {mem_size}")
+            mem_size = mem_size * 2
+        if pulse_count == 3:
+            if phase > 1:
+                print("Test finished")
+                return True
+            else:
+                phase = phase + 1
+                print(f"end test")
+
+        if pulse_count == 9:
+            if test.sram == 1:
+                print(f"{test.test_name} test failed with {test.voltage}v supply on OPENram!")
+                return False
+            else:
+                print(f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM!")
+                return False
+            break
 
 def process_io(test, channel):
     phase = 0
@@ -153,7 +178,7 @@ def process_io(test, channel):
 
 
 def exec_tests(
-    test, fflash, channel, io
+    test, fflash, channel, io, mem
 ):
     test.powerup_sequence()
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
@@ -166,11 +191,13 @@ def exec_tests(
         return process_io(
             test, channel
         )
+    elif mem:
+        return process_mem(test)
     else:
         return process_data(test)
 
 
-def exec_test(test, writer, io, channel, automatic_voltage):
+def exec_test(test, writer, io, channel, automatic_voltage, mem):
     fflash = 1
     if automatic_voltage:
         for i in range(0, 7):
@@ -180,6 +207,7 @@ def exec_test(test, writer, io, channel, automatic_voltage):
                 fflash,
                 channel,
                 io,
+                mem,
             )
             if test.sram == 1:
                 arr = [test.test_name, "OPENram", test.voltage, results]
@@ -202,17 +230,17 @@ def exec_test(test, writer, io, channel, automatic_voltage):
         writer.writerow(arr)
         fflash = 0
 
-def run_test(test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None):
+def run_test(test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None, mem=False):
     logging.info(f"  Running {test.test_name} test")
     if sram == None:
         test.sram = 1
-        exec_test(test, writer, io, channel, automatic_voltage)
+        exec_test(test, writer, io, channel, automatic_voltage, mem)
         test.sram = 0
     elif sram == "sram":
         test.sram = 1
     elif sram == "dff":
         test.sram = 0
-    exec_test(test, writer, io, channel, automatic_voltage)
+    exec_test(test, writer, io, channel, automatic_voltage, mem)
 
 
 if __name__ == "__main__":
@@ -309,14 +337,14 @@ if __name__ == "__main__":
             test.passing_criteria = [1, 3, 3, 3]
             test.test_name = f"mem_dff_test"
             if args.voltage_all:
-                run_test(test, writer, True, sram="dff")
+                run_test(test, writer, True, sram="dff", mem=True)
             else:
-                run_test(test, writer, False, sram="dff")
+                run_test(test, writer, False, sram="dff", mem=True)
             test.test_name = f"mem_sram_test"
             if args.voltage_all:
-                run_test(test, writer, True, sram="sram")
+                run_test(test, writer, True, sram="sram", mem=True)
             else:
-                run_test(test, writer, False, sram="sram")
+                run_test(test, writer, False, sram="sram", mem=True)
         if args.mem_stress:
             test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
             arr = [100, 200, 400, 600, 1200, 1600]
@@ -398,14 +426,14 @@ if __name__ == "__main__":
             test.passing_criteria = [1, 3, 3, 3]
             test.test_name = f"mem_dff_test"
             if args.voltage_all:
-                run_test(test, writer, True)
+                run_test(test, writer, True, sram="dff", mem=True)
             else:
-                run_test(test, writer, False)
+                run_test(test, writer, False, sram="dff", mem=True)
             test.test_name = f"mem_sram_test"
             if args.voltage_all:
-                run_test(test, writer, True)
+                run_test(test, writer, True, sram="sram", mem=True)
             else:
-                run_test(test, writer, False)
+                run_test(test, writer, False, sram="sram", mem=True)
             test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
             arr = [100, 200, 400, 600, 1200, 1600]
             for i in arr:

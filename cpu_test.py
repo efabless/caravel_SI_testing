@@ -222,6 +222,7 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem):
             fflash,
             channel,
             io,
+            mem,
         )
         if test.sram == 1:
             arr = [test.test_name, "OPENram", test.voltage, results]

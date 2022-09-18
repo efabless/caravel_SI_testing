@@ -30,7 +30,7 @@
 */
 
 void wait_for_pattern(uint32_t pattern){
-    int time_out = 10000;
+    int time_out = 1000000;
     bool is_found = false;
     uint32_t mask = 0x1;
     uint32_t data ;

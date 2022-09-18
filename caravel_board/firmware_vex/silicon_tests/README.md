@@ -325,7 +325,7 @@
         send packet with size = 1
     @ error reading 
         send packet with size = 9
-    @ pass 64 bytes 
+    @ pass 1 bytes 
       send packet with size = 5
     @ test finish 
         send packet with size = 3
@@ -338,7 +338,7 @@
         send packet with size = 1
     @ error reading 
         send packet with size = 9
-    @ pass 64 bytes 
+    @ pass 1 bytes 
       send packet with size = 5
     @ test finish 
         send packet with size = 3

@@ -222,6 +222,9 @@ if __name__ == "__main__":
         "-ms", "--mem_stress", help="cpu stress test", action="store_true"
     )
     parser.add_argument(
+        "-mt", "--mem_test", help="cpu stress test", action="store_true"
+    )
+    parser.add_argument(
         "-it", "--irq_timer", help="IRQ timer test", action="store_true"
     )
     parser.add_argument(
@@ -289,18 +292,32 @@ if __name__ == "__main__":
                 run_test(test, writer, True)
             else:
                 run_test(test, writer, False)
+        if args.blink:
+            test.test_name = "blink"
+            test.passing_criteria = [1, 1, 1, 1]
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
+        if args.mem_test:
+            test.passing_criteria = [1, 3, 3, 3]
+            test.test_name = f"mem_dff_test"
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
+            test.test_name = f"mem_sram_test"
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
         if args.mem_stress:
             test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
-            test.test_name = f"mem_stress_sram"
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-            test.test_name = f"mem_stress_dff"
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
+            arr = [100, 200, 400, 600, 1200, 1600]
+            for i in arr:
+                test.sram = 1
+                test.test_name = f"mem_stress_{i}"
+                run_test(test, writer)
         if args.irq_timer:
             test.test_name = "IRQ_timer"
             test.passing_criteria = [1, 5, 3, 3, 3]
@@ -383,5 +400,22 @@ if __name__ == "__main__":
                 run_test(test, writer, True)
             else:
                 run_test(test, writer, False)
+            test.passing_criteria = [1, 3, 3, 3]
+            test.test_name = f"mem_dff_test"
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
+            test.test_name = f"mem_sram_test"
+            if args.voltage_all:
+                run_test(test, writer, True)
+            else:
+                run_test(test, writer, False)
+            test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
+            arr = [100, 200, 400, 600, 1200, 1600]
+            for i in arr:
+                test.sram = 1
+                test.test_name = f"mem_stress_{i}"
+                run_test(test, writer)
 
     test.close_devices()

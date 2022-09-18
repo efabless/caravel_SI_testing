@@ -36,7 +36,7 @@ void main()
     if (data != *(dff_start_address++)){
         send_packet(9);
     }
-    if (i%64 == 0){
+    if (i%64 == 0 && i != 0){
        send_packet(5);
     }
    }

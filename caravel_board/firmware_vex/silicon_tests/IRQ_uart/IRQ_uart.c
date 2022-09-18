@@ -56,7 +56,7 @@ void main(){
     flag = 0;
     reg_mprj_io_6 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_5 = 0x1803;
-    configure_mgmt_gpio();
+    gpio_config_io();
 
 	// clear_registers();	
     // clock_in_right_o_left_o_standard(0); // 6	and 31	

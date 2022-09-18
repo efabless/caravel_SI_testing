@@ -82,7 +82,7 @@ def process_data(test):
 
 def process_mem(test):
     phase = 0
-    mem_size = 8
+    mem_size = 0
     while True:
         pulse_count = test.receive_packet(250)
         if pulse_count == 1:

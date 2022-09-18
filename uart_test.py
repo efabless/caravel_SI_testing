@@ -89,6 +89,7 @@ if __name__ == "__main__":
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.change_voltage()
     test.reset()
+    test.test_name = "uart"
     test.exec_flashing()
     phase = 0
     io_pulse = 0

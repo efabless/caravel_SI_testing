@@ -100,10 +100,10 @@ def process_mem(test):
 
         if pulse_count == 9:
             if test.sram == 1:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on OPENram!")
+                print(f"{test.test_name} test failed with {test.voltage}v supply on OPENram mem size {mem_size}")
                 return False
             else:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM!")
+                print(f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM mem size {mem_size}")
                 return False
             break
 

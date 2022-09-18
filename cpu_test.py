@@ -82,14 +82,14 @@ def process_data(test):
 
 def process_mem(test):
     phase = 0
-    mem_size = 64
+    mem_size = 8
     while True:
         pulse_count = test.receive_packet(250)
         if pulse_count == 1:
             print(f"start test")
         if pulse_count == 5:
             print(f"passed mem size {mem_size}")
-            mem_size = mem_size * 2
+            mem_size = mem_size + 8
         if pulse_count == 3:
             if phase > 1:
                 print("Test finished")

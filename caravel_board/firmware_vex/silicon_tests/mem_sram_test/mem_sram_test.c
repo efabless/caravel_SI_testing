@@ -24,13 +24,13 @@ void main()
    unsigned int openram_size =  2*1024;
 
 
-   for (int i = 0; i < openram_size; i++){
+   for (unsigned int i = 0; i < openram_size; i++){
 
     unsigned char data = (i + 7)*13;
     *(openram_start_address+i) = data; 
 
    }
-   for (int i = 0; i < openram_size; i++){
+   for (unsigned int i = 0; i < openram_size; i++){
     unsigned char data = (i + 7)*13;
     if (data != *(openram_start_address+i)){
         send_packet(9); //error

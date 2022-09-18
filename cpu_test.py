@@ -374,17 +374,6 @@ if __name__ == "__main__":
                 run_test(test, writer, True)
             else:
                 run_test(test, writer, False)
-            test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
-            test.test_name = f"mem_stress_sram"
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-            test.test_name = f"mem_stress_dff"
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
             test.passing_criteria = [1, 5, 3, 3, 3]
             test.test_name = "IRQ_timer"
             if args.voltage_all:

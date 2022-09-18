@@ -24,13 +24,13 @@ void main()
    unsigned int dff_size =  1024;
 
 
-   for (int i = 0; i < dff_size; i++){
+   for (unsigned int i = 0; i < dff_size; i++){
 
     unsigned char data = (i + 7)*13;
     *(dff_start_address+i) = data; 
 
    }
-   for (int i = 0; i < dff_size; i++){
+   for (unsigned int i = 0; i < dff_size; i++){
     unsigned char data = (i + 7)*13;
     if (data != *(dff_start_address+i)){
         send_packet(9); // error

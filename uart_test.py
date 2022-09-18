@@ -94,6 +94,7 @@ if __name__ == "__main__":
     phase = 0
     io_pulse = 0
     timeout = time.time() + 30
+    test.passing_criteria = [2,5,3,3,3]
     for passing in test.passing_criteria:
         pulse_count = test.receive_packet()
         if phase == 0 and pulse_count == 2:

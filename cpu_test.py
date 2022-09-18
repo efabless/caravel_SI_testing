@@ -202,10 +202,16 @@ def exec_test(test, writer, io, channel, automatic_voltage):
         writer.writerow(arr)
         fflash = 0
 
-def run_test(test, writer, automatic_voltage, io=False, channel="gpio_mgmt"):
+def run_test(test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None):
     logging.info(f"  Running {test.test_name} test")
-    exec_test(test, writer, io, channel, automatic_voltage)
-    test.sram = 0
+    if sram == None:
+        test.sram = 1
+        exec_test(test, writer, io, channel, automatic_voltage)
+        test.sram = 0
+    elif sram == "sram":
+        test.sram = 1
+    elif sram == "dff":
+        test.sram = 0
     exec_test(test, writer, io, channel, automatic_voltage)
 
 
@@ -303,14 +309,14 @@ if __name__ == "__main__":
             test.passing_criteria = [1, 3, 3, 3]
             test.test_name = f"mem_dff_test"
             if args.voltage_all:
-                run_test(test, writer, True)
+                run_test(test, writer, True, sram="dff")
             else:
-                run_test(test, writer, False)
+                run_test(test, writer, False, sram="dff")
             test.test_name = f"mem_sram_test"
             if args.voltage_all:
-                run_test(test, writer, True)
+                run_test(test, writer, True, sram="sram")
             else:
-                run_test(test, writer, False)
+                run_test(test, writer, False, sram="sram")
         if args.mem_stress:
             test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
             arr = [100, 200, 400, 600, 1200, 1600]

@@ -257,7 +257,10 @@ if __name__ == "__main__":
         "-ms", "--mem_stress", help="cpu stress test", action="store_true"
     )
     parser.add_argument(
-        "-mt", "--mem_test", help="cpu stress test", action="store_true"
+        "-mtd", "--mem_test_dffram", help="cpu stress test", action="store_true"
+    )
+    parser.add_argument(
+        "-mts", "--mem_test_sram", help="cpu stress test", action="store_true"
     )
     parser.add_argument(
         "-it", "--irq_timer", help="IRQ timer test", action="store_true"
@@ -334,13 +337,15 @@ if __name__ == "__main__":
                 run_test(test, writer, True)
             else:
                 run_test(test, writer, False)
-        if args.mem_test:
+        if args.mem_test_dffram:
             test.passing_criteria = [1, 3, 3, 3]
             test.test_name = f"mem_dff_test"
             if args.voltage_all:
                 run_test(test, writer, True, sram="dff", mem=True)
             else:
                 run_test(test, writer, False, sram="dff", mem=True)
+        if args.mem_test_sram:
+            test.passing_criteria = [1, 3, 3, 3]
             test.test_name = f"mem_sram_test"
             if args.voltage_all:
                 run_test(test, writer, True, sram="sram", mem=True)

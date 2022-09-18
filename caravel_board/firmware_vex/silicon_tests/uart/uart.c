@@ -18,6 +18,7 @@
 #include <defs.h>
 #include <stub.c>
 #include "send_packet.c"
+#include "../../gpio_config/gpio_config_io.c"
 
 /*
 send pattern Monitor: Test UART (RTL) passed\n on UART SER_TX mprj[6]
@@ -38,6 +39,8 @@ python code should get all the data received on mprj and decode it code like the
 void main(){
     int j;
     configure_mgmt_gpio();
+    
+    gpio_config_io();
 
     reg_uart_enable = 1;
 

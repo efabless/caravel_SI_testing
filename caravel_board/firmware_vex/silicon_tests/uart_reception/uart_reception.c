@@ -18,7 +18,9 @@
 #include <defs.h>
 #include <stub.c>
 #include "send_packet.c"
-#include "bitbang.c"
+// #include "bitbang.c"
+#include "../../gpio_config/gpio_config_io.c"
+
 
 void wait_for_char(char *c){
     int time_out = 1000000;
@@ -63,16 +65,18 @@ void main()
     int j;
     reg_mprj_io_6 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_5 = 0x1803;
+    
+    gpio_config_io();
 
-	clear_registers();	
-    clock_in_right_o_left_o_standard(0); // 6	and 31	
-    clock_in_right_o_left_i_standard(0); // 5	and 32	
-    clock_in_right_o_left_i_standard(0); // 4	and 33	
-    clock_in_right_o_left_i_standard(0); // 3	and 34	
-    clock_in_right_o_left_i_standard(0); // 2	and 35	
-    clock_in_right_o_left_i_standard(0); // 1	and 36	
-    clock_in_right_o_left_i_standard(0); // 0	and 37	
-    load();		                         //  load
+	// clear_registers();	
+    // clock_in_right_o_left_o_standard(0); // 6	and 31	
+    // clock_in_right_o_left_i_standard(0); // 5	and 32	
+    // clock_in_right_o_left_i_standard(0); // 4	and 33	
+    // clock_in_right_o_left_i_standard(0); // 3	and 34	
+    // clock_in_right_o_left_i_standard(0); // 2	and 35	
+    // clock_in_right_o_left_i_standard(0); // 1	and 36	
+    // clock_in_right_o_left_i_standard(0); // 0	and 37	
+    // load();		                         //  load
 
 
     configure_mgmt_gpio();

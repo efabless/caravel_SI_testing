@@ -18,7 +18,8 @@
 #include <defs.h>
 #include <csr.h>
 #include "send_packet.c"
-#include "bitbang.c"
+// #include "bitbang.c"
+#include "../../gpio_config/gpio_config_io.c"
 // --------------------------------------------------------
 
 /*
@@ -90,17 +91,17 @@ void main()
         reg_mprj_xfer = 1;
         while (reg_mprj_xfer == 1);
     }
-
-    if(1){
-        clear_registers();		
-        clock_in_right_o_left_i_standard(0); // 5	and 32	
-        clock_in_right_o_left_i_standard(0); // 4	and 33	
-        clock_in_right_i_left_i_standard(0); // 3	and 34	
-        clock_in_right_i_left_io_standard(0); // 2	and 35	
-        clock_in_right_o_left_i_standard(0); // 1	and 36	
-        clock_in_right_o_left_i_standard(0); // 0	and 37	
-        load();		         // 0   and 37 and load
-    }
+    gpio_config_io();
+    // if(1){
+    //     clear_registers();		
+    //     clock_in_right_o_left_i_standard(0); // 5	and 32	
+    //     clock_in_right_o_left_i_standard(0); // 4	and 33	
+    //     clock_in_right_i_left_i_standard(0); // 3	and 34	
+    //     clock_in_right_i_left_io_standard(0); // 2	and 35	
+    //     clock_in_right_o_left_i_standard(0); // 1	and 36	
+    //     clock_in_right_o_left_i_standard(0); // 0	and 37	
+    //     load();		         // 0   and 37 and load
+    // }
 
 
     send_packet(1); // enable the SPI

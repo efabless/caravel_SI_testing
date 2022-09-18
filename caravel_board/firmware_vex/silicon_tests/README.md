@@ -68,6 +68,7 @@
         send packet size = 3
         send packet size = 3
         send packet size = 3
+>> all mprj as output except mprj 5 as input
 
 ## IRQ_external
 ### Test the interrupt from I/O 7
@@ -86,6 +87,7 @@
         send packet size = 3
         send packet size = 3
 **NOTE** housekeeping SPI should used to update register irq_1_inputsrc to 1 see verilog code
+>> all mprj as output except mprj 7 as input
       
 ## timer0_oneshot
 ###   Test Timer0 in oneshot mode 
@@ -233,6 +235,7 @@
     send packet with size = 3
     send packet with size = 3
 **NOTE** csb=mprj_io[33], clk=mprj_io[32], io0=mprj_io[35], io1=mprj_io[34]
+>> all mprj as output except mprj 34 as input
 ### external memory should have 
     @00000000
     6F 00 00 0B 93 01 00 00 13 02 63 57 b5 00 23 20
@@ -253,7 +256,7 @@
         send packet with size = 3
         send packet with size = 3
         send packet with size = 3
-
+>> all mprj as output
 ## uart_loopback
 ### UART loop-back test
 ### SER_TX mprj[6] and SER_RX mprj[5] should be connected
@@ -275,6 +278,7 @@
         send packet with size = 3
         send packet with size = 3
         send packet with size = 3
+>> all mprj as output except 5
 
  
 ## cpu_bitbang_#_o

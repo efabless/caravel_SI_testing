@@ -54,7 +54,6 @@ def init_ios(device1_data, device2_data, device3_data):
     return device1_dio_map, device2_dio_map, device3_dio_map
 
 
-
 def process_data(test):
     phase = 0
     for passing in test.passing_criteria:
@@ -65,24 +64,33 @@ def process_data(test):
 
         if pulse_count == 9:
             if test.sram == 1:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on OPENram!")
+                print(
+                    f"{test.test_name} test failed with {test.voltage}v supply on OPENram!"
+                )
                 return False
             else:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM!")
+                print(
+                    f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM!"
+                )
                 return False
             break
 
     if len(test.passing_criteria) == phase:
         if test.sram == 1:
-            print(f"{test.test_name} test Passed with {test.voltage}v supply on OPENram!")
+            print(
+                f"{test.test_name} test Passed with {test.voltage}v supply on OPENram!"
+            )
             return True
         else:
-            print(f"{test.test_name} test Passed with {test.voltage}v supply on DFFRAM!")
+            print(
+                f"{test.test_name} test Passed with {test.voltage}v supply on DFFRAM!"
+            )
             return True
+
 
 def process_mem(test):
     phase = 0
-    mem_size = 8
+    mem_size = 0
     while True:
         pulse_count = test.receive_packet(250)
         if pulse_count == 1:
@@ -100,12 +108,17 @@ def process_mem(test):
 
         if pulse_count == 9:
             if test.sram == 1:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on OPENram mem size {mem_size}")
+                print(
+                    f"{test.test_name} test failed with {test.voltage}v supply on OPENram mem size {mem_size}"
+                )
                 return False
             else:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM mem size {mem_size}")
+                print(
+                    f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM mem size {mem_size}"
+                )
                 return False
             break
+
 
 def process_io(test, channel):
     phase = 0
@@ -157,29 +170,34 @@ def process_io(test, channel):
 
         if pulse_count == 9:
             if test.sram == 1:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on OPENram!")
+                print(
+                    f"{test.test_name} test failed with {test.voltage}v supply on OPENram!"
+                )
                 return False
             else:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM!")
+                print(
+                    f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM!"
+                )
                 return False
             break
 
     if io_pulse == 10:
         if test.sram == 1:
-            print(f"{test.test_name} test Passed with {test.voltage}v supply on OPENram!")
+            print(
+                f"{test.test_name} test Passed with {test.voltage}v supply on OPENram!"
+            )
             return True
         else:
-            print(f"{test.test_name} test Passed with {test.voltage}v supply on DFFRAM!")
+            print(
+                f"{test.test_name} test Passed with {test.voltage}v supply on DFFRAM!"
+            )
             return True
     else:
         print("Test Failed!")
         return False
 
 
-
-def exec_tests(
-    test, fflash, channel, io, mem
-):
+def exec_tests(test, fflash, channel, io, mem):
     test.powerup_sequence()
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.change_voltage()
@@ -188,9 +206,7 @@ def exec_tests(
         test.exec_flashing()
 
     if io:
-        return process_io(
-            test, channel
-        )
+        return process_io(test, channel)
     elif mem:
         return process_mem(test)
     else:
@@ -231,7 +247,10 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem):
         writer.writerow(arr)
         fflash = 0
 
-def run_test(test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None, mem=False):
+
+def run_test(
+    test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None, mem=False
+):
     logging.info(f"  Running {test.test_name} test")
     if sram == None:
         test.sram = 1
@@ -245,206 +264,226 @@ def run_test(test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sra
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Process LVS check.")
-    parser.add_argument(
-        "-sp", "--send_packet", help="send packet test", action="store_true"
-    )
-    parser.add_argument("-b", "--blink", help="blink test", action="store_true")
-    parser.add_argument(
-        "-cs", "--cpu_stress", help="cpu stress test", action="store_true"
-    )
-    parser.add_argument(
-        "-ms", "--mem_stress", help="cpu stress test", action="store_true"
-    )
-    parser.add_argument(
-        "-mtd", "--mem_test_dffram", help="cpu stress test", action="store_true"
-    )
-    parser.add_argument(
-        "-mts", "--mem_test_sram", help="cpu stress test", action="store_true"
-    )
-    parser.add_argument(
-        "-it", "--irq_timer", help="IRQ timer test", action="store_true"
-    )
-    parser.add_argument(
-        "-to", "--timer0_oneshot", help="timer0 oneshot test", action="store_true"
-    )
-    parser.add_argument("-iu", "--irq_uart", help="irq uart test", action="store_true")
-    parser.add_argument(
-        "-tp", "--timer0_periodic", help="timer0 periodic test", action="store_true"
-    )
-    parser.add_argument(
-        "-bb37", "--cpu_bitbang_37_o", help="cpu_bitbang_37_o test", action="store_true"
-    )
-    parser.add_argument(
-        "-bb36", "--cpu_bitbang_36_o", help="cpu_bitbang_36_o test", action="store_true"
-    )
-    parser.add_argument(
-        "-va", "--voltage_all", help="automatically change test voltage", action="store_true"
-    )
-    parser.add_argument(
-        "-v", "--voltage", help="change test voltage"
-    )
-    parser.add_argument("-a", "--all", help="run all tests", action="store_true")
-    args = parser.parse_args()
+    try:
+        parser = argparse.ArgumentParser(description="Process LVS check.")
+        parser.add_argument(
+            "-sp", "--send_packet", help="send packet test", action="store_true"
+        )
+        parser.add_argument("-b", "--blink", help="blink test", action="store_true")
+        parser.add_argument(
+            "-cs", "--cpu_stress", help="cpu stress test", action="store_true"
+        )
+        parser.add_argument(
+            "-ms", "--mem_stress", help="cpu stress test", action="store_true"
+        )
+        parser.add_argument(
+            "-mtd", "--mem_test_dffram", help="cpu stress test", action="store_true"
+        )
+        parser.add_argument(
+            "-mts", "--mem_test_sram", help="cpu stress test", action="store_true"
+        )
+        parser.add_argument(
+            "-it", "--irq_timer", help="IRQ timer test", action="store_true"
+        )
+        parser.add_argument(
+            "-to", "--timer0_oneshot", help="timer0 oneshot test", action="store_true"
+        )
+        parser.add_argument(
+            "-iu", "--irq_uart", help="irq uart test", action="store_true"
+        )
+        parser.add_argument(
+            "-tp", "--timer0_periodic", help="timer0 periodic test", action="store_true"
+        )
+        parser.add_argument(
+            "-bb37",
+            "--cpu_bitbang_37_o",
+            help="cpu_bitbang_37_o test",
+            action="store_true",
+        )
+        parser.add_argument(
+            "-bb36",
+            "--cpu_bitbang_36_o",
+            help="cpu_bitbang_36_o test",
+            action="store_true",
+        )
+        parser.add_argument(
+            "-va",
+            "--voltage_all",
+            help="automatically change test voltage",
+            action="store_true",
+        )
+        parser.add_argument("-v", "--voltage", help="change test voltage")
+        parser.add_argument("-a", "--all", help="run all tests", action="store_true")
+        args = parser.parse_args()
 
-    logging.basicConfig(level=logging.INFO)
-    logging.info("  Running:  caravel.py")
-    # open multiple devices
-    devices = device.open_devices()
-    # connect devices using hardcoded serial numbers
-    device1_data, device2_data, device3_data = connect_devices(devices)
+        logging.basicConfig(level=logging.INFO)
+        logging.info("  Running:  caravel.py")
+        # open multiple devices
+        devices = device.open_devices()
+        # connect devices using hardcoded serial numbers
+        device1_data, device2_data, device3_data = connect_devices(devices)
 
-    logging.info("   Initializing I/Os for both devices")
-    # Initializing I/Os
-    device1_dio_map, device2_dio_map, device3_dio_map = init_ios(device1_data, device2_data, device3_data)
-    # Initilizing devices
-    device1 = Device(device1_data, 0, device1_dio_map)
-    device2 = Device(device2_data, 1, device2_dio_map)
-    device3 = Device(device3_data, 2, device3_dio_map)
+        logging.info("   Initializing I/Os for both devices")
+        # Initializing I/Os
+        device1_dio_map, device2_dio_map, device3_dio_map = init_ios(
+            device1_data, device2_data, device3_data
+        )
+        # Initilizing devices
+        device1 = Device(device1_data, 0, device1_dio_map)
+        device2 = Device(device2_data, 1, device2_dio_map)
+        device3 = Device(device3_data, 2, device3_dio_map)
 
-    test = Test(device1, device2, device3)
+        test = Test(device1, device2, device3)
 
-    csv_header = ["test_name", "ram", "voltage (v)", "Pass/Fail"]
-    if os.path.exists("./results.csv"):
-        os.remove("./results.csv")
+        csv_header = ["test_name", "ram", "voltage (v)", "Pass/Fail"]
+        if os.path.exists("./results.csv"):
+            os.remove("./results.csv")
 
-    with open("results.csv", "a", encoding="UTF8") as f:
-        writer = csv.writer(f)
+        with open("results.csv", "a", encoding="UTF8") as f:
+            writer = csv.writer(f)
 
-        # write the header
-        writer.writerow(csv_header)
-        if args.voltage:
-            test.voltage = float(args.voltage)
+            # write the header
+            writer.writerow(csv_header)
+            if args.voltage:
+                test.voltage = float(args.voltage)
 
-        if args.send_packet:
-            test.test_name = "send_packet"
-            test.passing_criteria = [1, 2, 3, 4, 5, 6, 7, 8]
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-        if args.cpu_stress:
-            test.test_name = "cpu_stress"
-            test.passing_criteria = [1, 2, 3, 4, 5, 1, 1, 1]
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-        if args.blink:
-            test.test_name = "blink"
-            test.passing_criteria = [1, 1, 1, 1]
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-        if args.mem_test_dffram:
-            test.passing_criteria = [1, 3, 3, 3]
-            test.test_name = f"mem_dff_test"
-            if args.voltage_all:
-                run_test(test, writer, True, sram="dff", mem=True)
-            else:
-                run_test(test, writer, False, sram="dff", mem=True)
-        if args.mem_test_sram:
-            test.passing_criteria = [1, 3, 3, 3]
-            test.test_name = f"mem_sram_test"
-            if args.voltage_all:
-                run_test(test, writer, True, sram="sram", mem=True)
-            else:
-                run_test(test, writer, False, sram="sram", mem=True)
-        if args.mem_stress:
-            test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
-            arr = [100, 200, 400, 600, 1200, 1600]
-            for i in arr:
-                test.sram = 1
-                test.test_name = f"mem_stress_{i}"
-                run_test(test, writer)
-        if args.irq_timer:
-            test.test_name = "IRQ_timer"
-            test.passing_criteria = [1, 5, 3, 3, 3]
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-        if args.timer0_oneshot:
-            test.passing_criteria = [1, 5, 3, 3, 3]
-            test.test_name = "timer0_oneshot"
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-        if args.irq_uart:
-            test.passing_criteria = [1, 5, 3, 3, 3]
-            test.test_name = "IRQ_uart"
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-        if args.timer0_periodic:
-            test.passing_criteria = [1, 5, 3, 3, 3]
-            test.test_name = "timer0_periodic"
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-        if args.cpu_bitbang_37_o:
-            test.passing_criteria = [1, 2, 5, 7, 3, 3, 3]
-            test.test_name = "cpu_bitbang_37_o"
-            if args.voltage_all:
-                run_test(test, writer, True, True, 37)
-            else:
-                run_test(test, writer, False, True,  37)
-        if args.cpu_bitbang_36_o:
-            test.passing_criteria = [1, 2, 5, 7, 3, 3, 3]
-            test.test_name = "cpu_bitbang_36_o"
-            if args.voltage_all:
-                run_test(test, writer, True, True, 36)
-            else:
-                run_test(test, writer, False, True,  36)
+            if args.send_packet:
+                test.test_name = "send_packet"
+                test.passing_criteria = [1, 2, 3, 4, 5, 6, 7, 8]
+                if args.voltage_all:
+                    run_test(test, writer, True)
+                else:
+                    run_test(test, writer, False)
+            if args.cpu_stress:
+                test.test_name = "cpu_stress"
+                test.passing_criteria = [1, 2, 3, 4, 5, 1, 1, 1]
+                if args.voltage_all:
+                    run_test(test, writer, True)
+                else:
+                    run_test(test, writer, False)
+            if args.blink:
+                test.test_name = "blink"
+                test.passing_criteria = [1, 1, 1, 1]
+                if args.voltage_all:
+                    run_test(test, writer, True)
+                else:
+                    run_test(test, writer, False)
+            if args.mem_test_dffram:
+                test.passing_criteria = [1, 3, 3, 3]
+                test.test_name = f"mem_dff_test"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="dff", mem=True)
+                else:
+                    run_test(test, writer, False, sram="dff", mem=True)
+            if args.mem_test_sram:
+                test.passing_criteria = [1, 3, 3, 3]
+                test.test_name = f"mem_sram_test"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="sram", mem=True)
+                else:
+                    run_test(test, writer, False, sram="sram", mem=True)
+            if args.mem_stress:
+                test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
+                arr = [100, 200, 400, 600, 1200, 1600]
+                for i in arr:
+                    test.sram = 1
+                    test.test_name = f"mem_stress_{i}"
+                    run_test(test, writer)
+            if args.irq_timer:
+                test.test_name = "IRQ_timer"
+                test.passing_criteria = [1, 5, 3, 3, 3]
+                if args.voltage_all:
+                    run_test(test, writer, True)
+                else:
+                    run_test(test, writer, False)
+            if args.timer0_oneshot:
+                test.passing_criteria = [1, 5, 3, 3, 3]
+                test.test_name = "timer0_oneshot"
+                if args.voltage_all:
+                    run_test(test, writer, True)
+                else:
+                    run_test(test, writer, False)
+            if args.irq_uart:
+                test.passing_criteria = [1, 5, 3, 3, 3]
+                test.test_name = "IRQ_uart"
+                if args.voltage_all:
+                    run_test(test, writer, True)
+                else:
+                    run_test(test, writer, False)
+            if args.timer0_periodic:
+                test.passing_criteria = [1, 5, 3, 3, 3]
+                test.test_name = "timer0_periodic"
+                if args.voltage_all:
+                    run_test(test, writer, True)
+                else:
+                    run_test(test, writer, False)
+            if args.cpu_bitbang_37_o:
+                test.passing_criteria = [1, 2, 5, 7, 3, 3, 3]
+                test.test_name = "cpu_bitbang_37_o"
+                if args.voltage_all:
+                    run_test(test, writer, True, True, 37)
+                else:
+                    run_test(test, writer, False, True, 37)
+            if args.cpu_bitbang_36_o:
+                test.passing_criteria = [1, 2, 5, 7, 3, 3, 3]
+                test.test_name = "cpu_bitbang_36_o"
+                if args.voltage_all:
+                    run_test(test, writer, True, True, 36)
+                else:
+                    run_test(test, writer, False, True, 36)
 
-        if args.all:
-            test.passing_criteria = [1, 2, 3, 4, 5, 1, 1, 1]
-            test.test_name = "cpu_stress"
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-            test.passing_criteria = [1, 5, 3, 3, 3]
-            test.test_name = "IRQ_timer"
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-            test.test_name = "timer0_oneshot"
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-            test.test_name = "IRQ_uart"
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-            test.test_name = "timer0_periodic"
-            if args.voltage_all:
-                run_test(test, writer, True)
-            else:
-                run_test(test, writer, False)
-            test.passing_criteria = [1, 3, 3, 3]
-            test.test_name = f"mem_dff_test"
-            if args.voltage_all:
-                run_test(test, writer, True, sram="dff", mem=True)
-            else:
-                run_test(test, writer, False, sram="dff", mem=True)
-            test.test_name = f"mem_sram_test"
-            if args.voltage_all:
-                run_test(test, writer, True, sram="sram", mem=True)
-            else:
-                run_test(test, writer, False, sram="sram", mem=True)
-            test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
-            arr = [100, 200, 400, 600, 1200, 1600]
-            for i in arr:
-                test.sram = 1
-                test.test_name = f"mem_stress_{i}"
-                run_test(test, writer)
+            if args.all:
+                test.passing_criteria = [1, 2, 3, 4, 5, 1, 1, 1]
+                test.test_name = "cpu_stress"
+                if args.voltage_all:
+                    run_test(test, writer, True)
+                else:
+                    run_test(test, writer, False)
+                test.passing_criteria = [1, 5, 3, 3, 3]
+                test.test_name = "IRQ_timer"
+                if args.voltage_all:
+                    run_test(test, writer, True)
+                else:
+                    run_test(test, writer, False)
+                test.test_name = "timer0_oneshot"
+                if args.voltage_all:
+                    run_test(test, writer, True)
+                else:
+                    run_test(test, writer, False)
+                test.test_name = "IRQ_uart"
+                if args.voltage_all:
+                    run_test(test, writer, True)
+                else:
+                    run_test(test, writer, False)
+                test.test_name = "timer0_periodic"
+                if args.voltage_all:
+                    run_test(test, writer, True)
+                else:
+                    run_test(test, writer, False)
+                test.passing_criteria = [1, 3, 3, 3]
+                test.test_name = f"mem_dff_test"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="dff", mem=True)
+                else:
+                    run_test(test, writer, False, sram="dff", mem=True)
+                test.test_name = f"mem_sram_test"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="sram", mem=True)
+                else:
+                    run_test(test, writer, False, sram="sram", mem=True)
+                test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
+                arr = [100, 200, 400, 600, 1200, 1600]
+                for i in arr:
+                    test.sram = 1
+                    test.test_name = f"mem_stress_{i}"
+                    run_test(test, writer)
 
-    test.close_devices()
+        test.close_devices()
+    except KeyboardInterrupt:
+        print("Interrupted")
+        try:
+            test.close_devices()
+            sys.exit(0)
+        except SystemExit:
+            test.close_devices()
+            os._exit(0)

@@ -23,14 +23,26 @@ void main()
    unsigned char *dff_start_address =  (unsigned char *) 0x00000000;
    unsigned int dff_size =  1024;
 
+   // unsigned int loop_start =  0;
+   // unsigned int loop_end =  255;
 
-   for (unsigned int i = 0; i < dff_size; i++){
+   // unsigned int loop_start =  256;
+   // unsigned int loop_end =  512;
+
+   // unsigned int loop_start =  513;
+   // unsigned int loop_end =  768;
+
+   unsigned int loop_start =  769;
+   unsigned int loop_end =  dff_size;
+
+
+   for (unsigned int i = loop_start; i < loop_end; i++){
 
     unsigned char data = (i + 7)*13;
     *(dff_start_address+i) = data; 
 
    }
-   for (unsigned int i = 0; i < dff_size; i++){
+   for (unsigned int i = loop_start; i < loop_end; i++){
     unsigned char data = (i + 7)*13;
     if (data != *(dff_start_address+i)){
         send_packet(9); // error

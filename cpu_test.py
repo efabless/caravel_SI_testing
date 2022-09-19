@@ -54,7 +54,6 @@ def init_ios(device1_data, device2_data, device3_data):
     return device1_dio_map, device2_dio_map, device3_dio_map
 
 
-
 def process_data(test):
     phase = 0
     for passing in test.passing_criteria:
@@ -65,20 +64,29 @@ def process_data(test):
 
         if pulse_count == 9:
             if test.sram == 1:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on OPENram!")
+                print(
+                    f"{test.test_name} test failed with {test.voltage}v supply on OPENram!"
+                )
                 return False
             else:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM!")
+                print(
+                    f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM!"
+                )
                 return False
             break
 
     if len(test.passing_criteria) == phase:
         if test.sram == 1:
-            print(f"{test.test_name} test Passed with {test.voltage}v supply on OPENram!")
+            print(
+                f"{test.test_name} test Passed with {test.voltage}v supply on OPENram!"
+            )
             return True
         else:
-            print(f"{test.test_name} test Passed with {test.voltage}v supply on DFFRAM!")
+            print(
+                f"{test.test_name} test Passed with {test.voltage}v supply on DFFRAM!"
+            )
             return True
+
 
 def process_mem(test):
     phase = 0
@@ -100,12 +108,17 @@ def process_mem(test):
 
         if pulse_count == 9:
             if test.sram == 1:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on OPENram mem size {mem_size}")
+                print(
+                    f"{test.test_name} test failed with {test.voltage}v supply on OPENram mem size {mem_size}"
+                )
                 return False
             else:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM mem size {mem_size}")
+                print(
+                    f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM mem size {mem_size}"
+                )
                 return False
             break
+
 
 def process_io(test, channel):
     phase = 0
@@ -157,29 +170,34 @@ def process_io(test, channel):
 
         if pulse_count == 9:
             if test.sram == 1:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on OPENram!")
+                print(
+                    f"{test.test_name} test failed with {test.voltage}v supply on OPENram!"
+                )
                 return False
             else:
-                print(f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM!")
+                print(
+                    f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM!"
+                )
                 return False
             break
 
     if io_pulse == 10:
         if test.sram == 1:
-            print(f"{test.test_name} test Passed with {test.voltage}v supply on OPENram!")
+            print(
+                f"{test.test_name} test Passed with {test.voltage}v supply on OPENram!"
+            )
             return True
         else:
-            print(f"{test.test_name} test Passed with {test.voltage}v supply on DFFRAM!")
+            print(
+                f"{test.test_name} test Passed with {test.voltage}v supply on DFFRAM!"
+            )
             return True
     else:
         print("Test Failed!")
         return False
 
 
-
-def exec_tests(
-    test, fflash, channel, io, mem
-):
+def exec_tests(test, fflash, channel, io, mem):
     test.powerup_sequence()
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.change_voltage()
@@ -188,9 +206,7 @@ def exec_tests(
         test.exec_flashing()
 
     if io:
-        return process_io(
-            test, channel
-        )
+        return process_io(test, channel)
     elif mem:
         return process_mem(test)
     else:
@@ -231,7 +247,10 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem):
         writer.writerow(arr)
         fflash = 0
 
-def run_test(test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None, mem=False):
+
+def run_test(
+    test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None, mem=False
+):
     logging.info(f"  Running {test.test_name} test")
     if sram == None:
         test.sram = 1
@@ -269,22 +288,31 @@ if __name__ == "__main__":
         parser.add_argument(
             "-to", "--timer0_oneshot", help="timer0 oneshot test", action="store_true"
         )
-        parser.add_argument("-iu", "--irq_uart", help="irq uart test", action="store_true")
+        parser.add_argument(
+            "-iu", "--irq_uart", help="irq uart test", action="store_true"
+        )
         parser.add_argument(
             "-tp", "--timer0_periodic", help="timer0 periodic test", action="store_true"
         )
         parser.add_argument(
-            "-bb37", "--cpu_bitbang_37_o", help="cpu_bitbang_37_o test", action="store_true"
+            "-bb37",
+            "--cpu_bitbang_37_o",
+            help="cpu_bitbang_37_o test",
+            action="store_true",
         )
         parser.add_argument(
-            "-bb36", "--cpu_bitbang_36_o", help="cpu_bitbang_36_o test", action="store_true"
+            "-bb36",
+            "--cpu_bitbang_36_o",
+            help="cpu_bitbang_36_o test",
+            action="store_true",
         )
         parser.add_argument(
-            "-va", "--voltage_all", help="automatically change test voltage", action="store_true"
+            "-va",
+            "--voltage_all",
+            help="automatically change test voltage",
+            action="store_true",
         )
-        parser.add_argument(
-            "-v", "--voltage", help="change test voltage"
-        )
+        parser.add_argument("-v", "--voltage", help="change test voltage")
         parser.add_argument("-a", "--all", help="run all tests", action="store_true")
         args = parser.parse_args()
 
@@ -297,7 +325,9 @@ if __name__ == "__main__":
 
         logging.info("   Initializing I/Os for both devices")
         # Initializing I/Os
-        device1_dio_map, device2_dio_map, device3_dio_map = init_ios(device1_data, device2_data, device3_data)
+        device1_dio_map, device2_dio_map, device3_dio_map = init_ios(
+            device1_data, device2_data, device3_data
+        )
         # Initilizing devices
         device1 = Device(device1_data, 0, device1_dio_map)
         device2 = Device(device2_data, 1, device2_dio_map)
@@ -393,14 +423,14 @@ if __name__ == "__main__":
                 if args.voltage_all:
                     run_test(test, writer, True, True, 37)
                 else:
-                    run_test(test, writer, False, True,  37)
+                    run_test(test, writer, False, True, 37)
             if args.cpu_bitbang_36_o:
                 test.passing_criteria = [1, 2, 5, 7, 3, 3, 3]
                 test.test_name = "cpu_bitbang_36_o"
                 if args.voltage_all:
                     run_test(test, writer, True, True, 36)
                 else:
-                    run_test(test, writer, False, True,  36)
+                    run_test(test, writer, False, True, 36)
 
             if args.all:
                 test.passing_criteria = [1, 2, 3, 4, 5, 1, 1, 1]
@@ -450,7 +480,7 @@ if __name__ == "__main__":
 
         test.close_devices()
     except KeyboardInterrupt:
-        print('Interrupted')
+        print("Interrupted")
         try:
             test.close_devices()
             sys.exit(0)

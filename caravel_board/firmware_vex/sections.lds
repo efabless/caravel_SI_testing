@@ -40,7 +40,7 @@ SECTIONS
 		_frodata = .;
 		*(.rodata .rodata.* .gnu.linkonce.r.*)
 		*(.rodata1)
-		. = ALIGN(8);
+		. = ALIGN(256);
 		_erodata = .;
 	} > flash
 

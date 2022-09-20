@@ -20,7 +20,7 @@ del dirs[0]
 file_path =f'{os.getcwd()}/../sections.lds'
 
 change_ram(" > dff"," > sram",file_path)
-change_ram("(dff)","(sram)",file_path)
+# change_ram("(dff)","(sram)",file_path)
 for dir in dirs:
     os.chdir(dir)
     testname = os.path.basename(dir)
@@ -33,7 +33,7 @@ for dir in dirs:
 
     
 change_ram(" > sram"," > dff",file_path)
-change_ram("(sram)","(dff)",file_path)
+# change_ram("(sram)","(dff)",file_path)
 # print(f'{os.getcwd()}/../sections.lds')
 for dir in dirs:
     os.chdir(dir)

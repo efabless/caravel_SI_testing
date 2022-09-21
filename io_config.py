@@ -1,5 +1,6 @@
 from caravel import *
 import fileinput
+import signal
 
 
 class Gpio:
@@ -59,6 +60,18 @@ def run_builder(gpio_l, gpio_h):
         f"python3 caravel_board/firmware_vex/gpio_config/gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config C_MGMT_OUT -d",
         shell=True,
     )
+
+def run_flash(close):
+    global pid
+    if close == False:
+        print("running caravel_hkstop.py...")
+        p = subprocess.Popen(['python3', 'caravel_board/firmware_vex/util/caravel_hkstop.py'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        pid = p.pid
+        print("subprocess pid:", pid)
+    elif pid != None:
+        print("stopping caravel_hkstop.py...")
+        os.kill(pid, signal.SIGTERM)
+        pid = None
 
 
 def modify_hex(hex_file, c_file):
@@ -200,6 +213,8 @@ def run_test(test, gpio_l, gpio_h):
             elif rst == 3:
                 channel = 28 - (pulse_count - 2)
             phase = phase + 1
+            if channel == 5:
+                run_flash(True)
             print(f"start sending pulses to gpio[{channel}]")
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
@@ -410,6 +425,7 @@ def choose_test(
         )
         exec_flash(test)
         if not high:
+            run_flash(False)
             test_result, channel_failed = run_test(test, gpio_l, gpio_h)
         else:
             test_result, channel_failed = run_test_h(test, gpio_l, gpio_h)
@@ -419,10 +435,12 @@ def choose_test(
             print("Final configuration for gpio_h: ", gpio_h.array)
             test_passed(test, start_time, part, gpio_l, gpio_h, chain)
         else:
+            run_flash(True)
             gpio_l, gpio_h = change_config(
                 channel_failed, gpio_l, gpio_h, part, test.voltage, start_time
             )
         if gpio_h.get_gpio_failed() is True or gpio_l.get_gpio_failed() is True:
+            run_flash(True)
             break
 
 
@@ -536,6 +554,8 @@ if __name__ == "__main__":
         start_time = time.time()
         start_program = time.time()
         part = args.part
+        global pid
+        pid = None
 
         if os.path.exists(f"./{part}.txt"):
             os.remove(f"./{part}.txt")

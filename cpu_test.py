@@ -277,10 +277,22 @@ if __name__ == "__main__":
             "-ms", "--mem_stress", help="cpu stress test", action="store_true"
         )
         parser.add_argument(
-            "-mtd", "--mem_test_dffram", help="cpu stress test", action="store_true"
+            "-mtd", "--mem_test_dffram", help="mem DFFRAM test", action="store_true"
         )
         parser.add_argument(
-            "-mts", "--mem_test_sram", help="cpu stress test", action="store_true"
+            "-mts", "--mem_test_sram", help="mem OPENram test", action="store_true"
+        )
+        parser.add_argument(
+            "-mtdhw", "--mem_test_dffram_half_word", help="mem DFFRAM half word test", action="store_true"
+        )
+        parser.add_argument(
+            "-mtshw", "--mem_test_sram_half_word", help="cpu stress half word test", action="store_true"
+        )
+        parser.add_argument(
+            "-mtdw", "--mem_test_dffram_word", help="mem DFFRAM word test", action="store_true"
+        )
+        parser.add_argument(
+            "-mtsw", "--mem_test_sram_word", help="cpu stress word test", action="store_true"
         )
         parser.add_argument(
             "-it", "--irq_timer", help="IRQ timer test", action="store_true"
@@ -378,6 +390,34 @@ if __name__ == "__main__":
             if args.mem_test_sram:
                 test.passing_criteria = [1, 3, 3, 3]
                 test.test_name = f"mem_sram_test"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="sram", mem=True)
+                else:
+                    run_test(test, writer, False, sram="sram", mem=True)
+            if args.mem_test_dffram_half_word:
+                test.passing_criteria = [1, 3, 3, 3]
+                test.test_name = f"mem_dff_halfW"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="dff", mem=True)
+                else:
+                    run_test(test, writer, False, sram="dff", mem=True)
+            if args.mem_test_sram_half_word:
+                test.passing_criteria = [1, 3, 3, 3]
+                test.test_name = f"mem_sram_halfW"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="sram", mem=True)
+                else:
+                    run_test(test, writer, False, sram="sram", mem=True)
+            if args.mem_test_dffram_word:
+                test.passing_criteria = [1, 3, 3, 3]
+                test.test_name = f"mem_dff_W"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="dff", mem=True)
+                else:
+                    run_test(test, writer, False, sram="dff", mem=True)
+            if args.mem_test_sram_word:
+                test.passing_criteria = [1, 3, 3, 3]
+                test.test_name = f"mem_sram_W"
                 if args.voltage_all:
                     run_test(test, writer, True, sram="sram", mem=True)
                 else:

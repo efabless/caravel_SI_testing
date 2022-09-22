@@ -44,7 +44,7 @@ flash2: timer0_oneshot.hex
 # ---- Clean ----
 
 clean:
-	rm -f *.elf *.hex *.bin *.vvp *.vcd
+	rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst
 
 .PHONY: clean hex all flash
 

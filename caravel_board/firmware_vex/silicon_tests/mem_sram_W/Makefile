@@ -12,17 +12,17 @@ TOOLCHAIN_PREFIX=riscv64
 
 .SUFFIXES:
 
-PATTERN = cpu_bitbang_21_o
+PATTERN = mem_sram_W
 
 hex:  ${PATTERN:=.hex}
 
 ../../gpio_config/gpio_config_data.c: ../../gpio_config/gpio_config_def.py
 	cd ../../gpio_config; python3 ../../gpio_config/gpio_config_builder.py
 
-%.elf: %.c ../../sections.lds ../../crt0_vex.S ../../gpio_config/gpio_config_data.c
-	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-gcc -I../../ -I../../generated/ -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../../sections.lds,--strip-debug -ffreestanding -nostdlib -o $@ ../../crt0_vex.S ../../isr.c ../../gpio_program.c $<
+%.elf: %.c sections.lds ../../crt0_vex.S ../../gpio_config/gpio_config_data.c
+	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-gcc -I../../ -I../../generated/ -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,sections.lds,--strip-debug -ffreestanding -nostdlib -o $@ ../../crt0_vex.S ../../isr.c ../../gpio_program.c $<
 
-	${TOOLCHAIN_PATH}riscv32-unknown-linux-gnu-objdump -s  cpu_bitbang_21_o.elf > cpu_bitbang_21_o.lst
+	${TOOLCHAIN_PATH}riscv32-unknown-linux-gnu-objdump -s  mem_sram_W.elf > mem_sram_W.lst
 
 %.hex: %.elf
 	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-objcopy -O verilog $< $@
@@ -34,12 +34,12 @@ hex:  ${PATTERN:=.hex}
 client: client.c
 	gcc client.c -o client
 
-flash: cpu_bitbang_21_o.hex
-	python3 ../util/caravel_hkflash.py cpu_bitbang_21_o.hex
+flash: mem_sram_W.hex
+	python3 ../util/caravel_hkflash.py mem_sram_W.hex
 	python3 ../util/caravel_hkstop.py
 
-flash2: cpu_bitbang_21_o.hex
-	python3 ../util/caravel_flash.py cpu_bitbang_21_o.hex
+flash2: mem_sram_W.hex
+	python3 ../util/caravel_flash.py mem_sram_W.hex
 
 # ---- Clean ----
 

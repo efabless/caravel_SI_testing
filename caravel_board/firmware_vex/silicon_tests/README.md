@@ -329,7 +329,7 @@
         send packet with size = 1
     @ error reading 
         send packet with size = 9
-    @ pass 1 bytes 
+    @ pass 1 byte (1024 bytes)
       send packet with size = 5
     @ test finish 
         send packet with size = 3
@@ -342,7 +342,61 @@
         send packet with size = 1
     @ error reading 
         send packet with size = 9
-    @ pass 1 bytes 
+    @ pass 1 byte (2048 bytes)
+      send packet with size = 5
+    @ test finish 
+        send packet with size = 3
+        send packet with size = 3
+        send packet with size = 3
+
+ 
+## mem_dff_halfW
+### Test access all half words of dffmemory by using openRam memory as cpu initializer 
+    @ start of test 
+        send packet with size = 1
+    @ error reading 
+        send packet with size = 9
+    @ pass 1 half word (512 half words)
+      send packet with size = 5
+    @ test finish 
+        send packet with size = 3
+        send packet with size = 3
+        send packet with size = 3
+
+## mem_sram_halfW
+### Test access all half words of openRam by using dffmemory memory as cpu initializer 
+    @ start of test 
+        send packet with size = 1
+    @ error reading 
+        send packet with size = 9
+    @ pass 1 half word (1024 half words)
+      send packet with size = 5
+    @ test finish 
+        send packet with size = 3
+        send packet with size = 3
+        send packet with size = 3
+
+ 
+## mem_dff_W
+### Test access all words of dffmemory by using openRam memory as cpu initializer 
+    @ start of test 
+        send packet with size = 1
+    @ error reading 
+        send packet with size = 9
+    @ pass 1 word (256 words)
+      send packet with size = 5
+    @ test finish 
+        send packet with size = 3
+        send packet with size = 3
+        send packet with size = 3
+
+## mem_sram_W
+### Test access all words of openRam by using dffmemory memory as cpu initializer 
+    @ start of test 
+        send packet with size = 1
+    @ error reading 
+        send packet with size = 9
+    @ pass 1 word (512 words)
       send packet with size = 5
     @ test finish 
         send packet with size = 3

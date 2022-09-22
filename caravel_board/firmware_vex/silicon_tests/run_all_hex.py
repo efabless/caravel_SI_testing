@@ -26,7 +26,7 @@ for dir in dirs:
     testname = os.path.basename(dir)
     print(testname)
     os.system(f'make clean')
-    if testname in ["common", "mem_dff_test","mem_dff_test_100","mem_dff_test_200","mem_dff_test_400","mem_dff_test_600","mem_dff_test_800","mem_dff_test_1600"]: 
+    if testname in ["common", "mem_dff_test","mem_dff_halfW","mem_dff_W","mem_dff_test_100","mem_dff_test_200","mem_dff_test_400","mem_dff_test_600","mem_dff_test_800","mem_dff_test_1600"]: 
         continue
     os.system(f'make hex')
     os.rename(f'{testname}.hex',f'{testname}_sram.hex')
@@ -39,7 +39,7 @@ for dir in dirs:
     os.chdir(dir)
     testname = os.path.basename(dir)
     print(testname)
-    if testname in ["common", "mem_sram_test","mem_sram_test_100","mem_sram_test_200","mem_sram_test_400","mem_sram_test_600","mem_sram_test_800","mem_sram_test_1600"]: 
+    if testname in ["common", "mem_sram_test","mem_sram_halfW","mem_sram_W","mem_sram_test_100","mem_sram_test_200","mem_sram_test_400","mem_sram_test_600","mem_sram_test_800","mem_sram_test_1600"]: 
         continue
     os.system(f'make hex')
     os.rename(f'{testname}.hex',f'{testname}_dff.hex')

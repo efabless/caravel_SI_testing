@@ -43,6 +43,6 @@ flash2: uart_reception.hex
 # ---- Clean ----
 
 clean:
-	rm -f *.elf *.hex *.bin *.vvp *.vcd
+	rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst
 
 .PHONY: clean hex all flash

@@ -119,6 +119,22 @@ def process_mem(test):
                 return False
             break
 
+def process_uart(test, uart):
+    uart = UART(device1_data)
+    timeout = time.time() + 30
+    rgRX = ""
+    pulse_count = test.receive_packet(250)
+    if pulse_count == 1:
+        print(f"start UART test")
+    while time.time() > timeout:
+        uart_data, count = uart.read_uart()
+        if uart_data:
+            uart_data[count.value] = 0
+            rgRX = rgRX + uart_data.value.decode()
+            if rgRX == "Monitor: Test UART passed\n":
+                print(rgRX)
+                return True
+    return False
 
 def process_io(test, channel):
     phase = 0
@@ -197,7 +213,7 @@ def process_io(test, channel):
         return False
 
 
-def exec_tests(test, fflash, channel, io, mem):
+def exec_tests(test, fflash, channel, io, mem, uart):
     test.powerup_sequence()
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.change_voltage()
@@ -209,11 +225,13 @@ def exec_tests(test, fflash, channel, io, mem):
         return process_io(test, channel)
     elif mem:
         return process_mem(test)
+    elif uart:
+        return process_uart(test)
     else:
         return process_data(test)
 
 
-def exec_test(test, writer, io, channel, automatic_voltage, mem):
+def exec_test(test, writer, io, channel, automatic_voltage, mem, uart):
     fflash = 1
     if automatic_voltage:
         for i in range(0, 7):
@@ -224,6 +242,7 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem):
                 channel,
                 io,
                 mem,
+                uart,
             )
             if test.sram == 1:
                 arr = [test.test_name, "OPENram", test.voltage, results]
@@ -239,6 +258,7 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem):
             channel,
             io,
             mem,
+            uart,
         )
         if test.sram == 1:
             arr = [test.test_name, "OPENram", test.voltage, results]
@@ -249,18 +269,18 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem):
 
 
 def run_test(
-    test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None, mem=False
+    test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None, mem=False, uart=False
 ):
     logging.info(f"  Running {test.test_name} test")
     if sram == None:
         test.sram = 1
-        exec_test(test, writer, io, channel, automatic_voltage, mem)
+        exec_test(test, writer, io, channel, automatic_voltage, mem, uart)
         test.sram = 0
     elif sram == "sram":
         test.sram = 1
     elif sram == "dff":
         test.sram = 0
-    exec_test(test, writer, io, channel, automatic_voltage, mem)
+    exec_test(test, writer, io, channel, automatic_voltage, mem, uart)
 
 
 if __name__ == "__main__":
@@ -302,6 +322,9 @@ if __name__ == "__main__":
         )
         parser.add_argument(
             "-iu", "--irq_uart", help="irq uart test", action="store_true"
+        )
+        parser.add_argument(
+            "-uart", "--uart_test", help="uart test", action="store_true"
         )
         parser.add_argument(
             "-tp", "--timer0_periodic", help="timer0 periodic test", action="store_true"
@@ -366,6 +389,12 @@ if __name__ == "__main__":
                     run_test(test, writer, True)
                 else:
                     run_test(test, writer, False)
+            if args.uart_test:
+                test.test_name = "uart"
+                if args.voltage_all:
+                    run_test(test, writer, True, uart=True)
+                else:
+                    run_test(test, writer, False, uart=True)
             if args.cpu_stress:
                 test.test_name = "cpu_stress"
                 test.passing_criteria = [1, 2, 3, 4, 5, 1, 1, 1]
@@ -471,6 +500,40 @@ if __name__ == "__main__":
                     run_test(test, writer, True, True, 36)
                 else:
                     run_test(test, writer, False, True, 36)
+
+            if args.all_mem:
+                test.passing_criteria = [1, 3, 3, 3]
+                test.test_name = f"mem_dff_test"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="dff", mem=True)
+                else:
+                    run_test(test, writer, False, sram="dff", mem=True)
+                test.test_name = f"mem_sram_test"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="sram", mem=True)
+                else:
+                    run_test(test, writer, False, sram="sram", mem=True)
+                test.test_name = f"mem_dff_halfW"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="dff", mem=True)
+                else:
+                    run_test(test, writer, False, sram="dff", mem=True)
+                test.test_name = f"mem_sram_halfW"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="sram", mem=True)
+                else:
+                    run_test(test, writer, False, sram="sram", mem=True)
+                test.test_name = f"mem_dff_W"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="dff", mem=True)
+                else:
+                    run_test(test, writer, False, sram="dff", mem=True)
+                test.test_name = f"mem_sram_W"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="sram", mem=True)
+                else:
+                    run_test(test, writer, False, sram="sram", mem=True)
+
 
             if args.all:
                 test.passing_criteria = [1, 2, 3, 4, 5, 1, 1, 1]

@@ -190,6 +190,23 @@ def init_ios(device1_data, device2_data, device3_data):
 
     return device1_dio_map, device2_dio_map, device3_dio_map
 
+def run_input_test(test):
+    phase = 0
+    if phase == 0:
+        test.send_packet(1)
+        print("sent start test packet")
+        phase = phase + 1
+    if phase > 0:
+        for channel in range (0,7):
+            test.send_packet(channel + 2)
+            test.send_pulse(4, channel)
+            ack_pulse = test.recieve_packet()
+            if ack_pulse == 5:
+                print(f"gpio[{channel}] Failed to send pulse")
+                return False, channel
+            elif ack_pulse == 3:
+                print(f"gpio[{channel}] sent pulse successfully")
+    return True, None
 
 def run_test(test, gpio_l, gpio_h):
     phase = 0
@@ -413,7 +430,7 @@ def change_config(channel, gpio_l, gpio_h, part, voltage, start_time):
 
 
 def choose_test(
-    test, test_name, gpio_l, gpio_h, start_time, part, chain="low", high=False
+    test, test_name, gpio_l, gpio_h, start_time, part, chain="low", high=False, input_test=False
 ):
     test_result = False
     while not test_result:
@@ -424,11 +441,14 @@ def choose_test(
             "gpio_config_data.c",
         )
         exec_flash(test)
-        if not high:
-            run_flash(False)
-            test_result, channel_failed = run_test(test, gpio_l, gpio_h)
+        if not input_test:
+            if not high:
+                run_flash(False)
+                test_result, channel_failed = run_test(test, gpio_l, gpio_h)
+            else:
+                test_result, channel_failed = run_test_h(test, gpio_l, gpio_h)
         else:
-            test_result, channel_failed = run_test_h(test, gpio_l, gpio_h)
+            test_result, channel_failed = run_input_test(test)
         if test_result:
             print("Test Passed!")
             print("Final configuration for gpio_l: ", gpio_l.array)
@@ -629,6 +649,17 @@ if __name__ == "__main__":
                     choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
             else:
                 choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
+
+        if args.gpio_input:
+            if args.voltage_all:
+                for i in range(0, 7):
+                    start_time = time.time()
+                    gpio_l = Gpio()
+                    gpio_h = Gpio()
+                    test.voltage = 1.8 - i * 0.05
+                    choose_test(test, "config_io_i", gpio_l, gpio_h, start_time, part)
+            else:
+                choose_test(test, "config_io_i", gpio_l, gpio_h, start_time, part)
 
         if args.chain:
             if args.voltage_all:

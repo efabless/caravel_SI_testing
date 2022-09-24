@@ -64,6 +64,33 @@ class Test:
         # print("A packet has been received!")
         return pulses
 
+    def send_packet(self, num_pulses, pulse_width=25):
+        self.gpio_mgmt.set_state(True)
+        self.gpio_mgmt.set_value(1)
+        time.sleep(5)
+        for i in range(0,num_pulses):
+            self.gpio_mgmt.set_value(0)
+            accurate_delay(pulse_width)
+            self.gpio_mgmt.set_value(1)
+            accurate_delay(pulse_width)
+
+    def send_pulse(self, num_pulses, channel, pulse_width=25):
+        if channel < 15:
+            channel = self.device1v8.dio_map[channel]
+        elif channel > 22:
+            channel = self.device3v3.dio_map[channel]
+        else:
+            channel = self.deviced.dio_map[channel]
+
+        self.channel.set_state(True)
+        self.channel.set_value(1)
+        time.sleep(5)
+        for i in range(0,num_pulses):
+            self.channel.set_value(0)
+            accurate_delay(pulse_width)
+            self.channel.set_value(1)
+            accurate_delay(pulse_width)
+
     def reset(self, duration=1):
         """applies reset to the caravel board
 

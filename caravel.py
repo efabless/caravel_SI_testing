@@ -64,6 +64,33 @@ class Test:
         # print("A packet has been received!")
         return pulses
 
+    def send_packet(self, num_pulses, pulse_width=25):
+        self.gpio_mgmt.set_state(True)
+        self.gpio_mgmt.set_value(1)
+        time.sleep(5)
+        for i in range(0,num_pulses):
+            self.gpio_mgmt.set_value(0)
+            accurate_delay(pulse_width)
+            self.gpio_mgmt.set_value(1)
+            accurate_delay(pulse_width)
+
+    def send_pulse(self, num_pulses, channel, pulse_width=25):
+        if channel < 15:
+            channel = self.device1v8.dio_map[channel]
+        elif channel > 22:
+            channel = self.device3v3.dio_map[channel]
+        else:
+            channel = self.deviced.dio_map[channel]
+
+        self.channel.set_state(True)
+        self.channel.set_value(1)
+        time.sleep(5)
+        for i in range(0,num_pulses):
+            self.channel.set_value(0)
+            accurate_delay(pulse_width)
+            self.channel.set_value(1)
+            accurate_delay(pulse_width)
+
     def reset(self, duration=1):
         """applies reset to the caravel board
 
@@ -330,7 +357,7 @@ class UART:
         rx_data = []
     
         # create empty string buffer
-        data = (ctypes.c_ubyte * 8193)()
+        data = create_string_buffer(8193)
     
         # character counter
         count = ctypes.c_int(0)
@@ -342,33 +369,34 @@ class UART:
         dwf.FDwfDigitalUartRx(self.device_data.handle, data, ctypes.c_int(ctypes.sizeof(data)-1), ctypes.byref(count), ctypes.byref(parity_flag))
     
         # append current data chunks
-        for index in range(0, count.value):
-            rx_data.append(int(data[index]))
+        # for index in range(0, count.value):
+        #     rx_data.append(int(data[index]))
     
         # ensure data integrity
-        while count.value > 0:
-            # create empty string buffer
-            data = (ctypes.c_ubyte * 8193)()
+        # while count.value > 0:
+        #     # create empty string buffer
+        #     data = (ctypes.c_ubyte * 8193)()
     
-            # character counter
-            count = ctypes.c_int(0)
+        #     # character counter
+        #     count = ctypes.c_int(0)
     
-            # parity flag
-            parity_flag= ctypes.c_int(0)
+        #     # parity flag
+        #     parity_flag= ctypes.c_int(0)
     
-            # read up to 8k characters
-            dwf.FDwfDigitalUartRx(self.device_data.handle, data, ctypes.c_int(ctypes.sizeof(data)-1), ctypes.byref(count), ctypes.byref(parity_flag))
-            # append current data chunks
-            for index in range(0, count.value):
-                rx_data.append(int(data[index]))
+        #     # read up to 8k characters
+        #     dwf.FDwfDigitalUartRx(self.device_data.handle, data, ctypes.c_int(ctypes.sizeof(data)-1), ctypes.byref(count), ctypes.byref(parity_flag))
+        #     # append current data chunks
+        #     # for index in range(0, count.value):
+        #     #     rx_data.append(int(data[index]))
     
-            # check for not acknowledged
-            if error == "":
-                if parity_flag.value < 0:
-                    error = "Buffer overflow"
-                elif parity_flag.value > 0:
-                    error = "Parity error: index {}".format(parity_flag.value)
-        return rx_data
+        #     # check for not acknowledged
+        #     if error == "":
+        #         if parity_flag.value < 0:
+        #             error = "Buffer overflow"
+        #         elif parity_flag.value > 0:
+        #             error = "Parity error: index {}".format(parity_flag.value)
+        if count.value > 0:
+            return data, count
     def write(self, data):
         """
             send data through UART

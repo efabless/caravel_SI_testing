@@ -111,12 +111,12 @@ def process_mem(test):
                 print(
                     f"{test.test_name} test failed with {test.voltage}v supply on OPENram mem size {mem_size}"
                 )
-                return False
+                return mem_size
             else:
                 print(
                     f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM mem size {mem_size}"
                 )
-                return False
+                return mem_size
             break
 
 def process_uart(test, uart):
@@ -574,12 +574,26 @@ if __name__ == "__main__":
                     run_test(test, writer, True, sram="sram", mem=True)
                 else:
                     run_test(test, writer, False, sram="sram", mem=True)
-                test.passing_criteria = [1, 2, 3, 4, 7, 7, 7]
-                arr = [100, 200, 400, 600, 1200, 1600]
-                for i in arr:
-                    test.sram = 1
-                    test.test_name = f"mem_stress_{i}"
-                    run_test(test, writer)
+                test.test_name = f"mem_dff_halfW"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="dff", mem=True)
+                else:
+                    run_test(test, writer, False, sram="dff", mem=True)
+                test.test_name = f"mem_sram_halfW"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="sram", mem=True)
+                else:
+                    run_test(test, writer, False, sram="sram", mem=True)
+                test.test_name = f"mem_dff_W"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="dff", mem=True)
+                else:
+                    run_test(test, writer, False, sram="dff", mem=True)
+                test.test_name = f"mem_sram_W"
+                if args.voltage_all:
+                    run_test(test, writer, True, sram="sram", mem=True)
+                else:
+                    run_test(test, writer, False, sram="sram", mem=True)
 
         test.close_devices()
     except KeyboardInterrupt:

@@ -53,19 +53,30 @@ class Gpio:
         return self.array[channel]
 
 
-def run_builder(gpio_l, gpio_h):
+def run_builder(gpio_l, gpio_h, input):
     gpio_l = ",".join(gpio_l)
     gpio_h = ",".join(gpio_h)
-    subprocess.call(
-        f"python3 caravel_board/firmware_vex/gpio_config/gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config C_MGMT_OUT -d",
-        shell=True,
-    )
+    if not input:
+        subprocess.call(
+            f"python3 caravel_board/firmware_vex/gpio_config/gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config C_MGMT_OUT -d",
+            shell=True,
+        )
+    else:
+        subprocess.call(
+            f"python3 caravel_board/firmware_vex/gpio_config/gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config C_MGMT_IN -d",
+            shell=True,
+        )
+
 
 def run_flash(close):
     global pid
     if close == False:
         print("running caravel_hkstop.py...")
-        p = subprocess.Popen(['python3', 'caravel_board/firmware_vex/util/caravel_hkstop.py'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        p = subprocess.Popen(
+            ["python3", "caravel_board/firmware_vex/util/caravel_hkstop.py"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
         pid = p.pid
         print("subprocess pid:", pid)
     elif pid != None:
@@ -190,14 +201,15 @@ def init_ios(device1_data, device2_data, device3_data):
 
     return device1_dio_map, device2_dio_map, device3_dio_map
 
+
 def run_input_test(test):
     phase = 0
-    if phase == 0:
-        test.send_packet(1)
-        print("sent start test packet")
+    pulse_count = test.recieve_packet()
+    if phase == 0 and pulse_count == 1:
+        print("start test")
         phase = phase + 1
-    if phase > 0:
-        for channel in range (0,7):
+    else:
+        for channel in range(0, 7):
             test.send_packet(channel + 2)
             test.send_pulse(4, channel)
             ack_pulse = test.recieve_packet()
@@ -207,6 +219,7 @@ def run_input_test(test):
             elif ack_pulse == 3:
                 print(f"gpio[{channel}] sent pulse successfully")
     return True, None
+
 
 def run_test(test, gpio_l, gpio_h):
     phase = 0
@@ -430,12 +443,20 @@ def change_config(channel, gpio_l, gpio_h, part, voltage, start_time):
 
 
 def choose_test(
-    test, test_name, gpio_l, gpio_h, start_time, part, chain="low", high=False, input_test=False
+    test,
+    test_name,
+    gpio_l,
+    gpio_h,
+    start_time,
+    part,
+    chain="low",
+    high=False,
+    input_test=False,
 ):
     test_result = False
     while not test_result:
         test.test_name = test_name
-        run_builder(gpio_l.array, gpio_h.array)
+        run_builder(gpio_l.array, gpio_h.array, input_test)
         modify_hex(
             f"caravel_board/firmware_vex/{test_name}/{test_name}.hex",
             "gpio_config_data.c",
@@ -657,9 +678,25 @@ if __name__ == "__main__":
                     gpio_l = Gpio()
                     gpio_h = Gpio()
                     test.voltage = 1.8 - i * 0.05
-                    choose_test(test, "config_io_i", gpio_l, gpio_h, start_time, part)
+                    choose_test(
+                        test,
+                        "config_io_i",
+                        gpio_l,
+                        gpio_h,
+                        start_time,
+                        part,
+                        input_test=True,
+                    )
             else:
-                choose_test(test, "config_io_i", gpio_l, gpio_h, start_time, part)
+                choose_test(
+                    test,
+                    "config_io_i",
+                    gpio_l,
+                    gpio_h,
+                    start_time,
+                    part,
+                    input_test=True,
+                )
 
         if args.chain:
             if args.voltage_all:

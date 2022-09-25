@@ -16,6 +16,7 @@ void main(){
 	send_packet(packet_size);
     count_down(PULSE_WIDTH*10);
     recieved_size = recieve_packet(10000);
+    count_down(PULSE_WIDTH*5);
     if (recieved_size == packet_size){
         send_packet(10); // pass same packet send is recieved
     }else { 
@@ -26,6 +27,7 @@ void main(){
 	send_packet(packet_size);
     count_down(PULSE_WIDTH*10);
     recieved_size = recieve_packet(10000);
+    count_down(PULSE_WIDTH*5);
     if (recieved_size == packet_size){
         send_packet(10); // pass same packet send is recieved
     }else { 
@@ -36,6 +38,7 @@ void main(){
 	send_packet(packet_size);
     count_down(PULSE_WIDTH*10);
     recieved_size = recieve_packet(10000);
+    count_down(PULSE_WIDTH*5);
     if (recieved_size == packet_size){
         send_packet(10); // pass same packet send is recieved
     }else { 

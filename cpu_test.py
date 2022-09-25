@@ -136,6 +136,20 @@ def process_uart(test, uart):
                 return True
     return False
 
+def process_input_io(test):
+    for i in range(0,2):
+        if pulse_count != 10 or pulse_count != 9:
+            pulse_count = test.recieve_packet()
+            test.send_packet(pulse_count)
+            print(f"recieved {pulse_count} pulses and sent them")
+        elif pulse_count == 10:
+            print(f"test passed!")
+            return True
+        elif pulse_count == 9:
+            print(f"Test failed!")
+            return False
+
+
 def process_io(test, channel):
     phase = 0
     io_pulse = 0
@@ -213,7 +227,7 @@ def process_io(test, channel):
         return False
 
 
-def exec_tests(test, fflash, channel, io, mem, uart):
+def exec_tests(test, fflash, channel, io, mem, uart, io_input):
     test.powerup_sequence()
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.change_voltage()
@@ -227,11 +241,13 @@ def exec_tests(test, fflash, channel, io, mem, uart):
         return process_mem(test)
     elif uart:
         return process_uart(test)
+    elif io_input:
+        return process_input_io(test)
     else:
         return process_data(test)
 
 
-def exec_test(test, writer, io, channel, automatic_voltage, mem, uart):
+def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input):
     fflash = 1
     if automatic_voltage:
         for i in range(0, 7):
@@ -243,6 +259,7 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem, uart):
                 io,
                 mem,
                 uart,
+                io_input,
             )
             if test.sram == 1:
                 arr = [test.test_name, "OPENram", test.voltage, results]
@@ -259,6 +276,7 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem, uart):
             io,
             mem,
             uart,
+            io_input,
         )
         if test.sram == 1:
             arr = [test.test_name, "OPENram", test.voltage, results]
@@ -269,18 +287,18 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem, uart):
 
 
 def run_test(
-    test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None, mem=False, uart=False
+    test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None, mem=False, uart=False, io_input=False
 ):
     logging.info(f"  Running {test.test_name} test")
     if sram == None:
         test.sram = 1
-        exec_test(test, writer, io, channel, automatic_voltage, mem, uart)
+        exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input)
         test.sram = 0
     elif sram == "sram":
         test.sram = 1
     elif sram == "dff":
         test.sram = 0
-    exec_test(test, writer, io, channel, automatic_voltage, mem, uart)
+    exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input)
 
 
 if __name__ == "__main__":
@@ -328,6 +346,9 @@ if __name__ == "__main__":
         )
         parser.add_argument(
             "-tp", "--timer0_periodic", help="timer0 periodic test", action="store_true"
+        )
+        parser.add_argument(
+            "-rp", "--receive_packet", help="receive packet test", action="store_true"
         )
         parser.add_argument(
             "-bb37",
@@ -389,6 +410,12 @@ if __name__ == "__main__":
                     run_test(test, writer, True)
                 else:
                     run_test(test, writer, False)
+            if args.receive_packet:
+                test.test_name = "receive_packet"
+                if args.voltage_all:
+                    run_test(test, writer, True, io_input=True)
+                else:
+                    run_test(test, writer, False, io_input=True)
             if args.uart_test:
                 test.test_name = "uart"
                 if args.voltage_all:

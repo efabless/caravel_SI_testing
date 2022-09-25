@@ -23,7 +23,7 @@ void main()
    unsigned char *dff_start_address =  (unsigned char *) 0x00000000;
    unsigned int dff_size =  1024;
 
-   // unsigned int loop_start =  0;
+   unsigned int loop_start =  0;
    // unsigned int loop_end =  255;
 
    // unsigned int loop_start =  256;
@@ -32,7 +32,7 @@ void main()
    // unsigned int loop_start =  513;
    // unsigned int loop_end =  768;
 
-   unsigned int loop_start =  769;
+   // unsigned int loop_start =  769;
    unsigned int loop_end =  dff_size;
 
 

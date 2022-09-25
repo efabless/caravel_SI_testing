@@ -58,7 +58,7 @@ flash2: IRQ_timer.hex
 # ---- Clean ----
 
 clean:
-	rm -f *.elf *.hex *.bin *.vvp *.vcd
+	rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst
 
 .PHONY: clean hex all flash
 
@@ -97,7 +97,7 @@ flash2: IRQ_timer.hex
 # ---- Clean ----
 
 clean:
-	rm -f *.elf *.hex *.bin *.vvp *.vcd
+	rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst
 
 .PHONY: clean hex all flash
 

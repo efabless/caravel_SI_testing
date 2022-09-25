@@ -44,7 +44,7 @@ flash2: mgmt_gpio_no_timers.hex
 # ---- Clean ----
 
 clean:
-	rm -f *.elf *.hex *.bin *.vvp *.vcd
+	rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst
 
 .PHONY: clean hex all flash
 

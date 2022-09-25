@@ -44,7 +44,7 @@ flash2: uart.hex
 # ---- Clean ----
 
 clean:
-	rm -f *.elf *.hex *.bin *.vvp *.vcd
+	rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
 
 .PHONY: clean hex all flash
 

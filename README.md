@@ -21,21 +21,42 @@ git clone git@github.com:efabless/caravel_SI_testing.git
 python3 cpu_test.py [--option]
 ```
 ### options:
-```
+```  
   -sp, --send_packet    send packet test
+  
   -b, --blink           blink test
+  
   -cs, --cpu_stress     cpu stress test
-  -ms, --mem_stress     mem stress test
+  
+  -ms, --mem_stress     memory stress test for both OPENram and DFFRAM
+  
+  -mtd, --mem_test_dffram
+                        memory test for DFFRAM
+                        
+  -mts, --mem_test_sram
+                        memory test for OPENram
+                        
   -it, --irq_timer      IRQ timer test
+  
   -to, --timer0_oneshot
                         timer0 oneshot test
+                        
   -iu, --irq_uart       irq uart test
+  
   -tp, --timer0_periodic
                         timer0 periodic test
+                        
   -bb37, --cpu_bitbang_37_o
                         cpu_bitbang_37_o test
+                        
   -bb36, --cpu_bitbang_36_o
                         cpu_bitbang_36_o test
+                        
+  -va, --voltage_all    automatically change test voltage
+  
+  -v VOLTAGE, --voltage VOLTAGE
+                        change test voltage
+                        
   -a, --all             run all tests
 ```
 **Find discription of all tests [here](/caravel_board/hex_files/README.md)**
@@ -50,18 +71,20 @@ python3 io_config.py --part <part_name> [--options]
 
 ### options:
 ```
-  -o, --gpio_output     run gpio 0 --> 13 and 37 --> 22 configuration test
-
+  -o, --gpio_output     run gpio output configuration test
+  
   -oh, --gpio_output_h  run gpio output high configuration test
-
+  
   -oa, --gpio_output_all
                         run gpio output all configuration test
-
+                        
+  -ol, --gpio_output_l  run gpio output low configuration test
+  
   -c, --chain           run gpio chain configuration test
-
-  -v VOLTAGE, --voltage VOLTAGE 
+  
+  -v VOLTAGE, --voltage VOLTAGE
                         change test voltage
-
+                        
   -va, --voltage_all    automatically change test voltage
   
   -p PART, --part PART  part name

@@ -1,6 +1,7 @@
 #include <defs.h>
 // #include "send_packet.c"
 #include "recieve_packet.c"
+#include "../../gpio_config/gpio_config_io.c"
 
 /* 
 test will send packet and expect to recieve the same packet size
@@ -10,6 +11,10 @@ void main(){
     count_down(PULSE_WIDTH*50);
     // Uncomment the while() loop to make this continuous
     // while (1) {
+    reg_mprj_datah = 0;
+    reg_mprj_datal = 0;
+    gpio_config_io();
+
     int recieved_size = 0;
 
     int packet_size = 1;

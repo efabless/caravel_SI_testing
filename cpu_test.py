@@ -144,10 +144,10 @@ def process_input_io(test):
             test.send_packet(pulse_count)
             print(f"recieved {pulse_count} pulses and sent them")
         elif pulse_count == 10:
-            print(f"test passed!")
+            print(f"test for {pulse_count} pulses passed!")
             count = count + 1
         elif pulse_count == 9:
-            print(f"Test failed!")
+            print(f"Test for {pulse_count} pulses failed!")
             count = count - 1
     if count > 2:
         return True

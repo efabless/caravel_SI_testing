@@ -139,11 +139,12 @@ def process_uart(test, uart):
 def process_input_io(test):
     count = 0
     for i in range(0,2):
+        pulse_count = test.recieve_packet()
         if pulse_count != 10 or pulse_count != 9:
-            pulse_count = test.recieve_packet()
             test.send_packet(pulse_count)
             print(f"recieved {pulse_count} pulses and sent them")
-        elif pulse_count == 10:
+        pulse_count = test.recieve_packet()
+        if pulse_count == 10:
             print(f"test for {pulse_count} pulses passed!")
             count = count + 1
         elif pulse_count == 9:

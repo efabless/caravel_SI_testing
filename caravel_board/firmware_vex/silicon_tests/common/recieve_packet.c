@@ -1,7 +1,14 @@
 #include "send_packet.c"
 
+
+void configure_mgmt_gpio_i(char en){
+    reg_gpio_ien = en;
+    reg_gpio_oe = en;
+}
+
 // used to detect recieving packet 
 int recieve_packet(int timeout){
+    configure_mgmt_gpio_i(0);
     int packet_size = 0;
     bool is_full_pulse = false; // indecator for full pulse if half pulse is just sent it will be false
     reg_mprj_datal = 0x0;
@@ -31,4 +38,6 @@ int recieve_packet(int timeout){
 
         }
     }
+    configure_mgmt_gpio_i(1);
 }
+

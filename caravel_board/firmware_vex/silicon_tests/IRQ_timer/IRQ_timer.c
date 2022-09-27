@@ -61,7 +61,7 @@ void main(){
 
     /* Configure timer for a single-shot countdown */
 	reg_timer0_config = 0;
-	reg_timer0_data = 3000;
+	reg_timer0_data = 10000;
     reg_timer0_irq_en = 1;
     reg_timer0_config = 1;
     send_packet(1);//configuring the timers and start count down

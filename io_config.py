@@ -209,7 +209,8 @@ def run_input_test(test):
         print("start test")
         phase = phase + 1
     else:
-        for channel in range(0, 7):
+        for channel in range(0, 9):
+            time.sleep(1.2)
             test.send_packet(channel + 2)
             test.send_pulse(4, channel)
             ack_pulse = test.recieve_packet()
@@ -557,6 +558,12 @@ if __name__ == "__main__":
             action="store_true",
         )
         parser.add_argument(
+            "-il",
+            "--gpio_input_low",
+            help="run gpio output low configuration test",
+            action="store_true",
+        )
+        parser.add_argument(
             "-c",
             "--chain",
             help="run gpio chain configuration test",
@@ -671,7 +678,7 @@ if __name__ == "__main__":
             else:
                 choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
 
-        if args.gpio_input:
+        if args.gpio_input_low:
             if args.voltage_all:
                 for i in range(0, 7):
                     start_time = time.time()
@@ -680,7 +687,7 @@ if __name__ == "__main__":
                     test.voltage = 1.8 - i * 0.05
                     choose_test(
                         test,
-                        "config_io_i",
+                        "config_io_i_low",
                         gpio_l,
                         gpio_h,
                         start_time,

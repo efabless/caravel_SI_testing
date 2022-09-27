@@ -42,6 +42,7 @@ class Test:
         unit = 1000
         ones = 0
         pulses = 0
+        self.gpio_mgmt.set_state(False)
         while self.gpio_mgmt.get_value() != False:
             pass
         state = "LOW"
@@ -65,6 +66,7 @@ class Test:
         return pulses
 
     def send_packet(self, num_pulses, pulse_width=25):
+        num_pulses = num_pulses + 1
         self.gpio_mgmt.set_state(True)
         self.gpio_mgmt.set_value(1)
         time.sleep(5)
@@ -415,20 +417,6 @@ class UART:
         # send text, trim zero ending
         dwf.FDwfDigitalUartTx(self.device_data.handle, data, ctypes.c_int(ctypes.sizeof(data)-1))
         return
-
-def send_pulse(io, period):
-    io.set_value(1)
-    time.sleep(period / 2)
-    io.set_value(0)
-    time.sleep(period / 2)
-
-
-def send_packet(io, pulse_count, period, end_period):
-    for i in range(pulse_count):
-        print(f"sending pulse {i}")
-        send_pulse(io, period)
-        io.set_value(1)
-        time.sleep(end_period)
 
 
 def count_pulses(packet_data):

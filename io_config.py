@@ -204,16 +204,16 @@ def init_ios(device1_data, device2_data, device3_data):
 
 def run_input_test(test):
     phase = 0
-    pulse_count = test.recieve_packet()
-    if phase == 0 and pulse_count == 1:
-        print("start test")
-        phase = phase + 1
-    else:
+    for i in range(0,9):
+        pulse_count = test.receive_packet(250)
+        if phase == 0 and pulse_count == 1:
+            print("start test")
+            phase = phase + 1
         for channel in range(0, 9):
             time.sleep(1.2)
-            test.send_packet(channel + 2)
-            test.send_pulse(4, channel)
-            ack_pulse = test.recieve_packet()
+            test.send_packet(channel + 2, 250)
+            test.send_pulse(4, channel, 250)
+            ack_pulse = test.receive_packet(250)
             if ack_pulse == 5:
                 print(f"gpio[{channel}] Failed to send pulse")
                 return False, channel
@@ -697,7 +697,7 @@ if __name__ == "__main__":
             else:
                 choose_test(
                     test,
-                    "config_io_i",
+                    "config_io_i_low",
                     gpio_l,
                     gpio_h,
                     start_time,

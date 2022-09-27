@@ -242,7 +242,7 @@ def exec_tests(test, fflash, channel, io, mem, uart, io_input):
     test.change_voltage()
     test.reset()
     if fflash == 1:
-       test.exec_flashing()
+        test.exec_flashing()
 
     if io:
         return process_io(test, channel)

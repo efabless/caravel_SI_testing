@@ -1,7 +1,6 @@
 #include <defs.h>
 // #include "send_packet.c"
-// #include "recieve_packet.c"
-#include "recieve_packet2.c"
+#include "recieve_packet.c"
 #include "../../gpio_config/gpio_config_io.c"
 
 /* 
@@ -20,7 +19,7 @@ void main(){
 
     int packet_size = 1;
 	send_packet(packet_size);
-    recieved_size = recieve_packet2();
+    recieved_size = recieve_packet();
     count_down(PULSE_WIDTH*5);
     if (recieved_size == packet_size){
         send_packet(10); // pass same packet send is recieved
@@ -30,7 +29,7 @@ void main(){
 
     packet_size = 3;
 	send_packet(packet_size);
-    recieved_size = recieve_packet2();
+    recieved_size = recieve_packet();
     count_down(PULSE_WIDTH*5);
     if (recieved_size == packet_size){
         send_packet(10); // pass same packet send is recieved
@@ -40,7 +39,7 @@ void main(){
 	
     packet_size = 5;
 	send_packet(packet_size);
-    recieved_size = recieve_packet2();
+    recieved_size = recieve_packet();
     count_down(PULSE_WIDTH*5);
     if (recieved_size == packet_size){
         send_packet(10); // pass same packet send is recieved

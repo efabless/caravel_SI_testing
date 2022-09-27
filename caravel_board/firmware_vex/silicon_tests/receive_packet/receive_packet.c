@@ -19,7 +19,7 @@ void main(){
 
     int packet_size = 1;
 	send_packet(packet_size);
-    count_down(PULSE_WIDTH*10);
+    //count_down(PULSE_WIDTH*10);
     recieved_size = recieve_packet(10000);
     count_down(PULSE_WIDTH*5);
     if (recieved_size == packet_size){
@@ -30,7 +30,7 @@ void main(){
 
     packet_size = 3;
 	send_packet(packet_size);
-    count_down(PULSE_WIDTH*10);
+    //count_down(PULSE_WIDTH*10);
     recieved_size = recieve_packet(10000);
     count_down(PULSE_WIDTH*5);
     if (recieved_size == packet_size){
@@ -41,7 +41,7 @@ void main(){
 	
     packet_size = 5;
 	send_packet(packet_size);
-    count_down(PULSE_WIDTH*10);
+    //count_down(PULSE_WIDTH*10);
     recieved_size = recieve_packet(10000);
     count_down(PULSE_WIDTH*5);
     if (recieved_size == packet_size){

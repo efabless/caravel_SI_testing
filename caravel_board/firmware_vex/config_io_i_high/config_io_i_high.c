@@ -51,7 +51,7 @@ void main()
     int mask; 
     int recieved; 
     int old_recieved; 
-    int timeout = 1000;
+    int timeout = 15000;
     long int timeout_count = 0;
     set_registers();
     reg_mprj_datah = 0;

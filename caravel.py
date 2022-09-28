@@ -84,13 +84,14 @@ class Test:
         else:
             channel = self.deviced.dio_map[channel]
 
-        self.channel.set_state(True)
-        self.channel.set_value(1)
+        channel.set_state(True)
+        channel.set_value(1)
+        num_pulses = num_pulses + 1
         time.sleep(5)
         for i in range(0,num_pulses):
-            self.channel.set_value(0)
+            channel.set_value(0)
             accurate_delay(pulse_width)
-            self.channel.set_value(1)
+            channel.set_value(1)
             accurate_delay(pulse_width)
 
     def reset(self, duration=1):
@@ -399,6 +400,8 @@ class UART:
         #             error = "Parity error: index {}".format(parity_flag.value)
         if count.value > 0:
             return data, count
+        else:
+            return None, count
     def write(self, data):
         """
             send data through UART

@@ -76,7 +76,8 @@ void main()
             if (count == 10)
                 break;
             if (timeout_count > timeout){
-                send_packet(5); // timeout
+                while (true)
+                    send_packet(5); // timeout
                 return;
             }
         }

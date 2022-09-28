@@ -51,7 +51,7 @@ void main()
     int mask; 
     int recieved; 
     int old_recieved; 
-    int timeout = 1000;
+    int timeout = 15000;
     long int timeout_count = 0;
     set_registers();
     reg_mprj_datah = 0;
@@ -86,7 +86,8 @@ void main()
             if (count == 10)
                 break;
             if (timeout_count > timeout){
-                send_packet(5); // timeout
+                while (true)
+                    send_packet(5); // timeout
                 return;
             }
         }

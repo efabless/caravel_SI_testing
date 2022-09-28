@@ -742,6 +742,8 @@ if __name__ == "__main__":
                         gpio_h,
                         start_time,
                         part,
+                        "high",
+                        True,
                         input_test=True,
                     )
             else:
@@ -752,6 +754,8 @@ if __name__ == "__main__":
                     gpio_h,
                     start_time,
                     part,
+                    "high",
+                    True,
                     input_test=True,
                 )
 
@@ -842,6 +846,8 @@ if __name__ == "__main__":
                         gpio_h,
                         start_time,
                         part,
+                        "high",
+                        True,
                         input_test=True,
                     )
             else:
@@ -852,6 +858,8 @@ if __name__ == "__main__":
                     gpio_h,
                     start_time,
                     part,
+                    "high",
+                    True,
                     input_test=True,
                 )
 

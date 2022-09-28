@@ -202,23 +202,30 @@ def init_ios(device1_data, device2_data, device3_data):
     return device1_dio_map, device2_dio_map, device3_dio_map
 
 
-def run_input_test(test):
-    phase = 0
-    pulse_count = test.recieve_packet()
-    if phase == 0 and pulse_count == 1:
-        print("start test")
-        phase = phase + 1
+def run_input_test(test, high):
+    count = 0
+    if high == False:
+        channel = 0
     else:
-        for channel in range(0, 9):
-            time.sleep(1.2)
-            test.send_packet(channel + 2)
-            test.send_pulse(4, channel)
-            ack_pulse = test.recieve_packet()
+        channel = 37
+    while count < 19:
+        if channel > 4:
+            run_flash(True)
+        pulse_count = test.receive_packet()
+        if pulse_count == 1:
+            print(f"Sending 4 pulses on gpio[{channel}]")
+            test.send_pulse(4, channel, 50)
+            ack_pulse = test.receive_packet()
             if ack_pulse == 5:
                 print(f"gpio[{channel}] Failed to send pulse")
                 return False, channel
             elif ack_pulse == 3:
                 print(f"gpio[{channel}] sent pulse successfully")
+            if high == False:
+                channel = channel + 1
+            else:
+                channel = channel - 1   
+            count = count + 1
     return True, None
 
 
@@ -470,7 +477,10 @@ def choose_test(
             else:
                 test_result, channel_failed = run_test_h(test, gpio_l, gpio_h)
         else:
-            test_result, channel_failed = run_input_test(test)
+            if not high:
+                test_result, channel_failed = run_input_test(test, False)
+            else:
+                test_result, channel_failed = run_input_test(test, True)
         if test_result:
             print("Test Passed!")
             print("Final configuration for gpio_l: ", gpio_l.array)
@@ -564,8 +574,20 @@ if __name__ == "__main__":
             action="store_true",
         )
         parser.add_argument(
+            "-ih",
+            "--gpio_input_high",
+            help="run gpio output low configuration test",
+            action="store_true",
+        )
+        parser.add_argument(
             "-c",
             "--chain",
+            help="run gpio chain configuration test",
+            action="store_true",
+        )
+        parser.add_argument(
+            "-ci",
+            "--chain_input",
             help="run gpio chain configuration test",
             action="store_true",
         )
@@ -697,7 +719,34 @@ if __name__ == "__main__":
             else:
                 choose_test(
                     test,
-                    "config_io_i",
+                    "config_io_i_low",
+                    gpio_l,
+                    gpio_h,
+                    start_time,
+                    part,
+                    input_test=True,
+                )
+
+        if args.gpio_input_high:
+            if args.voltage_all:
+                for i in range(0, 7):
+                    start_time = time.time()
+                    gpio_l = Gpio()
+                    gpio_h = Gpio()
+                    test.voltage = 1.8 - i * 0.05
+                    choose_test(
+                        test,
+                        "config_io_i_high",
+                        gpio_l,
+                        gpio_h,
+                        start_time,
+                        part,
+                        input_test=True,
+                    )
+            else:
+                choose_test(
+                    test,
+                    "config_io_i_high",
                     gpio_l,
                     gpio_h,
                     start_time,
@@ -740,6 +789,49 @@ if __name__ == "__main__":
                 choose_test(
                     test,
                     "config_io_o_h",
+                    gpio_l,
+                    gpio_h,
+                    start_time,
+                    part,
+                    "high",
+                    True,
+                )
+
+        if args.chain_low:
+            if args.voltage_all:
+                for i in range(0, 7):
+                    start_time = time.time()
+                    gpio_l = Gpio()
+                    gpio_h = Gpio()
+                    test.voltage = 1.8 - i * 0.05
+                    choose_test(test, "config_io_i_low", gpio_l, gpio_h, start_time, part)
+            else:
+                choose_test(test, "config_io_i_low", gpio_l, gpio_h, start_time, part)
+
+            gpio_l = Gpio()
+            gpio_h = Gpio()
+            start_time = time.time()
+
+            if args.voltage_all:
+                for i in range(0, 7):
+                    start_time = time.time()
+                    gpio_l = Gpio()
+                    gpio_h = Gpio()
+                    test.voltage = 1.8 - i * 0.05
+                    choose_test(
+                        test,
+                        "config_io_i_high",
+                        gpio_l,
+                        gpio_h,
+                        start_time,
+                        part,
+                        "high",
+                        True,
+                    )
+            else:
+                choose_test(
+                    test,
+                    "config_io_i_high",
                     gpio_l,
                     gpio_h,
                     start_time,

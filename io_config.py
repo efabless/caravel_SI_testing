@@ -797,7 +797,7 @@ if __name__ == "__main__":
                     True,
                 )
 
-        if args.chain_low:
+        if args.chain_input:
             if args.voltage_all:
                 for i in range(0, 7):
                     start_time = time.time()

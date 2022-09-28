@@ -50,6 +50,7 @@ void main()
     int count = 0;
     int mask; 
     int recieved; 
+    int temp_io = 0;
     int old_recieved; 
     int timeout = 15000;
     long int timeout_count = 0;
@@ -64,7 +65,8 @@ void main()
         send_packet(1); // send on the next io
         io_number--;
         if (io_number >= 32){
-            mask = 0x1 << (io_number-32);
+            temp_io = io_number-32;
+            mask = 0x1 << temp_io;
             old_recieved = reg_mprj_datah & mask;
         }else{
             mask = 0x1 << io_number;
@@ -72,10 +74,12 @@ void main()
         }
         
         while(true){
-            if (io_number >= 32)
+            if (io_number >= 32){
                 recieved = reg_mprj_datah & mask; // mask gpio bit
-            else
+            }
+            else{
                 recieved = reg_mprj_datal & mask; // mask gpio bit
+            }
            if (recieved != old_recieved){
                 count++;
                 old_recieved = recieved;

@@ -224,7 +224,7 @@ def run_input_test(test, high):
             if high == False:
                 channel = channel + 1
             else:
-                channel = channel - 1   
+                channel = channel - 1
             count = count + 1
     return True, None
 
@@ -478,6 +478,7 @@ def choose_test(
                 test_result, channel_failed = run_test_h(test, gpio_l, gpio_h)
         else:
             if not high:
+                run_flash(False)
                 test_result, channel_failed = run_input_test(test, False)
             else:
                 test_result, channel_failed = run_input_test(test, True)
@@ -804,9 +805,25 @@ if __name__ == "__main__":
                     gpio_l = Gpio()
                     gpio_h = Gpio()
                     test.voltage = 1.8 - i * 0.05
-                    choose_test(test, "config_io_i_low", gpio_l, gpio_h, start_time, part)
+                    choose_test(
+                        test,
+                        "config_io_i_low",
+                        gpio_l,
+                        gpio_h,
+                        start_time,
+                        part,
+                        input_test=True,
+                    )
             else:
-                choose_test(test, "config_io_i_low", gpio_l, gpio_h, start_time, part)
+                choose_test(
+                    test,
+                    "config_io_i_low",
+                    gpio_l,
+                    gpio_h,
+                    start_time,
+                    part,
+                    input_test=True,
+                )
 
             gpio_l = Gpio()
             gpio_h = Gpio()
@@ -825,8 +842,7 @@ if __name__ == "__main__":
                         gpio_h,
                         start_time,
                         part,
-                        "high",
-                        True,
+                        input_test=True,
                     )
             else:
                 choose_test(
@@ -836,8 +852,7 @@ if __name__ == "__main__":
                     gpio_h,
                     start_time,
                     part,
-                    "high",
-                    True,
+                    input_test=True,
                 )
 
         end_time = (time.time() - start_program) / 60.0

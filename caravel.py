@@ -77,9 +77,9 @@ class Test:
             accurate_delay(pulse_width)
 
     def send_pulse(self, num_pulses, channel, pulse_width=25):
-        if channel < 15:
+        if channel < 14:
             channel = self.device1v8.dio_map[channel]
-        elif channel > 22:
+        elif channel > 21:
             channel = self.device3v3.dio_map[channel]
         else:
             channel = self.deviced.dio_map[channel]

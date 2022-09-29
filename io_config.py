@@ -85,11 +85,10 @@ def run_flash(close):
         pid = None
 
 
-def modify_hex(hex_file, c_file):
+def modify_hex(hex_file, c_file, first_line=1):
     c_file = open(c_file, "r")
     hex_data = []
     new_hex_data = ""
-    first_line = 1
     flag = False
     for aline in c_file:
         aline = aline.strip()

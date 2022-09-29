@@ -1,3 +1,4 @@
+import fileinput
 from caravel import *
 
 def init_ios(device1_data, device2_data, device3_data):
@@ -52,6 +53,60 @@ def init_ios(device1_data, device2_data, device3_data):
 
     return device1_dio_map, device2_dio_map, device3_dio_map
 
+def modify_hex(hex_file, c_file):
+    c_file = open(c_file, "r")
+    hex_data = []
+    new_hex_data = ""
+    first_line = 2
+    flag = False
+    for aline in c_file:
+        aline = aline.strip()
+        if aline:
+            if aline.startswith("char"):
+                idx = aline.find("{")
+                line = aline[idx + 1 : -4]
+                data = [item.strip() for item in line.split(",")]
+            if aline.startswith("int"):
+                indx = aline.find("=")
+                arr_size = aline[indx + 1 : -1].strip()
+                if int(arr_size) > 255:
+                    logging.error(" Array size should be less that 255")
+                    sys.exit()
+    for i in data:
+        hex_data.append(i[2:])
+
+    with fileinput.input(hex_file, inplace=True, backup=".bak") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                if line.startswith("@"):
+                    if first_line > 0:
+                        print(line)
+                        first_line = first_line - 1
+                    else:
+                        print(line)
+                        flag = True
+                elif flag == False:
+                    print(line)
+                elif flag == True:
+                    count = 0
+                    for d in hex_data:
+                        if count < 16:
+                            new_hex_data = new_hex_data + " " + d
+                            count = count + 1
+                        else:
+                            print(new_hex_data[1:])
+                            new_hex_data = ""
+                            count = 1
+                            new_hex_data = new_hex_data + " " + d
+                    while len(new_hex_data[1:].split()) < 16:
+                        new_hex_data = new_hex_data + " " + "00"
+                    print(new_hex_data[1:])
+                    print(
+                        f"{str(hex(int(arr_size)))[2:].capitalize()} 00 00 00 00 00 00 00 "
+                    )
+                    break
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process LVS check.")
@@ -65,8 +120,11 @@ if __name__ == "__main__":
         "-v", "--voltage", help="change test voltage"
     )
     parser.add_argument("-a", "--all", help="run all tests", action="store_true")
+    parser.add_argument("-p", "--part", help="part name", required=True)
     args = parser.parse_args()
 
+    run_cmd = ['python3', 'io_config.py', '-ol6', '-v', f'{args.voltage}', '-p', f'{args.part}']
+    subprocess.run(run_cmd)
     logging.basicConfig(level=logging.INFO)
     logging.info("  Running:  caravel.py")
     # open multiple devices
@@ -83,57 +141,45 @@ if __name__ == "__main__":
     device3 = Device(device3_data, 2, device3_dio_map)
 
     test = Test(device1, device2, device3)
-
+    test.voltage = float(args.voltage)
     uart = UART(device1_data)
+    if test.sram == 1:
+        modify_hex(
+                f"caravel_board/firmware_vex/silicon_tests/uart/uart_sram.hex",
+                "gpio_config_data.c",
+            )
+    else:
+        modify_hex(
+                f"caravel_board/firmware_vex/silicon_tests/uart/uart_dff.hex",
+                "gpio_config_data.c",
+            )
     uart.open()
     test.apply_reset()
     test.powerup_sequence()
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
-    test.change_voltage()
     test.test_name = "uart"
     test.exec_flashing()
     test.release_reset()
-    phase = 0
-    io_pulse = 0
+    timeout = time.time() + 50
     rgRX = ""
-    try:
-        while 1:
-            uart_data, count = uart.read_uart()
-            if uart_data:
-                uart_data[count.value] = 0
-                rgRX = rgRX + uart_data.value.decode()
-    except KeyboardInterrupt:
-        pass
-    print(rgRX)
-    # timeout = time.time() + 30
-    # test.passing_criteria = [2,5,3,3,3]
-    # for passing in test.passing_criteria:
-    #     pulse_count = test.receive_packet(250)
-    #     if phase == 0 and pulse_count == 2:
-    #         print("Start transmission on gpio[6]")
-    #         phase = phase + 1
-    #         while time.time() < timeout:
-    #             uart_data = uart.read_uart()
-    #         print(uart_data)
-    #     if phase == 1 and pulse_count == 5:
-    #         print("End transmission on gpio[6]")
-    #         phase = phase + 1
-    #     if phase == 2 and pulse_count == 3:
-    #         print("end test")
-    #         phase = phase + 1
-    #     if phase == 3 and pulse_count == 3:
-    #         print("end test")
-    #         phase = phase + 1
-    #     if phase == 4 and pulse_count == 3:
-    #         print("end test")
-    #         phase = phase + 1
-
-        # if pulse_count == 9:
-        #     if test.sram == 1:
-        #         print(f"{test.test_name} test failed with {test.voltage}v supply on OPENram!")
-        #     else:
-        #         print(f"{test.test_name} test failed with {test.voltage}v supply on DFFRAM!")
-        #     break
+    pulse_count = test.receive_packet(250)
+    if pulse_count == 2:
+        print(f"start UART transmission")
+    while time.time() < timeout:
+        uart_data, count = uart.read_uart()
+        if uart_data:
+            uart_data[count.value] = 0
+            rgRX = rgRX + uart_data.value.decode()
+            if "Monitor: Test UART passed" in rgRX:
+                print(rgRX)
+                break
+    pulse_count = test.receive_packet(250)
+    if pulse_count == 5:
+        print(f"end UART transmission")
+    for i in range(0,3):
+        pulse_count = test.receive_packet(250)
+        if pulse_count == 3:
+            print(f"end UART test")
 
 
     test.close_devices()

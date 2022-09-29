@@ -569,6 +569,12 @@ if __name__ == "__main__":
             action="store_true",
         )
         parser.add_argument(
+            "-ol6",
+            "--gpio_output_l_6",
+            help="run gpio output low 6 configuration test",
+            action="store_true",
+        )
+        parser.add_argument(
             "-il",
             "--gpio_input_low",
             help="run gpio output low configuration test",
@@ -700,6 +706,17 @@ if __name__ == "__main__":
                     choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
             else:
                 choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
+
+        if args.gpio_output_l_6:
+            if args.voltage_all:
+                for i in range(0, 7):
+                    start_time = time.time()
+                    gpio_l = Gpio()
+                    gpio_h = Gpio()
+                    test.voltage = 1.8 - i * 0.05
+                    choose_test(test, "config_io_o_l_6", gpio_l, gpio_h, start_time, part)
+            else:
+                choose_test(test, "config_io_o_l_6", gpio_l, gpio_h, start_time, part)
 
         if args.gpio_input_low:
             if args.voltage_all:

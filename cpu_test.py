@@ -277,7 +277,7 @@ def exec_tests(test, fflash, channel, io, mem, uart, io_input, uart_data, part):
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.change_voltage()
     test.reset()
-    if fflash == 1:
+    if fflash == 1 and not uart:
         test.exec_flashing()
 
     if io:

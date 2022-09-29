@@ -441,6 +441,7 @@ if __name__ == "__main__":
 
         test = Test(device1, device2, device3)
         uart_data = UART(device1_data)
+        part = args.part
 
         csv_header = ["test_name", "ram", "voltage (v)", "Pass/Fail"]
         if os.path.exists("./results.csv"):

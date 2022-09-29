@@ -111,9 +111,9 @@ def modify_hex(hex_file, c_file, first_line=1):
             line = line.strip()
             if line:
                 if line.startswith("@"):
-                    if first_line == 1:
+                    if first_line > 0:
                         print(line)
-                        first_line = 0
+                        first_line = first_line - 1
                     else:
                         print(line)
                         flag = True
@@ -592,7 +592,7 @@ if __name__ == "__main__":
 
         if os.path.exists(f"./{part}.txt"):
             os.remove(f"./{part}.txt")
-            
+
         if args.voltage:
             test.voltage = float(args.voltage)
 

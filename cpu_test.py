@@ -124,8 +124,8 @@ def process_uart(test, uart, part):
     start_time = time.time()
     gpio_l = Gpio()
     gpio_h = Gpio()
-    choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
     if test.sram == 1:
+        choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
         modify_hex(
                 f"caravel_board/firmware_vex/silicon_tests/uart/uart_sram.hex",
                 "gpio_config_data.c",
@@ -419,6 +419,7 @@ if __name__ == "__main__":
         )
         parser.add_argument("-v", "--voltage", help="change test voltage")
         parser.add_argument("-a", "--all", help="run all tests", action="store_true")
+        parser.add_argument("-am", "--all_mem", help="run all tests", action="store_true")
         parser.add_argument("-p", "--part", help="part name", required=True)
         args = parser.parse_args()
 

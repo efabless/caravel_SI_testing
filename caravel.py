@@ -421,6 +421,117 @@ class UART:
         dwf.FDwfDigitalUartTx(self.device_data.handle, data, ctypes.c_int(ctypes.sizeof(data)-1))
         return
 
+class SPI:
+    def __init__(self, device_data):
+        self.device_data = device_data
+        self.cs = 33
+        self.sck = 32
+        self.miso = 35
+        self.mosi = 34
+        self.clk_freq = 1e06
+        self.mode = 0
+        self.order = True
+    def open(self):
+        """
+            initializes SPI communication
+            parameters: - device data
+                        - cs (DIO line used for chip select)
+                        - sck (DIO line used for serial clock)
+                        - miso (DIO line used for master in - slave out, optional)
+                        - mosi (DIO line used for master out - slave in, optional)
+                        - frequency (communication frequency in Hz, default is 1MHz)
+                        - mode (SPI mode: 0: CPOL=0, CPHA=0; 1: CPOL-0, CPHA=1; 2: CPOL=1, CPHA=0; 3: CPOL=1, CPHA=1)
+                        - order (endianness, True means MSB first - default, False means LSB first)
+        """
+        # set the clock frequency
+        dwf.FDwfDigitalSpiFrequencySet(self.device_data.handle, ctypes.c_double(self.clk_frequency))
+    
+        # set the clock pin
+        dwf.FDwfDigitalSpiClockSet(self.device_data.handle, ctypes.c_int(self.sck))
+    
+        if self.mosi != None:
+            # set the mosi pin
+            dwf.FDwfDigitalSpiDataSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_int(self.mosi))
+    
+            # set the initial state
+            dwf.FDwfDigitalSpiIdleSet(self.device_data.handle, ctypes.c_int(0), constants.DwfDigitalOutIdleZet)
+    
+        if self.miso != None:
+            # set the miso pin
+            dwf.FDwfDigitalSpiDataSet(self.device_data.handle, ctypes.c_int(1), ctypes.c_int(self.miso))
+    
+            # set the initial state
+            dwf.FDwfDigitalSpiIdleSet(self.device_data.handle, ctypes.c_int(1), constants.DwfDigitalOutIdleZet)
+    
+        # set the SPI mode
+        dwf.FDwfDigitalSpiModeSet(self.device_data.handle, ctypes.c_int(mode))
+    
+        # set endianness
+        if self.order:
+            # MSB first
+            dwf.FDwfDigitalSpiOrderSet(self.device_data.handle, ctypes.c_int(1))
+        else:
+            # LSB first
+            dwf.FDwfDigitalSpiOrderSet(self.device_data.handle, ctypes.c_int(0))
+    
+        # set the cs pin HIGH
+        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(1))
+    
+        # dummy write
+        dwf.FDwfDigitalSpiWriteOne(self.device_data.handle, ctypes.c_int(1), ctypes.c_int(0), ctypes.c_int(0))
+        return
+    def read(self, count):
+        """
+            receives data from SPI
+            parameters: - device data
+                        - count (number of bytes to receive)
+                        - chip select line number
+            return:     - integer list containing the received bytes
+        """
+        # enable the chip select line
+        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(0))
+    
+        # create buffer to store data
+        buffer = (ctypes.c_ubyte*count)()
+    
+        # read array of 8 bit elements
+        dwf.FDwfDigitalSpiRead(self.device_data.handle, ctypes.c_int(1), ctypes.c_int(8), buffer, ctypes.c_int(len(buffer)))
+    
+        # disable the chip select line
+        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(1))
+    
+        # decode data
+        data = [int(element) for element in buffer]
+        return data
+    def write(self, data):
+        """
+            send data through SPI
+            parameters: - device data
+                        - data of type string, int, or list of characters/integers
+                        - chip select line number
+        """
+        # cast data
+        if type(data) == int:
+            data = "".join(chr (data))
+        elif type(data) == list:
+            data = "".join(chr (element) for element in data)
+    
+        # enable the chip select line
+        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(0))
+    
+        # create buffer to write
+        data = bytes(data, "utf-8")
+        buffer = (ctypes.c_ubyte * len(data))()
+        for index in range(0, len(buffer)):
+            buffer[index] = ctypes.c_ubyte(data[index])
+    
+        # write array of 8 bit elements
+        dwf.FDwfDigitalSpiWrite(self.device_data.handle, ctypes.c_int(1), ctypes.c_int(8), buffer, ctypes.c_int(len(buffer)))
+    
+        # disable the chip select line
+        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(1))
+        return
+
 
 def count_pulses(packet_data):
     state = "zero"

@@ -25,10 +25,11 @@ parser = argparse.ArgumentParser(description='provide gpio types')
 parser.add_argument('-gpio_h','-hi', help='provide gpio_h array with H_NONE or H_INDEPENDENT or H_DEPENDENT (None, Independent and dependent)')
 parser.add_argument('-gpio_l','-l', help='provide gpio_l array with H_NONE or H_INDEPENDENT or H_DEPENDENT (None, Independent and dependent)')
 parser.add_argument('-num_io','-n', type=int, help='number of ios to work with')
-parser.add_argument('-config','-c', help='configuration types for now all gpios have the same gpio config C_MGMT_OUT C_MGMT_IN')
+parser.add_argument('-config_h','-ch', help='configuration types for now all gpios have the same gpio config C_MGMT_OUT C_MGMT_IN')
+parser.add_argument('-config_l','-cl', help='configuration types for now all gpios have the same gpio config C_MGMT_OUT C_MGMT_IN')
 parser.add_argument('-debug','-d',action='store_true', help='enable debug prints')
 args = parser.parse_args()
-if any(v is  None for v in [args.gpio_h, args.gpio_l,args.num_io,args.config]):
+if any(v is  None for v in [args.gpio_h, args.gpio_l,args.num_io,args.config_h,args.config_l]):
     print("fatal: you have to provide both -gpio_h and -gpio_l -args.num_io -args.config")
     sys.exit()
 NUM_IO = args.num_io
@@ -39,18 +40,22 @@ arg_config_h = args.config_h
 arg_config_h = arg_config_h.replace('[','').replace(']','')
 arg_config_h = arg_config_h.split(',')
 for i,violation in enumerate(arg_config_h):
-    if violation == 'C_MGMT_OUT': violation_type = C_MGMT_OUT
-    elif violation == 'C_MGMT_IN': violation_type = C_MGMT_IN
-    config_h.append([f'IO[{37-i}]',violation_type])
-del config_h[args.num_io:]
+    if violation == 'C_MGMT_OUT':
+        config_h.append(C_MGMT_OUT)
+    elif violation == 'C_MGMT_IN':
+        config_h.append(C_MGMT_IN)
+
 arg_config_l = args.config_l
 arg_config_l = arg_config_l.replace('[','').replace(']','')
 arg_config_l = arg_config_l.split(',')
 for i,violation in enumerate(arg_config_l):
-    if violation == 'C_MGMT_OUT': violation_type = C_MGMT_OUT
-    elif violation == 'C_MGMT_IN': violation_type = C_MGMT_IN
-    config_l.append([f'IO[{i}]',violation_type])
-del config_l[args.num_io:]
+    if violation == 'C_MGMT_OUT':
+        config_l.append(C_MGMT_OUT)
+    elif violation == 'C_MGMT_IN':
+        config_l.append(C_MGMT_IN)
+if (args.debug):
+    print(config_l)
+    print(config_h)
 
 
 gpio_h=list()

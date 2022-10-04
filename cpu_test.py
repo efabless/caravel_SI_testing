@@ -120,12 +120,13 @@ def process_mem(test):
                 return mem_size
             break
 
-def process_uart(test, uart, part):
+def process_uart(test, uart, part, fflash, fconfig):
     start_time = time.time()
     gpio_l = Gpio()
     gpio_h = Gpio()
-    if test.sram == 1:
+    if fconfig:
         choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
+    if test.sram == 1:
         modify_hex(
                 f"caravel_board/firmware_vex/silicon_tests/uart/uart_sram.hex",
                 "gpio_config_data.c",
@@ -140,9 +141,9 @@ def process_uart(test, uart, part):
     uart.open()
     test.apply_reset()
     test.powerup_sequence()
-    logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.test_name = "uart"
-    test.exec_flashing()
+    if fflash:
+        test.exec_flashing()
     test.release_reset()
     timeout = time.time() + 50
     rgRX = ""
@@ -272,7 +273,7 @@ def process_io(test, channel):
         return False
 
 
-def exec_tests(test, fflash, channel, io, mem, uart, io_input, uart_data, part):
+def exec_tests(test, fflash, fconfig, channel, io, mem, uart, io_input, uart_data, part):
     test.powerup_sequence()
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.change_voltage()
@@ -285,14 +286,14 @@ def exec_tests(test, fflash, channel, io, mem, uart, io_input, uart_data, part):
     elif mem:
         return process_mem(test)
     elif uart:
-        return process_uart(test, uart_data, part)
+        return process_uart(test, uart_data, part, fflash, fconfig)
     elif io_input:
         return process_input_io(test)
     else:
         return process_data(test)
 
 
-def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input, uart_data, part):
+def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input, uart_data, part, fconfig):
     fflash = 1
     if automatic_voltage:
         for i in range(0, 7):
@@ -300,6 +301,7 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input,
             results = exec_tests(
                 test,
                 fflash,
+                fconfig,
                 channel,
                 io,
                 mem,
@@ -315,6 +317,7 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input,
             writer.writerow(arr)
             i = i + 1
             fflash = 0
+            fconfig = 0
     else:
         results = exec_tests(
             test,
@@ -333,21 +336,24 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input,
             arr = [test.test_name, "DFFRAM", test.voltage, results]
         writer.writerow(arr)
         fflash = 0
+        fconfig = 0
 
 
 def run_test(
     test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None, mem=False, uart=False, io_input=False, uart_data=None, part=None
 ):
     logging.info(f"  Running {test.test_name} test")
+    fconfig = 1
     if sram == None:
         test.sram = 1
-        exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input, uart_data, part)
+        exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input, uart_data, part, fconfig)
+        fconfig = 0
         test.sram = 0
     elif sram == "sram":
         test.sram = 1
     elif sram == "dff":
         test.sram = 0
-    exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input, uart_data, part)
+    exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input, uart_data, part, fconfig)
 
 
 if __name__ == "__main__":

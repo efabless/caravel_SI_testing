@@ -57,13 +57,15 @@ def run_builder(gpio_l, gpio_h, input):
     gpio_l = ",".join(gpio_l)
     gpio_h = ",".join(gpio_h)
     if not input:
+        mgmt_out = ",".join(["C_MGMT_OUT"] * 19)
         subprocess.call(
-            f"python3 caravel_board/firmware_vex/gpio_config/gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config C_MGMT_OUT -d",
+            f"python3 caravel_board/firmware_vex/gpio_config/gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config {mgmt_out} -d",
             shell=True,
         )
     else:
+        mgmt_in = ",".join(["C_MGMT_IN"] * 19)
         subprocess.call(
-            f"python3 caravel_board/firmware_vex/gpio_config/gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config C_MGMT_IN -d",
+            f"python3 caravel_board/firmware_vex/gpio_config/gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config {mgmt_in} -d",
             shell=True,
         )
 

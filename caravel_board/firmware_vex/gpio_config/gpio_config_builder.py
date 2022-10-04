@@ -32,17 +32,27 @@ if any(v is  None for v in [args.gpio_h, args.gpio_l,args.num_io,args.config]):
     print("fatal: you have to provide both -gpio_h and -gpio_l -args.num_io -args.config")
     sys.exit()
 NUM_IO = args.num_io
-config_l = list()
-config_h = list()
-if args.config == "C_MGMT_OUT":
-    config_l = [C_MGMT_OUT] *19
-    config_h = [C_MGMT_OUT] *19
-elif args.config == "C_MGMT_IN":
-    config_l = [C_MGMT_IN] *19
-    config_h = [C_MGMT_IN] *19
-else: 
-    print ("Fatal: incorrect -config value it has to be C_MGMT_OUT or C_MGMT_IN")
-    sys.exit()
+
+config_h=list()
+config_l=list()
+arg_config_h = args.config_h
+arg_config_h = arg_config_h.replace('[','').replace(']','')
+arg_config_h = arg_config_h.split(',')
+for i,violation in enumerate(arg_config_h):
+    if violation == 'C_MGMT_OUT': violation_type = C_MGMT_OUT
+    elif violation == 'C_MGMT_IN': violation_type = C_MGMT_IN
+    config_h.append([f'IO[{37-i}]',violation_type])
+del config_h[args.num_io:]
+arg_config_l = args.config_l
+arg_config_l = arg_config_l.replace('[','').replace(']','')
+arg_config_l = arg_config_l.split(',')
+for i,violation in enumerate(arg_config_l):
+    if violation == 'C_MGMT_OUT': violation_type = C_MGMT_OUT
+    elif violation == 'C_MGMT_IN': violation_type = C_MGMT_IN
+    config_l.append([f'IO[{i}]',violation_type])
+del config_l[args.num_io:]
+
+
 gpio_h=list()
 gpio_l=list()
 arg_gpio_h = args.gpio_h

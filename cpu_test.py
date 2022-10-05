@@ -1,5 +1,6 @@
 from caravel import *
 from io_config import *
+import threading
 
 
 def init_ios(device1_data, device2_data, device3_data):
@@ -169,6 +170,50 @@ def process_uart(test, uart, part, fflash, fconfig):
         if pulse_count == 3:
             print(f"end UART test")
     return True
+
+def process_spi(test, spi, part, fflash, fconfig):
+    start_time = time.time()
+    gpio_l = Gpio()
+    gpio_h = Gpio()
+    if fconfig:
+        choose_test(test, "config_io_o_h", gpio_l, gpio_h, start_time, part)
+    if test.sram == 1:
+        modify_hex(
+                f"caravel_board/firmware_vex/silicon_tests/uart/uart_sram.hex",
+                "gpio_config_data.c",
+                first_line=2
+            )
+    else:
+        modify_hex(
+                f"caravel_board/firmware_vex/silicon_tests/uart/uart_dff.hex",
+                "gpio_config_data.c",
+                first_line=2
+            )
+    test.apply_reset()
+    test.powerup_sequence()
+    test.test_name = "spi_master"
+    if fflash:
+        test.exec_flashing()
+    test.release_reset()
+    csb = spi.device_data.dio_map[spi.cs]
+        
+    while csb.get_value() != True:
+        pass
+
+    print("CSB is low")
+
+    th1 = threading.Thread(target=spi.enabled())
+    spi.rw_mode = "r"
+    th2 = threading.Thread(target=spi.clk_trig())
+    bit = 0
+    th1.start()
+    while(bit < 24 and th2.join()):
+        th2.start()
+        bit = bit + 1
+        if bit == 17:
+            spi.rw_mode = "w"
+
+
 
 def process_input_io(test):
     count = 0
@@ -448,6 +493,7 @@ if __name__ == "__main__":
 
         test = Test(device1, device2, device3)
         uart_data = UART(device1_data)
+        spi = SPI(device1_data)
         part = args.part
 
         csv_header = ["test_name", "ram", "voltage (v)", "Pass/Fail"]

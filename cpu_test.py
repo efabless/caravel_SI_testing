@@ -122,25 +122,26 @@ def process_mem(test):
             break
 
 def process_uart(test, uart, part, fflash, fconfig):
+    test_name = test.test_name
     start_time = time.time()
     gpio_l = Gpio()
     gpio_h = Gpio()
     if fconfig:
         choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
-        if test.test_name == "uart_reception":
+        if test_name == "uart_reception":
             mgmt_cust_h = ["C_MGMT_OUT"] * 19
             mgmt_cust_l = ["C_MGMT_OUT"] * 19
             mgmt_cust_l[uart.tx] = "C_MGMT_IN"
             run_builder(gpio_l, gpio_h, False, custom=True, mgmt_cust_l=mgmt_cust_l, mgmt_cust_h=mgmt_cust_h)
     if test.sram == 1:
         modify_hex(
-                f"caravel_board/firmware_vex/silicon_tests/{test.test_name}/{test.test_name}_sram.hex",
+                f"caravel_board/firmware_vex/silicon_tests/{test_name}/{test_name}_sram.hex",
                 "caravel_board/firmware_vex/gpio_config/gpio_config_data.c",
                 first_line=2
             )
     else:
         modify_hex(
-                f"caravel_board/firmware_vex/silicon_tests/{test.test_name}/{test.test_name}_dff.hex",
+                f"caravel_board/firmware_vex/silicon_tests/{test_name}/{test_name}_dff.hex",
                 "caravel_board/firmware_vex/gpio_config/gpio_config_data.c",
                 first_line=2
             )
@@ -155,7 +156,7 @@ def process_uart(test, uart, part, fflash, fconfig):
     pulse_count = test.receive_packet(250)
     if pulse_count == 2:
         print(f"start UART transmission")
-    if test.test_name == "uart":
+    if test_name == "uart":
         while True:
             uart_data, count = uart.read_uart()
             if uart_data:
@@ -170,7 +171,7 @@ def process_uart(test, uart, part, fflash, fconfig):
         pulse_count = test.receive_packet(250)
         if pulse_count == 5:
             print(f"end UART transmission")
-    elif test.test_name == "uart_reception":
+    elif test_name == "uart_reception":
         arr = ["B", "M", "A"]
         for i in arr:
             pulse_count = test.receive_packet(250)
@@ -186,7 +187,7 @@ def process_uart(test, uart, part, fflash, fconfig):
     for i in range(0,3):
         pulse_count = test.receive_packet(250)
         if pulse_count == 3:
-            print(f"end {test.test_name} test")
+            print(f"end {test_name} test")
     
     return True
 

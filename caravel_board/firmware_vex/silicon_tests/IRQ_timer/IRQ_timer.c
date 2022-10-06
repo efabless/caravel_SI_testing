@@ -61,14 +61,14 @@ void main(){
 
     /* Configure timer for a single-shot countdown */
 	reg_timer0_config = 0;
-	reg_timer0_data = 3000;
+	reg_timer0_data = 10000;
     reg_timer0_irq_en = 1;
     reg_timer0_config = 1;
     send_packet(1);//configuring the timers and start count down
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
-    int timeout = 400000; 
+    int timeout = 700000; 
 
     for (int i = 0; i < timeout; i++){
         if (flag == 1){

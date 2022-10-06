@@ -17,24 +17,21 @@
 
 #include <defs.h>
 #include <stub.c>
+#include <uart.h>
 #include "send_packet.c"
 // #include "bitbang.c"
 #include "../../gpio_config/gpio_config_io.c"
 
 
 void wait_for_char(char *c){
-    int time_out = 1000000;
-    bool is_found = false;
-    for (int i = 0; i < time_out; i++){
-        if (reg_uart_data == *c){
-            is_found =  true;
-            send_packet(6); // recieved the correct character
-            break;
-        }
+    while (uart_rxempty_read() == 1);
+    if (reg_uart_data == *c){
+        send_packet(6); // recieved the correct character
     }
-    if (~is_found){
-        send_packet(9); // timeout didn't recieve the character
+    else {
+        send_packet(9); // recieved incorrect correct character
     }
+    uart_ev_pending_write(UART_EV_RX);
 }
 
 /*
@@ -42,7 +39,7 @@ Connect the transimssion and the reciever of the uart
  Transmit any character and wait until receiev it back
 
     @Start of the test 
-        send packet with size = 1
+        send packet with size = 2
 
     @wait for new character 
         send packet with size = 4
@@ -50,7 +47,7 @@ Connect the transimssion and the reciever of the uart
     @recieved the correct character 
         send packet with size = 6
 
-    @timeout didn't recieve the character 
+    @recieve incorrect character 
         send packet with size = 9
 
     @ finish test 
@@ -64,7 +61,7 @@ void main()
 {
     int j;
     reg_mprj_io_6 = GPIO_MODE_MGMT_STD_OUTPUT;
-    reg_mprj_io_5 = 0x1803;
+    reg_mprj_io_5 = GPIO_MODE_USER_STD_INPUT_NOPULL;
     
     gpio_config_io();
 
@@ -84,18 +81,18 @@ void main()
     reg_uart_enable = 1;
 
     // Start test
-    send_packet(1); // Start of the test
+    send_packet(2); // Start of the test
 
     send_packet(4); // wait for new character
-    wait_for_char("M");
+    wait_for_char("M"); // 0x4D
     
     
-    // send_packet(4); // wait for new character
-    // wait_for_char("B");
+    send_packet(4); // wait for new character
+    wait_for_char("B"); // 0x42
     
         
-    // send_packet(4); // wait for new character
-    // wait_for_char("F");
+    send_packet(4); // wait for new character
+    wait_for_char("A"); // 0x46
 
 
     // finish test

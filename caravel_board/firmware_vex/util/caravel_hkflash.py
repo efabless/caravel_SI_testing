@@ -318,6 +318,7 @@ with open(file_path, mode='r') as f:
                 print(binascii.hexlify(buf))
                 print("<----->")
                 print(binascii.hexlify(buf2))
+                sys.exit(1)
 
             if nbytes > 256:
                 buf = buf[255:]
@@ -345,6 +346,7 @@ with open(file_path, mode='r') as f:
             print(binascii.hexlify(buf))
             print("<----->")
             print(binascii.hexlify(buf2))
+            sys.exit(1)
 
 print("\ntotal_bytes = {}".format(total_bytes))
 

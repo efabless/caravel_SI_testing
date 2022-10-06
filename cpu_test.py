@@ -184,17 +184,19 @@ def process_uart(test, uart, part, fflash, fconfig, test_name):
                 return False
     elif test_name == "uart_loopback":
         for i in range(0,5):
-            uart_data, count = uart.read_uart()
-            if uart_data:
-                uart_data[count.value] = 0
-                dat = uart_data.value.decode()
-                uart.write(dat)
-                pulse_count = test.receive_packet(25)
-                if pulse_count == 6:
-                    print(f"Successfully sent {dat} over UART!")
-                if pulse_count == 9:
-                    print(f"Couldn't send {dat} over UART!")
-                    return False
+            while time.time() < timeout:
+                uart_data, count = uart.read_uart()
+                if uart_data:
+                    uart_data[count.value] = 0
+                    dat = uart_data.value.decode()
+                    uart.write(dat)
+                    pulse_count = test.receive_packet(25)
+                    if pulse_count == 6:
+                        print(f"Successfully sent {dat} over UART!")
+                        break
+                    if pulse_count == 9:
+                        print(f"Couldn't send {dat} over UART!")
+                        return False
 
     for i in range(0,3):
         pulse_count = test.receive_packet(25)

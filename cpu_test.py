@@ -132,7 +132,7 @@ def process_uart(test, uart, part, fflash, fconfig):
             mgmt_cust_h = ["C_MGMT_OUT"] * 19
             mgmt_cust_l = ["C_MGMT_OUT"] * 19
             mgmt_cust_l[uart.tx] = "C_MGMT_IN"
-            run_builder(gpio_l, gpio_h, False, custom=True, mgmt_cust_l=mgmt_cust_l, mgmt_cust_h=mgmt_cust_h)
+            run_builder(gpio_l.array, gpio_h.array, False, custom=True, mgmt_cust_l=mgmt_cust_l, mgmt_cust_h=mgmt_cust_h)
     if test.sram == 1:
         modify_hex(
                 f"caravel_board/firmware_vex/silicon_tests/{test_name}/{test_name}_sram.hex",

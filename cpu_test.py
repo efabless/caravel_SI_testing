@@ -153,7 +153,7 @@ def process_uart(test, uart, part, fflash, fconfig):
     test.release_reset()
     timeout = time.time() + 50
     rgRX = ""
-    pulse_count = test.receive_packet(250)
+    pulse_count = test.receive_packet(25)
     if pulse_count == 2:
         print(f"start UART transmission")
     if test_name == "uart":
@@ -168,16 +168,16 @@ def process_uart(test, uart, part, fflash, fconfig):
             if time.time() > timeout:
                 print("UART test failed!")
                 return False
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if pulse_count == 5:
             print(f"end UART transmission")
     elif test_name == "uart_reception":
-        arr = ["B", "M", "A"]
+        arr = ["M", "B", "A"]
         for i in arr:
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 4:
                 uart.write(i)
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 6:
                 print(f"Successfully sent {i} over UART!")
             if pulse_count == 9:
@@ -185,7 +185,7 @@ def process_uart(test, uart, part, fflash, fconfig):
                 return False
 
     for i in range(0,3):
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if pulse_count == 3:
             print(f"end {test_name} test")
     

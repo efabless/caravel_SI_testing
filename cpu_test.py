@@ -127,22 +127,26 @@ def process_uart(test, uart, part, fflash, fconfig):
     gpio_h = Gpio()
     if fconfig:
         choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
+        if test.test_name == "uart_reception":
+            mgmt_cust_h = ["C_MGMT_OUT"] * 19
+            mgmt_cust_l = ["C_MGMT_OUT"] * 19
+            mgmt_cust_l[uart.tx] = "C_MGMT_IN"
+            run_builder(gpio_l, gpio_h, False, custom=True, mgmt_cust_l=mgmt_cust_l, mgmt_cust_h=mgmt_cust_h)
     if test.sram == 1:
         modify_hex(
-                f"caravel_board/firmware_vex/silicon_tests/uart/uart_sram.hex",
-                "gpio_config_data.c",
+                f"caravel_board/firmware_vex/silicon_tests/{test.test_name}/{test.test_name}_sram.hex",
+                "caravel_board/firmware_vex/gpio_config/gpio_config_data.c",
                 first_line=2
             )
     else:
         modify_hex(
-                f"caravel_board/firmware_vex/silicon_tests/uart/uart_dff.hex",
-                "gpio_config_data.c",
+                f"caravel_board/firmware_vex/silicon_tests/{test.test_name}/{test.test_name}_dff.hex",
+                "caravel_board/firmware_vex/gpio_config/gpio_config_data.c",
                 first_line=2
             )
     uart.open()
     test.apply_reset()
     test.powerup_sequence()
-    test.test_name = "uart"
     if fflash:
         test.exec_flashing()
     test.release_reset()
@@ -151,24 +155,39 @@ def process_uart(test, uart, part, fflash, fconfig):
     pulse_count = test.receive_packet(250)
     if pulse_count == 2:
         print(f"start UART transmission")
-    while True:
-        uart_data, count = uart.read_uart()
-        if uart_data:
-            uart_data[count.value] = 0
-            rgRX = rgRX + uart_data.value.decode()
-            if "Monitor: Test UART passed" in rgRX:
-                print(rgRX)
-                break
-        if time.time() > timeout:
-            print("UART test failed!")
-            return False
-    pulse_count = test.receive_packet(250)
-    if pulse_count == 5:
-        print(f"end UART transmission")
+    if test.test_name == "uart":
+        while True:
+            uart_data, count = uart.read_uart()
+            if uart_data:
+                uart_data[count.value] = 0
+                rgRX = rgRX + uart_data.value.decode()
+                if "Monitor: Test UART passed" in rgRX:
+                    print(rgRX)
+                    break
+            if time.time() > timeout:
+                print("UART test failed!")
+                return False
+        pulse_count = test.receive_packet(250)
+        if pulse_count == 5:
+            print(f"end UART transmission")
+    elif test.test_name == "uart_reception":
+        arr = ["B", "M", "A"]
+        for i in arr:
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 4:
+                uart.write(i)
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 6:
+                print(f"Successfully sent {i} over UART!")
+            if pulse_count == 9:
+                print(f"Couldn't send {i} over UART!")
+                return False
+
     for i in range(0,3):
         pulse_count = test.receive_packet(250)
         if pulse_count == 3:
-            print(f"end UART test")
+            print(f"end {test.test_name} test")
+    
     return True
 
 def process_spi(test, spi, part, fflash, fconfig):
@@ -442,7 +461,10 @@ if __name__ == "__main__":
             "-iu", "--irq_uart", help="irq uart test", action="store_true"
         )
         parser.add_argument(
-            "-uart", "--uart_test", help="uart test", action="store_true"
+            "-u", "--uart_test", help="uart test", action="store_true"
+        )
+        parser.add_argument(
+            "-ur", "--uart_reception_test", help="uart test", action="store_true"
         )
         parser.add_argument(
             "-tp", "--timer0_periodic", help="timer0 periodic test", action="store_true"
@@ -523,6 +545,12 @@ if __name__ == "__main__":
                     run_test(test, writer, False, io_input=True)
             if args.uart_test:
                 test.test_name = "uart"
+                if args.voltage_all:
+                    run_test(test, writer, True, uart=True, uart_data=uart_data, part=part)
+                else:
+                    run_test(test, writer, False, uart=True, uart_data=uart_data, part=part)
+            if args.uart_reception_test:
+                test.test_name = "uart_reception"
                 if args.voltage_all:
                     run_test(test, writer, True, uart=True, uart_data=uart_data, part=part)
                 else:

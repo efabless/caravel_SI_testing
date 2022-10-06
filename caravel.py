@@ -133,11 +133,16 @@ class Test:
         Args:
             hex_file (string): path to hex file
         """
-        subprocess.call(
-            f"python3 caravel_hkflash.py {hex_file}",
-            cwd="caravel_board/firmware_vex/util/",
+        sp = subprocess.run(
+            f"python3 caravel_hkflash.py ../{hex_file}",
+            cwd="./caravel_board/firmware_vex/util/",
             shell=True,
         )
+        ret_code = sp.returncode
+        if ret_code != 0:
+            logging.error("Can't flash!")
+            self.close_devices()
+            sys.exit()
 
     def change_voltage(self):
         """
@@ -152,9 +157,9 @@ class Test:
         logging.info("   Flashing CPU")
         self.powerup_sequence()
         if self.sram == 1:
-            self.flash(f"caravel_board/firmware_vex/silicon_tests/{self.test_name}/{self.test_name}_sram.hex")
+            self.flash(f"silicon_tests/{self.test_name}/{self.test_name}_sram.hex")
         else:
-            self.flash(f"caravel_board/firmware_vex/silicon_tests/{self.test_name}/{self.test_name}_dff.hex")
+            self.flash(f"silicon_tests/{self.test_name}/{self.test_name}_dff.hex")
         self.powerup_sequence()
         logging.info(f"   changing VCORE voltage to {self.voltage}v")
         self.device1v8.supply.set_voltage(self.voltage)

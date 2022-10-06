@@ -1,4 +1,5 @@
 import argparse
+from multiprocessing.sharedctypes import Value
 from WF_SDK import *  # import instruments
 from WF_SDK.dmm import *
 from power_supply import PowerSupply
@@ -77,9 +78,9 @@ class Test:
             accurate_delay(pulse_width)
 
     def send_pulse(self, num_pulses, channel, pulse_width=25):
-        if channel < 15:
+        if channel < 14:
             channel = self.device1v8.dio_map[channel]
-        elif channel > 22:
+        elif channel > 21:
             channel = self.device3v3.dio_map[channel]
         else:
             channel = self.deviced.dio_map[channel]
@@ -132,10 +133,16 @@ class Test:
         Args:
             hex_file (string): path to hex file
         """
-        subprocess.call(
-            f"python3 caravel_board/firmware_vex/util/caravel_hkflash.py {hex_file}",
+        sp = subprocess.run(
+            f"python3 caravel_hkflash.py ../{hex_file}",
+            cwd="./caravel_board/firmware_vex/util/",
             shell=True,
         )
+        ret_code = sp.returncode
+        if ret_code != 0:
+            logging.error("Can't flash!")
+            self.close_devices()
+            sys.exit()
 
     def change_voltage(self):
         """
@@ -150,9 +157,9 @@ class Test:
         logging.info("   Flashing CPU")
         self.powerup_sequence()
         if self.sram == 1:
-            self.flash(f"caravel_board/firmware_vex/silicon_tests/{self.test_name}/{self.test_name}_sram.hex")
+            self.flash(f"silicon_tests/{self.test_name}/{self.test_name}_sram.hex")
         else:
-            self.flash(f"caravel_board/firmware_vex/silicon_tests/{self.test_name}/{self.test_name}_dff.hex")
+            self.flash(f"silicon_tests/{self.test_name}/{self.test_name}_dff.hex")
         self.powerup_sequence()
         logging.info(f"   changing VCORE voltage to {self.voltage}v")
         self.device1v8.supply.set_voltage(self.voltage)
@@ -420,6 +427,54 @@ class UART:
         # send text, trim zero ending
         dwf.FDwfDigitalUartTx(self.device_data.handle, data, ctypes.c_int(ctypes.sizeof(data)-1))
         return
+
+class SPI:
+    def __init__(self, device_data, rw_mode="r", data=[]):
+        self.device_data = device_data
+        self.cs = 33
+        self.sck = 32
+        self.miso = 35
+        self.mosi = 34
+        self.clk_freq = 1e06
+        self.mode = 0
+        self.order = True
+        self.data = data
+        self.rw_mode = rw_mode
+
+    def enabled(self):
+        csb = self.device_data.dio_map[self.cs]
+
+        while csb.get_value() != False:
+            pass
+
+        print("CSB is high")
+
+        return True
+    
+    def clk_trig(self):
+        clk = self.device_data.dio_map[self.cs]
+        if self.rw_mode == "r":
+            while clk.get_value() != True:
+                pass
+            self.read_data()
+        if self.rw_mode == "w":
+            while clk.get_value() != False:
+                pass
+            self.write_data()
+    
+    def read_data(self):
+        input = self.device_data.dio_map[self.miso]
+        if input.get_value() == True:
+            self.data.append(1)
+        elif input.get_value() == False:
+            self.data.append(0)
+
+    def write_data(self):
+        input = self.device_data.dio_map[self.mosi]
+        input.set_state(True)
+        input.set_value(self.data.pop(0))
+
+
 
 
 def count_pulses(packet_data):

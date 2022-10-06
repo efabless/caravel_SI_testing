@@ -53,17 +53,29 @@ class Gpio:
         return self.array[channel]
 
 
-def run_builder(gpio_l, gpio_h, input):
+def run_builder(gpio_l, gpio_h, input, custom=False, mgmt_cust_h=[], mgmt_cust_l=[]):
     gpio_l = ",".join(gpio_l)
     gpio_h = ",".join(gpio_h)
-    if not input:
+    if custom:
+        mgmt_cust_h = ",".join(mgmt_cust_h)
+        mgmt_cust_l = ",".join(mgmt_cust_l)
         subprocess.call(
-            f"python3 caravel_board/firmware_vex/gpio_config/gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config C_MGMT_OUT -d",
+            f"python3 gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config_h {mgmt_cust_h} -config_l {mgmt_cust_l} -d",
+            cwd="caravel_board/firmware_vex/gpio_config/",
+            shell=True,
+        )
+    elif not input:
+        mgmt_out = ",".join(["C_MGMT_OUT"] * 19)
+        subprocess.call(
+            f"python3 gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config_h {mgmt_out} -config_l {mgmt_out} -d",
+            cwd="caravel_board/firmware_vex/gpio_config/",
             shell=True,
         )
     else:
+        mgmt_in = ",".join(["C_MGMT_IN"] * 19)
         subprocess.call(
-            f"python3 caravel_board/firmware_vex/gpio_config/gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config C_MGMT_IN -d",
+            f"python3 gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config_h {mgmt_in} -config_l {mgmt_in} -d",
+            cwd="caravel_board/firmware_vex/gpio_config/",
             shell=True,
         )
 
@@ -85,11 +97,10 @@ def run_flash(close):
         pid = None
 
 
-def modify_hex(hex_file, c_file):
+def modify_hex(hex_file, c_file, first_line=1):
     c_file = open(c_file, "r")
     hex_data = []
     new_hex_data = ""
-    first_line = 1
     flag = False
     for aline in c_file:
         aline = aline.strip()
@@ -112,9 +123,9 @@ def modify_hex(hex_file, c_file):
             line = line.strip()
             if line:
                 if line.startswith("@"):
-                    if first_line == 1:
+                    if first_line > 0:
                         print(line)
-                        first_line = 0
+                        first_line = first_line - 1
                     else:
                         print(line)
                         flag = True
@@ -144,7 +155,7 @@ def exec_flash(test):
     logging.info("   Flashing CPU")
     test.apply_reset()
     test.powerup_sequence()
-    test.flash(f"caravel_board/firmware_vex/{test.test_name}/{test.test_name}.hex")
+    test.flash(f"{test.test_name}/{test.test_name}.hex")
     test.powerup_sequence()
     test.release_reset()
 
@@ -224,7 +235,7 @@ def run_input_test(test, high):
             if high == False:
                 channel = channel + 1
             else:
-                channel = channel - 1   
+                channel = channel - 1
             count = count + 1
     return True, None
 
@@ -355,7 +366,7 @@ def run_test_h(test, gpio_l, gpio_h):
     return True, None
 
 
-def change_config(channel, gpio_l, gpio_h, part, voltage, start_time):
+def change_config(channel, gpio_l, gpio_h, part, voltage, start_time, test):
     end_time = (time.time() - start_time) / 60.0
     if channel > 18:
         if gpio_h.get_io_stuck(37 - channel) == False:
@@ -376,20 +387,8 @@ def change_config(channel, gpio_l, gpio_h, part, voltage, start_time):
                     "minutes",
                 )
                 f = open(f"{part}.txt", "a")
-                fc = open(f"{part}_{test.voltage}.csv", "a")
                 f.write(f"\n\nPart: {part}\n")
-                fc.write(" \n")
-                fc.write(f"{test.voltage}\n")
                 arr_h = gpio_h.array[::-1]
-                for i in range(len(arr_h)):
-                    if i >= (37 - channel):
-                        fc.write("F\n")
-                    elif arr_h[i] == "H_NONE":
-                        fc.write("0\n")
-                    elif arr_h[i] == "H_DEPENDENT":
-                        fc.write("1\n")
-                    elif arr_h[i] == "H_INDEPENDENT":
-                        fc.write("2\n")
                 f.write(f"voltage: {voltage}\n")
                 for i in range(len(gpio_l.stuck)):
                     if gpio_h.get_io_stuck(i) == True:
@@ -422,19 +421,7 @@ def change_config(channel, gpio_l, gpio_h, part, voltage, start_time):
                     "minutes",
                 )
                 f = open(f"{part}.txt", "a")
-                fc = open(f"{part}_{test.voltage}.csv", "a")
                 f.write(f"\n\nPart: {part}\n")
-                fc.write(" \n")
-                fc.write(f"{test.voltage}\n")
-                for i in range(len(gpio_l.array)):
-                    if i >= channel:
-                        fc.write("F\n")
-                    elif gpio_l.array[i] == "H_NONE":
-                        fc.write("0\n")
-                    elif gpio_l.array[i] == "H_DEPENDENT":
-                        fc.write("1\n")
-                    elif gpio_l.array[i] == "H_INDEPENDENT":
-                        fc.write("2\n")
                 f.write(f"voltage: {voltage}\n")
                 for i in range(len(gpio_l.stuck)):
                     if gpio_l.get_io_stuck(i) == True:
@@ -467,7 +454,7 @@ def choose_test(
         run_builder(gpio_l.array, gpio_h.array, input_test)
         modify_hex(
             f"caravel_board/firmware_vex/{test_name}/{test_name}.hex",
-            "gpio_config_data.c",
+            "caravel_board/firmware_vex/gpio_config/gpio_config_data.c",
         )
         exec_flash(test)
         if not input_test:
@@ -478,6 +465,7 @@ def choose_test(
                 test_result, channel_failed = run_test_h(test, gpio_l, gpio_h)
         else:
             if not high:
+                run_flash(False)
                 test_result, channel_failed = run_input_test(test, False)
             else:
                 test_result, channel_failed = run_input_test(test, True)
@@ -485,29 +473,29 @@ def choose_test(
             print("Test Passed!")
             print("Final configuration for gpio_l: ", gpio_l.array)
             print("Final configuration for gpio_h: ", gpio_h.array)
-            test_passed(test, start_time, part, gpio_l, gpio_h, chain)
+            test_passed(test, start_time, part, gpio_l, gpio_h, chain, input_test)
         else:
             run_flash(True)
             gpio_l, gpio_h = change_config(
-                channel_failed, gpio_l, gpio_h, part, test.voltage, start_time
+                channel_failed, gpio_l, gpio_h, part, test.voltage, start_time, test
             )
         if gpio_h.get_gpio_failed() is True or gpio_l.get_gpio_failed() is True:
             run_flash(True)
             break
 
 
-def test_passed(test, start_time, part, gpio_l, gpio_h, chain):
+def test_passed(test, start_time, part, gpio_l, gpio_h, chain, input_test):
     end_time = (time.time() - start_time) / 60.0
 
     print("Configuring the ios took: ", end_time, "minutes")
 
     f = open(f"{part}.txt", "a")
-    fc = open(f"{part}_{test.voltage}.csv", "a")
     f.write(f"\n\nPart: {part}\n")
-    fc.write(" \n")
-    fc.write(f"{test.voltage}\n")
-    fc.write(f"{part}\n")
     f.write(f"voltage: {test.voltage}\n")
+    if input_test:
+        f.write("Input configuration")
+    else:
+        f.write("Output configuration")
     f.write(f"configuration of {chain} chain was successful\n")
     for i in range(len(gpio_l.stuck)):
         if gpio_l.get_io_stuck(i) == True:
@@ -518,26 +506,11 @@ def test_passed(test, start_time, part, gpio_l, gpio_h, chain):
     f.write(f"Final configuration of {chain} chain: \n")
     if chain == "low":
         f.write(f"gpio from 0 to 18: {gpio_l.array}\n")
-        for i in gpio_l.array:
-            if i == "H_NONE":
-                fc.write("0\n")
-            elif i == "H_DEPENDENT":
-                fc.write("1\n")
-            elif i == "H_INDEPENDENT":
-                fc.write("2\n")
     elif chain == "high":
         f.write(f"gpio from 37 to 19: {gpio_h.array}\n")
         arr = gpio_h.array[::-1]
-        for i in arr:
-            if i == "H_NONE":
-                fc.write("0\n")
-            elif i == "H_DEPENDENT":
-                fc.write("1\n")
-            elif i == "H_INDEPENDENT":
-                fc.write("2\n")
     f.write(f"Execution time: {end_time} minutes\n")
     f.close()
-    fc.close()
 
 
 if __name__ == "__main__":
@@ -565,6 +538,12 @@ if __name__ == "__main__":
             "-ol",
             "--gpio_output_l",
             help="run gpio output low configuration test",
+            action="store_true",
+        )
+        parser.add_argument(
+            "-ol6",
+            "--gpio_output_l_6",
+            help="run gpio output low 6 configuration test",
             action="store_true",
         )
         parser.add_argument(
@@ -629,8 +608,6 @@ if __name__ == "__main__":
 
         if os.path.exists(f"./{part}.txt"):
             os.remove(f"./{part}.txt")
-        if os.path.exists(f"./{part}_{test.voltage}.csv"):
-            os.remove(f"./{part}_{test.voltage}.csv")
 
         if args.voltage:
             test.voltage = float(args.voltage)
@@ -700,6 +677,17 @@ if __name__ == "__main__":
             else:
                 choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
 
+        if args.gpio_output_l_6:
+            if args.voltage_all:
+                for i in range(0, 7):
+                    start_time = time.time()
+                    gpio_l = Gpio()
+                    gpio_h = Gpio()
+                    test.voltage = 1.8 - i * 0.05
+                    choose_test(test, "config_io_o_l_6", gpio_l, gpio_h, start_time, part)
+            else:
+                choose_test(test, "config_io_o_l_6", gpio_l, gpio_h, start_time, part)
+
         if args.gpio_input_low:
             if args.voltage_all:
                 for i in range(0, 7):
@@ -741,6 +729,8 @@ if __name__ == "__main__":
                         gpio_h,
                         start_time,
                         part,
+                        "high",
+                        True,
                         input_test=True,
                     )
             else:
@@ -751,6 +741,8 @@ if __name__ == "__main__":
                     gpio_h,
                     start_time,
                     part,
+                    "high",
+                    True,
                     input_test=True,
                 )
 
@@ -804,9 +796,25 @@ if __name__ == "__main__":
                     gpio_l = Gpio()
                     gpio_h = Gpio()
                     test.voltage = 1.8 - i * 0.05
-                    choose_test(test, "config_io_i_low", gpio_l, gpio_h, start_time, part)
+                    choose_test(
+                        test,
+                        "config_io_i_low",
+                        gpio_l,
+                        gpio_h,
+                        start_time,
+                        part,
+                        input_test=True,
+                    )
             else:
-                choose_test(test, "config_io_i_low", gpio_l, gpio_h, start_time, part)
+                choose_test(
+                    test,
+                    "config_io_i_low",
+                    gpio_l,
+                    gpio_h,
+                    start_time,
+                    part,
+                    input_test=True,
+                )
 
             gpio_l = Gpio()
             gpio_h = Gpio()
@@ -827,6 +835,7 @@ if __name__ == "__main__":
                         part,
                         "high",
                         True,
+                        input_test=True,
                     )
             else:
                 choose_test(
@@ -838,6 +847,7 @@ if __name__ == "__main__":
                     part,
                     "high",
                     True,
+                    input_test=True,
                 )
 
         end_time = (time.time() - start_program) / 60.0

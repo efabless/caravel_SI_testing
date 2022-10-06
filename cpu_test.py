@@ -1,4 +1,6 @@
 from caravel import *
+from io_config import *
+import threading
 
 
 def init_ios(device1_data, device2_data, device3_data):
@@ -119,22 +121,118 @@ def process_mem(test):
                 return mem_size
             break
 
-def process_uart(test, uart):
-    uart = UART(device1_data)
-    timeout = time.time() + 30
+def process_uart(test, uart, part, fflash, fconfig):
+    start_time = time.time()
+    gpio_l = Gpio()
+    gpio_h = Gpio()
+    if fconfig:
+        choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
+        if test.test_name == "uart_reception":
+            mgmt_cust_h = ["C_MGMT_OUT"] * 19
+            mgmt_cust_l = ["C_MGMT_OUT"] * 19
+            mgmt_cust_l[uart.tx] = "C_MGMT_IN"
+            run_builder(gpio_l, gpio_h, False, custom=True, mgmt_cust_l=mgmt_cust_l, mgmt_cust_h=mgmt_cust_h)
+    if test.sram == 1:
+        modify_hex(
+                f"caravel_board/firmware_vex/silicon_tests/{test.test_name}/{test.test_name}_sram.hex",
+                "caravel_board/firmware_vex/gpio_config/gpio_config_data.c",
+                first_line=2
+            )
+    else:
+        modify_hex(
+                f"caravel_board/firmware_vex/silicon_tests/{test.test_name}/{test.test_name}_dff.hex",
+                "caravel_board/firmware_vex/gpio_config/gpio_config_data.c",
+                first_line=2
+            )
+    uart.open()
+    test.apply_reset()
+    test.powerup_sequence()
+    if fflash:
+        test.exec_flashing()
+    test.release_reset()
+    timeout = time.time() + 50
     rgRX = ""
     pulse_count = test.receive_packet(250)
-    if pulse_count == 1:
-        print(f"start UART test")
-    while time.time() > timeout:
-        uart_data, count = uart.read_uart()
-        if uart_data:
-            uart_data[count.value] = 0
-            rgRX = rgRX + uart_data.value.decode()
-            if rgRX == "Monitor: Test UART passed\n":
-                print(rgRX)
-                return True
-    return False
+    if pulse_count == 2:
+        print(f"start UART transmission")
+    if test.test_name == "uart":
+        while True:
+            uart_data, count = uart.read_uart()
+            if uart_data:
+                uart_data[count.value] = 0
+                rgRX = rgRX + uart_data.value.decode()
+                if "Monitor: Test UART passed" in rgRX:
+                    print(rgRX)
+                    break
+            if time.time() > timeout:
+                print("UART test failed!")
+                return False
+        pulse_count = test.receive_packet(250)
+        if pulse_count == 5:
+            print(f"end UART transmission")
+    elif test.test_name == "uart_reception":
+        arr = ["B", "M", "A"]
+        for i in arr:
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 4:
+                uart.write(i)
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 6:
+                print(f"Successfully sent {i} over UART!")
+            if pulse_count == 9:
+                print(f"Couldn't send {i} over UART!")
+                return False
+
+    for i in range(0,3):
+        pulse_count = test.receive_packet(250)
+        if pulse_count == 3:
+            print(f"end {test.test_name} test")
+    
+    return True
+
+def process_spi(test, spi, part, fflash, fconfig):
+    start_time = time.time()
+    gpio_l = Gpio()
+    gpio_h = Gpio()
+    if fconfig:
+        choose_test(test, "config_io_o_h", gpio_l, gpio_h, start_time, part)
+    if test.sram == 1:
+        modify_hex(
+                f"caravel_board/firmware_vex/silicon_tests/uart/uart_sram.hex",
+                "gpio_config_data.c",
+                first_line=2
+            )
+    else:
+        modify_hex(
+                f"caravel_board/firmware_vex/silicon_tests/uart/uart_dff.hex",
+                "gpio_config_data.c",
+                first_line=2
+            )
+    test.apply_reset()
+    test.powerup_sequence()
+    test.test_name = "spi_master"
+    if fflash:
+        test.exec_flashing()
+    test.release_reset()
+    csb = spi.device_data.dio_map[spi.cs]
+        
+    while csb.get_value() != True:
+        pass
+
+    print("CSB is low")
+
+    th1 = threading.Thread(target=spi.enabled())
+    spi.rw_mode = "r"
+    th2 = threading.Thread(target=spi.clk_trig())
+    bit = 0
+    th1.start()
+    while(bit < 24 and th2.join()):
+        th2.start()
+        bit = bit + 1
+        if bit == 17:
+            spi.rw_mode = "w"
+
+
 
 def process_input_io(test):
     count = 0
@@ -142,7 +240,10 @@ def process_input_io(test):
         pulse_count = test.receive_packet(250)
         test_count = pulse_count
         if pulse_count != 10 or pulse_count != 9:
-            time.sleep(1.2)
+            if test.sram:
+                time.sleep(1.2)
+            else:
+                time.sleep(1)
             test.send_packet(pulse_count, 250)
             print(f"recieved {pulse_count} pulses and sent them")
         pulse_count = test.receive_packet(250)
@@ -236,12 +337,12 @@ def process_io(test, channel):
         return False
 
 
-def exec_tests(test, fflash, channel, io, mem, uart, io_input):
+def exec_tests(test, fflash, fconfig, channel, io, mem, uart, io_input, uart_data, part):
     test.powerup_sequence()
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.change_voltage()
     test.reset()
-    if fflash == 1:
+    if fflash == 1 and not uart:
         test.exec_flashing()
 
     if io:
@@ -249,14 +350,14 @@ def exec_tests(test, fflash, channel, io, mem, uart, io_input):
     elif mem:
         return process_mem(test)
     elif uart:
-        return process_uart(test)
+        return process_uart(test, uart_data, part, fflash, fconfig)
     elif io_input:
         return process_input_io(test)
     else:
         return process_data(test)
 
 
-def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input):
+def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input, uart_data, part, fconfig):
     fflash = 1
     if automatic_voltage:
         for i in range(0, 7):
@@ -264,11 +365,14 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input)
             results = exec_tests(
                 test,
                 fflash,
+                fconfig,
                 channel,
                 io,
                 mem,
                 uart,
                 io_input,
+                uart_data, 
+                part,
             )
             if test.sram == 1:
                 arr = [test.test_name, "OPENram", test.voltage, results]
@@ -277,6 +381,7 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input)
             writer.writerow(arr)
             i = i + 1
             fflash = 0
+            fconfig = 0
     else:
         results = exec_tests(
             test,
@@ -286,6 +391,8 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input)
             mem,
             uart,
             io_input,
+            uart_data, 
+            part,
         )
         if test.sram == 1:
             arr = [test.test_name, "OPENram", test.voltage, results]
@@ -293,21 +400,24 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input)
             arr = [test.test_name, "DFFRAM", test.voltage, results]
         writer.writerow(arr)
         fflash = 0
+        fconfig = 0
 
 
 def run_test(
-    test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None, mem=False, uart=False, io_input=False
+    test, writer, automatic_voltage, io=False, channel="gpio_mgmt", sram=None, mem=False, uart=False, io_input=False, uart_data=None, part=None
 ):
     logging.info(f"  Running {test.test_name} test")
+    fconfig = 1
     if sram == None:
         test.sram = 1
-        exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input)
+        exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input, uart_data, part, fconfig)
+        fconfig = 0
         test.sram = 0
     elif sram == "sram":
         test.sram = 1
     elif sram == "dff":
         test.sram = 0
-    exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input)
+    exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input, uart_data, part, fconfig)
 
 
 if __name__ == "__main__":
@@ -351,7 +461,10 @@ if __name__ == "__main__":
             "-iu", "--irq_uart", help="irq uart test", action="store_true"
         )
         parser.add_argument(
-            "-uart", "--uart_test", help="uart test", action="store_true"
+            "-u", "--uart_test", help="uart test", action="store_true"
+        )
+        parser.add_argument(
+            "-ur", "--uart_reception_test", help="uart test", action="store_true"
         )
         parser.add_argument(
             "-tp", "--timer0_periodic", help="timer0 periodic test", action="store_true"
@@ -379,6 +492,8 @@ if __name__ == "__main__":
         )
         parser.add_argument("-v", "--voltage", help="change test voltage")
         parser.add_argument("-a", "--all", help="run all tests", action="store_true")
+        parser.add_argument("-am", "--all_mem", help="run all tests", action="store_true")
+        parser.add_argument("-p", "--part", help="part name", required=True)
         args = parser.parse_args()
 
         logging.basicConfig(level=logging.INFO)
@@ -399,6 +514,9 @@ if __name__ == "__main__":
         device3 = Device(device3_data, 2, device3_dio_map)
 
         test = Test(device1, device2, device3)
+        uart_data = UART(device1_data)
+        spi = SPI(device1_data)
+        part = args.part
 
         csv_header = ["test_name", "ram", "voltage (v)", "Pass/Fail"]
         if os.path.exists("./results.csv"):
@@ -428,9 +546,15 @@ if __name__ == "__main__":
             if args.uart_test:
                 test.test_name = "uart"
                 if args.voltage_all:
-                    run_test(test, writer, True, uart=True)
+                    run_test(test, writer, True, uart=True, uart_data=uart_data, part=part)
                 else:
-                    run_test(test, writer, False, uart=True)
+                    run_test(test, writer, False, uart=True, uart_data=uart_data, part=part)
+            if args.uart_reception_test:
+                test.test_name = "uart_reception"
+                if args.voltage_all:
+                    run_test(test, writer, True, uart=True, uart_data=uart_data, part=part)
+                else:
+                    run_test(test, writer, False, uart=True, uart_data=uart_data, part=part)
             if args.cpu_stress:
                 test.test_name = "cpu_stress"
                 test.passing_criteria = [1, 2, 3, 4, 5, 1, 1, 1]

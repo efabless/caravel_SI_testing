@@ -121,26 +121,26 @@ def process_mem(test):
                 return mem_size
             break
 
-def process_uart(test, uart, part, fflash, fconfig, test_name):
+def process_uart(test, uart, part, fflash, fconfig):
     start_time = time.time()
     gpio_l = Gpio()
     gpio_h = Gpio()
     if fconfig:
         choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
-        if test_name != "uart":
+        if uart_test_name != "uart":
             mgmt_cust_h = ["C_MGMT_OUT"] * 19
             mgmt_cust_l = ["C_MGMT_OUT"] * 19
             mgmt_cust_l[uart.tx] = "C_MGMT_IN"
             run_builder(gpio_l.array, gpio_h.array, False, custom=True, mgmt_cust_l=mgmt_cust_l, mgmt_cust_h=mgmt_cust_h)
     if test.sram == 1:
         modify_hex(
-                f"caravel_board/firmware_vex/silicon_tests/{test_name}/{test_name}_sram.hex",
+                f"caravel_board/firmware_vex/silicon_tests/{uart_test_name}/{uart_test_name}_sram.hex",
                 "caravel_board/firmware_vex/gpio_config/gpio_config_data.c",
                 first_line=2
             )
     else:
         modify_hex(
-                f"caravel_board/firmware_vex/silicon_tests/{test_name}/{test_name}_dff.hex",
+                f"caravel_board/firmware_vex/silicon_tests/{uart_test_name}/{uart_test_name}_dff.hex",
                 "caravel_board/firmware_vex/gpio_config/gpio_config_data.c",
                 first_line=2
             )
@@ -155,7 +155,7 @@ def process_uart(test, uart, part, fflash, fconfig, test_name):
     pulse_count = test.receive_packet(25)
     if pulse_count == 2:
         print(f"start UART transmission")
-    if test_name == "uart":
+    if uart_test_name == "uart":
         while True:
             uart_data, count = uart.read_uart()
             if uart_data:
@@ -170,7 +170,7 @@ def process_uart(test, uart, part, fflash, fconfig, test_name):
         pulse_count = test.receive_packet(25)
         if pulse_count == 5:
             print(f"end UART transmission")
-    elif test_name == "uart_reception":
+    elif uart_test_name == "uart_reception":
         arr = ["M", "B", "A"]
         for i in arr:
             pulse_count = test.receive_packet(25)
@@ -182,7 +182,7 @@ def process_uart(test, uart, part, fflash, fconfig, test_name):
             if pulse_count == 9:
                 print(f"Couldn't send {i} over UART!")
                 return False
-    elif test_name == "uart_loopback":
+    elif uart_test_name == "uart_loopback":
         for i in range(0,5):
             while time.time() < timeout:
                 uart_data, count = uart.read_uart()
@@ -201,7 +201,7 @@ def process_uart(test, uart, part, fflash, fconfig, test_name):
     for i in range(0,3):
         pulse_count = test.receive_packet(25)
         if pulse_count == 3:
-            print(f"end {test_name} test")
+            print(f"end {uart_test_name} test")
     
     return True
 
@@ -563,18 +563,21 @@ if __name__ == "__main__":
                 else:
                     run_test(test, writer, False, io_input=True)
             if args.uart_test:
+                uart_test_name = "uart"
                 test.test_name = "uart"
                 if args.voltage_all:
                     run_test(test, writer, True, uart=True, uart_data=uart_data, part=part)
                 else:
                     run_test(test, writer, False, uart=True, uart_data=uart_data, part=part)
             if args.uart_reception_test:
+                uart_test_name = "uart_reception"
                 test.test_name = "uart_reception"
                 if args.voltage_all:
                     run_test(test, writer, True, uart=True, uart_data=uart_data, part=part)
                 else:
                     run_test(test, writer, False, uart=True, uart_data=uart_data, part=part)
             if args.uart_loopback_test:
+                uart_test_name = "uart_loopback"
                 test.test_name = "uart_loopback"
                 if args.voltage_all:
                     run_test(test, writer, True, uart=True, uart_data=uart_data, part=part)

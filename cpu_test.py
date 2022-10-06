@@ -121,14 +121,13 @@ def process_mem(test):
                 return mem_size
             break
 
-def process_uart(test, uart, part, fflash, fconfig):
-    test_name = test.test_name
+def process_uart(test, uart, part, fflash, fconfig, test_name):
     start_time = time.time()
     gpio_l = Gpio()
     gpio_h = Gpio()
     if fconfig:
         choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
-        if test_name == "uart_reception":
+        if test_name != "uart":
             mgmt_cust_h = ["C_MGMT_OUT"] * 19
             mgmt_cust_l = ["C_MGMT_OUT"] * 19
             mgmt_cust_l[uart.tx] = "C_MGMT_IN"
@@ -183,6 +182,19 @@ def process_uart(test, uart, part, fflash, fconfig):
             if pulse_count == 9:
                 print(f"Couldn't send {i} over UART!")
                 return False
+    elif test_name == "uart_loopback":
+        for i in range(0,5):
+            uart_data, count = uart.read_uart()
+            if uart_data:
+                uart_data[count.value] = 0
+                dat = uart_data.value.decode()
+                uart.write(dat)
+                pulse_count = test.receive_packet(25)
+                if pulse_count == 6:
+                    print(f"Successfully sent {dat} over UART!")
+                if pulse_count == 9:
+                    print(f"Couldn't send {dat} over UART!")
+                    return False
 
     for i in range(0,3):
         pulse_count = test.receive_packet(25)
@@ -351,7 +363,7 @@ def exec_tests(test, fflash, fconfig, channel, io, mem, uart, io_input, uart_dat
     elif mem:
         return process_mem(test)
     elif uart:
-        return process_uart(test, uart_data, part, fflash, fconfig)
+        return process_uart(test, uart_data, part, fflash, fconfig, test_name=test.test_name)
     elif io_input:
         return process_input_io(test)
     else:

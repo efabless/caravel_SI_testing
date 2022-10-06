@@ -386,6 +386,7 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input,
         results = exec_tests(
             test,
             fflash,
+            fconfig,
             channel,
             io,
             mem,

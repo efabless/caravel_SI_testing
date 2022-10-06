@@ -12,7 +12,7 @@ TOOLCHAIN_PREFIX=riscv64
 
 .SUFFIXES:
 
-PATTERN = send_recieve_packet
+PATTERN = receive_packet
 
 hex:  ${PATTERN:=.hex}
 
@@ -22,7 +22,7 @@ hex:  ${PATTERN:=.hex}
 %.elf: %.c ../../sections.lds ../../crt0_vex.S ../../gpio_config/gpio_config_data.c
 	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-gcc -I../../ -I../../generated/ -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../../sections.lds,--strip-debug -ffreestanding -nostdlib -o $@ ../../crt0_vex.S ../../isr.c ../../gpio_program.c $<
 
-	${TOOLCHAIN_PATH}riscv32-unknown-linux-gnu-objdump -s  send_recieve_packet.elf > send_recieve_packet.lst
+	${TOOLCHAIN_PATH}riscv32-unknown-linux-gnu-objdump -s  receive_packet.elf > receive_packet.lst
 
 %.hex: %.elf
 	$(TOOLCHAIN_PATH)riscv32-unknown-linux-gnu-objcopy -O verilog $< $@
@@ -34,12 +34,12 @@ hex:  ${PATTERN:=.hex}
 client: client.c
 	gcc client.c -o client
 
-flash: send_recieve_packet.hex
-	python3 ../util/caravel_hkflash.py send_recieve_packet.hex
+flash: receive_packet.hex
+	python3 ../util/caravel_hkflash.py receive_packet.hex
 	python3 ../util/caravel_hkstop.py
 
-flash2: send_recieve_packet.hex
-	python3 ../util/caravel_flash.py send_recieve_packet.hex
+flash2: receive_packet.hex
+	python3 ../util/caravel_flash.py receive_packet.hex
 
 # ---- Clean ----
 

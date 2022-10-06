@@ -122,25 +122,26 @@ def process_mem(test):
             break
 
 def process_uart(test, uart, part, fflash, fconfig):
+    test_name = test.test_name
     start_time = time.time()
     gpio_l = Gpio()
     gpio_h = Gpio()
     if fconfig:
         choose_test(test, "config_io_o_l", gpio_l, gpio_h, start_time, part)
-        if test.test_name == "uart_reception":
+        if test_name == "uart_reception":
             mgmt_cust_h = ["C_MGMT_OUT"] * 19
             mgmt_cust_l = ["C_MGMT_OUT"] * 19
             mgmt_cust_l[uart.tx] = "C_MGMT_IN"
-            run_builder(gpio_l, gpio_h, False, custom=True, mgmt_cust_l=mgmt_cust_l, mgmt_cust_h=mgmt_cust_h)
+            run_builder(gpio_l.array, gpio_h.array, False, custom=True, mgmt_cust_l=mgmt_cust_l, mgmt_cust_h=mgmt_cust_h)
     if test.sram == 1:
         modify_hex(
-                f"caravel_board/firmware_vex/silicon_tests/{test.test_name}/{test.test_name}_sram.hex",
+                f"caravel_board/firmware_vex/silicon_tests/{test_name}/{test_name}_sram.hex",
                 "caravel_board/firmware_vex/gpio_config/gpio_config_data.c",
                 first_line=2
             )
     else:
         modify_hex(
-                f"caravel_board/firmware_vex/silicon_tests/{test.test_name}/{test.test_name}_dff.hex",
+                f"caravel_board/firmware_vex/silicon_tests/{test_name}/{test_name}_dff.hex",
                 "caravel_board/firmware_vex/gpio_config/gpio_config_data.c",
                 first_line=2
             )
@@ -152,10 +153,10 @@ def process_uart(test, uart, part, fflash, fconfig):
     test.release_reset()
     timeout = time.time() + 50
     rgRX = ""
-    pulse_count = test.receive_packet(250)
+    pulse_count = test.receive_packet(25)
     if pulse_count == 2:
         print(f"start UART transmission")
-    if test.test_name == "uart":
+    if test_name == "uart":
         while True:
             uart_data, count = uart.read_uart()
             if uart_data:
@@ -167,16 +168,16 @@ def process_uart(test, uart, part, fflash, fconfig):
             if time.time() > timeout:
                 print("UART test failed!")
                 return False
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if pulse_count == 5:
             print(f"end UART transmission")
-    elif test.test_name == "uart_reception":
-        arr = ["B", "M", "A"]
+    elif test_name == "uart_reception":
+        arr = ["M", "B", "A"]
         for i in arr:
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 4:
                 uart.write(i)
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 6:
                 print(f"Successfully sent {i} over UART!")
             if pulse_count == 9:
@@ -184,9 +185,9 @@ def process_uart(test, uart, part, fflash, fconfig):
                 return False
 
     for i in range(0,3):
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if pulse_count == 3:
-            print(f"end {test.test_name} test")
+            print(f"end {test_name} test")
     
     return True
 
@@ -386,6 +387,7 @@ def exec_test(test, writer, io, channel, automatic_voltage, mem, uart, io_input,
         results = exec_tests(
             test,
             fflash,
+            fconfig,
             channel,
             io,
             mem,

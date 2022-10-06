@@ -78,18 +78,23 @@ void main()
     send_packet(2); // Start of the test
 
     print("M");
+    for (j = 0; j < 1000; j++);
     wait_for_char("M");
     
     print("B");
+    for (j = 0; j < 1000; j++);
     wait_for_char("B");
 
     print("A");
+    for (j = 0; j < 1000; j++);
     wait_for_char("A");
 
     print("5");
+    for (j = 0; j < 1000; j++);
     wait_for_char("5");
 
     print("o");
+    for (j = 0; j < 1000; j++);
     wait_for_char("o");
 
 

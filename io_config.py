@@ -53,19 +53,29 @@ class Gpio:
         return self.array[channel]
 
 
-def run_builder(gpio_l, gpio_h, input):
+def run_builder(gpio_l, gpio_h, input, custom=False, mgmt_cust_h=[], mgmt_cust_l=[]):
     gpio_l = ",".join(gpio_l)
     gpio_h = ",".join(gpio_h)
-    if not input:
+    if custom:
+        mgmt_cust_h = ",".join(mgmt_cust_h)
+        mgmt_cust_l = ",".join(mgmt_cust_l)
+        subprocess.call(
+            f"python3 gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config_h {mgmt_cust_h} -config_l {mgmt_cust_l} -d",
+            cwd="caravel_board/firmware_vex/gpio_config/",
+            shell=True,
+        )
+    elif not input:
         mgmt_out = ",".join(["C_MGMT_OUT"] * 19)
         subprocess.call(
-            f"python3 caravel_board/firmware_vex/gpio_config/gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config_h {mgmt_out} -config_l {mgmt_out} -d",
+            f"python3 gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config_h {mgmt_out} -config_l {mgmt_out} -d",
+            cwd="caravel_board/firmware_vex/gpio_config/",
             shell=True,
         )
     else:
         mgmt_in = ",".join(["C_MGMT_IN"] * 19)
         subprocess.call(
-            f"python3 caravel_board/firmware_vex/gpio_config/gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config_h {mgmt_in} -config_l {mgmt_in} -d",
+            f"python3 gpio_config_builder.py -gpio_l {gpio_l} -gpio_h {gpio_h} -num_io 19 -config_h {mgmt_in} -config_l {mgmt_in} -d",
+            cwd="caravel_board/firmware_vex/gpio_config/",
             shell=True,
         )
 
@@ -145,7 +155,7 @@ def exec_flash(test):
     logging.info("   Flashing CPU")
     test.apply_reset()
     test.powerup_sequence()
-    test.flash(f"caravel_board/firmware_vex/{test.test_name}/{test.test_name}.hex")
+    test.flash(f"{test.test_name}/{test.test_name}.hex")
     test.powerup_sequence()
     test.release_reset()
 
@@ -444,7 +454,7 @@ def choose_test(
         run_builder(gpio_l.array, gpio_h.array, input_test)
         modify_hex(
             f"caravel_board/firmware_vex/{test_name}/{test_name}.hex",
-            "gpio_config_data.c",
+            "caravel_board/firmware_vex/gpio_config/gpio_config_data.c",
         )
         exec_flash(test)
         if not input_test:
@@ -463,7 +473,7 @@ def choose_test(
             print("Test Passed!")
             print("Final configuration for gpio_l: ", gpio_l.array)
             print("Final configuration for gpio_h: ", gpio_h.array)
-            test_passed(test, start_time, part, gpio_l, gpio_h, chain)
+            test_passed(test, start_time, part, gpio_l, gpio_h, chain, input_test)
         else:
             run_flash(True)
             gpio_l, gpio_h = change_config(
@@ -474,7 +484,7 @@ def choose_test(
             break
 
 
-def test_passed(test, start_time, part, gpio_l, gpio_h, chain):
+def test_passed(test, start_time, part, gpio_l, gpio_h, chain, input_test):
     end_time = (time.time() - start_time) / 60.0
 
     print("Configuring the ios took: ", end_time, "minutes")
@@ -482,6 +492,10 @@ def test_passed(test, start_time, part, gpio_l, gpio_h, chain):
     f = open(f"{part}.txt", "a")
     f.write(f"\n\nPart: {part}\n")
     f.write(f"voltage: {test.voltage}\n")
+    if input_test:
+        f.write("Input configuration")
+    else:
+        f.write("Output configuration")
     f.write(f"configuration of {chain} chain was successful\n")
     for i in range(len(gpio_l.stuck)):
         if gpio_l.get_io_stuck(i) == True:

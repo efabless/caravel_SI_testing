@@ -17,40 +17,32 @@
 
 #include <defs.h>
 #include <stub.c>
+#include <uart.h>
 #include "send_packet.c"
 // #include "bitbang.c"
 #include "../../gpio_config/gpio_config_io.c"
 
 void wait_for_char(char *c){
-    int time_out = 1000000;
-    bool is_found = false;
-    for (int i = 0; i < time_out; i++)
-    {
-        if (reg_uart_data == *c){
-            is_found =  true;
-            send_packet(6); // recieved the correct character
-            break;
-        }
+    while (uart_rxempty_read() == 1);
+    if (reg_uart_data == *c){
+        send_packet(6); // recieved the correct character
     }
-    if (~is_found){
-        send_packet(9); // timeout didn't recieve the character
+    else {
+        send_packet(9); // recieved incorrect correct character
     }
+    uart_ev_pending_write(UART_EV_RX);
 }
-
 /*
 Connect the transimssion and the reciever of the uart 
  Transmit any character and wait until receiev it back
 
     @Start of the test 
-        send packet with size = 1
-
-    @sent new character 
-        send packet with size = 4
+        send packet with size = 2
 
     @recieved the correct character 
         send packet with size = 6
 
-    @timeout didn't recieve the character 
+    @recieve incorrect character
         send packet with size = 9
 
     @ finish test 
@@ -59,12 +51,58 @@ Connect the transimssion and the reciever of the uart
         send packet with size = 3
 
 */
+void set_registers() {
 
+    reg_mprj_io_0 = GPIO_MODE_MGMT_STD_ANALOG;
+    reg_mprj_io_1 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_2 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_3 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_4 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_5 = GPIO_MODE_USER_STD_INPUT_NOPULL;
+    reg_mprj_io_6 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_7 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_8 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_9 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_10 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_11 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_12 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_13 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_14 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_15 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_16 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_17 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_18 = GPIO_MODE_MGMT_STD_OUTPUT;
+
+    reg_mprj_io_19 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_20 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_21 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_22 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_23 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_24 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_25 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_26 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_27 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_28 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_29 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_30 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_31 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_32 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_33 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_34 = GPIO_MODE_MGMT_STD_OUTPUT;
+//    reg_mprj_io_34 = 0x0403;
+    reg_mprj_io_35 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_36 = GPIO_MODE_MGMT_STD_OUTPUT;
+    reg_mprj_io_37 = GPIO_MODE_MGMT_STD_OUTPUT;
+//    reg_mprj_io_37 = 0x0403;
+
+}
 void main()
 {
     int j;
-    reg_mprj_io_6 = GPIO_MODE_MGMT_STD_OUTPUT;
-    reg_mprj_io_5 = 0x1803;
+    configure_mgmt_gpio();
+    set_registers();
+    reg_mprj_datah = 0;
+    reg_mprj_datal = 0;
     gpio_config_io();
 
 	// clear_registers();	
@@ -77,27 +115,31 @@ void main()
     // clock_in_right_o_left_i_standard(0); // 0	and 37	
     // load();		                         //  load
 
-
-    configure_mgmt_gpio();
+    // Start test
+    send_packet(2); // Start of the test
 
     reg_uart_enable = 1;
 
-    // Start test
-    send_packet(1); // Start of the test
 
     print("M");
-    send_packet(4); // sent new character
+    for (j = 0; j < 1000; j++);
     wait_for_char("M");
     
-    
     print("B");
-    send_packet(4); // sent new character
+    for (j = 0; j < 1000; j++);
     wait_for_char("B");
-    
-        
-    print("F");
-    send_packet(4); // sent new character
-    wait_for_char("F");
+
+    print("A");
+    for (j = 0; j < 1000; j++);
+    wait_for_char("A");
+
+    print("5");
+    for (j = 0; j < 1000; j++);
+    wait_for_char("5");
+
+    print("o");
+    for (j = 0; j < 1000; j++);
+    wait_for_char("o");
 
 
     // finish test

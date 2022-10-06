@@ -481,6 +481,9 @@ if __name__ == "__main__":
             "-ur", "--uart_reception_test", help="uart test", action="store_true"
         )
         parser.add_argument(
+            "-ul", "--uart_loopback_test", help="uart test", action="store_true"
+        )
+        parser.add_argument(
             "-tp", "--timer0_periodic", help="timer0 periodic test", action="store_true"
         )
         parser.add_argument(
@@ -565,6 +568,12 @@ if __name__ == "__main__":
                     run_test(test, writer, False, uart=True, uart_data=uart_data, part=part)
             if args.uart_reception_test:
                 test.test_name = "uart_reception"
+                if args.voltage_all:
+                    run_test(test, writer, True, uart=True, uart_data=uart_data, part=part)
+                else:
+                    run_test(test, writer, False, uart=True, uart_data=uart_data, part=part)
+            if args.uart_loopback_test:
+                test.test_name = "uart_loopback"
                 if args.voltage_all:
                     run_test(test, writer, True, uart=True, uart_data=uart_data, part=part)
                 else:

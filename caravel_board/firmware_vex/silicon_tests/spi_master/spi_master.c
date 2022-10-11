@@ -104,129 +104,23 @@ void main()
     // }
 
 
-    send_packet(1); // enable the SPI
-
+    // reg_spimaster_clk_divider = 0x4E20;
     reg_spi_enable = 1;
+    send_packet(1); // enable the SPI
     reg_spimaster_cs = 0x10001;  // sel=0, manual CS
 
-    spi_write(0x03);        // Write 0x03 (read mode)
-    spi_write(0x00);        // Write 0x00 (start address high byte)
-    spi_write(0x00);        // Write 0x00 (start address middle byte)
-    spi_write(0x04);        // Write 0x04 (start address low byte)
 
-    value = spi_read();
+    spi_write(0x08);        // Write 0x08
+    // for(int i = 0; i < 10000; i++);
+    spi_write(0x05);        // Write 0x05
+    // for(int i = 0; i < 20000; i++);
+    value = spi_read(); // 0xD
     
-    if(value == 0x93){
-        send_packet(5); // read correct value 
-    } else{
-        send_packet(9); // read wrong value 
-
-    }
-
-
-    value = spi_read();
-
-    if(value == 0x01){
-        send_packet(5); // read correct value 
-    } else{
-        send_packet(9); // read wrong value 
-
-    }
-
-    value = spi_read();
-
-   if(value == 0x00){
-        send_packet(5); // read correct value 
-    } else{
-        send_packet(9); // read wrong value 
-
-    }
-   
-    reg_spimaster_cs = 0x0000;  // release CS
-    reg_spimaster_cs = 0x10001;  // sel=0, manual CS
-
-    spi_write(0x03);        // Write 0x03 (read mode)
-    spi_write(0x00);        // Write 0x00 (start address high byte)
-    spi_write(0x00);        // Write 0x00 (start address middle byte)
-    spi_write(0x08);        // Write 0x08 (start address low byte)
-
-    value = spi_read();
-
-   if(value == 0x13){
-        send_packet(5); // read correct value 
-    } else{
-        send_packet(9); // read wrong value 
-
-    }
-
-    value = spi_read();
-
-   if(value == 0x02){
-        send_packet(5); // read correct value 
-    } else{
-        send_packet(9); // read wrong value 
-
-    }
-
-    reg_spimaster_cs = 0x0000;  // release CS
-    reg_spimaster_cs = 0x10001;  // sel=0, manual CS
-
-    spi_write(0x03);        // Write 0x03 (read mode)
-    spi_write(0x00);        // Write 0x00 (start address high byte)
-    spi_write(0x00);        // Write 0x00 (start address middle byte)
-    spi_write(0x0a);        // Write 0x0a (start address low byte)
-
-    value = spi_read();
-
-   if(value == 0x63){
-        send_packet(5); // read correct value 
-    } else{
-        send_packet(9); // read wrong value 
-
-    }
-
-    value = spi_read();
-
-   if(value == 0x57){
-        send_packet(5); // read correct value 
-    } else{
-        send_packet(9); // read wrong value 
-
-    }
-
-    value = spi_read();
-
-   if(value == 0xb5){
-        send_packet(5); // read correct value 
-    } else{
-        send_packet(9); // read wrong value 
-    }
-
-    value = spi_read();
-
-   if(value == 0){
-        send_packet(5); // read correct value 
-    } else{
-        send_packet(9); // read wrong value 
-    }
-
-    value = spi_read();
-
-   if(value == 0x23){
-        send_packet(5); // read correct value 
-    } else{
-        send_packet(9); // read wrong value 
-    }
-
-
-    value = spi_read();
-
-   if(value == 0x20){
-        send_packet(5); // read correct value 
-    } else{
-        send_packet(9); // read wrong value 
-    }
-
+    if (value == 0xD)
+       send_packet(5); // read correct value 
+    else
+      send_packet(9); // read wrong value 
+    
     reg_spimaster_cs = 0x0000;  // release CS
     reg_spimaster_cs = 0x10001;  // sel=0, manual CS
 

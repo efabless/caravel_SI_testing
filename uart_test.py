@@ -3,22 +3,22 @@ from caravel import *
 
 def init_ios(device1_data, device2_data, device3_data):
     device1_dio_map = {
-        "rstb": Dio(14, device1_data, True),
-        "gpio_mgmt": Dio(15, device1_data),
-        0: Dio(0, device1_data),
-        1: Dio(1, device1_data),
-        2: Dio(2, device1_data),
-        3: Dio(3, device1_data),
-        4: Dio(4, device1_data),
-        5: Dio(5, device1_data),
-        6: Dio(6, device1_data),
-        7: Dio(7, device1_data),
-        8: Dio(8, device1_data),
-        9: Dio(9, device1_data),
-        10: Dio(10, device1_data),
-        11: Dio(11, device1_data),
-        12: Dio(12, device1_data),
-        13: Dio(13, device1_data),
+        "rstb": Dio(0, device1_data, True),
+        "gpio_mgmt": Dio(1, device1_data),
+        0: Dio(2, device1_data),
+        1: Dio(3, device1_data),
+        2: Dio(4, device1_data),
+        3: Dio(5, device1_data),
+        4: Dio(6, device1_data),
+        5: Dio(7, device1_data),
+        6: Dio(8, device1_data),
+        7: Dio(9, device1_data),
+        8: Dio(10, device1_data),
+        9: Dio(11, device1_data),
+        10: Dio(12, device1_data),
+        11: Dio(13, device1_data),
+        12: Dio(14, device1_data),
+        13: Dio(15, device1_data),
     }
 
     device2_dio_map = {
@@ -120,11 +120,11 @@ if __name__ == "__main__":
         "-v", "--voltage", help="change test voltage"
     )
     parser.add_argument("-a", "--all", help="run all tests", action="store_true")
-    parser.add_argument("-p", "--part", help="part name", required=True)
+    parser.add_argument("-p", "--part", help="part name")
     args = parser.parse_args()
 
-    run_cmd = ['python3', 'io_config.py', '-ol6', '-v', f'{args.voltage}', '-p', f'{args.part}']
-    subprocess.run(run_cmd)
+    # run_cmd = ['python3', 'io_config.py', '-ol6', '-v', f'{args.voltage}', '-p', f'{args.part}']
+    # subprocess.run(run_cmd)
     logging.basicConfig(level=logging.INFO)
     logging.info("  Running:  caravel.py")
     # open multiple devices
@@ -142,44 +142,50 @@ if __name__ == "__main__":
 
     test = Test(device1, device2, device3)
     test.voltage = float(args.voltage)
-    uart = UART(device1_data)
-    if test.sram == 1:
-        modify_hex(
-                f"caravel_board/firmware_vex/silicon_tests/uart/uart_sram.hex",
-                "gpio_config_data.c",
-            )
-    else:
-        modify_hex(
-                f"caravel_board/firmware_vex/silicon_tests/uart/uart_dff.hex",
-                "gpio_config_data.c",
-            )
-    uart.open()
+    spi = SPI(device2)
+    # if test.sram == 1:
+    #     modify_hex(
+    #             f"caravel_board/firmware_vex/silicon_tests/uart/uart_sram.hex",
+    #             "gpio_config_data.c",
+    #         )
+    # else:
+    #     modify_hex(
+    #             f"caravel_board/firmware_vex/silicon_tests/uart/uart_dff.hex",
+    #             "gpio_config_data.c",
+    #         )
+    # uart.open()
     test.apply_reset()
     test.powerup_sequence()
-    logging.info(f"   changing VCORE voltage to {test.voltage}v")
-    test.test_name = "uart"
-    test.exec_flashing()
+    test.test_name = "spi_master"
+    # test.exec_flashing()
     test.release_reset()
-    timeout = time.time() + 50
-    rgRX = ""
-    pulse_count = test.receive_packet(250)
-    if pulse_count == 2:
-        print(f"start UART transmission")
-    while time.time() < timeout:
-        uart_data, count = uart.read_uart()
-        if uart_data:
-            uart_data[count.value] = 0
-            rgRX = rgRX + uart_data.value.decode()
-            if "Monitor: Test UART passed" in rgRX:
-                print(rgRX)
-                break
-    pulse_count = test.receive_packet(250)
-    if pulse_count == 5:
-        print(f"end UART transmission")
-    for i in range(0,3):
-        pulse_count = test.receive_packet(250)
-        if pulse_count == 3:
-            print(f"end UART test")
+    csb = spi.device_data.dio_map[spi.cs]
+        
+    while not csb.get_value():
+        pass
+
+    print("CSB is high")
+
+    spi.enabled()
+    spi.rw_mode = "r"
+    data1 = ""
+    data2 = ""
+    for i in range(0, 8):
+        spi.clk_trig()
+        data1 = data1 + str(spi.data[i])
+    spi.data = []
+    for i in range(0, 8):
+        spi.clk_trig()
+        data2 = data2 + str(spi.data[i])
+    print(int(data1,2))
+    print(int(data2,2))
+
+
+    # data = 0
+    # for i in range(0, 8):
+    #     spi.clk_trig()
+    #     data = data + (spi.data[i] << i)
+    # print(hex(data))
 
 
     test.close_devices()

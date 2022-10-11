@@ -51,24 +51,26 @@ void main(){
     int i;
 
     flag = 0;
-    configure_mgmt_gpio();
+    // configure_mgmt_gpio();
 
     irq_setmask(0);
 	irq_setie(1);
 
 
 	irq_setmask(irq_getmask() | (1 << TIMER0_INTERRUPT));
-
+    timer0_ev_pending_write(1);
     /* Configure timer for a single-shot countdown */
 	reg_timer0_config = 0;
 	reg_timer0_data = 10000;
-    reg_timer0_irq_en = 1;
     reg_timer0_config = 1;
-    send_packet(1);//configuring the timers and start count down
+    reg_timer0_irq_en = 1;
+    // send_packet(1);//configuring the timers and start count down
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
-    int timeout = 700000; 
+    int timeout = 500000; 
+    configure_mgmt_gpio();
+    send_packet(1);
 
     for (int i = 0; i < timeout; i++){
         if (flag == 1){

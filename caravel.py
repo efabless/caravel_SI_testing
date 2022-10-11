@@ -140,8 +140,9 @@ class Test:
         )
         ret_code = sp.returncode
         if ret_code != 0:
-            print("flash failed")
-            self.flash(hex_file)
+            logging.error("Can't flash!")
+            self.close_devices()
+            sys.exit()
 
     def change_voltage(self):
         """

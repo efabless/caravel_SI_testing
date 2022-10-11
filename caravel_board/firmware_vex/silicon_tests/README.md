@@ -257,27 +257,47 @@
         send packet with size = 3
         send packet with size = 3
 >> all mprj as output
+
 ## uart_loopback
 ### UART loop-back test
-### SER_TX mprj[6] and SER_RX mprj[5] should be connected
+### SER_TX mprj[6] and SER_RX mprj[5] should be shorted
 
     @Start of the test 
-        send packet with size = 1
-
-    @sent new character  
-        send packet with size = 4
->Transmit any character and wait until receiev it back
+        send packet with size = 2
 
     @recieved the correct character 
         send packet with size = 6
 
-    @timeout didn't recieve the character 
+    @recieve incorrect character
         send packet with size = 9
 
     @ finish test 
         send packet with size = 3
         send packet with size = 3
         send packet with size = 3
+
+>> all mprj as output except 5
+
+## uart_reception
+### UART receptio test
+
+    @Start of the test 
+        send packet with size = 2
+
+    @wait for new character 
+        send packet with size = 4
+
+    @recieved the correct character 
+        send packet with size = 6
+
+    @recieve incorrect character 
+        send packet with size = 9
+
+    @ finish test 
+        send packet with size = 3
+        send packet with size = 3
+        send packet with size = 3
+
 >> all mprj as output except 5
 
  

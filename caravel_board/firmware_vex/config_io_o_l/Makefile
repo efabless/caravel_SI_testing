@@ -1,5 +1,5 @@
 
-TOOLCHAIN_PATH=/ciic/tools/rv32/bin/
+TOOLCHAIN_PATH=/foss/tools/riscv-gnu-toolchain-rv32i/217e7f3debe424d61374d31e33a091a630535937/bin/
 #TOOLCHAIN_PATH=/opt/riscv32imc/bin/
 # TOOLCHAIN_PATH=/ef/apps/bin/
 

@@ -1,6 +1,6 @@
 #include "../defs.h"
 #include "../gpio_config/gpio_config_io.c"
-#include "../common/send_packet.c"
+#include "/home/marwan/caravel_SI_testing/caravel_board/firmware_vex/common/send_packet.c"
 //#include "../local_defs.h"
 //#include "../stub.c"
 
@@ -117,10 +117,11 @@ void main()
     reg_mprj_datah = 0;
     reg_mprj_datal = 0;
     gpio_config_io();
-    send_packet(1); // configuration finished
+    send_pulse_io0(1); // configuration finished
+    count_down(PULSE_WIDTH*4);
 
-    for (j=0;j<9;j++){
-        send_packet(j+2); // send 4 pulses at gpio[j]
+    for (j=1;j<9;j++){
+        send_packet_io0(j+2); // send 4 pulses at gpio[j]
         for (i = 0; i < num_pulses; i++){
             reg_mprj_datal = 0x1 << j;
             count_down(PULSE_WIDTH);  
@@ -129,9 +130,9 @@ void main()
         }
     }
 
-    send_packet(1); // reset counter
+    send_packet_io0(1); // reset counter
     for (j=9;j<19;j++){
-        send_packet(j-9+2); // send 4 pulses at gpio[j]
+        send_packet_io0(j-9+2); // send 4 pulses at gpio[j]
         for (i = 0; i < num_pulses; i++){
             reg_mprj_datal = 0x1 << j;
             count_down(PULSE_WIDTH);  
@@ -140,9 +141,9 @@ void main()
         }
     }
 
-    send_packet(1); // finish test
-    send_packet(1); // finish test
-    send_packet(1); // finish test
+    send_packet_io0(1); // finish test
+    send_packet_io0(1); // finish test
+    send_packet_io0(1); // finish test
 
 }
 

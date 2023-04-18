@@ -8,202 +8,153 @@
 # Output:  Configuration bitsteams for upper and lower gpio chains
 #
 
-from bitstring import Bits, BitArray, BitStream
-from enum import Enum
-
 # import gpio and configuration definitions
-from gpio_config_def import NUM_IO, C_MGMT_IN, C_MGMT_OUT, C_USER_BIDIR, C_DISABLE, C_ALL_ONES, \
-                            H_DEPENDENT, H_INDEPENDENT, H_NONE, H_SPECIAL, config_h, config_l, gpio_h, gpio_l, \
-                            C_USER_BIDIR_WPU, C_USER_BIDIR_WPD, C_USER_IN_NP
+# from gpio_config_def import NUM_IO, C_MGMT_IN, C_MGMT_OUT, C_USER_BIDIR, C_DISABLE, C_ALL_ONES, \
+#                             H_DEPENDENT, H_INDEPENDENT, H_NONE, H_SPECIAL, config_h, config_l, gpio_h, gpio_l, \
+#                             C_USER_BIDIR_WPU, C_USER_BIDIR_WPD, C_USER_IN_NP, C_USER_OUT
 
+import os,sys
+sys.path.append(os.getcwd())
+
+from gpio_config_def import *
+#from gpio_config_io import *
 
 # ------------------------------------------
-import argparse
-import sys
-
-parser = argparse.ArgumentParser(description='provide gpio types')
-parser.add_argument('-gpio_h','-hi', help='provide gpio_h array with H_NONE or H_INDEPENDENT or H_DEPENDENT (None, Independent and dependent)')
-parser.add_argument('-gpio_l','-l', help='provide gpio_l array with H_NONE or H_INDEPENDENT or H_DEPENDENT (None, Independent and dependent)')
-parser.add_argument('-num_io','-n', type=int, help='number of ios to work with')
-parser.add_argument('-config_h','-ch', help='configuration types for now all gpios have the same gpio config C_MGMT_OUT C_MGMT_IN')
-parser.add_argument('-config_l','-cl', help='configuration types for now all gpios have the same gpio config C_MGMT_OUT C_MGMT_IN')
-parser.add_argument('-debug','-d',action='store_true', help='enable debug prints')
-args = parser.parse_args()
-if any(v is  None for v in [args.gpio_h, args.gpio_l,args.num_io,args.config_h,args.config_l]):
-    print("fatal: you have to provide both -gpio_h and -gpio_l -args.num_io -args.config")
-    sys.exit()
-NUM_IO = args.num_io
-
-config_h=list()
-config_l=list()
-arg_config_h = args.config_h
-arg_config_h = arg_config_h.replace('[','').replace(']','')
-arg_config_h = arg_config_h.split(',')
-for i,violation in enumerate(arg_config_h):
-    if violation == 'C_MGMT_OUT':
-        config_h.append(C_MGMT_OUT)
-    elif violation == 'C_MGMT_IN':
-        config_h.append(C_MGMT_IN)
-
-arg_config_l = args.config_l
-arg_config_l = arg_config_l.replace('[','').replace(']','')
-arg_config_l = arg_config_l.split(',')
-for i,violation in enumerate(arg_config_l):
-    if violation == 'C_MGMT_OUT':
-        config_l.append(C_MGMT_OUT)
-    elif violation == 'C_MGMT_IN':
-        config_l.append(C_MGMT_IN)
-if (args.debug):
-    print(config_l)
-    print(config_h)
 
 
-gpio_h=list()
-gpio_l=list()
-arg_gpio_h = args.gpio_h
-arg_gpio_h = arg_gpio_h.replace('[','').replace(']','')
-arg_gpio_h = arg_gpio_h.split(',')
-for i,violation in enumerate(arg_gpio_h):
-    if violation == 'H_NONE': violation_type = H_NONE
-    elif violation == 'H_INDEPENDENT': violation_type = H_INDEPENDENT
-    elif violation == 'H_DEPENDENT': violation_type = H_DEPENDENT
-    else : 
-        print (f"incorrect violation type inside provided argument gpio_h {args.gpio_h} it has to be H_NONE or H_INDEPENDENT or H_DEPENDENT")
-        sys.exit()
-    gpio_h.append([f'IO[{37-i}]',violation_type])
-del gpio_h[args.num_io:]
-if (args.debug):
-    print(f"gpio_h {gpio_h}")
-arg_gpio_l = args.gpio_l
-arg_gpio_l = arg_gpio_l.replace('[','').replace(']','')
-arg_gpio_l = arg_gpio_l.split(',')
-# python gpio_config_builder.py -gpio_h [H_NONE,H_DEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_DEPENDENT,H_INDEPENDENT,H_DEPENDENT,H_DEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_INDEPENDENT]  -gpio_l [H_NONE,H_DEPENDENT,H_DEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_DEPENDENT,H_DEPENDENT,H_INDEPENDENT,H_DEPENDENT,H_DEPENDENT,H_INDEPENDENT,H_DEPENDENT,H_DEPENDENT,H_INDEPENDENT,H_DEPENDENT,H_DEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_INDEPENDENT,H_INDEPENDENT] -n 8
-for i,violation in enumerate(arg_gpio_l):
-    if violation == 'H_NONE': violation_type = H_NONE
-    elif violation == 'H_INDEPENDENT': violation_type = H_INDEPENDENT
-    elif violation == 'H_DEPENDENT': violation_type = H_DEPENDENT
-    else : 
-        print (f"incorrect violation type inside provided argument gpio_l {args.gpio_l} it has to be H_NONE or H_INDEPENDENT or H_DEPENDENT")
-        sys.exit()
-    gpio_l.append([f'IO[{i}]',violation_type])
-del gpio_l[args.num_io:]
-if (args.debug):
-    print(f"gpio_l {gpio_l}")
-
-
-
-
-stream_h = BitStream()
-stream_l = BitStream()
+stream_h = ""
+stream_l = ""
 config_stream = []
 
 
 def build_stream_dependent(stream, config):
+    s = ""
     if config == C_MGMT_OUT:
-        # stream.append('0b1100000001001')
-        stream.append('0b1100000000001')
+        # stream += '0b1100000001001'
+        s = stream + '1100000000001'
     elif config == C_MGMT_IN:
-        stream.append('0b1000000000011')
+        s = stream + '1000000000011'
     elif config == C_DISABLE:
-        stream.append('0b0000000000000')
+        s = stream + '0000000000000'
     elif config == C_ALL_ONES:
-        stream.append('0b1111111111111')
+        s = stream + '1111111111111'
     elif config == C_USER_BIDIR_WPU:
-        stream.append('0b0100000000000')
+        s = stream + '0100000000000'
     elif config == C_USER_BIDIR_WPD:
-        stream.append('0b0110000000000')
-    elif config == C_USER_IN_NP:
-        stream.append('0b0010000000010')
+        s = stream + '0110000000000'
+    elif config == C_USER_IN_NOPULL:
+        # s = stream + '0010000000010'
+        s = stream + '0010000000011'
+    elif config == C_USER_OUT:
+        # s = stream + '0110000000010'
+        # s = stream + '0110000000010'
+        s = stream + '0110000000000'
     else:
-        stream.append('0b1100000000000')
+        s = stream + '1100000000000'
+    return s
 
 
 def build_stream_independent(stream, config):
+    s = ""
     if config == C_MGMT_OUT:
-        # stream.append('0b110000000100')
-        stream.append('0b110000000000')
+        # stream += '110000000100'
+        s = stream + '110000000000'
     elif config == C_MGMT_IN:
-        stream.append('0b100000000001')
+        s = stream + '100000000001'
     elif config == C_DISABLE:
-        stream.append('0b000000000000')
+        s = stream + '000000000000'
     elif config == C_ALL_ONES:
-        stream.append('0b111111111111')
+        s = stream + '111111111111'
     elif config == C_USER_BIDIR_WPU:
-        stream.append('0b010000000000')
+        s = stream + '010000000000'
     elif config == C_USER_BIDIR_WPD:
-        stream.append('0b011000000000')
-    elif config == C_USER_IN_NP:
-        stream.append('0b001000000001')
+        s = stream + '011000000000'
+    elif config == C_USER_IN_NOPULL:
+        s = stream + '001000000001'
+    elif config == C_USER_OUT:
+        # s = stream + '00110000000010'
+        # s = stream + '011000000001'
+        s = stream + '011000000000'
     else:
-        stream.append('0b110000000000')
+        s = stream + '110000000000'
+    return s
 
 
 def build_stream_none(stream, config):
+    s = ""
     if config == C_MGMT_OUT:
-        # stream.append('0b1100000001001')
-        stream.append('0b1100000000001')
+        # stream += '1100000001001'
+        s = stream + '1100000000001'
     elif config == C_MGMT_IN:
-        stream.append('0b1000000000011')
+        s = stream + '1000000000011'
     elif config == C_DISABLE:
-        stream.append('0b0000000001011')
+        s = stream + '0000000000000'
     elif config == C_ALL_ONES:
-        stream.append('0b1111111111111')
+        s = stream + '1111111111111'
     elif config == C_USER_BIDIR_WPU:
-        stream.append('0b0100000000000')
+        s = stream + '0100000000000'
     elif config == C_USER_BIDIR_WPD:
-        stream.append('0b0110000000000')
-    elif config == C_USER_IN_NP:
-        stream.append('0b0010000000010')
+        s = stream + '0110000000000'
+    elif config == C_USER_IN_NOPULL:
+        s = stream + '0010000000010'
+    elif config == C_USER_OUT:
+        # s = stream + '0110000000010'
+        s = stream + '0110000000000'
+        # s = stream + '0110000000010'
     else:
-        stream.append('0b1100000000000')
+        s = stream + '1100000000000'
+    return s
 
 
 def build_stream_special(stream, config):
-    stream.append(config)
+    s = ""
+    s = stream + str(config)
+    return s
 
 
 def correct_dd_holds(stream, bpos):
     # for x in reversed(range(1,bpos)):
     skip = False
+    bits = list(stream)
     for x in range(1,bpos):
-        if stream[x] == 0 and stream[x-1] == 1 and not skip:
-            stream[x] = 1
+        if bits[x] == '0' and bits[x-1] == '1' and not skip:
+            bits[x] = '1'
             skip = True
         else:
             skip = False
-
+    return "".join(bits)
 
 # ------------------------------------------
-
 clock = 1
+
 # iterate through each IO in reverse order (e.g. IO[30] to IO[37])
 for k in reversed(range(NUM_IO)):
 
     # build upper IO stream
     if gpio_h[k][1] == H_DEPENDENT:
-        build_stream_dependent(stream_h, config_h[k])
+        stream_h = build_stream_dependent(stream_h, config_h[k])
     elif gpio_h[k][1] == H_INDEPENDENT:
-        build_stream_independent(stream_h, config_h[k])
+        stream_h = build_stream_independent(stream_h, config_h[k])
     elif gpio_h[k][1] == H_SPECIAL:
-        build_stream_special(stream_h, config_h[k])
+        stream_h = build_stream_special(stream_h, config_h[k])
     else:
-        build_stream_none(stream_h, config_h[k])
+        stream_h = build_stream_none(stream_h, config_h[k])
 
     # build lower IO stream
     if gpio_l[k][1] == H_DEPENDENT:
-        build_stream_dependent(stream_l, config_l[k])
+        stream_l = build_stream_dependent(stream_l, config_l[k])
     elif gpio_l[k][1] == H_INDEPENDENT:
-        build_stream_independent(stream_l, config_l[k])
+        stream_l = build_stream_independent(stream_l, config_l[k])
     elif gpio_l[k][1] == H_SPECIAL:
-        build_stream_special(stream_l, config_l[k])
+        stream_l = build_stream_special(stream_l, config_l[k])
     else:
-        build_stream_none(stream_l, config_l[k])
+        stream_l = build_stream_none(stream_l, config_l[k])
 
 n_bits = max(len(stream_h), len(stream_l))
-if len(stream_h) < n_bits:
-    stream_h.prepend(Bits(length=n_bits-len(stream_h)))
-if len(stream_l) < n_bits:
-    stream_l.prepend(Bits(length=n_bits-len(stream_l)))
+while len(stream_h) < n_bits:
+    stream_h = '0' + stream_h
+while len(stream_l) < n_bits:
+    stream_l = '0' + stream_l
 
 bpos_h = len(stream_h)
 bpos_l = len(stream_l)
@@ -212,10 +163,10 @@ bpos_l = len(stream_l)
 for k in range(NUM_IO):
 
     if gpio_h[k][1] == H_DEPENDENT:
-        correct_dd_holds(stream_h, bpos_h)
+        stream_h = correct_dd_holds(stream_h, bpos_h)
 
     if gpio_l[k][1] == H_DEPENDENT:
-        correct_dd_holds(stream_l, bpos_l)
+        stream_l = correct_dd_holds(stream_l, bpos_l)
 
     if gpio_h[k][1] == H_INDEPENDENT:
         bpos_h -= 12
@@ -232,56 +183,39 @@ for k in range(NUM_IO):
         bpos_l -= 13
 
 for k in range(n_bits):
-    value = (stream_l[k] << 5) + (stream_h[k] << 6)
+    value = (int(stream_l[k]) << 5) + (int(stream_h[k]) << 6)
     config_stream.append(0x06 + value)
     # config_stream.append(0x16 + value)
+
+config_stream += [0x0] * (247 - len(config_stream))
+n_bits = len(config_stream)
 
 #
 #  create output files
 #
 
-print("stream_h   = " + stream_h.bin)
-print("stream_l   = " + stream_l.bin)
+print("stream_h   = " + stream_h)
+print("stream_l   = " + stream_l)
 print("n_bits = {}".format(n_bits))
 
 f = open("gpio_config_data.py", "w")
-f.write("from bitstring import Bits, BitArray, BitStream\n")
+# f.write("from bitstring import Bits, BitArray, BitStream\n")
 f.write("from enum import Enum\n")
 f.write("\n")
-f.write("config_h = BitStream('0b" + stream_h.bin + "')\n")
-f.write("config_l = BitStream('0b" + stream_l.bin + "')\n")
+f.write("config_data_h = '" + stream_h + "'\n")
+f.write("config_data_l = '" + stream_l + "'\n")
 f.close()
 
 f = open("gpio_config_data.c", "w")
 f.write("\n")
 
-# f.write("int config_h[] = {")
-# for x in stream_h.cut(8):
-#     f.write("0x" + x.hex + ", ")
-# f.write("};\n")
-# f.write("int config_l[] = {")
-# for x in stream_l.cut(8):
-#     f.write("0x" + x.hex + ", ")
-# f.write("};\n")
+# f.write("int n_bits = " + str(n_bits) + ";\n")
 
-# f.write('char config_h[] = "')
-# for k in range(n_bits):
-#     f.write('1' if stream_h[k] else '0')
-# f.write('";\n')
-#
-# f.write('char config_l[] = "')
-# for k in range(n_bits):
-#     f.write('1' if stream_l[k] else '0')
-# f.write('";\n')
-
-f.write("char config_stream[] = {")
+f.write("char config_stream[] = { ")
+f.write("0x{:02x}".format(n_bits))
 for x in config_stream:
-    f.write("0x{:02x}, ".format(x))
-f.write("};\n")
+    f.write(", 0x{:02x}".format(x))
+f.write(" };\n")
 
-# f.write("int n_bits = " + str(n_bits*2) + ";\n")
-f.write("int n_bits = " + str(n_bits) + ";\n")
 f.close()
 
-from bitstring import Bits, BitArray, BitStream
-from enum import Enum

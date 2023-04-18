@@ -1,4 +1,3 @@
-import argparse
 from multiprocessing.sharedctypes import Value
 from WF_SDK import *  # import instruments
 from WF_SDK.dmm import *
@@ -8,8 +7,6 @@ import subprocess
 import sys
 from ctypes import *
 import logging
-import csv
-import os
 
 
 def accurate_delay(delay):
@@ -21,7 +18,14 @@ def accurate_delay(delay):
 
 class Test:
     def __init__(
-        self, device1v8, device3v3, deviced, test_name = None, passing_criteria = [], voltage=1.6, sram=1
+        self,
+        device1v8,
+        device3v3,
+        deviced=None,
+        test_name=None,
+        passing_criteria=[],
+        voltage=1.6,
+        sram=1,
     ):
         self.device1v8 = device1v8
         self.device3v3 = device3v3
@@ -33,33 +37,31 @@ class Test:
         self.sram = sram
         self.passing_criteria = passing_criteria
 
-
     def receive_packet(self, pulse_width=25):
         """recieves packet using the wire protocol, uses the gpio_mgmt I/O
 
         Returns:
             int: pulse count
         """
-        unit = 1000
         ones = 0
         pulses = 0
         self.gpio_mgmt.set_state(False)
         while self.gpio_mgmt.get_value() != False:
             pass
         state = "LOW"
-        accurate_delay(pulse_width/2.)
+        accurate_delay(pulse_width / 2.0)
         for i in range(0, 30):
             accurate_delay(pulse_width)
             x = self.gpio_mgmt.get_value()
             if state == "LOW":
-                if x == True:
+                if x:
                     state = "HI"
             elif state == "HI":
-                if x == False:
+                if not x:
                     state = "LOW"
                     ones = 0
                     pulses = pulses + 1
-            if x == True:
+            if x:
                 ones = ones + 1
             if ones > 3:
                 break
@@ -71,7 +73,7 @@ class Test:
         self.gpio_mgmt.set_state(True)
         self.gpio_mgmt.set_value(1)
         time.sleep(5)
-        for i in range(0,num_pulses):
+        for i in range(0, num_pulses):
             self.gpio_mgmt.set_value(0)
             accurate_delay(pulse_width)
             self.gpio_mgmt.set_value(1)
@@ -82,14 +84,14 @@ class Test:
             channel = self.device1v8.dio_map[channel]
         elif channel > 21:
             channel = self.device3v3.dio_map[channel]
-        else:
+        elif self.deviced:
             channel = self.deviced.dio_map[channel]
 
         channel.set_state(True)
         channel.set_value(1)
         num_pulses = num_pulses + 1
         time.sleep(5)
-        for i in range(0,num_pulses):
+        for i in range(0, num_pulses):
             channel.set_value(0)
             accurate_delay(pulse_width)
             channel.set_value(1)
@@ -127,14 +129,14 @@ class Test:
         self.rstb.set_value(1)
 
     def flash(self, hex_file):
-        """flashes the caravel board with hex file, 
+        """flashes the caravel board with hex file,
         uses caravel_board/firmware_vex/util/caravel_hkflash.py script
 
         Args:
             hex_file (string): path to hex file
         """
         sp = subprocess.run(
-            f"python3 caravel_hkflash.py ../{hex_file}",
+            f"python3 caravel_hkflash.py {hex_file}",
             cwd="./caravel_board/firmware_vex/util/",
             shell=True,
         )
@@ -189,7 +191,7 @@ class Test:
         """
         self.device1v8.supply.turn_off()
         self.device3v3.supply.turn_off()
-        self.deviced.supply.turn_off()
+        # self.deviced.supply.turn_off()
 
     def close_devices(self):
         """
@@ -197,24 +199,23 @@ class Test:
         """
         self.device1v8.supply.turn_off()
         self.device3v3.supply.turn_off()
-        self.deviced.supply.turn_off()
+        # self.deviced.supply.turn_off()
         device.close(self.device1v8)
         device.close(self.device3v3)
-        device.close(self.deviced)
+        # device.close(self.deviced)
 
 
 class Device:
     """
     Device class to initialize devices
     """
+
     def __init__(self, device, id, dio_map):
         self.ad_device = device
         self.id = id
         self.dio_map = dio_map
         self.handle = device.handle
         self.supply = PowerSupply(self.ad_device)
-
-    
 
 
 class Dio:
@@ -306,33 +307,35 @@ class Dio:
 
         return
 
+
 class UART:
     def __init__(self, device_data):
         self.device_data = device_data
-        self.rx = 6
+        self.rx = 8
         self.tx = 5
+
     def open(self, baud_rate=9600, parity=None, data_bits=8, stop_bits=1):
         """
-            initializes UART communication
-    
-            parameters: - device data
-                        - rx (DIO line used to receive data)
-                        - tx (DIO line used to send data)
-                        - baud_rate (communication speed, default is 9600 bits/s)
-                        - parity possible: None (default), True means even, False means odd
-                        - data_bits (default is 8)
-                        - stop_bits (default is 1)
+        initializes UART communication
+
+        parameters: - device data
+                    - rx (DIO line used to receive data)
+                    - tx (DIO line used to send data)
+                    - baud_rate (communication speed, default is 9600 bits/s)
+                    - parity possible: None (default), True means even, False means odd
+                    - data_bits (default is 8)
+                    - stop_bits (default is 1)
         """
         # set baud rate
         dwf.FDwfDigitalUartRateSet(self.device_data.handle, ctypes.c_double(baud_rate))
-    
+
         # set communication channels
         dwf.FDwfDigitalUartTxSet(self.device_data.handle, ctypes.c_int(self.tx))
         dwf.FDwfDigitalUartRxSet(self.device_data.handle, ctypes.c_int(self.rx))
-    
+
         # set data bit count
         dwf.FDwfDigitalUartBitsSet(self.device_data.handle, ctypes.c_int(data_bits))
-    
+
         # set parity bit requirements
         if parity == True:
             parity = 2
@@ -341,66 +344,79 @@ class UART:
         else:
             parity = 0
         dwf.FDwfDigitalUartParitySet(self.device_data.handle, ctypes.c_int(parity))
-    
+
         # set stop bit count
         dwf.FDwfDigitalUartStopSet(self.device_data.handle, ctypes.c_double(stop_bits))
-    
+
         # initialize channels with idle levels
-    
+
         # dummy read
         dummy_buffer = ctypes.create_string_buffer(0)
         dummy_buffer = ctypes.c_int(0)
         dummy_parity_flag = ctypes.c_int(0)
-        dwf.FDwfDigitalUartRx(self.device_data.handle, dummy_buffer, ctypes.c_int(0), ctypes.byref(dummy_buffer), ctypes.byref(dummy_parity_flag))
-    
+        dwf.FDwfDigitalUartRx(
+            self.device_data.handle,
+            dummy_buffer,
+            ctypes.c_int(0),
+            ctypes.byref(dummy_buffer),
+            ctypes.byref(dummy_parity_flag),
+        )
+
         # dummy write
         dwf.FDwfDigitalUartTx(self.device_data.handle, dummy_buffer, ctypes.c_int(0))
         return
+
     def read_uart(self):
         """
-            receives data from UART
-    
-            parameters: - device data
-            return:     - integer list containing the received bytes
-                        - error message or empty string
+        receives data from UART
+
+        parameters: - device data
+        return:     - integer list containing the received bytes
+                    - error message or empty string
         """
         # variable to store results
-        error = ""
-        rx_data = []
-    
+        # error = ""
+        # rx_data = []
+
         # create empty string buffer
         data = create_string_buffer(8193)
-    
+
         # character counter
         count = ctypes.c_int(0)
-    
+
         # parity flag
-        parity_flag= ctypes.c_int(0)
-    
+        parity_flag = ctypes.c_int(0)
+
         # read up to 8k characters
-        dwf.FDwfDigitalUartRx(self.device_data.handle, data, ctypes.c_int(ctypes.sizeof(data)-1), ctypes.byref(count), ctypes.byref(parity_flag))
-    
+        dwf.FDwfDigitalUartRx(
+            self.device_data.handle,
+            data,
+            ctypes.c_int(ctypes.sizeof(data) - 1),
+            ctypes.byref(count),
+            ctypes.byref(parity_flag),
+        )
+
         # append current data chunks
         # for index in range(0, count.value):
         #     rx_data.append(int(data[index]))
-    
+
         # ensure data integrity
         # while count.value > 0:
         #     # create empty string buffer
         #     data = (ctypes.c_ubyte * 8193)()
-    
+
         #     # character counter
         #     count = ctypes.c_int(0)
-    
+
         #     # parity flag
         #     parity_flag= ctypes.c_int(0)
-    
+
         #     # read up to 8k characters
         #     dwf.FDwfDigitalUartRx(self.device_data.handle, data, ctypes.c_int(ctypes.sizeof(data)-1), ctypes.byref(count), ctypes.byref(parity_flag))
         #     # append current data chunks
         #     # for index in range(0, count.value):
         #     #     rx_data.append(int(data[index]))
-    
+
         #     # check for not acknowledged
         #     if error == "":
         #         if parity_flag.value < 0:
@@ -411,24 +427,28 @@ class UART:
             return data, count
         else:
             return None, count
+
     def write(self, data):
         """
-            send data through UART
-    
-            parameters: - data of type string, int, or list of characters/integers
+        send data through UART
+
+        parameters: - data of type string, int, or list of characters/integers
         """
         # cast data
         if type(data) == int:
-            data = "".join(chr (data))
+            data = "".join(chr(data))
         elif type(data) == list:
-            data = "".join(chr (element) for element in data)
-    
+            data = "".join(chr(element) for element in data)
+
         # encode the string into a string buffer
         data = ctypes.create_string_buffer(data.encode("UTF-8"))
-    
+
         # send text, trim zero ending
-        dwf.FDwfDigitalUartTx(self.device_data.handle, data, ctypes.c_int(ctypes.sizeof(data)-1))
+        dwf.FDwfDigitalUartTx(
+            self.device_data.handle, data, ctypes.c_int(ctypes.sizeof(data) - 1)
+        )
         return
+
 
 class SPI:
     def __init__(self, device_data, rw_mode="r", data=[]):
@@ -452,7 +472,7 @@ class SPI:
         print("CSB is low")
 
         return True
-    
+
     def clk_trig(self):
         clk = self.device_data.dio_map[self.sck]
         if self.rw_mode == "r":
@@ -469,7 +489,7 @@ class SPI:
             self.write_data()
             while not clk.get_value():
                 pass
-    
+
     def read_data(self):
         input = self.device_data.dio_map[self.miso]
         if input.get_value() == True:
@@ -482,8 +502,6 @@ class SPI:
         input = self.device_data.dio_map[self.mosi]
         input.set_state(True)
         input.set_value(self.data.pop(0))
-
-
 
 
 def count_pulses(packet_data):
@@ -500,7 +518,7 @@ def count_pulses(packet_data):
     return pulse_count
 
 
-def connect_devices(devices):
+def connect_devices(devices, dev1_sn, dev2_sn):
     """connects devices based on their serial number
 
     Args:
@@ -509,18 +527,21 @@ def connect_devices(devices):
     Returns:
         [type]: [description]
     """
+    # dev1 --> 7DA
+    # dev2 --> AA0
     if devices:
         for device_info in devices:
-            if device_info.serial_number[-3:] == b"1F8":
+            if device_info.serial_number[-3:] == dev1_sn:
                 device1_data = device_info
-            elif device_info.serial_number[-3:] == b"F19":
+            elif device_info.serial_number[-3:] == dev2_sn:
                 device2_data = device_info
-            elif device_info.serial_number[-3:] == b"B2C":
-                device3_data = device_info
+            # elif device_info.serial_number[-3:] == dev3_sn:
+            #     device3_data = device_info
     else:
         logging.error(" No connected devices")
         sys.exit()
-    return device1_data, device2_data, device3_data
+    return device1_data, device2_data
+
 
 # def test_send_packet(device1v8, device3v3):
 #     timeout = time.time() + 50

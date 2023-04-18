@@ -10,7 +10,15 @@
 from bitstring import Bits, BitArray, BitStream
 from enum import Enum
 from gpio_config_data import config_h, config_l
-from gpio_config_def import H_NONE, H_DEPENDENT, H_INDEPENDENT, H_SPECIAL, gpio_h, gpio_l, NUM_IO
+from gpio_config_def import (
+    H_NONE,
+    H_DEPENDENT,
+    H_INDEPENDENT,
+    H_SPECIAL,
+    gpio_h,
+    gpio_l,
+    NUM_IO,
+)
 
 
 def print_header(gpio):
@@ -92,7 +100,7 @@ n_clocks = len(config_h)
 # for k in reversed(range(10)):
 # for k in reversed(range(len(config_h))):
 for k in range(len(config_h)):
-# for k in range(10):
+    # for k in range(10):
 
     # shift based on the number of bits in the config stream for that register
     # from msb to lsb
@@ -117,7 +125,7 @@ for k in range(len(config_h)):
             gpio_h_reg[i][0] = prev_last_bit
 
         elif gpio_h[i][1] == H_DEPENDENT and prev_last_bit == 0:
-                gpio_h_reg[i][0] = 0
+            gpio_h_reg[i][0] = 0
 
         else:
             # shift in bit from previous gpio register
@@ -125,7 +133,6 @@ for k in range(len(config_h)):
 
         last_bit = saved_bit
         prev_last_bit = gpio_h_reg[i][12]
-
 
     # shift in next bit from configuration stream
     # gpio_h_reg[0][0] = config_h[k][j]
@@ -154,7 +161,7 @@ n_clocks = len(config_h)
 # for k in reversed(range(10)):
 # for k in reversed(range(len(config_h))):
 for k in range(len(config_h)):
-# for k in range(10):
+    # for k in range(10):
 
     # shift based on the number of bits in the config stream for that register
     # from msb to lsb
@@ -179,7 +186,7 @@ for k in range(len(config_h)):
             gpio_l_reg[i][0] = prev_last_bit
 
         elif gpio_l[i][1] == H_DEPENDENT and prev_last_bit == 0:
-                gpio_l_reg[i][0] = 0
+            gpio_l_reg[i][0] = 0
 
         else:
             # shift in bit from previous gpio register
@@ -187,7 +194,6 @@ for k in range(len(config_h)):
 
         last_bit = saved_bit
         prev_last_bit = gpio_l_reg[i][12]
-
 
     # shift in next bit from configuration stream
     # gpio_h_reg[0][0] = config_h[k][j]

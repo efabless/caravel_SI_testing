@@ -16,7 +16,7 @@ SR_BP0 = 0b00000100  # bit protect #0
 SR_BP1 = 0b00001000  # bit protect #1
 SR_BP2 = 0b00010000  # bit protect #2
 SR_BP3 = 0b00100000  # bit protect #3
-SR_TBP = SR_BP3      # top-bottom protect bit
+SR_TBP = SR_BP3  # top-bottom protect bit
 SR_SP = 0b01000000
 SR_BPL = 0b10000000
 SR_PROTECT_NONE = 0  # BP[0..2] = 0
@@ -37,26 +37,36 @@ CMD_ERASE_SECTOR = 0xD8
 # CMD_ERASE_CHIP = 0xC7
 CMD_ERASE_CHIP = 0x60
 CMD_RESET_CHIP = 0x99
-CMD_JEDEC_DATA = 0x9f
+CMD_JEDEC_DATA = 0x9F
 
 CMD_READ_LO_SPEED = 0x03  # Read @ low speed
 CMD_READ_HI_SPEED = 0x0B  # Read @ high speed
 ADDRESS_WIDTH = 3
 
 JEDEC_ID = 0xEF
-DEVICES = {0x30: 'W25X', 0x40: 'W25Q'}
-SIZES = {0x11: 1 << 17, 0x12: 1 << 18, 0x13: 1 << 19, 0x14: 1 << 20,
-         0x15: 2 << 20, 0x16: 4 << 20, 0x17: 8 << 20, 0x18: 16 << 20}
+DEVICES = {0x30: "W25X", 0x40: "W25Q"}
+SIZES = {
+    0x11: 1 << 17,
+    0x12: 1 << 18,
+    0x13: 1 << 19,
+    0x14: 1 << 20,
+    0x15: 2 << 20,
+    0x16: 4 << 20,
+    0x17: 8 << 20,
+    0x18: 16 << 20,
+}
 SPI_FREQ_MAX = 104  # MHz
 CMD_READ_UID = 0x4B
 UID_LEN = 0x8  # 64 bits
 READ_UID_WIDTH = 4  # 4 dummy bytes
-TIMINGS = {'page': (0.0015, 0.003),  # 1.5/3 ms
-           'subsector': (0.200, 0.200),  # 200/200 ms
-           'sector': (1.0, 1.0),  # 1/1 s
-           'bulk': (32, 64),  # seconds
-           'lock': (0.05, 0.1),  # 50/100 ms
-           'chip': (4, 11)}
+TIMINGS = {
+    "page": (0.0015, 0.003),  # 1.5/3 ms
+    "subsector": (0.200, 0.200),  # 200/200 ms
+    "sector": (1.0, 1.0),  # 1/1 s
+    "bulk": (32, 64),  # seconds
+    "lock": (0.05, 0.1),  # 50/100 ms
+    "chip": (4, 11),
+}
 # FEATURES = (SerialFlash.FEAT_SECTERASE |
 #             SerialFlash.FEAT_SUBSECTERASE |
 #             SerialFlash.FEAT_CHIPERASE)
@@ -69,23 +79,27 @@ CARAVEL_REG_WRITE = 0x88
 
 n_clks = 0
 
+
 def get_status(device):
-    return int.from_bytes(device.exchange([CARAVEL_PASSTHRU, CMD_READ_STATUS],1), byteorder='big')
+    return int.from_bytes(
+        device.exchange([CARAVEL_PASSTHRU, CMD_READ_STATUS], 1), byteorder="big"
+    )
 
 
 def report_status(jedec):
-    if jedec[0] == int('bf', 16):
+    if jedec[0] == int("bf", 16):
         print("changing cmd values...")
         print("status reg_1 = {}".format(hex(get_status(slave))))
     else:
         print("status reg_1 = {}".format(hex(get_status(slave))))
         status = slave.exchange([CARAVEL_PASSTHRU, 0x35], 1)
-        print("status reg_2 = {}".format(hex(int.from_bytes(status, byteorder='big'))))
+        print("status reg_2 = {}".format(hex(int.from_bytes(status, byteorder="big"))))
         # print("status = {}".format(hex(from_bytes(slave.exchange([CMD_READ_STATUS], 2)[1], byteorder='big'))))
 
 
 def is_busy(device):
     return get_status(device) & SR_WIP
+
 
 def one_clock():
     global n_clks
@@ -105,50 +119,55 @@ def set_io_bit_high(value):
     slave.write([CARAVEL_STREAM_WRITE, 0x13, value])
     slave.write([CARAVEL_STREAM_WRITE, 0x13, 0x66])
 
+
 # This is roundabout but works. . .
 s = StringIO()
 Ftdi.show_devices(out=s)
 devlist = s.getvalue().splitlines()[1:-1]
 gooddevs = []
 for dev in devlist:
-    url = dev.split('(')[0].strip()
-    name = '(' + dev.split('(')[1]
-    if name == '(Single RS232-HS)':
+    url = dev.split("(")[0].strip()
+    name = "(" + dev.split("(")[1]
+    if name == "(Single RS232-HS)":
         gooddevs.append(url)
 if len(gooddevs) == 0:
-    print('Error:  No matching FTDI devices on USB bus!')
+    print("Error:  No matching FTDI devices on USB bus!")
     sys.exit(1)
 elif len(gooddevs) > 1:
-    print('Error:  Too many matching FTDI devices on USB bus!')
+    print("Error:  Too many matching FTDI devices on USB bus!")
     Ftdi.show_devices()
     sys.exit(1)
 else:
-    print('Success: Found one matching FTDI device at ' + gooddevs[0])
+    print("Success: Found one matching FTDI device at " + gooddevs[0])
 
 spi = SpiController(cs_count=2)
 # spi.configure('ftdi://::/1')
 spi.configure(gooddevs[0])
-#spi.configure('ftdi://ftdi:232h:1/1')
+# spi.configure('ftdi://ftdi:232h:1/1')
 slave = spi.get_port(cs=0, freq=1000)
 
 print("Caravel data:")
 mfg = slave.exchange([CARAVEL_STREAM_READ, 0x01], 2)
 # print("mfg = {}".format(binascii.hexlify(mfg)))
-print("   mfg        = {:04x}".format(int.from_bytes(mfg, byteorder='big')))
+print("   mfg        = {:04x}".format(int.from_bytes(mfg, byteorder="big")))
 
 product = slave.exchange([CARAVEL_REG_READ, 0x03], 1)
 # print("product = {}".format(binascii.hexlify(product)))
-print("   product    = {:02x}".format(int.from_bytes(product, byteorder='big')))
+print("   product    = {:02x}".format(int.from_bytes(product, byteorder="big")))
 
 data = slave.exchange([CARAVEL_STREAM_READ, 0x04], 4)
-print("   project ID = {:08x}".format(int('{0:32b}'.format(int.from_bytes(data, byteorder='big'))[::-1], 2)))
+print(
+    "   project ID = {:08x}".format(
+        int("{0:32b}".format(int.from_bytes(data, byteorder="big"))[::-1], 2)
+    )
+)
 
-if int.from_bytes(mfg, byteorder='big') != 0x0456:
+if int.from_bytes(mfg, byteorder="big") != 0x0456:
     exit(2)
 
-k = ''
+k = ""
 
-while (k != 'q'):
+while k != "q":
 
     print("\n-----------------------------------\n")
     print("Clocks sent = {}".format(n_clks))
@@ -169,7 +188,7 @@ while (k != 'q'):
 
     k = input()
 
-    if k == 'r':
+    if k == "r":
         # reset CARAVEL
         print("Reset registers...")
         slave.write([CARAVEL_STREAM_WRITE, 0x13, 0x06])
@@ -177,38 +196,38 @@ while (k != 'q'):
         slave.write([CARAVEL_STREAM_WRITE, 0x13, 0x06])
         n_clks = 0
 
-    elif k == 'b':
+    elif k == "b":
         print("enable bitbang mode...")
         slave.write([CARAVEL_STREAM_WRITE, 0x13, 0x66])
 
-    elif k == 't':
+    elif k == "t":
         print("reset test...")
         slave.write([CARAVEL_STREAM_WRITE, 0x13, 0x06])
         slave.write([CARAVEL_STREAM_WRITE, 0x13, 0x02])
         slave.write([CARAVEL_STREAM_WRITE, 0x13, 0x06])
-        slave.write([CARAVEL_STREAM_WRITE, 0x13, 0x0a])
+        slave.write([CARAVEL_STREAM_WRITE, 0x13, 0x0A])
 
-    elif k == 'c':
+    elif k == "c":
         # Apply data 0x1809 (management standard output) to
         # first block of user 1 and user 2 (GPIO 0 and 37)
         # bits 0, 1, 9, and 12 are "1" (data go in backwards)
         # or should it be bits 0, 3, 11 and 12 ??
         print("set IO configuration...")
         set_io_bit_high(0x76)  # bit 12 - H
-        set_io_bit_low(0x76)   # bit 11 - H
-        set_io_bit_low(0x16)   # bit 10
-        set_io_bit_low(0x16)   # bit 9
-        set_io_bit_low(0x16)   # bit 8
-        set_io_bit_low(0x16)   # bit 7
-        set_io_bit_low(0x16)   # bit 6
-        set_io_bit_low(0x16)   # bit 5
+        set_io_bit_low(0x76)  # bit 11 - H
+        set_io_bit_low(0x16)  # bit 10
+        set_io_bit_low(0x16)  # bit 9
+        set_io_bit_low(0x16)  # bit 8
+        set_io_bit_low(0x16)  # bit 7
+        set_io_bit_low(0x16)  # bit 6
+        set_io_bit_low(0x16)  # bit 5
         set_io_bit_high(0x16)  # bit 4
-        set_io_bit_low(0x76)   # bit 3  - H
-        set_io_bit_low(0x16)   # bit 2
+        set_io_bit_low(0x76)  # bit 3  - H
+        set_io_bit_low(0x16)  # bit 2
         set_io_bit_high(0x16)  # bit 1
-        set_io_bit_low(0x76)   # bit 0  - H
+        set_io_bit_low(0x76)  # bit 0  - H
 
-    elif k == 'x':
+    elif k == "x":
         print("set IO configuration...")
         set_io_bit_high(0x76)  # bit 12 - H
         set_io_bit_high(0x76)  # bit 11 - H
@@ -222,13 +241,13 @@ while (k != 'q'):
         set_io_bit_high(0x76)  # bit 3  - H
         set_io_bit_high(0x76)  # bit 2  - H
         set_io_bit_high(0x76)  # bit 1  - H
-        set_io_bit_low(0x76)   # bit 0  - H
+        set_io_bit_low(0x76)  # bit 0  - H
 
-    elif k == '1':
+    elif k == "1":
         print("bitbang 1 clock...")
         one_clock()
 
-    elif k == '5':
+    elif k == "5":
         print("bitbang 5 clocks...")
         one_clock()
         one_clock()
@@ -236,7 +255,7 @@ while (k != 'q'):
         one_clock()
         one_clock()
 
-    elif k == '0':
+    elif k == "0":
         print("bitbang 13 clocks...")
         one_clock()
         one_clock()
@@ -252,12 +271,12 @@ while (k != 'q'):
         one_clock()
         one_clock()
 
-    elif k == 'l':
+    elif k == "l":
         print("bitbang load...")
-        slave.write([CARAVEL_STREAM_WRITE, 0x13, 0x0e])
+        slave.write([CARAVEL_STREAM_WRITE, 0x13, 0x0E])
         slave.write([CARAVEL_STREAM_WRITE, 0x13, 0x06])
 
-    elif k == 's':
+    elif k == "s":
         print("Register?")
         r = input()
         reg = int(r, 0)
@@ -266,11 +285,10 @@ while (k != 'q'):
         val = int(v, 0)
         pll_trim = slave.exchange([CARAVEL_STREAM_WRITE, reg, val], 0)
 
-    elif k == 'q':
+    elif k == "q":
         print("Exiting...")
 
     else:
-        print('Selection not recognized.\n')
+        print("Selection not recognized.\n")
 
 spi.terminate()
-

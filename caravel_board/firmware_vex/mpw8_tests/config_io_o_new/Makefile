@@ -46,8 +46,8 @@ client: client.c
 	gcc client.c -o client
 
 flash: config_io_o_new.hex
-	python3 ../util/caravel_hkflash.py config_io_o_new.hex
-	python3 ../util/caravel_hkstop.py
+	python3 ../../util/caravel_hkflash.py config_io_o_new.hex
+	python3 ../../util/caravel_hkstop.py
 
 flash2: config_io_o_new.hex
 	python3 ../util/caravel_flash.py config_io_o_new.hex

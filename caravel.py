@@ -518,7 +518,7 @@ def count_pulses(packet_data):
     return pulse_count
 
 
-def connect_devices(devices, dev1_sn, dev2_sn):
+def connect_devices(devices, dev1_sn, dev2_sn, dev3_sn):
     """connects devices based on their serial number
 
     Args:
@@ -535,12 +535,12 @@ def connect_devices(devices, dev1_sn, dev2_sn):
                 device1_data = device_info
             elif device_info.serial_number[-3:] == dev2_sn:
                 device2_data = device_info
-            # elif device_info.serial_number[-3:] == dev3_sn:
-            #     device3_data = device_info
+            elif device_info.serial_number[-3:] == dev3_sn:
+                device3_data = device_info
     else:
         logging.error(" No connected devices")
         sys.exit()
-    return device1_data, device2_data
+    return device1_data, device2_data, device3_data
 
 
 # def test_send_packet(device1v8, device3v3):

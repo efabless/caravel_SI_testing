@@ -14,7 +14,7 @@ from manifest import (
 )
 
 
-def init_ad_ios(device1_data, device2_data):
+def init_ad_ios(device1_data, device2_data, device3_data):
     device1_dio_map = {
         "rstb": Dio(0, device1_data, True),
         "gpio_mgmt": Dio(1, device1_data),
@@ -53,18 +53,18 @@ def init_ad_ios(device1_data, device2_data):
         37: Dio(15, device2_data),
     }
 
-    # device3_dio_map = {
-    #     14: Dio(2, device3_data),
-    #     15: Dio(3, device3_data),
-    #     16: Dio(4, device3_data),
-    #     17: Dio(5, device3_data),
-    #     18: Dio(6, device3_data),
-    #     19: Dio(7, device3_data),
-    #     20: Dio(8, device3_data),
-    #     21: Dio(9, device3_data),
-    # }
+    device3_dio_map = {
+        14: Dio(2, device3_data),
+        15: Dio(3, device3_data),
+        16: Dio(4, device3_data),
+        17: Dio(5, device3_data),
+        18: Dio(6, device3_data),
+        19: Dio(7, device3_data),
+        20: Dio(8, device3_data),
+        21: Dio(9, device3_data),
+    }
 
-    return device1_dio_map, device2_dio_map
+    return device1_dio_map, device2_dio_map, device3_dio_map
 
 
 def process_data(test):
@@ -178,8 +178,8 @@ def process_io(test, io):
             if channel == 5:
                 hk_stop(True)
             print(f"start sending pulses to gpio[{channel}]")
-            # if channel > 13 and channel < 22:
-            #     io = test.deviced.dio_map[channel]
+            if channel > 13 and channel < 22:
+                io = test.deviced.dio_map[channel]
             if channel > 21:
                 io = test.device3v3.dio_map[channel]
             else:
@@ -245,18 +245,20 @@ if __name__ == "__main__":
         # connect devices using hardcoded serial numbers
         d1_sn = bytes(device1_sn, "utf-8")
         d2_sn = bytes(device2_sn, "utf-8")
-        device1_data, device2_data = connect_devices(devices, d1_sn, d2_sn)
+        d3_sn = bytes(device2_sn, "utf-8")
+        device1_data, device2_data, device3_data = connect_devices(
+            devices, d1_sn, d2_sn, d3_sn
+        )
 
         logging.info("   Initializing I/Os for both devices")
         # Initializing I/Os
-        device1_dio_map, device2_dio_map = init_ad_ios(device1_data, device2_data)
+        device1_dio_map, device2_dio_map, device3_dio_map = init_ad_ios(
+            device1_data, device2_data, device3_data
+        )
         # Initilizing devices
         device1 = Device(device1_data, 0, device1_dio_map)
         device2 = Device(device2_data, 1, device2_dio_map)
-        # if device3_data:
-        #     device3 = Device(device3_data, 2, device3_dio_map)
-        # else:
-        #     device3 = None
+        device3 = Device(device3_data, 1, device3_dio_map)
 
         test = Test(device1, device2)
         uart_data = UART(device1_data)

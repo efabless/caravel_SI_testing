@@ -11,6 +11,7 @@ from manifest import (
     TestDict,
     device1_sn,
     device2_sn,
+    device3_sn
 )
 
 

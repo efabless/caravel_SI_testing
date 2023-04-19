@@ -55,7 +55,7 @@ flash2: uart.hex
 # ---- Clean ----
 
 clean:
-	rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+	rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst gpio_config_data.c
 
 .PHONY: clean hex all flash
 

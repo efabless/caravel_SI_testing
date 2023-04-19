@@ -19,7 +19,7 @@ gpio_l = [
 ['IO[4]', H_DEPENDENT],
 ['IO[5]', H_INDEPENDENT],
 ['IO[6]', H_DEPENDENT],
-['IO[7]', H_DEPENDENT],
+['IO[7]', H_INDEPENDENT],
 ['IO[8]', H_DEPENDENT],
 ['IO[9]', H_DEPENDENT],
 ['IO[10]', H_INDEPENDENT],

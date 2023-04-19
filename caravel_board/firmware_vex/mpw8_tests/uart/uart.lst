@@ -757,103 +757,103 @@ Disassembly of section .rodata:
 Disassembly of section .data:
 
 00000000 <config_stream>:
-   0:	262626f7          	0x262626f7
-   4:	6666                	flw	fa2,88(sp)
+   0:	064646f7          	0x64646f7
+   4:	0606                	slli	a2,a2,0x1
    6:	0606                	slli	a2,a2,0x1
-   8:	0606                	slli	a2,a2,0x1
-   a:	0606                	slli	a2,a2,0x1
-   c:	2606                	fld	fa2,64(sp)
-   e:	2626                	fld	fa2,72(sp)
-  10:	6666                	flw	fa2,88(sp)
+   8:	2606                	fld	fa2,64(sp)
+   a:	2626                	fld	fa2,72(sp)
+   c:	6626                	flw	fa2,72(sp)
+   e:	6666                	flw	fa2,88(sp)
+  10:	2626                	fld	fa2,72(sp)
   12:	0606                	slli	a2,a2,0x1
-  14:	0606                	slli	a2,a2,0x1
-  16:	0606                	slli	a2,a2,0x1
-  18:	2606                	fld	fa2,64(sp)
-  1a:	2626                	fld	fa2,72(sp)
-  1c:	6666                	flw	fa2,88(sp)
+  14:	2606                	fld	fa2,64(sp)
+  16:	2626                	fld	fa2,72(sp)
+  18:	2626                	fld	fa2,72(sp)
+  1a:	6666                	flw	fa2,88(sp)
+  1c:	2666                	fld	fa2,88(sp)
   1e:	0606                	slli	a2,a2,0x1
   20:	0606                	slli	a2,a2,0x1
-  22:	0606                	slli	a2,a2,0x1
-  24:	2606                	fld	fa2,64(sp)
-  26:	2626                	fld	fa2,72(sp)
+  22:	2626                	fld	fa2,72(sp)
+  24:	2626                	fld	fa2,72(sp)
+  26:	6626                	flw	fa2,72(sp)
   28:	6666                	flw	fa2,88(sp)
   2a:	0606                	slli	a2,a2,0x1
   2c:	0606                	slli	a2,a2,0x1
-  2e:	0606                	slli	a2,a2,0x1
-  30:	2606                	fld	fa2,64(sp)
+  2e:	2626                	fld	fa2,72(sp)
+  30:	2626                	fld	fa2,72(sp)
   32:	2626                	fld	fa2,72(sp)
   34:	6666                	flw	fa2,88(sp)
-  36:	0606                	slli	a2,a2,0x1
+  36:	0646                	slli	a2,a2,0x11
   38:	0606                	slli	a2,a2,0x1
-  3a:	0606                	slli	a2,a2,0x1
-  3c:	2606                	fld	fa2,64(sp)
+  3a:	2626                	fld	fa2,72(sp)
+  3c:	2626                	fld	fa2,72(sp)
   3e:	2626                	fld	fa2,72(sp)
-  40:	6666                	flw	fa2,88(sp)
-  42:	0606                	slli	a2,a2,0x1
+  40:	6626                	flw	fa2,72(sp)
+  42:	4646                	lw	a2,80(sp)
   44:	0606                	slli	a2,a2,0x1
-  46:	0606                	slli	a2,a2,0x1
-  48:	2606                	fld	fa2,64(sp)
+  46:	2626                	fld	fa2,72(sp)
+  48:	2626                	fld	fa2,72(sp)
   4a:	2626                	fld	fa2,72(sp)
-  4c:	6666                	flw	fa2,88(sp)
-  4e:	0606                	slli	a2,a2,0x1
-  50:	0606                	slli	a2,a2,0x1
-  52:	0606                	slli	a2,a2,0x1
-  54:	2606                	fld	fa2,64(sp)
+  4c:	2626                	fld	fa2,72(sp)
+  4e:	4646                	lw	a2,80(sp)
+  50:	0646                	slli	a2,a2,0x11
+  52:	2626                	fld	fa2,72(sp)
+  54:	2626                	fld	fa2,72(sp)
   56:	2626                	fld	fa2,72(sp)
-  58:	6666                	flw	fa2,88(sp)
-  5a:	0606                	slli	a2,a2,0x1
-  5c:	0606                	slli	a2,a2,0x1
-  5e:	0606                	slli	a2,a2,0x1
-  60:	2606                	fld	fa2,64(sp)
+  58:	2626                	fld	fa2,72(sp)
+  5a:	4606                	lw	a2,64(sp)
+  5c:	4646                	lw	a2,80(sp)
+  5e:	2606                	fld	fa2,64(sp)
+  60:	2626                	fld	fa2,72(sp)
   62:	2626                	fld	fa2,72(sp)
-  64:	6666                	flw	fa2,88(sp)
+  64:	2626                	fld	fa2,72(sp)
   66:	0606                	slli	a2,a2,0x1
-  68:	0606                	slli	a2,a2,0x1
-  6a:	0606                	slli	a2,a2,0x1
-  6c:	2606                	fld	fa2,64(sp)
+  68:	4646                	lw	a2,80(sp)
+  6a:	2646                	fld	fa2,80(sp)
+  6c:	2626                	fld	fa2,72(sp)
   6e:	2626                	fld	fa2,72(sp)
-  70:	6666                	flw	fa2,88(sp)
+  70:	2626                	fld	fa2,72(sp)
   72:	0606                	slli	a2,a2,0x1
-  74:	0606                	slli	a2,a2,0x1
-  76:	0606                	slli	a2,a2,0x1
-  78:	2606                	fld	fa2,64(sp)
+  74:	4606                	lw	a2,64(sp)
+  76:	4646                	lw	a2,80(sp)
+  78:	2626                	fld	fa2,72(sp)
   7a:	2626                	fld	fa2,72(sp)
-  7c:	6666                	flw	fa2,88(sp)
+  7c:	2626                	fld	fa2,72(sp)
   7e:	0606                	slli	a2,a2,0x1
   80:	0606                	slli	a2,a2,0x1
-  82:	0606                	slli	a2,a2,0x1
-  84:	2606                	fld	fa2,64(sp)
+  82:	4646                	lw	a2,80(sp)
+  84:	2666                	fld	fa2,88(sp)
   86:	2626                	fld	fa2,72(sp)
-  88:	6666                	flw	fa2,88(sp)
+  88:	2626                	fld	fa2,72(sp)
   8a:	0606                	slli	a2,a2,0x1
   8c:	0606                	slli	a2,a2,0x1
-  8e:	0606                	slli	a2,a2,0x1
-  90:	2606                	fld	fa2,64(sp)
+  8e:	4606                	lw	a2,64(sp)
+  90:	6646                	flw	fa2,80(sp)
   92:	2626                	fld	fa2,72(sp)
-  94:	6666                	flw	fa2,88(sp)
+  94:	2626                	fld	fa2,72(sp)
   96:	0606                	slli	a2,a2,0x1
   98:	0606                	slli	a2,a2,0x1
   9a:	0606                	slli	a2,a2,0x1
-  9c:	2606                	fld	fa2,64(sp)
-  9e:	2626                	fld	fa2,72(sp)
-  a0:	6666                	flw	fa2,88(sp)
+  9c:	4646                	lw	a2,80(sp)
+  9e:	2666                	fld	fa2,88(sp)
+  a0:	2626                	fld	fa2,72(sp)
   a2:	0606                	slli	a2,a2,0x1
   a4:	0606                	slli	a2,a2,0x1
   a6:	0606                	slli	a2,a2,0x1
-  a8:	0606                	slli	a2,a2,0x1
-  aa:	2626                	fld	fa2,72(sp)
-  ac:	6666                	flw	fa2,88(sp)
+  a8:	4606                	lw	a2,64(sp)
+  aa:	6666                	flw	fa2,88(sp)
+  ac:	2626                	fld	fa2,72(sp)
   ae:	0606                	slli	a2,a2,0x1
   b0:	0606                	slli	a2,a2,0x1
   b2:	0606                	slli	a2,a2,0x1
   b4:	0606                	slli	a2,a2,0x1
-  b6:	2606                	fld	fa2,64(sp)
-  b8:	6666                	flw	fa2,88(sp)
+  b6:	6646                	flw	fa2,80(sp)
+  b8:	2666                	fld	fa2,88(sp)
   ba:	0606                	slli	a2,a2,0x1
   bc:	0606                	slli	a2,a2,0x1
   be:	0606                	slli	a2,a2,0x1
   c0:	0606                	slli	a2,a2,0x1
-  c2:	0606                	slli	a2,a2,0x1
+  c2:	6606                	flw	fa2,64(sp)
   c4:	6666                	flw	fa2,88(sp)
   c6:	0606                	slli	a2,a2,0x1
   c8:	0606                	slli	a2,a2,0x1
@@ -866,13 +866,19 @@ Disassembly of section .data:
   d6:	0606                	slli	a2,a2,0x1
   d8:	0606                	slli	a2,a2,0x1
   da:	0606                	slli	a2,a2,0x1
-  dc:	4646                	lw	a2,80(sp)
+  dc:	6666                	flw	fa2,88(sp)
   de:	0606                	slli	a2,a2,0x1
   e0:	0606                	slli	a2,a2,0x1
   e2:	0606                	slli	a2,a2,0x1
   e4:	0606                	slli	a2,a2,0x1
   e6:	0606                	slli	a2,a2,0x1
-  e8:	0046                	c.slli	zero,0x11
+  e8:	4646                	lw	a2,80(sp)
+  ea:	0606                	slli	a2,a2,0x1
+  ec:	0606                	slli	a2,a2,0x1
+  ee:	0606                	slli	a2,a2,0x1
+  f0:	0606                	slli	a2,a2,0x1
+  f2:	0606                	slli	a2,a2,0x1
+  f4:	0046                	c.slli	zero,0x11
 	...
 
 Disassembly of section .bss:

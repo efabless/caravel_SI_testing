@@ -16,10 +16,14 @@ PATTERN = uart
 
 hex:  ${PATTERN:=.hex}
 
-../../gpio_config/gpio_config_data.c: ../../gpio_config/gpio_config_def.py
-	cd ../../gpio_config; python3 ../../gpio_config/gpio_config_builder.py
+#../../gpio_config/gpio_config_data.c: ../../gpio_config/gpio_config_def.py
+#	cd ../../gpio_config; python3 ../../gpio_config/gpio_config_builder.py
 
-%.elf: %.c ../../sections.lds ../../crt0_vex.S ../../gpio_config/gpio_config_data.c
+gpio_config_data.c: gpio_config_def.py gpio_config_io.py
+	python3 ../gpio_config/gpio_config_builder.py
+
+#%.elf: %.c ../../sections.lds ../../crt0_vex.S ../../gpio_config/gpio_config_data.c
+%.elf: %.c ../../sections.lds ../../crt0_vex.S gpio_config_data.c
 	$(TOOLCHAIN_PATH)riscv64-unknown-elf-gcc -I../../ -I../../generated/ -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../../sections.lds,--strip-debug -ffreestanding -nostdlib -o $@ ../../crt0_vex.S ../../isr.c ../../gpio_program.c $<
 
 	${TOOLCHAIN_PATH}riscv64-unknown-elf-objdump -s  uart.elf > uart.lst

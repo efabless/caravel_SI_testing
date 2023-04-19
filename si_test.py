@@ -160,7 +160,7 @@ def process_io(test, io):
         rst = 2
     end_pulses = 0
     while end_pulses < 2:
-        pulse_count = test.receive_packet()
+        pulse_count = test.receive_packet(250)
         if phase == 0 and pulse_count == 1:
             print("Start test")
             phase = phase + 1

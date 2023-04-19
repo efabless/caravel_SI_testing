@@ -20,7 +20,7 @@ hex:  ${PATTERN:=.hex}
 #	cd ../../gpio_config; python3 ../../gpio_config/gpio_config_builder.py
 
 gpio_config_data.c: gpio_config_def.py gpio_config_io.py
-	python3 ../gpio_config/gpio_config_builder.py
+	python3 ../../gpio_config/gpio_config_builder.py
 
 #%.elf: %.c ../../sections.lds ../../crt0_vex.S ../../gpio_config/gpio_config_data.c
 %.elf: %.c ../../sections.lds ../../crt0_vex.S gpio_config_data.c

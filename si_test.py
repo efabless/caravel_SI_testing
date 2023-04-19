@@ -187,10 +187,10 @@ def process_io(test, io):
                 io = test.device1v8.dio_map[channel]
             state = "HI"
             x_bef = io.get_value()
-            timeout = time.time() + 0.5
-            accurate_delay(12.5)
+            timeout = time.time() + 20
+            accurate_delay(125)
             while 1:
-                accurate_delay(25)
+                accurate_delay(250)
                 x = io.get_value()
                 if state == "LOW":
                     if x:

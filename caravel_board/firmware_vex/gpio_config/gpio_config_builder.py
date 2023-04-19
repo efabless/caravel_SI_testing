@@ -17,7 +17,7 @@ import os,sys
 sys.path.append(os.getcwd())
 
 from gpio_config_def import *
-#from gpio_config_io import *
+from gpio_config_io import *
 
 # ------------------------------------------
 

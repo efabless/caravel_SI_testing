@@ -245,7 +245,7 @@ if __name__ == "__main__":
         # connect devices using hardcoded serial numbers
         d1_sn = bytes(device1_sn, "utf-8")
         d2_sn = bytes(device2_sn, "utf-8")
-        d3_sn = bytes(device2_sn, "utf-8")
+        d3_sn = bytes(device3_sn, "utf-8")
         device1_data, device2_data, device3_data = connect_devices(
             devices, d1_sn, d2_sn, d3_sn
         )

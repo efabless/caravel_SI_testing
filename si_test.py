@@ -1,10 +1,12 @@
-from caravel import Dio, Test
+from caravel import Dio, Test, accurate_delay
 from io_config import Device, device, connect_devices, UART, SPI
 import logging
 import os
 import csv
 import sys
 import time
+import subprocess
+import signal
 from manifest import (
     TestDict,
     device1_sn,
@@ -131,7 +133,84 @@ def process_mem(test):
             return mem_size
 
 
-def flash_test(test, hex_file, uart, uart_data, mem):
+def hk_stop(close):
+    global pid
+    if not close:
+        print("running caravel_hkstop.py...")
+        p = subprocess.Popen(
+            ["python3", "caravel_board/firmware_vex/util/caravel_hkstop.py"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        pid = p.pid
+        print("subprocess pid:", pid)
+    elif pid:
+        print("stopping caravel_hkstop.py...")
+        os.kill(pid, signal.SIGTERM)
+        pid = None
+
+
+def process_io(test, io):
+    phase = 0
+    io_pulse = 0
+    if io == "low":
+        rst = 0
+    if io == "high":
+        rst = 2
+    end_pulses = 0
+    while end_pulses < 2:
+        pulse_count = test.receive_packet()
+        if phase == 0 and pulse_count == 1:
+            print("Start test")
+            phase = phase + 1
+        elif phase > 0 and pulse_count == 1:
+            rst = rst + 1
+            end_pulses = end_pulses + 1
+        elif pulse_count > 1:
+            end_pulses = 0
+            if rst < 2:
+                channel = (pulse_count - 2) + (9 * rst)
+            elif rst == 2:
+                channel = 37 - (pulse_count - 2)
+            elif rst == 3:
+                channel = 28 - (pulse_count - 2)
+            phase = phase + 1
+            if channel == 5:
+                hk_stop(True)
+            print(f"start sending pulses to gpio[{channel}]")
+            # if channel > 13 and channel < 22:
+            #     io = test.deviced.dio_map[channel]
+            if channel > 21:
+                io = test.device3v3.dio_map[channel]
+            else:
+                io = test.device1v8.dio_map[channel]
+            state = "HI"
+            x_bef = io.get_value()
+            timeout = time.time() + 0.5
+            accurate_delay(12.5)
+            while 1:
+                accurate_delay(25)
+                x = io.get_value()
+                if state == "LOW":
+                    if x:
+                        state = "HI"
+                elif state == "HI":
+                    if not x:
+                        state = "LOW"
+                        io_pulse = io_pulse + 1
+                if io_pulse == 4:
+                    io_pulse = 0
+                    print(f"gpio[{channel}] Passed")
+                    break
+                if time.time() > timeout:
+                    if x and not x_bef:
+                        print(f"gpio[{channel}] is stuck at high!")
+                    print(f"Timeout failure on gpio[{channel}]!")
+                    return False, channel
+    return True, None
+
+
+def flash_test(test, hex_file, uart, uart_data, mem, io):
     test.apply_reset()
     test.powerup_sequence()
     test.flash(hex_file)
@@ -144,12 +223,15 @@ def flash_test(test, hex_file, uart, uart_data, mem):
         return process_uart(test, uart_data)
     elif mem:
         return process_mem(test)
+    elif io:
+        hk_stop(False)
+        return process_io(test, io)
     else:
         return process_data(test)
 
 
-def exec_test(test, writer, hex_file, uart=False, uart_data=None, mem=False):
-    results = flash_test(test, hex_file, uart, uart_data, mem)
+def exec_test(test, writer, hex_file, uart=False, uart_data=None, mem=False, io=False):
+    results = flash_test(test, hex_file, uart, uart_data, mem, io)
     arr = [test.test_name, test.voltage, results]
     writer.writerow(arr)
 
@@ -199,6 +281,8 @@ if __name__ == "__main__":
                         exec_test(test, writer, t["hex_file_path"], True, uart_data)
                     elif t["mem"]:
                         exec_test(test, writer, t["hex_file_path"], mem=True)
+                    elif t["io"]:
+                        exec_test(test, writer, t["hex_file_path"], io=t["io"])
                     else:
                         exec_test(test, writer, t["hex_file_path"])
         test.close_devices()

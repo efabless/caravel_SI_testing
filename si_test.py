@@ -185,7 +185,6 @@ def process_io(test, io):
             else:
                 io = test.device1v8.dio_map[channel]
             state = "HI"
-            x_bef = io.get_value()
             timeout = time.time() + 20
             accurate_delay(125)
             while 1:
@@ -203,14 +202,39 @@ def process_io(test, io):
                     print(f"gpio[{channel}] Passed")
                     break
                 if time.time() > timeout:
-                    if x and not x_bef:
-                        print(f"gpio[{channel}] is stuck at high!")
                     print(f"Timeout failure on gpio[{channel}]!")
                     return False, channel
     return True, None
 
 
-def flash_test(test, hex_file, uart, uart_data, mem, io):
+def process_input_io(test, high):
+    count = 0
+    if not high:
+        channel = 0
+    else:
+        channel = 37
+    while count < 19:
+        if channel == 5:
+            hk_stop(True)
+        pulse_count = test.receive_packet(250)
+        if pulse_count == 1:
+            print(f"Sending 4 pulses on gpio[{channel}]")
+            test.send_pulse(4, channel, 50)
+            ack_pulse = test.receive_packet(250)
+            if ack_pulse == 5:
+                print(f"gpio[{channel}] Failed to send pulse")
+                return False, channel
+            elif ack_pulse == 3:
+                print(f"gpio[{channel}] sent pulse successfully")
+            if not high:
+                channel = channel + 1
+            else:
+                channel = channel - 1
+            count = count + 1
+    return True, None
+
+
+def flash_test(test, hex_file, uart, uart_data, mem, io, mode):
     test.apply_reset()
     test.powerup_sequence()
     test.flash(hex_file)
@@ -225,15 +249,29 @@ def flash_test(test, hex_file, uart, uart_data, mem, io):
         return process_mem(test)
     elif io:
         hk_stop(False)
-        return process_io(test, io)
+        if mode == "low":
+            return process_io(test, io)
+        elif mode == "high":
+            return process_input_io(test, io)
+        else:
+            print(f"ERROR : No {mode} mode")
+            exit(1)
     else:
         return process_data(test)
 
 
 def exec_test(
-    test, start_time, writer, hex_file, uart=False, uart_data=None, mem=False, io=False
+    test,
+    start_time,
+    writer,
+    hex_file,
+    uart=False,
+    uart_data=None,
+    mem=False,
+    io=False,
+    mode="low",
 ):
-    results = flash_test(test, hex_file, uart, uart_data, mem, io)
+    results = flash_test(test, hex_file, uart, uart_data, mem, io, mode)
     end_time = time.time() - start_time
     arr = [test.test_name, test.voltage, results, end_time]
     writer.writerow(arr)
@@ -298,7 +336,12 @@ if __name__ == "__main__":
                         )
                     elif t["io"]:
                         exec_test(
-                            test, start_time, writer, t["hex_file_path"], io=t["io"]
+                            test,
+                            start_time,
+                            writer,
+                            t["hex_file_path"],
+                            io=t["io"],
+                            mode=t["mode"],
                         )
                     else:
                         exec_test(test, start_time, writer, t["hex_file_path"])

@@ -41,7 +41,7 @@ TestDict = [
         "uart": False,  # NOT Testing UART
         "mem": False,  # NOT Testing mem
         "io": "low",
-        "mode": "out",
+        "mode": "output",
         "voltage": [1.6],
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_o_l/gpio_o_l.hex",
         "passing_criteria": [
@@ -60,7 +60,7 @@ TestDict = [
         "uart": False,  # NOT Testing UART
         "mem": False,  # NOT Testing mem
         "io": "high",
-        "mode": "out",
+        "mode": "output",
         "voltage": [1.6],
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_o_h/gpio_o_h.hex",
         "passing_criteria": [
@@ -79,7 +79,7 @@ TestDict = [
         "uart": False,  # NOT Testing UART
         "mem": False,  # NOT Testing mem
         "io": "low",
-        "mode": "in",
+        "mode": "input",
         "voltage": [1.6],
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_i_l/gpio_i_l.hex",
         "passing_criteria": [
@@ -98,7 +98,7 @@ TestDict = [
         "uart": False,  # NOT Testing UART
         "mem": False,  # NOT Testing mem
         "io": "high",
-        "mode": "in",
+        "mode": "input",
         "voltage": [1.6],
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_i_h/gpio_i_h.hex",
         "passing_criteria": [

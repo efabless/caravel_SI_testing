@@ -207,9 +207,9 @@ def process_io(test, io):
     return True, None
 
 
-def process_input_io(test, high):
+def process_input_io(test, io):
     count = 0
-    if not high:
+    if io == "low":
         channel = 0
     else:
         channel = 37
@@ -226,7 +226,7 @@ def process_input_io(test, high):
                 return False, channel
             elif ack_pulse == 3:
                 print(f"gpio[{channel}] sent pulse successfully")
-            if not high:
+            if io == "low":
                 channel = channel + 1
             else:
                 channel = channel - 1
@@ -249,9 +249,9 @@ def flash_test(test, hex_file, uart, uart_data, mem, io, mode):
         return process_mem(test)
     elif io:
         hk_stop(False)
-        if mode == "low":
+        if mode == "output":
             return process_io(test, io)
-        elif mode == "high":
+        elif mode == "input":
             return process_input_io(test, io)
         else:
             print(f"ERROR : No {mode} mode")

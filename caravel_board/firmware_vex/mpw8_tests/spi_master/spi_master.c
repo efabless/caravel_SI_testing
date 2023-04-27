@@ -86,8 +86,8 @@ void main()
 
     reg_spimaster_clk_divider = 0x4E20;
     reg_spi_enable = 1;
-    send_packet(1);             // enable the SPI
     reg_spimaster_cs = 0x10001; // sel=0, manual CS
+    send_packet(1);
 
     spi_write(0x12); // Write 0x08
     // for(int i = 0; i < 10000; i++);

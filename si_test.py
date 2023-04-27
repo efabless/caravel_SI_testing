@@ -7,12 +7,7 @@ import sys
 import time
 import subprocess
 import signal
-from manifest import (
-    TestDict,
-    device1_sn,
-    device2_sn,
-    device3_sn
-)
+from manifest import TestDict, device1_sn, device2_sn, device3_sn
 
 
 def init_ad_ios(device1_data, device2_data, device3_data):
@@ -92,7 +87,7 @@ def process_uart(test, uart):
     pulse_count = test.receive_packet(250)
     if pulse_count == 2:
         print("start UART transmission")
-    while time.time() < timeout:
+    while True:
         uart_data, count = uart.read_uart()
         if uart_data:
             uart_data[count.value] = 0
@@ -100,6 +95,9 @@ def process_uart(test, uart):
             if test.passing_criteria[0] in rgRX:
                 print(rgRX)
                 break
+        if time.time() > timeout:
+            print(f"{test.test_name} test failed with {test.voltage}v supply")
+            return False
     pulse_count = test.receive_packet(250)
     if pulse_count == 5:
         print("end UART transmission")
@@ -107,6 +105,7 @@ def process_uart(test, uart):
         pulse_count = test.receive_packet(250)
         if pulse_count == 3:
             print("end UART test")
+    return True
 
 
 def process_mem(test):
@@ -231,9 +230,12 @@ def flash_test(test, hex_file, uart, uart_data, mem, io):
         return process_data(test)
 
 
-def exec_test(test, writer, hex_file, uart=False, uart_data=None, mem=False, io=False):
+def exec_test(
+    test, start_time, writer, hex_file, uart=False, uart_data=None, mem=False, io=False
+):
     results = flash_test(test, hex_file, uart, uart_data, mem, io)
-    arr = [test.test_name, test.voltage, results]
+    end_time = time.time() - start_time
+    arr = [test.test_name, test.voltage, results, end_time]
     writer.writerow(arr)
 
 
@@ -265,7 +267,7 @@ if __name__ == "__main__":
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
 
-        csv_header = ["test_name", "voltage (v)", "Pass/Fail"]
+        csv_header = ["test_name", "voltage (v)", "Pass/Fail", "Time"]
         if os.path.exists("./results.csv"):
             os.remove("./results.csv")
 
@@ -275,19 +277,31 @@ if __name__ == "__main__":
             # write the header
             writer.writerow(csv_header)
             for t in TestDict:
+                start_time = time.time()
                 test.test_name = t["test_name"]
                 test.passing_criteria = t["passing_criteria"]
                 for v in t["voltage"]:
                     test.voltage = v
                     logging.info(f"  Running:  {test.test_name}")
                     if t["uart"]:
-                        exec_test(test, writer, t["hex_file_path"], True, uart_data)
+                        exec_test(
+                            test,
+                            start_time,
+                            writer,
+                            t["hex_file_path"],
+                            True,
+                            uart_data,
+                        )
                     elif t["mem"]:
-                        exec_test(test, writer, t["hex_file_path"], mem=True)
+                        exec_test(
+                            test, start_time, writer, t["hex_file_path"], mem=True
+                        )
                     elif t["io"]:
-                        exec_test(test, writer, t["hex_file_path"], io=t["io"])
+                        exec_test(
+                            test, start_time, writer, t["hex_file_path"], io=t["io"]
+                        )
                     else:
-                        exec_test(test, writer, t["hex_file_path"])
+                        exec_test(test, start_time, writer, t["hex_file_path"])
         test.close_devices()
         sys.exit(0)
     except KeyboardInterrupt:

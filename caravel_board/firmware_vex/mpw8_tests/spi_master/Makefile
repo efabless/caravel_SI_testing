@@ -15,7 +15,7 @@ VOLTAGE=$(shell python3 -c "from gpio_config_def import voltage; print(voltage)"
 
 .SUFFIXES:
 
-PATTERN = gpio_o_h
+PATTERN = spi_master
 
 hex:  ${PATTERN:=.hex}
 
@@ -44,12 +44,12 @@ gpio_config_data.c: gpio_config_def.py gpio_config_io.py
 client: client.c
 	gcc client.c -o client
 
-flash: gpio_o_h.hex
-	python3 ../util/caravel_hkflash.py gpio_o_h.hex
+flash: spi_master.hex
+	python3 ../util/caravel_hkflash.py spi_master.hex
 	python3 ../util/caravel_hkstop.py
 
-flash2: gpio_o_h.hex
-	python3 ../util/caravel_flash.py gpio_o_h.hex
+flash2: spi_master.hex
+	python3 ../util/caravel_flash.py spi_master.hex
 
 # ---- Clean ----
 

@@ -89,9 +89,9 @@ void main()
     send_packet(1);             // enable the SPI
     reg_spimaster_cs = 0x10001; // sel=0, manual CS
 
-    spi_write(0x08); // Write 0x08
+    spi_write(0x12); // Write 0x08
     // for(int i = 0; i < 10000; i++);
-    spi_write(0x05); // Write 0x05
+    spi_write(0x20); // Write 0x05
     // for(int i = 0; i < 20000; i++);
     value = spi_read(); // 0xD
 

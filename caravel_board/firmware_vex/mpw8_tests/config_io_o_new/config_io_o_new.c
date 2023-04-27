@@ -67,7 +67,7 @@ void main()
     int num_pulses = 4;
     int num_bits = 19;
     configure_mgmt_gpio();
-    set_registers();
+    configure_all_gpios(GPIO_MODE_MGMT_STD_OUTPUT);
     reg_mprj_datah = 0;
     reg_mprj_datal = 0;
     gpio_config_io();

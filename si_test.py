@@ -257,7 +257,7 @@ def process_input_io(test, io):
     return True, None
 
 
-def flash_test(test, hex_file, uart, uart_data, mem, io, mode):
+def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi):
     test.apply_reset()
     test.powerup_sequence()
     test.flash(hex_file)
@@ -279,6 +279,8 @@ def flash_test(test, hex_file, uart, uart_data, mem, io, mode):
         else:
             print(f"ERROR : No {mode} mode")
             exit(1)
+    elif spi_flag:
+        return process_spi(test, spi)
     else:
         return process_data(test)
 
@@ -293,8 +295,10 @@ def exec_test(
     mem=False,
     io=False,
     mode="low",
+    spi_flag=False,
+    spi=None,
 ):
-    results = flash_test(test, hex_file, uart, uart_data, mem, io, mode)
+    results = flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi)
     end_time = time.time() - start_time
     arr = [test.test_name, test.voltage, results, end_time]
     writer.writerow(arr)
@@ -365,6 +369,15 @@ if __name__ == "__main__":
                             t["hex_file_path"],
                             io=t["io"],
                             mode=t["mode"],
+                        )
+                    elif t["spi"]:
+                        exec_test(
+                            test,
+                            start_time,
+                            writer,
+                            t["hex_file_path"],
+                            spi_flag=t["spi"],
+                            spi=spi,
                         )
                     else:
                         exec_test(test, start_time, writer, t["hex_file_path"])

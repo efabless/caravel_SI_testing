@@ -40,7 +40,7 @@ gpio_h = [
     ["IO[35]", H_INDEPENDENT],
     ["IO[34]", H_INDEPENDENT],
     ["IO[33]", H_INDEPENDENT],
-    ["IO[32]", H_INDEPENDENT],
+    ["IO[32]", H_DEPENDENT],
     ["IO[31]", H_INDEPENDENT],
     ["IO[30]", H_INDEPENDENT],
     ["IO[29]", H_INDEPENDENT],

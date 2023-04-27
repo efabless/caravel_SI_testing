@@ -84,7 +84,7 @@ void main()
     }
     gpio_config_io();
 
-    reg_spimaster_clk_divider = 0x4E30;
+    reg_spimaster_clk_divider = 0x4;
     reg_spi_enable = 1;
     reg_spimaster_cs = 0x0000;  // release CS
     reg_spimaster_cs = 0x10001; // sel=0, manual CS

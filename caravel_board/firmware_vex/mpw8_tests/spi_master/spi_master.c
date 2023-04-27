@@ -84,7 +84,7 @@ void main()
     }
     gpio_config_io();
 
-    reg_spimaster_clk_divider = 0x4E25;
+    reg_spimaster_clk_divider = 0x4E15;
     reg_spi_enable = 1;
     send_packet(1);             // enable the SPI
     reg_spimaster_cs = 0x10001; // sel=0, manual CS

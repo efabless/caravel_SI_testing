@@ -21,25 +21,23 @@ void main()
    configure_mgmt_gpio();
    send_packet(1); // start of the test
 
-   unsigned short *dff_start_address = (unsigned short *)0x00000000;
-   unsigned int dff_size = 512;
+   unsigned int *dff_start_address = (unsigned int *)0x00000000;
+   unsigned int dff_size = 256;
 
-   unsigned int loop_start = 0;
-   unsigned int loop_end = dff_size;
-
-   for (unsigned int i = loop_start; i < loop_end; i++)
+   for (unsigned int i = 0; i < dff_size; i++)
    {
 
-      unsigned short data = (i + 7) * 13;
+      unsigned int data = (i + 7) * 13;
       *(dff_start_address + i) = data;
    }
-   for (unsigned int i = loop_start; i < loop_end; i++)
+   for (unsigned int i = 0; i < dff_size; i++)
    {
-      unsigned short data = (i + 7) * 13;
+      unsigned int data = (i + 7) * 13;
       if (data != *(dff_start_address + i))
       {
          send_packet(9); // error
       }
+      send_packet(5); // pass 1 byte
    }
 
    // test finish

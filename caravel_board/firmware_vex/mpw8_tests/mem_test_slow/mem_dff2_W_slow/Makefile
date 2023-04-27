@@ -12,7 +12,7 @@ TOOLCHAIN_PREFIX=riscv64
 
 .SUFFIXES:
 
-PATTERN = mem_sram_W
+PATTERN = mem_dff2_W
 
 hex:  ${PATTERN:=.hex}
 
@@ -22,7 +22,7 @@ hex:  ${PATTERN:=.hex}
 %.elf: %.c ../../sections.lds ../../crt0_vex.S ../../gpio_config/gpio_config_data.c
 	$(TOOLCHAIN_PATH)riscv64-unknown-elf-gcc -I../../ -I../../generated/ -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../../sections.lds,--strip-debug -ffreestanding -nostdlib -o $@ ../../crt0_vex.S ../../isr.c ../../gpio_program.c $<
 
-	${TOOLCHAIN_PATH}riscv64-unknown-elf-objdump -s  mem_sram_W.elf > mem_sram_W.lst
+	${TOOLCHAIN_PATH}riscv64-unknown-elf-objdump -s  mem_dff2_W.elf > mem_dff2_W.lst
 
 %.hex: %.elf
 	$(TOOLCHAIN_PATH)riscv64-unknown-elf-objcopy -O verilog $< $@
@@ -34,12 +34,12 @@ hex:  ${PATTERN:=.hex}
 client: client.c
 	gcc client.c -o client
 
-flash: mem_sram_W.hex
-	python3 ../util/caravel_hkflash.py mem_sram_W.hex
+flash: mem_dff2_W.hex
+	python3 ../util/caravel_hkflash.py mem_dff2_W.hex
 	python3 ../util/caravel_hkstop.py
 
-flash2: mem_sram_W.hex
-	python3 ../util/caravel_flash.py mem_sram_W.hex
+flash2: mem_dff2_W.hex
+	python3 ../util/caravel_flash.py mem_dff2_W.hex
 
 # ---- Clean ----
 

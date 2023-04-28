@@ -7,7 +7,7 @@ import sys
 import time
 import subprocess
 import signal
-from manifest import TestDict, device1_sn, device2_sn, device3_sn
+from manifest import TestDict, device1_sn, device2_sn, device3_sn, voltage
 
 
 def init_ad_ios(device1_data, device2_data, device3_data):
@@ -82,25 +82,52 @@ def process_data(test):
 
 def process_uart(test, uart):
     uart.open()
-    rgRX = ""
-    timeout = time.time() + 50
-    pulse_count = test.receive_packet(250)
-    if pulse_count == 2:
-        print("start UART transmission")
-    while True:
-        uart_data, count = uart.read_uart()
-        if uart_data:
-            uart_data[count.value] = 0
-            rgRX = rgRX + uart_data.value.decode()
-            if test.passing_criteria[0] in rgRX:
-                print(rgRX)
-                break
-        if time.time() > timeout:
-            print(f"{test.test_name} test failed with {test.voltage}v supply")
-            return False
-    pulse_count = test.receive_packet(250)
-    if pulse_count == 5:
-        print("end UART transmission")
+    if test.test_name == "uart":
+        rgRX = ""
+        timeout = time.time() + 50
+        pulse_count = test.receive_packet(250)
+        if pulse_count == 2:
+            print("start UART transmission")
+        while True:
+            uart_data, count = uart.read_uart()
+            if uart_data:
+                uart_data[count.value] = 0
+                rgRX = rgRX + uart_data.value.decode()
+                if test.passing_criteria[0] in rgRX:
+                    print(rgRX)
+                    break
+            if time.time() > timeout:
+                print(f"{test.test_name} test failed with {test.voltage}v supply")
+                return False
+        pulse_count = test.receive_packet(250)
+        if pulse_count == 5:
+            print("end UART transmission")
+    elif test.test_name == "uart_reception":
+        for i in test.passing_criteria:
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 4:
+                uart.write(i)
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 6:
+                print(f"Successfully sent {i} over UART!")
+            if pulse_count == 9:
+                print(f"Couldn't send {i} over UART!")
+                return False
+    elif test.test_name == "uart_loopback":
+        for i in range(0, 5):
+            while time.time() < timeout:
+                uart_data, count = uart.read_uart()
+                if uart_data:
+                    uart_data[count.value] = 0
+                    dat = uart_data.value.decode()
+                    uart.write(dat)
+                    pulse_count = test.receive_packet(250)
+                    if pulse_count == 6:
+                        print(f"Successfully sent {dat} over UART!")
+                        break
+                    if pulse_count == 9:
+                        print(f"Couldn't send {dat} over UART!")
+                        return False
     for i in range(0, 3):
         pulse_count = test.receive_packet(250)
         if pulse_count == 3:
@@ -345,7 +372,7 @@ if __name__ == "__main__":
                 start_time = time.time()
                 test.test_name = t["test_name"]
                 test.passing_criteria = t["passing_criteria"]
-                for v in t["voltage"]:
+                for v in voltage:
                     test.voltage = v
                     logging.info(f"  Running:  {test.test_name}")
                     if t["uart"]:

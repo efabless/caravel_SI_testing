@@ -353,9 +353,9 @@ if __name__ == "__main__":
         # Initilizing devices
         device1 = Device(device1_data, 0, device1_dio_map)
         device2 = Device(device2_data, 1, device2_dio_map)
-        device3 = Device(device3_data, 1, device3_dio_map)
+        device3 = Device(device3_data, 2, device3_dio_map)
 
-        test = Test(device1, device2)
+        test = Test(device1, device2, device3)
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
 

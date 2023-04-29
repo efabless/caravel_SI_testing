@@ -52,7 +52,9 @@ void main()
     reg_mprj_datah = 0;
     reg_mprj_datal = 0;
     configure_mgmt_gpio();
-    gpio_config_io();
+//    gpio_config_io();
+    reg_mprj_xfer = 1;
+    while (reg_mprj_xfer == 1);
     // send_packet(1); // configuration finished start test
 
     while (true)

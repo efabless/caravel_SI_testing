@@ -111,7 +111,9 @@ void main()
     set_registers();
     reg_mprj_datah = 0;
     reg_mprj_datal = 0;
-    gpio_config_io();
+//    gpio_config_io();
+    reg_mprj_xfer = 1;
+    while (reg_mprj_xfer == 1);
 
     send_packet(1); //start sending on the higest gpios 
     for (j=37;j > 28;j--){

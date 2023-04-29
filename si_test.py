@@ -82,12 +82,12 @@ def process_data(test):
 
 def process_uart(test, uart):
     uart.open()
+    rgRX = ""
+    timeout = time.time() + 50
+    while test.receive_packet(250) != 2:
+        pass
+    print("start UART transmission")
     if test.test_name == "uart":
-        rgRX = ""
-        timeout = time.time() + 50
-        pulse_count = test.receive_packet(250)
-        if pulse_count == 2:
-            print("start UART transmission")
         while True:
             uart_data, count = uart.read_uart()
             if uart_data:

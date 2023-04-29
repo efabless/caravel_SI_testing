@@ -21,8 +21,8 @@ void main()
    configure_mgmt_gpio();
    send_packet(1); // start of the test
 
-   unsigned short *openram_start_address = (unsigned short *)0x01000000;
-   unsigned int openram_size = 1024;
+   unsigned short *openram_start_address = (unsigned short *)0x00000400;
+   unsigned int openram_size = 256;
 
    for (unsigned int i = 0; i < openram_size; i++)
    {

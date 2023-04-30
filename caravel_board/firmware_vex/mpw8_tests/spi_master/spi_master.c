@@ -32,21 +32,19 @@ uint32_t spi_write_reg()
 {
     uint32_t data;
 
-    reg_spimaster_cs = 0x00;
-//    reg_spimaster_cs = 0x10000;
+    reg_spimaster_cs = 0x10001;
 
     reg_spimaster_wdata = (uint32_t) 0x40;
     reg_spimaster_control = 0x0801;
     reg_spimaster_wdata = (uint32_t) 0x01;
     reg_spimaster_control = 0x0801;
+
     reg_spimaster_wdata = (uint32_t) 0x00;
     reg_spimaster_control = 0x0801;
-
     while (reg_spimaster_status != 1);
     data = reg_spimaster_rdata;
 
-//    reg_spimaster_cs = 0x10001;
-    reg_spimaster_cs = 0x01;
+    reg_spimaster_cs = 0x0000;
 
     return data;
 }

@@ -1,6 +1,5 @@
-#include <defs.h>
-#include <stub.c>
-#include "../common/send_packet.c"
+#include <common.h>
+
 
 /*
    @ start of test

@@ -1,7 +1,4 @@
-#include <defs.h>
-#include <defs.h>
-#include <stub.c>
-#include "../common/send_packet.c"
+#include <common.h>
 
 void main(){
     configure_mgmt_gpio();

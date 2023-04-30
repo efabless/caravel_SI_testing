@@ -14,30 +14,21 @@
  * limitations under the License.
  * SPDX-License-Identifier: Apache-2.0
  */
+#include <common.h>
 
-#include <uart.h>
-
-#include <defs.h>
-// #include "send_packet.c"
-// #include <defs.h>
-#include <stub.c>
-#include "../common/send_packet.c"
-#include "../../gpio_config/gpio_config_io.c"
 
 void wait_for_char(char *c)
 {
-    while (uart_rxempty_read() == 1)
-        ;
-    if (reg_uart_data == *c)
-    {
+    while (uart_rxempty_read() == 1);
+    if (reg_uart_data == *c){
         send_packet(6); // recieved the correct character
     }
-    else
-    {
+    else{
         send_packet(9); // recieved incorrect correct character
     }
-    uart_ev_pending_write(UART_EV_RX);
+    uart_pop_char();
 }
+
 /*
 Connect the transimssion and the reciever of the uart
  Transmit any character and wait until receiev it back
@@ -106,34 +97,23 @@ void main()
 {
     int j;
     configure_mgmt_gpio();
-    set_registers();
-    reg_mprj_datah = 0;
-    reg_mprj_datal = 0;
-    gpio_config_io();
-
-    // clear_registers();
-    // clock_in_right_o_left_o_standard(0); // 6	and 31
-    // clock_in_right_o_left_i_standard(0); // 5	and 32
-    // clock_in_right_o_left_i_standard(0); // 4	and 33
-    // clock_in_right_o_left_i_standard(0); // 3	and 34
-    // clock_in_right_o_left_i_standard(0); // 2	and 35
-    // clock_in_right_o_left_i_standard(0); // 1	and 36
-    // clock_in_right_o_left_i_standard(0); // 0	and 37
-    // load();		                         //  load
+    configure_gpio(6,GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(5,GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    gpio_config_load();
 
     // Start test
     send_packet(2); // Start of the test
 
-    reg_uart_enable = 1;
+    uart_RX_enable(1);
+    enable_uart_TX(1);
+
 
     print("M");
-    for (j = 0; j < 1000; j++)
-        ;
+    for (j = 0; j < 1000; j++);
     wait_for_char("M");
 
     print("B");
-    for (j = 0; j < 1000; j++)
-        ;
+    for (j = 0; j < 1000; j++);
     wait_for_char("B");
 
     print("A");
@@ -142,13 +122,11 @@ void main()
     wait_for_char("A");
 
     print("5");
-    for (j = 0; j < 1000; j++)
-        ;
+    for (j = 0; j < 1000; j++);
     wait_for_char("5");
 
     print("o");
-    for (j = 0; j < 1000; j++)
-        ;
+    for (j = 0; j < 1000; j++);
     wait_for_char("o");
 
     // finish test

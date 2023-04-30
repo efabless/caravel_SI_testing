@@ -1,31 +1,26 @@
-#include <defs.h>
-#include <stub.c>
-#include "../common/send_packet.c"
-#include "../../gpio_config/gpio_config_io.c"
+#include <common.h>
 
-void set_registers()
-{
-    reg_mprj_io_19 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_20 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_21 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_22 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_23 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_24 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_25 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_26 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_27 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_28 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_29 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_30 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_31 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_32 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_33 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_34 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    //    reg_mprj_io_34 = 0x0403;
-    reg_mprj_io_35 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_36 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    reg_mprj_io_37 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-    //    reg_mprj_io_37 = 0x0403;
+
+void set_registers(){
+    configure_gpio(19, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(20, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(21, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(22, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(23, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(24, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(25, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(26, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(27, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(28, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(29, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(30, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(31, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(32, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(33, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(34, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(35, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(36, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(37, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
 }
 /*
 @ send on the next io (start from 37 to 19)
@@ -51,12 +46,11 @@ void main()
     int timeout = 15000;
     long int timeout_count = 0;
     set_registers();
-    reg_mprj_datah = 0;
-    reg_mprj_datal = 0;
+    set_gpio_h(0);
+    set_gpio_l(0);
     configure_mgmt_gpio();
 //    gpio_config_io();
-    reg_mprj_xfer = 1;
-    while (reg_mprj_xfer == 1);
+    gpio_config_load();
     // send_packet(1); // configuration finished start test
 
     while (true)
@@ -67,23 +61,23 @@ void main()
         {
             temp_io = io_number - 32;
             mask = 0x1 << temp_io;
-            old_recieved = reg_mprj_datah & mask;
+            old_recieved = get_gpio_h() & mask;
         }
         else
         {
             mask = 0x1 << io_number;
-            old_recieved = reg_mprj_datal & mask;
+            old_recieved = get_gpio_l() & mask;
         }
 
         while (true)
         {
             if (io_number >= 32)
             {
-                recieved = reg_mprj_datah & mask; // mask gpio bit
+                recieved = get_gpio_h() & mask; // mask gpio bit
             }
             else
             {
-                recieved = reg_mprj_datal & mask; // mask gpio bit
+                recieved = get_gpio_l() & mask; // mask gpio bit
             }
             if (recieved != old_recieved)
             {

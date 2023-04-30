@@ -15,11 +15,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <uart.h>
+#include <common.h>
 
-#include "../defs.h"
-#include "../gpio_config/gpio_config_io.c"
-#include "../common/send_packet.c"
 // --------------------------------------------------------
 
 /*
@@ -27,20 +24,6 @@
  *	- Enables SPI master
  *	- Uses SPI master to talk to external SPI module
  */
-
-void spi_write(char c)
-{
-    reg_spimaster_wdata = (unsigned long)c;
-    reg_spimaster_control = 0x0801;
-}
-char spi_read()
-{
-    spi_write(0x00);
-    while (reg_spimaster_status != 1)
-        ;
-    return reg_spimaster_rdata;
-}
-
 /*
 Use SPI master to read the memory in file test_data
 
@@ -66,28 +49,17 @@ void main()
     int i;
     uint32_t value;
     configure_mgmt_gpio();
-
     // For SPI operation, GPIO 1 should be an input, and GPIOs 2 to 4
     // should be outputs.
-
-    reg_mprj_io_34 = GPIO_MODE_MGMT_STD_INPUT_NOPULL;  // SDI
-    reg_mprj_io_35 = GPIO_MODE_MGMT_STD_BIDIRECTIONAL; // SDO
-    reg_mprj_io_33 = GPIO_MODE_MGMT_STD_OUTPUT;        // CSB
-    reg_mprj_io_32 = GPIO_MODE_MGMT_STD_OUTPUT;        // SCK
-
-    if (0)
-    {
-        /* Apply configuration */
-        reg_mprj_xfer = 1;
-        while (reg_mprj_xfer == 1)
-            ;
-    }
-    gpio_config_io();
+    configure_gpio(34,GPIO_MODE_MGMT_STD_INPUT_NOPULL); // SDI
+    configure_gpio(35,GPIO_MODE_MGMT_STD_OUTPUT);       // SDO
+    configure_gpio(33,GPIO_MODE_MGMT_STD_OUTPUT);       // CSB
+    configure_gpio(32,GPIO_MODE_MGMT_STD_OUTPUT);       // SCK
+    gpio_config_load();
 
     reg_spimaster_clk_divider = 0x4;
-    reg_spi_enable = 1;
-    reg_spimaster_cs = 0x0000;  // release CS
-    reg_spimaster_cs = 0x10001; // sel=0, manual CS
+    enable_spi(1);
+    enable_CS(1);  // sel=0, manual CS
     send_packet(2);
     count_down(PULSE_WIDTH * 10);
 
@@ -102,8 +74,8 @@ void main()
     else
         send_packet(9); // read wrong value
 
-    reg_spimaster_cs = 0x0000;  // release CS
-    reg_spimaster_cs = 0x10001; // sel=0, manual CS
+    enable_CS(0);  // release CS
+    enable_CS(1);  // sel=0, manual CS
 
     // End test
     send_packet(3);

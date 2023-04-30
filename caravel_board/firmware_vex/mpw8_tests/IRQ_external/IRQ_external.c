@@ -15,17 +15,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <csr.h>
-#include <soc.h>
-#include <irq_vex.h>
-#include <uart.h>
-
-#include "../defs.h"
-#include "../gpio_config/gpio_config_io.c"
-#include "../common/send_packet.c"
+#include <common.h>
 
 /*
-Testing timer interrupts 
+Testing IRQ interrupts 
 Enable interrupt for IRQ external pin mprj_io[7] -> should be drived to 1 by the environment
 **NOTE** housekeeping SPI should used to update register irq_1_inputsrc to 1 see verilog code
 
@@ -45,48 +38,19 @@ Enable interrupt for IRQ external pin mprj_io[7] -> should be drived to 1 by the
 
 */
 
-extern uint16_t flag;
 
 void main(){
-    uint16_t data;
-    int i;
-
-    flag = 0;
     configure_mgmt_gpio();
 
-    // setting bit 7 as input 
-    reg_mprj_io_7 = GPIO_MODE_MGMT_STD_INPUT_NOPULL;
-    gpio_config_io();
-    //  bitbang approach
-    // if(1){
-    //     clear_registers();	
-    //     clock_in_right_o_left_i_standard(0); // 7	and 30	
-    //     clock_in_right_o_left_i_standard(0); // 6	and 31	
-    //     clock_in_right_o_left_i_standard(0); // 5	and 32	
-    //     clock_in_right_o_left_i_standard(0); // 4	and 33	
-    //     clock_in_right_o_left_i_standard(0); // 3	and 34	
-    //     clock_in_right_o_left_i_standard(0); // 2	and 35	
-    //     clock_in_right_o_left_i_standard(0); // 1	and 36	
-    //     clock_in_right_o_left_i_standard(0); // 0	and 37	
-    //     load();		         // 0   and 37 and load
-    // }
+    // setting bit 7 as input
+    configure_gpio(7, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    // gpio_config_io();
 
     // automatic bitbang approach
-    if(0){
-        reg_mprj_xfer = 1;
-        while (reg_mprj_xfer == 1);
-    }
+    gpio_config_load();
 
-
-    irq_setmask(0);
-	irq_setie(1);
-
-	// irq_setmask(irq_getmask() | (1 << TIMER0_INTERRUPT));
-
-	// irq_setmask(irq_getmask() | 0x3f);
-	irq_setmask(irq_getmask() | (1 << USER_IRQ_4_INTERRUPT));
-	// irq_setmask(irq_getmask() | ( 0x3f));
-    reg_user4_irq_en =1;
+    enable_external1_irq(1);
+    clear_flag();
     send_packet(1);//wait for environment to make mprj[7] high 
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
@@ -94,7 +58,7 @@ void main(){
     int timeout = 400000; 
 
     for (int i = 0; i < timeout; i++){
-        if (flag == 1){
+        if (get_flag() == 1){
             send_packet(5);//test pass irq sent
             is_pass = true;
             break;

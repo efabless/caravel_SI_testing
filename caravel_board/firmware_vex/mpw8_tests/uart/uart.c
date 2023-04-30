@@ -14,14 +14,8 @@
  * limitations under the License.
  * SPDX-License-Identifier: Apache-2.0
  */
-#include <uart.h>
+#include <common.h>
 
-#include <defs.h>
-// #include "send_packet.c"
-// #include <defs.h>
-#include <stub.c>
-#include "../common/send_packet.c"
-#include "../../gpio_config/gpio_config_io.c"
 
 /*
 send pattern Monitor: Test UART (RTL) passed\n on UART SER_TX mprj[6]
@@ -88,17 +82,14 @@ void main()
 {
     int i, j;
     configure_mgmt_gpio();
-    set_registers();
-    reg_mprj_datah = 0;
-    reg_mprj_datal = 0;
+    configure_gpio(6,GPIO_MODE_MGMT_STD_OUTPUT);
     // gpio_config_io();
-    reg_mprj_xfer = 1;
-    while (reg_mprj_xfer == 1)
-        ;
+    gpio_config_load();
 
     // Start test
     send_packet(2); // start of transmitting
-    reg_uart_enable = 1;
+    enable_uart_TX(1);
+
 
     print("Monitor: Test UART passed\n");
 

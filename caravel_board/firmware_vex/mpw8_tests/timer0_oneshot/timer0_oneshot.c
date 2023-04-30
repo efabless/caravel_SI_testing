@@ -15,11 +15,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <uart.h>
-
-#include "../defs.h"
-#include "../gpio_config/gpio_config_io.c"
-#include "../common/send_packet.c"
+#include <common.h>
 
 /*
 Testing timer interrupts 
@@ -51,18 +47,17 @@ void main(){
     send_packet(1);//configuring the timers and start count down
 
     /* Configure timer for a single-shot countdown */
-	reg_timer0_config = 0; // disable
-	reg_timer0_data = 0xF3000;
-    reg_timer0_config = 1; // enable
+    timer0_oneshot_configure(0xF3000);
+
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     // test path if counter value stop updated after reach 0 and also the value is always decrementing
-    reg_timer0_update = 1; // update reg_timer0_value with new counter value
-    old_value = reg_timer0_value;
+    update_timer0_val();  // update reg_timer0_value with new counter value
+    old_value = get_timer0_val();
     // value us decrementing until it reachs zero
     while (1) {
-        reg_timer0_update = 1; // update reg_timer0_value with new counter value
-        value = reg_timer0_value;
+        update_timer0_val();  // update reg_timer0_value with new counter value
+        value = get_timer0_val();
         if (value < old_value || value == 0){
             //send_packet(5); //timer updated correctly
             if (value==0)
@@ -77,11 +72,11 @@ void main(){
         // }
     }
 
-    // check 10 times that value don't change from 0
+    // check after 10 iterations that value don't change from 0
 	for (int i = 0; i < 10; i++);
-        reg_timer0_update = 1; // update reg_timer0_value with new counter value
+        update_timer0_val(); // update reg_timer0_value with new counter value
 
-    if (reg_timer0_value == 0){
+    if (get_timer0_val() == 0){
         send_packet(5); //timer updated correctly
     }else{
         send_packet(9); //timer updated incorrectly

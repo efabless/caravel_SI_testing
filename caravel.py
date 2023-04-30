@@ -486,6 +486,10 @@ class UART:
         )
         return
 
+    def close(self):
+
+        dwf.FDwfDeviceClose(self.device_data.handle)
+
 
 class SPI:
     def __init__(self, device_data, rw_mode="r", data=[]):

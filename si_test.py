@@ -99,6 +99,7 @@ def process_uart(test, uart):
                     break
             if time.time() > timeout:
                 print(f"{test.test_name} test failed with {test.voltage}v supply")
+                uart.close()
                 return False
         pulse_count = test.receive_packet(250)
         if pulse_count == 5:
@@ -113,6 +114,7 @@ def process_uart(test, uart):
                 print(f"Successfully sent {i} over UART!")
             if pulse_count == 9:
                 print(f"Couldn't send {i} over UART!")
+                uart.close()
                 return False
     elif test.test_name == "uart_loopback":
         for i in range(0, 5):
@@ -128,11 +130,13 @@ def process_uart(test, uart):
                         break
                     if pulse_count == 9:
                         print(f"Couldn't send {dat} over UART!")
+                        uart.close()
                         return False
     for i in range(0, 3):
         pulse_count = test.receive_packet(250)
         if pulse_count == 3:
             print("end UART test")
+    uart.close()
     return True
 
 

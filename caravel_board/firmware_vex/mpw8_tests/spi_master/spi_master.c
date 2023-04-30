@@ -31,6 +31,7 @@
 void spi_write(char c)
 {
     reg_spimaster_wdata = (unsigned long)c;
+    reg_spimaster_control = 0x0800;
     reg_spimaster_control = 0x0801;
 }
 char spi_read()
@@ -90,6 +91,8 @@ void main()
 
     spi_write(0x12); // Write 0x08
     // for(int i = 0; i < 10000; i++);
+
+    while (1);
     spi_write(0x20); // Write 0x05
     // for(int i = 0; i < 20000; i++);
     value = spi_read(); // 0xD

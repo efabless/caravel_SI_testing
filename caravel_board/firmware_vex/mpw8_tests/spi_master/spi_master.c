@@ -18,7 +18,7 @@
 #include <uart.h>
 
 #include "../defs.h"
-#include "../gpio_config/gpio_config_io.c"
+// #include "../gpio_config/gpio_config_io.c"
 #include "../common/send_packet.c"
 // --------------------------------------------------------
 
@@ -75,14 +75,11 @@ void main()
     reg_mprj_io_33 = GPIO_MODE_MGMT_STD_OUTPUT;        // CSB
     reg_mprj_io_32 = GPIO_MODE_MGMT_STD_OUTPUT;        // SCK
 
-    if (0)
-    {
-        /* Apply configuration */
-        reg_mprj_xfer = 1;
-        while (reg_mprj_xfer == 1)
-            ;
-    }
-    gpio_config_io();
+    /* Apply configuration */
+    reg_mprj_xfer = 1;
+    while (reg_mprj_xfer == 1)
+        ;
+    // gpio_config_io();
 
     reg_spimaster_clk_divider = 0x4;
     reg_spi_enable = 1;

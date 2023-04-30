@@ -1,4 +1,3 @@
-
 #TOOLCHAIN_PATH=/opt/riscv32imc/bin/
 # TOOLCHAIN_PATH=/ef/apps/bin/
 

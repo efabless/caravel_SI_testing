@@ -162,7 +162,8 @@ def exec_flash(test):
 
 def init_ios(device1_data, device2_data, device3_data):
     device1_dio_map = {
-        "rstb": Dio(0, device1_data, True),
+        # "rstb": Dio(0, device1_data, True),
+        "rstb": Dio(0, device1_data),
         "gpio_mgmt": Dio(1, device1_data),
         0: Dio(2, device1_data),
         1: Dio(3, device1_data),

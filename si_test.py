@@ -7,12 +7,13 @@ import sys
 import time
 import subprocess
 import signal
-from manifest import TestDict, device1_sn, device2_sn, device3_sn
+from manifest import TestDict, device1_sn, device2_sn, device3_sn, voltage
 
 
 def init_ad_ios(device1_data, device2_data, device3_data):
     device1_dio_map = {
-        "rstb": Dio(0, device1_data, True),
+        # "rstb": Dio(0, device1_data, True),
+        "rstb": Dio(0, device1_data),
         "gpio_mgmt": Dio(1, device1_data),
         0: Dio(2, device1_data),
         1: Dio(3, device1_data),
@@ -84,27 +85,58 @@ def process_uart(test, uart):
     uart.open()
     rgRX = ""
     timeout = time.time() + 50
-    pulse_count = test.receive_packet(250)
-    if pulse_count == 2:
-        print("start UART transmission")
-    while True:
-        uart_data, count = uart.read_uart()
-        if uart_data:
-            uart_data[count.value] = 0
-            rgRX = rgRX + uart_data.value.decode()
-            if test.passing_criteria[0] in rgRX:
-                print(rgRX)
-                break
-        if time.time() > timeout:
-            print(f"{test.test_name} test failed with {test.voltage}v supply")
-            return False
-    pulse_count = test.receive_packet(250)
-    if pulse_count == 5:
-        print("end UART transmission")
+    while test.receive_packet(250) != 2:
+        pass
+    print("start UART transmission")
+    if test.test_name == "uart":
+        while True:
+            uart_data, count = uart.read_uart()
+            if uart_data:
+                uart_data[count.value] = 0
+                rgRX = rgRX + uart_data.value.decode()
+                if test.passing_criteria[0] in rgRX:
+                    print(rgRX)
+                    break
+            if time.time() > timeout:
+                print(f"{test.test_name} test failed with {test.voltage}v supply")
+                uart.close()
+                return False
+        pulse_count = test.receive_packet(250)
+        if pulse_count == 5:
+            print("end UART transmission")
+    elif test.test_name == "uart_reception":
+        for i in test.passing_criteria:
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 4:
+                uart.write(i)
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 6:
+                print(f"Successfully sent {i} over UART!")
+            if pulse_count == 9:
+                print(f"Couldn't send {i} over UART!")
+                uart.close()
+                return False
+    elif test.test_name == "uart_loopback":
+        for i in range(0, 5):
+            while time.time() < timeout:
+                uart_data, count = uart.read_uart()
+                if uart_data:
+                    uart_data[count.value] = 0
+                    dat = uart_data.value.decode()
+                    uart.write(dat)
+                    pulse_count = test.receive_packet(250)
+                    if pulse_count == 6:
+                        print(f"Successfully sent {dat} over UART!")
+                        break
+                    if pulse_count == 9:
+                        print(f"Couldn't send {dat} over UART!")
+                        uart.close()
+                        return False
     for i in range(0, 3):
         pulse_count = test.receive_packet(250)
         if pulse_count == 3:
             print("end UART test")
+    uart.close()
     return True
 
 
@@ -180,12 +212,11 @@ def process_io(test, io):
             print(f"start sending pulses to gpio[{channel}]")
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
-            if channel > 21:
+            elif channel > 21:
                 io = test.device3v3.dio_map[channel]
             else:
                 io = test.device1v8.dio_map[channel]
             state = "HI"
-            x_bef = io.get_value()
             timeout = time.time() + 20
             accurate_delay(125)
             while 1:
@@ -203,19 +234,69 @@ def process_io(test, io):
                     print(f"gpio[{channel}] Passed")
                     break
                 if time.time() > timeout:
-                    if x and not x_bef:
-                        print(f"gpio[{channel}] is stuck at high!")
                     print(f"Timeout failure on gpio[{channel}]!")
                     return False, channel
     return True, None
 
 
-def flash_test(test, hex_file, uart, uart_data, mem, io):
+def process_spi(test, spi):
+    csb = spi.device_data.dio_map[spi.cs]
+
+    while not csb.get_value():
+        pass
+
+    print("CSB is high")
+
+    spi.enabled()
+    spi.rw_mode = "r"
+    data1 = ""
+    data2 = ""
+    for i in range(0, 8):
+        spi.clk_trig()
+        data1 = data1 + str(spi.data[i])
+    spi.data = []
+    for i in range(0, 8):
+        spi.clk_trig()
+        data2 = data2 + str(spi.data[i])
+    print(int(data1, 2))
+    print(int(data2, 2))
+
+
+def process_input_io(test, io):
+    count = 0
+    if io == "low":
+        channel = 0
+    else:
+        channel = 37
+    while count < 19:
+        if channel == 5:
+            hk_stop(True)
+        pulse_count = test.receive_packet(250)
+        if pulse_count == 1:
+            print(f"Sending 4 pulses on gpio[{channel}]")
+            test.send_pulse(4, channel, 50)
+            ack_pulse = test.receive_packet(250)
+            if ack_pulse == 5:
+                print(f"gpio[{channel}] Failed to send pulse")
+                return False, channel
+            elif ack_pulse == 3:
+                print(f"gpio[{channel}] sent pulse successfully")
+            if io == "low":
+                channel = channel + 1
+            else:
+                channel = channel - 1
+            count = count + 1
+    return True, None
+
+
+def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi):
+    test.power_down()
     test.apply_reset()
-    test.powerup_sequence()
+    test.power_up()
     test.flash(hex_file)
+    test.power_down()
     test.release_reset()
-    test.powerup_sequence()
+    test.power_up()
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.device1v8.supply.set_voltage(test.voltage)
     test.reset()
@@ -225,15 +306,33 @@ def flash_test(test, hex_file, uart, uart_data, mem, io):
         return process_mem(test)
     elif io:
         hk_stop(False)
-        return process_io(test, io)
+        if mode == "output":
+            return process_io(test, io)
+        elif mode == "input":
+            return process_input_io(test, io)
+        else:
+            print(f"ERROR : No {mode} mode")
+            exit(1)
+    elif spi_flag:
+        return process_spi(test, spi)
     else:
         return process_data(test)
 
 
 def exec_test(
-    test, start_time, writer, hex_file, uart=False, uart_data=None, mem=False, io=False
+    test,
+    start_time,
+    writer,
+    hex_file,
+    uart=False,
+    uart_data=None,
+    mem=False,
+    io=False,
+    mode="low",
+    spi_flag=False,
+    spi=None,
 ):
-    results = flash_test(test, hex_file, uart, uart_data, mem, io)
+    results = flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi)
     end_time = time.time() - start_time
     arr = [test.test_name, test.voltage, results, end_time]
     writer.writerow(arr)
@@ -261,9 +360,9 @@ if __name__ == "__main__":
         # Initilizing devices
         device1 = Device(device1_data, 0, device1_dio_map)
         device2 = Device(device2_data, 1, device2_dio_map)
-        device3 = Device(device3_data, 1, device3_dio_map)
+        device3 = Device(device3_data, 2, device3_dio_map)
 
-        test = Test(device1, device2)
+        test = Test(device1, device2, device3)
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
 
@@ -280,7 +379,7 @@ if __name__ == "__main__":
                 start_time = time.time()
                 test.test_name = t["test_name"]
                 test.passing_criteria = t["passing_criteria"]
-                for v in t["voltage"]:
+                for v in voltage:
                     test.voltage = v
                     logging.info(f"  Running:  {test.test_name}")
                     if t["uart"]:
@@ -298,7 +397,21 @@ if __name__ == "__main__":
                         )
                     elif t["io"]:
                         exec_test(
-                            test, start_time, writer, t["hex_file_path"], io=t["io"]
+                            test,
+                            start_time,
+                            writer,
+                            t["hex_file_path"],
+                            io=t["io"],
+                            mode=t["mode"],
+                        )
+                    elif t["spi"]:
+                        exec_test(
+                            test,
+                            start_time,
+                            writer,
+                            t["hex_file_path"],
+                            spi_flag=t["spi"],
+                            spi=spi,
                         )
                     else:
                         exec_test(test, start_time, writer, t["hex_file_path"])

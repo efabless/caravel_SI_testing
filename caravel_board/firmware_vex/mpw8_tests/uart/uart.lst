@@ -705,180 +705,187 @@ Disassembly of section .text:
 10000a0c:	260007b7          	lui	a5,0x26000
 10000a10:	00c78793          	addi	a5,a5,12 # 2600000c <_erodata+0x15fff40c>
 10000a14:	0007a023          	sw	zero,0(a5)
-10000a18:	c15ff0ef          	jal	ra,1000062c <gpio_config_io>
-10000a1c:	00200513          	li	a0,2
-10000a20:	995ff0ef          	jal	ra,100003b4 <send_packet>
-10000a24:	f00067b7          	lui	a5,0xf0006
-10000a28:	00100713          	li	a4,1
-10000a2c:	00e7a023          	sw	a4,0(a5) # f0006000 <_erodata+0xe0005400>
-10000a30:	100017b7          	lui	a5,0x10001
-10000a34:	b0078513          	addi	a0,a5,-1280 # 10000b00 <_etext>
-10000a38:	851ff0ef          	jal	ra,10000288 <print>
-10000a3c:	fe042623          	sw	zero,-20(s0)
-10000a40:	0100006f          	j	10000a50 <main+0x68>
-10000a44:	fec42783          	lw	a5,-20(s0)
-10000a48:	00178793          	addi	a5,a5,1
-10000a4c:	fef42623          	sw	a5,-20(s0)
-10000a50:	fec42703          	lw	a4,-20(s0)
-10000a54:	3e700793          	li	a5,999
-10000a58:	fee7d6e3          	bge	a5,a4,10000a44 <main+0x5c>
-10000a5c:	00500513          	li	a0,5
-10000a60:	955ff0ef          	jal	ra,100003b4 <send_packet>
-10000a64:	00300513          	li	a0,3
-10000a68:	94dff0ef          	jal	ra,100003b4 <send_packet>
-10000a6c:	00300513          	li	a0,3
-10000a70:	945ff0ef          	jal	ra,100003b4 <send_packet>
-10000a74:	00300513          	li	a0,3
-10000a78:	93dff0ef          	jal	ra,100003b4 <send_packet>
-10000a7c:	00000013          	nop
-10000a80:	01c12083          	lw	ra,28(sp)
-10000a84:	01812403          	lw	s0,24(sp)
-10000a88:	02010113          	addi	sp,sp,32
-10000a8c:	00008067          	ret
+10000a18:	260007b7          	lui	a5,0x26000
+10000a1c:	00100713          	li	a4,1
+10000a20:	00e7a023          	sw	a4,0(a5) # 26000000 <_erodata+0x15fff400>
+10000a24:	00000013          	nop
+10000a28:	260007b7          	lui	a5,0x26000
+10000a2c:	0007a703          	lw	a4,0(a5) # 26000000 <_erodata+0x15fff400>
+10000a30:	00100793          	li	a5,1
+10000a34:	fef70ae3          	beq	a4,a5,10000a28 <main+0x40>
+10000a38:	00200513          	li	a0,2
+10000a3c:	979ff0ef          	jal	ra,100003b4 <send_packet>
+10000a40:	f00067b7          	lui	a5,0xf0006
+10000a44:	00100713          	li	a4,1
+10000a48:	00e7a023          	sw	a4,0(a5) # f0006000 <_erodata+0xe0005400>
+10000a4c:	100017b7          	lui	a5,0x10001
+10000a50:	b0078513          	addi	a0,a5,-1280 # 10000b00 <_etext>
+10000a54:	835ff0ef          	jal	ra,10000288 <print>
+10000a58:	fe042623          	sw	zero,-20(s0)
+10000a5c:	0100006f          	j	10000a6c <main+0x84>
+10000a60:	fec42783          	lw	a5,-20(s0)
+10000a64:	00178793          	addi	a5,a5,1
+10000a68:	fef42623          	sw	a5,-20(s0)
+10000a6c:	fec42703          	lw	a4,-20(s0)
+10000a70:	3e700793          	li	a5,999
+10000a74:	fee7d6e3          	bge	a5,a4,10000a60 <main+0x78>
+10000a78:	00500513          	li	a0,5
+10000a7c:	939ff0ef          	jal	ra,100003b4 <send_packet>
+10000a80:	00300513          	li	a0,3
+10000a84:	931ff0ef          	jal	ra,100003b4 <send_packet>
+10000a88:	00300513          	li	a0,3
+10000a8c:	929ff0ef          	jal	ra,100003b4 <send_packet>
+10000a90:	00300513          	li	a0,3
+10000a94:	921ff0ef          	jal	ra,100003b4 <send_packet>
+10000a98:	00000013          	nop
+10000a9c:	01c12083          	lw	ra,28(sp)
+10000aa0:	01812403          	lw	s0,24(sp)
+10000aa4:	02010113          	addi	sp,sp,32
+10000aa8:	00008067          	ret
 	...
 
 Disassembly of section .rodata:
 
 10000b00 <_frodata>:
-10000b00:	6f4d                	lui	t5,0x13
-10000b02:	696e                	flw	fs2,216(sp)
-10000b04:	6f74                	flw	fa3,92(a4)
-10000b06:	3a72                	fld	fs4,312(sp)
-10000b08:	5420                	lw	s0,104(s0)
-10000b0a:	7365                	lui	t1,0xffff9
-10000b0c:	2074                	fld	fa3,192(s0)
-10000b0e:	4155                	li	sp,21
-10000b10:	5452                	lw	s0,52(sp)
-10000b12:	7020                	flw	fs0,96(s0)
-10000b14:	7361                	lui	t1,0xffff8
+10000b00:	6f4d                	.2byte	0x6f4d
+10000b02:	696e                	.2byte	0x696e
+10000b04:	6f74                	.2byte	0x6f74
+10000b06:	3a72                	.2byte	0x3a72
+10000b08:	5420                	.2byte	0x5420
+10000b0a:	7365                	.2byte	0x7365
+10000b0c:	2074                	.2byte	0x2074
+10000b0e:	4155                	.2byte	0x4155
+10000b10:	5452                	.2byte	0x5452
+10000b12:	7020                	.2byte	0x7020
+10000b14:	7361                	.2byte	0x7361
 10000b16:	0a646573          	csrrsi	a0,0xa6,8
 	...
 
 Disassembly of section .data:
 
 00000000 <config_stream>:
-   0:	064646f7          	0x64646f7
-   4:	0606                	slli	a2,a2,0x1
-   6:	0606                	slli	a2,a2,0x1
-   8:	2606                	fld	fa2,64(sp)
-   a:	2626                	fld	fa2,72(sp)
-   c:	6626                	flw	fa2,72(sp)
-   e:	6666                	flw	fa2,88(sp)
-  10:	2626                	fld	fa2,72(sp)
-  12:	0606                	slli	a2,a2,0x1
-  14:	2606                	fld	fa2,64(sp)
-  16:	2626                	fld	fa2,72(sp)
-  18:	2626                	fld	fa2,72(sp)
-  1a:	6666                	flw	fa2,88(sp)
-  1c:	2666                	fld	fa2,88(sp)
-  1e:	0606                	slli	a2,a2,0x1
-  20:	0606                	slli	a2,a2,0x1
-  22:	2626                	fld	fa2,72(sp)
-  24:	2626                	fld	fa2,72(sp)
-  26:	6626                	flw	fa2,72(sp)
-  28:	6666                	flw	fa2,88(sp)
-  2a:	0606                	slli	a2,a2,0x1
-  2c:	0606                	slli	a2,a2,0x1
-  2e:	2626                	fld	fa2,72(sp)
-  30:	2626                	fld	fa2,72(sp)
-  32:	2626                	fld	fa2,72(sp)
-  34:	6666                	flw	fa2,88(sp)
-  36:	0646                	slli	a2,a2,0x11
-  38:	0606                	slli	a2,a2,0x1
-  3a:	2626                	fld	fa2,72(sp)
-  3c:	2626                	fld	fa2,72(sp)
-  3e:	2626                	fld	fa2,72(sp)
-  40:	6626                	flw	fa2,72(sp)
-  42:	4646                	lw	a2,80(sp)
-  44:	0606                	slli	a2,a2,0x1
-  46:	2626                	fld	fa2,72(sp)
-  48:	2626                	fld	fa2,72(sp)
-  4a:	2626                	fld	fa2,72(sp)
-  4c:	2626                	fld	fa2,72(sp)
-  4e:	4646                	lw	a2,80(sp)
-  50:	0646                	slli	a2,a2,0x11
-  52:	2626                	fld	fa2,72(sp)
-  54:	2626                	fld	fa2,72(sp)
-  56:	2626                	fld	fa2,72(sp)
-  58:	2626                	fld	fa2,72(sp)
-  5a:	4606                	lw	a2,64(sp)
-  5c:	4646                	lw	a2,80(sp)
-  5e:	2606                	fld	fa2,64(sp)
-  60:	2626                	fld	fa2,72(sp)
-  62:	2626                	fld	fa2,72(sp)
-  64:	2626                	fld	fa2,72(sp)
-  66:	0606                	slli	a2,a2,0x1
-  68:	4646                	lw	a2,80(sp)
-  6a:	2646                	fld	fa2,80(sp)
-  6c:	2626                	fld	fa2,72(sp)
-  6e:	2626                	fld	fa2,72(sp)
-  70:	2626                	fld	fa2,72(sp)
-  72:	0606                	slli	a2,a2,0x1
-  74:	4606                	lw	a2,64(sp)
-  76:	4646                	lw	a2,80(sp)
-  78:	2626                	fld	fa2,72(sp)
-  7a:	2626                	fld	fa2,72(sp)
-  7c:	2626                	fld	fa2,72(sp)
-  7e:	0606                	slli	a2,a2,0x1
-  80:	0606                	slli	a2,a2,0x1
-  82:	4646                	lw	a2,80(sp)
-  84:	2666                	fld	fa2,88(sp)
-  86:	2626                	fld	fa2,72(sp)
-  88:	2626                	fld	fa2,72(sp)
-  8a:	0606                	slli	a2,a2,0x1
-  8c:	0606                	slli	a2,a2,0x1
-  8e:	4606                	lw	a2,64(sp)
-  90:	6646                	flw	fa2,80(sp)
-  92:	2626                	fld	fa2,72(sp)
-  94:	2626                	fld	fa2,72(sp)
-  96:	0606                	slli	a2,a2,0x1
-  98:	0606                	slli	a2,a2,0x1
-  9a:	0606                	slli	a2,a2,0x1
-  9c:	4646                	lw	a2,80(sp)
-  9e:	2666                	fld	fa2,88(sp)
-  a0:	2626                	fld	fa2,72(sp)
-  a2:	0606                	slli	a2,a2,0x1
-  a4:	0606                	slli	a2,a2,0x1
-  a6:	0606                	slli	a2,a2,0x1
-  a8:	4606                	lw	a2,64(sp)
-  aa:	6666                	flw	fa2,88(sp)
-  ac:	2626                	fld	fa2,72(sp)
-  ae:	0606                	slli	a2,a2,0x1
-  b0:	0606                	slli	a2,a2,0x1
-  b2:	0606                	slli	a2,a2,0x1
-  b4:	0606                	slli	a2,a2,0x1
-  b6:	6646                	flw	fa2,80(sp)
-  b8:	2666                	fld	fa2,88(sp)
-  ba:	0606                	slli	a2,a2,0x1
-  bc:	0606                	slli	a2,a2,0x1
-  be:	0606                	slli	a2,a2,0x1
-  c0:	0606                	slli	a2,a2,0x1
-  c2:	6606                	flw	fa2,64(sp)
-  c4:	6666                	flw	fa2,88(sp)
-  c6:	0606                	slli	a2,a2,0x1
-  c8:	0606                	slli	a2,a2,0x1
-  ca:	0606                	slli	a2,a2,0x1
-  cc:	0606                	slli	a2,a2,0x1
-  ce:	0606                	slli	a2,a2,0x1
-  d0:	6666                	flw	fa2,88(sp)
-  d2:	0606                	slli	a2,a2,0x1
-  d4:	0606                	slli	a2,a2,0x1
-  d6:	0606                	slli	a2,a2,0x1
-  d8:	0606                	slli	a2,a2,0x1
-  da:	0606                	slli	a2,a2,0x1
-  dc:	6666                	flw	fa2,88(sp)
-  de:	0606                	slli	a2,a2,0x1
-  e0:	0606                	slli	a2,a2,0x1
-  e2:	0606                	slli	a2,a2,0x1
-  e4:	0606                	slli	a2,a2,0x1
-  e6:	0606                	slli	a2,a2,0x1
-  e8:	4646                	lw	a2,80(sp)
-  ea:	0606                	slli	a2,a2,0x1
-  ec:	0606                	slli	a2,a2,0x1
-  ee:	0606                	slli	a2,a2,0x1
-  f0:	0606                	slli	a2,a2,0x1
-  f2:	0606                	slli	a2,a2,0x1
-  f4:	0046                	c.slli	zero,0x11
+   0:	064646f7          	.4byte	0x64646f7
+   4:	0606                	.2byte	0x606
+   6:	0606                	.2byte	0x606
+   8:	2606                	.2byte	0x2606
+   a:	2626                	.2byte	0x2626
+   c:	6626                	.2byte	0x6626
+   e:	6666                	.2byte	0x6666
+  10:	2626                	.2byte	0x2626
+  12:	0606                	.2byte	0x606
+  14:	2606                	.2byte	0x2606
+  16:	2626                	.2byte	0x2626
+  18:	2626                	.2byte	0x2626
+  1a:	6666                	.2byte	0x6666
+  1c:	2666                	.2byte	0x2666
+  1e:	0606                	.2byte	0x606
+  20:	0606                	.2byte	0x606
+  22:	2626                	.2byte	0x2626
+  24:	2626                	.2byte	0x2626
+  26:	6626                	.2byte	0x6626
+  28:	6666                	.2byte	0x6666
+  2a:	0606                	.2byte	0x606
+  2c:	0606                	.2byte	0x606
+  2e:	2626                	.2byte	0x2626
+  30:	2626                	.2byte	0x2626
+  32:	2626                	.2byte	0x2626
+  34:	6666                	.2byte	0x6666
+  36:	0646                	.2byte	0x646
+  38:	0606                	.2byte	0x606
+  3a:	2626                	.2byte	0x2626
+  3c:	2626                	.2byte	0x2626
+  3e:	2626                	.2byte	0x2626
+  40:	6626                	.2byte	0x6626
+  42:	4646                	.2byte	0x4646
+  44:	0606                	.2byte	0x606
+  46:	2626                	.2byte	0x2626
+  48:	2626                	.2byte	0x2626
+  4a:	2626                	.2byte	0x2626
+  4c:	2626                	.2byte	0x2626
+  4e:	4646                	.2byte	0x4646
+  50:	0646                	.2byte	0x646
+  52:	2626                	.2byte	0x2626
+  54:	2626                	.2byte	0x2626
+  56:	2626                	.2byte	0x2626
+  58:	2626                	.2byte	0x2626
+  5a:	4606                	.2byte	0x4606
+  5c:	4646                	.2byte	0x4646
+  5e:	2606                	.2byte	0x2606
+  60:	2626                	.2byte	0x2626
+  62:	2626                	.2byte	0x2626
+  64:	2626                	.2byte	0x2626
+  66:	0606                	.2byte	0x606
+  68:	4646                	.2byte	0x4646
+  6a:	2646                	.2byte	0x2646
+  6c:	2626                	.2byte	0x2626
+  6e:	2626                	.2byte	0x2626
+  70:	2626                	.2byte	0x2626
+  72:	0606                	.2byte	0x606
+  74:	4606                	.2byte	0x4606
+  76:	4646                	.2byte	0x4646
+  78:	2626                	.2byte	0x2626
+  7a:	2626                	.2byte	0x2626
+  7c:	2626                	.2byte	0x2626
+  7e:	0606                	.2byte	0x606
+  80:	0606                	.2byte	0x606
+  82:	4646                	.2byte	0x4646
+  84:	2666                	.2byte	0x2666
+  86:	2626                	.2byte	0x2626
+  88:	2626                	.2byte	0x2626
+  8a:	0606                	.2byte	0x606
+  8c:	0606                	.2byte	0x606
+  8e:	4606                	.2byte	0x4606
+  90:	6646                	.2byte	0x6646
+  92:	2626                	.2byte	0x2626
+  94:	2626                	.2byte	0x2626
+  96:	0606                	.2byte	0x606
+  98:	0606                	.2byte	0x606
+  9a:	0606                	.2byte	0x606
+  9c:	4646                	.2byte	0x4646
+  9e:	2666                	.2byte	0x2666
+  a0:	2626                	.2byte	0x2626
+  a2:	0606                	.2byte	0x606
+  a4:	0606                	.2byte	0x606
+  a6:	0606                	.2byte	0x606
+  a8:	4606                	.2byte	0x4606
+  aa:	6666                	.2byte	0x6666
+  ac:	2626                	.2byte	0x2626
+  ae:	0606                	.2byte	0x606
+  b0:	0606                	.2byte	0x606
+  b2:	0606                	.2byte	0x606
+  b4:	0606                	.2byte	0x606
+  b6:	6646                	.2byte	0x6646
+  b8:	2666                	.2byte	0x2666
+  ba:	0606                	.2byte	0x606
+  bc:	0606                	.2byte	0x606
+  be:	0606                	.2byte	0x606
+  c0:	0606                	.2byte	0x606
+  c2:	6606                	.2byte	0x6606
+  c4:	6666                	.2byte	0x6666
+  c6:	0606                	.2byte	0x606
+  c8:	0606                	.2byte	0x606
+  ca:	0606                	.2byte	0x606
+  cc:	0606                	.2byte	0x606
+  ce:	0606                	.2byte	0x606
+  d0:	6666                	.2byte	0x6666
+  d2:	0606                	.2byte	0x606
+  d4:	0606                	.2byte	0x606
+  d6:	0606                	.2byte	0x606
+  d8:	0606                	.2byte	0x606
+  da:	0606                	.2byte	0x606
+  dc:	6666                	.2byte	0x6666
+  de:	0606                	.2byte	0x606
+  e0:	0606                	.2byte	0x606
+  e2:	0606                	.2byte	0x606
+  e4:	0606                	.2byte	0x606
+  e6:	0606                	.2byte	0x606
+  e8:	6666                	.2byte	0x6666
+  ea:	0606                	.2byte	0x606
+  ec:	0606                	.2byte	0x606
+  ee:	0606                	.2byte	0x606
+  f0:	0606                	.2byte	0x606
+  f2:	0606                	.2byte	0x606
+  f4:	0066                	.2byte	0x66
 	...
 
 Disassembly of section .bss:
@@ -892,29 +899,34 @@ Disassembly of section .bss:
 Disassembly of section .riscv.attributes:
 
 00000000 <.riscv.attributes>:
-   0:	1f41                	addi	t5,t5,-16
-   2:	0000                	unimp
-   4:	7200                	flw	fs0,32(a2)
-   6:	7369                	lui	t1,0xffffa
+   0:	1f41                	.2byte	0x1f41
+   2:	0000                	.2byte	0x0
+   4:	7200                	.2byte	0x7200
+   6:	7369                	.2byte	0x7369
    8:	01007663          	bgeu	zero,a6,14 <config_stream+0x14>
-   c:	0015                	c.nop	5
-   e:	0000                	unimp
-  10:	1004                	addi	s1,sp,32
-  12:	7205                	lui	tp,0xfffe1
-  14:	3376                	fld	ft6,376(sp)
-  16:	6932                	flw	fs2,12(sp)
-  18:	7032                	flw	ft0,44(sp)
-  1a:	0030                	addi	a2,sp,8
-  1c:	0108                	addi	a0,sp,128
-  1e:	0b0a                	slli	s6,s6,0x2
+   c:	0015                	.2byte	0x15
+   e:	0000                	.2byte	0x0
+  10:	1004                	.2byte	0x1004
+  12:	7205                	.2byte	0x7205
+  14:	3376                	.2byte	0x3376
+  16:	6932                	.2byte	0x6932
+  18:	7032                	.2byte	0x7032
+  1a:	0030                	.2byte	0x30
+  1c:	0108                	.2byte	0x108
+  1e:	0b0a                	.2byte	0xb0a
 
 Disassembly of section .comment:
 
 00000000 <.comment>:
-   0:	3a434347          	fmsub.d	ft6,ft6,ft4,ft7,rmm
-   4:	2820                	fld	fs0,80(s0)
-   6:	29554e47          	fmsub.s	ft8,fa0,fs5,ft5,rmm
-   a:	3120                	fld	fs0,96(a0)
-   c:	2e31                	jal	328 <_ebss+0x220>
-   e:	2e31                	jal	32a <_ebss+0x222>
-  10:	0030                	addi	a2,sp,8
+   0:	3a434347          	.4byte	0x3a434347
+   4:	2820                	.2byte	0x2820
+   6:	65653267          	.4byte	0x65653267
+   a:	6535                	.2byte	0x6535
+   c:	3334                	.2byte	0x3334
+   e:	3030                	.2byte	0x3030
+  10:	3831                	.2byte	0x3831
+  12:	2029                	.2byte	0x2029
+  14:	3231                	.2byte	0x3231
+  16:	322e                	.2byte	0x322e
+  18:	302e                	.2byte	0x302e
+	...

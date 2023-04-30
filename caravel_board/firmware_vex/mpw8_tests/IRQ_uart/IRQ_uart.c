@@ -23,15 +23,15 @@
 #include <stub.c>
 
 #include "../defs.h"
-#include "../gpio_config/gpio_config_io.c"
+// #include "../gpio_config/gpio_config_io.c"
 #include "../common/send_packet.c"
 
 /*
-Testing timer interrupts 
-Enable interrupt for timer0 and configure it as countdown 1 shot 
+Testing timer interrupts
+Enable interrupt for timer0 and configure it as countdown 1 shot
 wait for interrupt
 
-    @request sending data through the uart 
+    @request sending data through the uart
         send packet size = 1
 
     @received interrupt correctly  test pass
@@ -40,7 +40,7 @@ wait for interrupt
     @ timeout                       test fail
         send packet size = 9
 
-    @ end test 
+    @ end test
         send packet size = 3
         send packet size = 3
         send packet size = 3
@@ -49,56 +49,60 @@ wait for interrupt
 
 extern uint16_t flag;
 
-void main(){
+void main()
+{
     uint16_t data;
     int i;
 
     flag = 0;
     reg_mprj_io_6 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_5 = 0x1803;
-    gpio_config_io();
+    // gpio_config_io();
+    reg_mprj_xfer = 1;
+    while (reg_mprj_xfer == 1)
+        ;
 
-	// clear_registers();	
-    // clock_in_right_o_left_o_standard(0); // 6	and 31	
-    // clock_in_right_o_left_i_standard(0); // 5	and 32	
-    // clock_in_right_o_left_i_standard(0); // 4	and 33	
-    // clock_in_right_o_left_i_standard(0); // 3	and 34	
-    // clock_in_right_o_left_i_standard(0); // 2	and 35	
-    // clock_in_right_o_left_i_standard(0); // 1	and 36	
-    // clock_in_right_o_left_i_standard(0); // 0	and 37	
-    // load();		 
+    // clear_registers();
+    // clock_in_right_o_left_o_standard(0); // 6	and 31
+    // clock_in_right_o_left_i_standard(0); // 5	and 32
+    // clock_in_right_o_left_i_standard(0); // 4	and 33
+    // clock_in_right_o_left_i_standard(0); // 3	and 34
+    // clock_in_right_o_left_i_standard(0); // 2	and 35
+    // clock_in_right_o_left_i_standard(0); // 1	and 36
+    // clock_in_right_o_left_i_standard(0); // 0	and 37
+    // load();
 
     configure_mgmt_gpio();
     reg_uart_enable = 1;
-    reg_uart_irq_en =1;
+    reg_uart_irq_en = 1;
     irq_setmask(0);
-	irq_setie(1);
+    irq_setie(1);
 
+    irq_setmask(irq_getmask() | (1 << UART_INTERRUPT));
 
-	irq_setmask(irq_getmask() | (1 << UART_INTERRUPT));
-
-    send_packet(1);//request sending data through the uart 
+    send_packet(1); // request sending data through the uart
     print("M");
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
-    int timeout = 400000; 
+    int timeout = 400000;
 
-    for (int i = 0; i < timeout; i++){
-        if (flag == 1){
-            send_packet(5);//test pass irq sent
+    for (int i = 0; i < timeout; i++)
+    {
+        if (flag == 1)
+        {
+            send_packet(5); // test pass irq sent
             is_pass = true;
             break;
         }
     }
-    if (!is_pass){
-        send_packet(9);// timeout
+    if (!is_pass)
+    {
+        send_packet(9); // timeout
     }
 
     // finish test
     send_packet(3);
     send_packet(3);
     send_packet(3);
-
 }
-

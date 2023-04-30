@@ -103,12 +103,14 @@ class Test:
         Args:
             duration (int, optional): duration of reset. Defaults to 1.
         """
-        logging.info("   applying reset on channel 0 device 1")
-        self.rstb.set_value(0)
+        # logging.info("   applying reset on channel 0 device 1")
+        # self.rstb.set_value(0)
+        self.apply_reset()
         time.sleep(duration)
-        self.rstb.set_value(1)
+        # self.rstb.set_value(1)
+        self.release_reset()
         time.sleep(duration)
-        logging.info("   reset done")
+        # logging.info("   reset done")
 
     def apply_reset(self):
         """applies reset to the caravel board
@@ -117,6 +119,7 @@ class Test:
             duration (int, optional): duration of reset. Defaults to 1.
         """
         logging.info("   applying reset on channel 0 device 1")
+        self.rstb.set_state(True)
         self.rstb.set_value(0)
 
     def release_reset(self):
@@ -126,7 +129,8 @@ class Test:
             duration (int, optional): duration of reset. Defaults to 1.
         """
         logging.info("   releasing reset on channel 0 device 1")
-        self.rstb.set_value(1)
+        self.rstb.set_state(False)
+        # self.rstb.set_value(1)
 
     def flash(self, hex_file):
         """flashes the caravel board with hex file,
@@ -178,6 +182,38 @@ class Test:
         self.device1v8.supply.turn_off()
         self.device3v3.supply.turn_off()
         time.sleep(5)
+        logging.info("   Turning on VIO with 3.3v")
+        self.device3v3.supply.set_voltage(3.3)
+        time.sleep(1)
+        logging.info(f"   Turning on VCORE with {self.voltage}v")
+        self.device1v8.supply.set_voltage(self.voltage)
+        time.sleep(1)
+
+    def power_down(self):
+        """
+        Power supply powerup sequence:
+            turns off both devices
+            turns on device and change voltage to the required one
+        """
+        self.device1v8.supply.turn_off()
+        self.device3v3.supply.turn_off()
+        time.sleep(5)
+        # logging.info("   Turning on VIO with 3.3v")
+        # self.device3v3.supply.set_voltage(3.3)
+        # time.sleep(1)
+        # logging.info(f"   Turning on VCORE with {self.voltage}v")
+        # self.device1v8.supply.set_voltage(self.voltage)
+        # time.sleep(1)
+
+    def power_up(self):
+        """
+        Power supply powerup sequence:
+            turns off both devices
+            turns on device and change voltage to the required one
+        """
+        # self.device1v8.supply.turn_off()
+        # self.device3v3.supply.turn_off()
+        # time.sleep(5)
         logging.info("   Turning on VIO with 3.3v")
         self.device3v3.supply.set_voltage(3.3)
         time.sleep(1)
@@ -312,7 +348,8 @@ class UART:
     def __init__(self, device_data):
         self.device_data = device_data
         self.rx = 8
-        self.tx = 5
+        # self.tx = 5
+        self.tx = 7
 
     def open(self, baud_rate=9600, parity=None, data_bits=8, stop_bits=1):
         """
@@ -448,6 +485,11 @@ class UART:
             self.device_data.handle, data, ctypes.c_int(ctypes.sizeof(data) - 1)
         )
         return
+
+    def close(self):
+
+        dwf.FDwfDeviceClose(self.device_data.handle)
+        device.open(self.device_data.handle)
 
 
 class SPI:

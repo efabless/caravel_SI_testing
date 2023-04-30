@@ -27,19 +27,20 @@
 send pattern Monitor: Test UART (RTL) passed\n on UART SER_TX mprj[6]
 python code should get all the data received on mprj and decode it code like the on at vip/tbuart.v
 
-    @Start of transmitting 
+    @Start of transmitting
         send packet with size = 2
 
     @End of transmitting
         send packet with size = 5
 
-    @ finish test 
+    @ finish test
         send packet with size = 3
         send packet with size = 3
         send packet with size = 3
 
 */
-void set_registers() {
+void set_registers()
+{
 
     reg_mprj_io_0 = GPIO_MODE_MGMT_STD_ANALOG;
     reg_mprj_io_1 = GPIO_MODE_MGMT_STD_OUTPUT;
@@ -77,20 +78,23 @@ void set_registers() {
     reg_mprj_io_32 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_33 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_34 = GPIO_MODE_MGMT_STD_OUTPUT;
-//    reg_mprj_io_34 = 0x0403;
+    //    reg_mprj_io_34 = 0x0403;
     reg_mprj_io_35 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_36 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_37 = GPIO_MODE_MGMT_STD_OUTPUT;
-//    reg_mprj_io_37 = 0x0403;
-
+    //    reg_mprj_io_37 = 0x0403;
 }
-void main(){
-    int i,j;
+void main()
+{
+    int i, j;
     configure_mgmt_gpio();
     set_registers();
     reg_mprj_datah = 0;
     reg_mprj_datal = 0;
-    gpio_config_io();
+    // gpio_config_io();
+    reg_mprj_xfer = 1;
+    while (reg_mprj_xfer == 1)
+        ;
 
     // Start test
     send_packet(2); // start of transmitting
@@ -100,11 +104,12 @@ void main(){
 
     // Allow transmission to complete before signalling that the program
     // has ended.
-    for (j = 0; j < 1000; j++);
+    for (j = 0; j < 1000; j++)
+        ;
     send_packet(5); // end of transmitting
 
     // finish test
-    send_packet(3); 
-    send_packet(3); 
-    send_packet(3); 
+    send_packet(3);
+    send_packet(3);
+    send_packet(3);
 }

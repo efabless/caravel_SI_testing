@@ -1,13 +1,21 @@
+<<<<<<< HEAD
 #include <common.h>
 
 //#include "../local_defs.h"
 //#include "../stub.c"
+=======
+#include "../defs.h"
+// #include "../gpio_config/gpio_config_io.c"
+#include "../common/send_packet.c"
+// #include "../local_defs.h"
+// #include "../stub.c"
+>>>>>>> chipignite-dev3
 
-//#include "../config_io.h"
-//#include "../defs_mpw-two-mfix.h"
+// #include "../config_io.h"
+// #include "../defs_mpw-two-mfix.h"
 
-
-void set_registers() {
+void set_registers()
+{
 
     reg_mprj_io_0 = GPIO_MODE_MGMT_STD_ANALOG;
     reg_mprj_io_1 = GPIO_MODE_MGMT_STD_OUTPUT;
@@ -45,24 +53,23 @@ void set_registers() {
     reg_mprj_io_32 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_33 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_34 = GPIO_MODE_MGMT_STD_OUTPUT;
-//    reg_mprj_io_34 = 0x0403;
+    //    reg_mprj_io_34 = 0x0403;
     reg_mprj_io_35 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_36 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_37 = GPIO_MODE_MGMT_STD_OUTPUT;
-//    reg_mprj_io_37 = 0x0403;
-
+    //    reg_mprj_io_37 = 0x0403;
 }
 /*
 
 @ start of test  after configuration
     send packet with size = 1
-@ send 4 pulses at all gpios   
+@ send 4 pulses at all gpios
     send packet with size = 3
 
 */
 void main()
 {
-	int i,j;
+    int i, j;
     int num_pulses = 4;
     int num_bits = 19;
     configure_mgmt_gpio();
@@ -72,9 +79,10 @@ void main()
     set_gpio_l(0);
     // gpio_config_io();
     send_packet(1); // configuration finished
-    while (1){
-        send_packet(3); // send 4 pulses at all gpios 
-        for ( i = 0; i < 4; i++)
+    while (1)
+    {
+        send_packet(3); // send 4 pulses at all gpios
+        for (i = 0; i < 4; i++)
         {
             set_gpio_l(0xFFFFFFFF);
             set_gpio_h(0x3F);
@@ -85,4 +93,3 @@ void main()
         }
     }
 }
-

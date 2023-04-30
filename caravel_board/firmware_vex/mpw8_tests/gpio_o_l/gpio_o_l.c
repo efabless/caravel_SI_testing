@@ -1,8 +1,10 @@
 #include <common.h>
 
-void set_registers() {
+void set_registers()
+{
 
-    reg_mprj_io_0 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
+//    reg_mprj_io_0 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
+    reg_mprj_io_0 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_1 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_2 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_3 = GPIO_MODE_MGMT_STD_OUTPUT;
@@ -38,18 +40,17 @@ void set_registers() {
     reg_mprj_io_32 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_33 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_34 = GPIO_MODE_MGMT_STD_OUTPUT;
-//    reg_mprj_io_34 = 0x0403;
+    //    reg_mprj_io_34 = 0x0403;
     reg_mprj_io_35 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_36 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_37 = GPIO_MODE_MGMT_STD_OUTPUT;
-//    reg_mprj_io_37 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
-//    reg_mprj_io_37 = 0x0403;
-
+    //    reg_mprj_io_37 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
+    //    reg_mprj_io_37 = 0x0403;
 }
 
 void main()
 {
-	int i,j;
+    int i, j;
     int num_pulses = 4;
     int num_bits = 19;
     configure_mgmt_gpio();
@@ -84,6 +85,4 @@ void main()
     send_packet(1); // finish test
     send_packet(1); // finish test
     send_packet(1); // finish test
-
 }
-

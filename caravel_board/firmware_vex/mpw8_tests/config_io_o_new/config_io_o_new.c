@@ -1,6 +1,5 @@
-#include "../defs.h"
-#include "../gpio_config/gpio_config_io.c"
-#include "../common/send_packet.c"
+#include <common.h>
+
 //#include "../local_defs.h"
 //#include "../stub.c"
 
@@ -68,19 +67,20 @@ void main()
     int num_bits = 19;
     configure_mgmt_gpio();
     configure_all_gpios(GPIO_MODE_MGMT_STD_OUTPUT);
-    reg_mprj_datah = 0;
-    reg_mprj_datal = 0;
-    gpio_config_io();
+    gpio_config_load();
+    set_gpio_h(0);
+    set_gpio_l(0);
+    // gpio_config_io();
     send_packet(1); // configuration finished
     while (1){
         send_packet(3); // send 4 pulses at all gpios 
         for ( i = 0; i < 4; i++)
         {
-            reg_mprj_datal = 0xFFFFFFFF;
-            reg_mprj_datah = 0x3F;
+            set_gpio_l(0xFFFFFFFF);
+            set_gpio_h(0x3F);
             count_down(PULSE_WIDTH);  
-            reg_mprj_datah = 0x0;
-            reg_mprj_datal = 0x0;  
+            set_gpio_h(0x0);
+            set_gpio_l(0x0);  
             count_down(PULSE_WIDTH); 
         }
     }

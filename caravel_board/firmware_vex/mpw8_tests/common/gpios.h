@@ -3,6 +3,7 @@
 */
 #ifndef GPIO_C_HEADER_FILE
 #define GPIO_C_HEADER_FILE
+
 /**
  * Configure all GPIOs with the config
  *  

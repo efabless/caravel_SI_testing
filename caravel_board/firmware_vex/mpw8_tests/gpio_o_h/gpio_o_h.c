@@ -1,7 +1,4 @@
-#include <defs.h>
-#include <stub.c>
-#include "../common/send_packet.c"
-#include "../../gpio_config/gpio_config_io.c"
+#include <common.h>
 
 
 void set_registers() {
@@ -108,26 +105,27 @@ void main()
     int num_pulses = 4;
     int num_bits = 8;
     configure_mgmt_gpio();
-    set_registers();
-    reg_mprj_datah = 0;
-    reg_mprj_datal = 0;
-    gpio_config_io();
+    configure_all_gpios(GPIO_MODE_MGMT_STD_OUTPUT);
+    set_gpio_h(0);
+    set_gpio_l(0);
+    gpio_config_load();
+    // gpio_config_io();
 
     send_packet(1); //start sending on the higest gpios 
     for (j=37;j > 28;j--){
         send_packet(37-j+2); // send 4 pulses at gpio[j]
         if (j>=32){
             for (i = 0; i < num_pulses; i++){
-                reg_mprj_datah = 0x1 << j-32;
+                set_gpio_h(0x1 << j-32);
                 count_down(PULSE_WIDTH);  
-                reg_mprj_datah = 0x0;  
+                set_gpio_h(0x0);  
                 count_down(PULSE_WIDTH);  
             }
         }else{
             for (i = 0; i < num_pulses; i++){
-                reg_mprj_datal = 0x1 << j;
+                set_gpio_l(0x1 << j);
                 count_down(PULSE_WIDTH);  
-                reg_mprj_datal = 0x0;  
+                set_gpio_l(0x0);  
                 count_down(PULSE_WIDTH);  
             }
         }
@@ -136,9 +134,9 @@ void main()
     for (j=28;j > 18;j--){
         send_packet(28-j+2); // send 4 pulses at gpio[j]
         for (i = 0; i < num_pulses; i++){
-            reg_mprj_datal = 0x1 << j;
+            set_gpio_l(0x1 << j);
             count_down(PULSE_WIDTH);  
-            reg_mprj_datal = 0x0;  
+            set_gpio_l(0x0);  
             count_down(PULSE_WIDTH);  
         }
 

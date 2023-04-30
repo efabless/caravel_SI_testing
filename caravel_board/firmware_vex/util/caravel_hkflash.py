@@ -170,17 +170,17 @@ led.toggle()
 
 product = slave.exchange([CARAVEL_REG_READ, 0x03], 1)
 # print("product = {}".format(binascii.hexlify(product)))
-# print("   product    = {:02x}".format(int.from_bytes(product, byteorder="big")))
-print("   project ID = {:08x}".format(int('{0:032b}'.format(int.from_bytes(data, byteorder='big'))[::-1], 2)))
+print("   product    = {:02x}".format(int.from_bytes(product, byteorder="big")))
 
 led.toggle()
 
 data = slave.exchange([CARAVEL_STREAM_READ, 0x04], 4)
-print(
-    "   project ID = {:08x}".format(
-        int("{0:32b}".format(int.from_bytes(data, byteorder="big"))[::-1], 2)
-    )
-)
+# print(
+#     "   project ID = {:08x}".format(
+#         int("{0:32b}".format(int.from_bytes(data, byteorder="big"))[::-1], 2)
+# )
+# )
+print("   project ID = {:08x}".format(int('{0:032b}'.format(int.from_bytes(data, byteorder='big'))[::-1], 2)))
 
 if int.from_bytes(mfg, byteorder="big") != 0x0456:
     exit(2)

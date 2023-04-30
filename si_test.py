@@ -82,12 +82,12 @@ def process_data(test):
 
 def process_uart(test, uart):
     uart.open()
+    rgRX = ""
+    timeout = time.time() + 50
+    while test.receive_packet(250) != 2:
+        pass
+    print("start UART transmission")
     if test.test_name == "uart":
-        rgRX = ""
-        timeout = time.time() + 50
-        pulse_count = test.receive_packet(250)
-        if pulse_count == 2:
-            print("start UART transmission")
         while True:
             uart_data, count = uart.read_uart()
             if uart_data:
@@ -355,9 +355,9 @@ if __name__ == "__main__":
         # Initilizing devices
         device1 = Device(device1_data, 0, device1_dio_map)
         device2 = Device(device2_data, 1, device2_dio_map)
-        device3 = Device(device3_data, 1, device3_dio_map)
+        device3 = Device(device3_data, 2, device3_dio_map)
 
-        test = Test(device1, device2)
+        test = Test(device1, device2, device3)
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
 

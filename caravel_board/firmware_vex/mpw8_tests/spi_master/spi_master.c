@@ -44,6 +44,11 @@ uint32_t spi_write_reg()
     while (reg_spimaster_status != 1);
     data = reg_spimaster_rdata;
 
+    reg_spimaster_wdata = (uint32_t) 0x00;
+    reg_spimaster_control = 0x0801;
+    while (reg_spimaster_status != 1);
+    data = reg_spimaster_rdata;
+
     reg_spimaster_cs = 0x0000;
 
     return data;

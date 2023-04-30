@@ -22,7 +22,7 @@
 // #include <defs.h>
 #include <stub.c>
 #include "../common/send_packet.c"
-#include "../../gpio_config/gpio_config_io.c"
+// #include "../../gpio_config/gpio_config_io.c"
 
 void wait_for_char(char *c)
 {
@@ -109,7 +109,10 @@ void main()
     set_registers();
     reg_mprj_datah = 0;
     reg_mprj_datal = 0;
-    gpio_config_io();
+    // gpio_config_io();
+    reg_mprj_xfer = 1;
+    while (reg_mprj_xfer == 1)
+        ;
 
     // clear_registers();
     // clock_in_right_o_left_o_standard(0); // 6	and 31

@@ -28,6 +28,29 @@
  *	- Uses SPI master to talk to external SPI module
  */
 
+uint32_t spi_write_reg()
+{
+    uint32_t data;
+
+//    reg_spimaster_cs = 0x00;
+    reg_spimaster_cs = 0x10000;
+
+    reg_spimaster_wdata = (uint32_t) 0x40;
+    reg_spimaster_control = 0x0801;
+    reg_spimaster_wdata = (uint32_t) 0x01;
+    reg_spimaster_control = 0x0801;
+    reg_spimaster_wdata = (uint32_t) 0x00;
+    reg_spimaster_control = 0x0801;
+
+    while (reg_spimaster_status != 1);
+    data = reg_spimaster_rdata;
+
+    reg_spimaster_cs = 0x10001;
+//    reg_spimaster_cs = 0x01;
+
+    return data;
+}
+
 void spi_write(char c)
 {
     reg_spimaster_cs = 0x00;
@@ -86,26 +109,28 @@ void main()
 
     reg_spimaster_clk_divider = 0x0010;
     reg_spi_enable = 1;
-    reg_spimaster_cs = 0x0000;  // release CS
-    reg_spimaster_cs = 0x10001; // sel=0, manual CS
+//    reg_spimaster_cs = 0x0000;  // release CS
+//    reg_spimaster_cs = 0x10001; // sel=0, manual CS
     send_packet(2);
     count_down(PULSE_WIDTH * 5);
 
-    spi_write(0x40); // Caravel Stream Write
+    value = spi_write_reg(); //
+
+//    spi_write(0x40); // Caravel Stream Write
     // for(int i = 0; i < 10000; i++);
 
-    spi_write(0x01); // Write register for mfg code
+//    spi_write(0x01); // Write register for mfg code
     // for(int i = 0; i < 20000; i++);
 
-    value = spi_read(); // 0xD
+//    value = spi_read(); // 0xD
 
     if (value == 0x04)
         send_packet(5); // read correct value
     else
         send_packet(9); // read wrong value
 
-    reg_spimaster_cs = 0x0000;  // release CS
-    reg_spimaster_cs = 0x10001; // sel=0, manual CS
+//    reg_spimaster_cs = 0x0000;  // release CS
+//    reg_spimaster_cs = 0x10001; // sel=0, manual CS
 
     // End test
     send_packet(3);

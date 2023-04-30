@@ -239,6 +239,26 @@ def process_io(test, io):
     return True, None
 
 
+def process_external(test):
+    phase = 0
+    for passing in test.passing_criteria:
+        pulse_count = test.receive_packet(250)
+        if pulse_count == passing:
+            print(f"pass phase {phase}")
+            if phase == 0:
+                channel = test.device1v8.dio_map[7]
+                channel.set_state(True)
+                channel.set_value(1)
+            phase = phase + 1
+        if pulse_count == 9:
+            print(f"{test.test_name} test failed with {test.voltage}v supply!")
+            return False
+
+    if len(test.passing_criteria) == phase:
+        print(f"{test.test_name} test Passed with {test.voltage}v supply!")
+        return True
+
+
 def process_spi(test, spi):
     csb = spi.device_data.dio_map[spi.cs]
 
@@ -289,7 +309,7 @@ def process_input_io(test, io):
     return True, None
 
 
-def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi):
+def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, external):
     test.power_down()
     test.apply_reset()
     test.power_up()
@@ -315,6 +335,8 @@ def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi):
             exit(1)
     elif spi_flag:
         return process_spi(test, spi)
+    elif external:
+        return process_external(test)
     else:
         return process_data(test)
 
@@ -331,8 +353,11 @@ def exec_test(
     mode="low",
     spi_flag=False,
     spi=None,
+    external=False,
 ):
-    results = flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi)
+    results = flash_test(
+        test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, external
+    )
     end_time = time.time() - start_time
     arr = [test.test_name, test.voltage, results, end_time]
     writer.writerow(arr)
@@ -412,6 +437,14 @@ if __name__ == "__main__":
                             t["hex_file_path"],
                             spi_flag=t["spi"],
                             spi=spi,
+                        )
+                    elif t["external"]:
+                        exec_test(
+                            test,
+                            start_time,
+                            writer,
+                            t["hex_file_path"],
+                            external=t["external"],
                         )
                     else:
                         exec_test(test, start_time, writer, t["hex_file_path"])

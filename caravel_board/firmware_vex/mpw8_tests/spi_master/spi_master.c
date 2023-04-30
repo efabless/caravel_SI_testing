@@ -30,9 +30,11 @@
 
 void spi_write(char c)
 {
-    reg_spimaster_wdata = (unsigned long)c;
-    reg_spimaster_control = 0x0800;
+    reg_spimaster_cs = 0x01;
+    reg_spimaster_wdata = (uint32_t) c;
+//    reg_spimaster_control = 0x0800;
     reg_spimaster_control = 0x0801;
+    reg_spimaster_cs = 0x00;
 }
 char spi_read()
 {

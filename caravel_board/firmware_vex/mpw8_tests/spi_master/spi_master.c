@@ -89,17 +89,15 @@ void main()
     send_packet(2);
     count_down(PULSE_WIDTH * 40);
 
-    spi_write(0x12); // Write 0x08
+    spi_write(0x40); // Caravel Stream Write
     // for(int i = 0; i < 10000; i++);
 
-    spi_write(0x20); // Write 0x05
+    spi_write(0x01); // Write register for mfg code
     // for(int i = 0; i < 20000; i++);
-
-    while (1);
 
     value = spi_read(); // 0xD
 
-    if (value == 0xD)
+    if (value == 0x04)
         send_packet(5); // read correct value
     else
         send_packet(9); // read wrong value

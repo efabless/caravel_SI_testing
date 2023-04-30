@@ -117,6 +117,7 @@ class Test:
             duration (int, optional): duration of reset. Defaults to 1.
         """
         logging.info("   applying reset on channel 0 device 1")
+        self.rstb.set_state(True)
         self.rstb.set_value(0)
 
     def release_reset(self):
@@ -126,7 +127,8 @@ class Test:
             duration (int, optional): duration of reset. Defaults to 1.
         """
         logging.info("   releasing reset on channel 0 device 1")
-        self.rstb.set_value(1)
+        self.rstb.set_state(False)
+        # self.rstb.set_value(1)
 
     def flash(self, hex_file):
         """flashes the caravel board with hex file,
@@ -178,6 +180,38 @@ class Test:
         self.device1v8.supply.turn_off()
         self.device3v3.supply.turn_off()
         time.sleep(5)
+        logging.info("   Turning on VIO with 3.3v")
+        self.device3v3.supply.set_voltage(3.3)
+        time.sleep(1)
+        logging.info(f"   Turning on VCORE with {self.voltage}v")
+        self.device1v8.supply.set_voltage(self.voltage)
+        time.sleep(1)
+
+    def power_down(self):
+        """
+        Power supply powerup sequence:
+            turns off both devices
+            turns on device and change voltage to the required one
+        """
+        self.device1v8.supply.turn_off()
+        self.device3v3.supply.turn_off()
+        time.sleep(5)
+        # logging.info("   Turning on VIO with 3.3v")
+        # self.device3v3.supply.set_voltage(3.3)
+        # time.sleep(1)
+        # logging.info(f"   Turning on VCORE with {self.voltage}v")
+        # self.device1v8.supply.set_voltage(self.voltage)
+        # time.sleep(1)
+
+    def power_up(self):
+        """
+        Power supply powerup sequence:
+            turns off both devices
+            turns on device and change voltage to the required one
+        """
+        # self.device1v8.supply.turn_off()
+        # self.device3v3.supply.turn_off()
+        # time.sleep(5)
         logging.info("   Turning on VIO with 3.3v")
         self.device3v3.supply.set_voltage(3.3)
         time.sleep(1)

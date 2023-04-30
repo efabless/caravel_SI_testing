@@ -207,7 +207,7 @@ def process_io(test, io):
             print(f"start sending pulses to gpio[{channel}]")
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
-            if channel > 21:
+            elif channel > 21:
                 io = test.device3v3.dio_map[channel]
             else:
                 io = test.device1v8.dio_map[channel]
@@ -285,11 +285,13 @@ def process_input_io(test, io):
 
 
 def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi):
+    test.power_down()
     test.apply_reset()
-    test.powerup_sequence()
+    test.power_up()
     test.flash(hex_file)
+    test.power_down()
     test.release_reset()
-    test.powerup_sequence()
+    test.power_up()
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.device1v8.supply.set_voltage(test.voltage)
     test.reset()

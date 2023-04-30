@@ -260,26 +260,28 @@ def process_external(test):
 
 
 def process_spi(test, spi):
-    csb = spi.device_data.dio_map[spi.cs]
+    spi.open()
+    print(spi.read(1))
+    # csb = spi.device_data.dio_map[spi.cs]
 
-    while not csb.get_value():
-        pass
+    # while not csb.get_value():
+    #     pass
 
-    print("CSB is high")
+    # print("CSB is high")
 
-    spi.enabled()
-    spi.rw_mode = "r"
-    data1 = ""
-    data2 = ""
-    for i in range(0, 8):
-        spi.clk_trig()
-        data1 = data1 + str(spi.data[i])
-    spi.data = []
-    for i in range(0, 8):
-        spi.clk_trig()
-        data2 = data2 + str(spi.data[i])
-    print(int(data1, 2))
-    print(int(data2, 2))
+    # spi.enabled()
+    # spi.rw_mode = "r"
+    # data1 = ""
+    # data2 = ""
+    # for i in range(0, 8):
+    #     spi.clk_trig()
+    #     data1 = data1 + str(spi.data[i])
+    # spi.data = []
+    # for i in range(0, 8):
+    #     spi.clk_trig()
+    #     data2 = data2 + str(spi.data[i])
+    # print(int(data1, 2))
+    # print(int(data2, 2))
 
 
 def process_input_io(test, io):

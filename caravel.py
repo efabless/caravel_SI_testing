@@ -103,12 +103,14 @@ class Test:
         Args:
             duration (int, optional): duration of reset. Defaults to 1.
         """
-        logging.info("   applying reset on channel 0 device 1")
-        self.rstb.set_value(0)
+        # logging.info("   applying reset on channel 0 device 1")
+        # self.rstb.set_value(0)
+        self.apply_reset()
         time.sleep(duration)
-        self.rstb.set_value(1)
+        # self.rstb.set_value(1)
+        self.release_reset()
         time.sleep(duration)
-        logging.info("   reset done")
+        # logging.info("   reset done")
 
     def apply_reset(self):
         """applies reset to the caravel board

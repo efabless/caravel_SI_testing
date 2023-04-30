@@ -202,7 +202,7 @@ print("JEDEC = {}".format(binascii.hexlify(jedec)))
 if jedec[0:1] != bytes.fromhex("ef"):
     # if jedec[0:1] != bytes.fromhex('e6'):
     print("Winbond SRAM not found")
-    sys.exit()
+    sys.exit(1)
 
 print("Erasing chip...")
 slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])

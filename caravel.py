@@ -221,6 +221,22 @@ class Test:
         self.device1v8.supply.set_voltage(self.voltage)
         time.sleep(1)
 
+    def power_up_1v8(self):
+        """
+        Power supply powerup sequence:
+            turns off both devices
+            turns on device and change voltage to the required one
+        """
+        # self.device1v8.supply.turn_off()
+        # self.device3v3.supply.turn_off()
+        # time.sleep(5)
+        logging.info("   Turning on VIO with 3.3v")
+        self.device3v3.supply.set_voltage(3.3)
+        time.sleep(1)
+        logging.info(f"   Turning on VCORE with 1.8v")
+        self.device1v8.supply.set_voltage(1.8)
+        time.sleep(1)
+
     def turn_off_devices(self):
         """
         turns off all devices

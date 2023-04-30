@@ -314,7 +314,7 @@ def process_input_io(test, io):
 def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, external):
     test.power_down()
     test.apply_reset()
-    test.power_up()
+    test.power_up_1v8()
     test.flash(hex_file)
     test.power_down()
     test.release_reset()

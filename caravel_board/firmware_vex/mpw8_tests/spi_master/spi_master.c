@@ -82,12 +82,12 @@ void main()
         ;
     // gpio_config_io();
 
-    reg_spimaster_clk_divider = 0xffff;
+    reg_spimaster_clk_divider = 0x0010;
     reg_spi_enable = 1;
     reg_spimaster_cs = 0x0000;  // release CS
     reg_spimaster_cs = 0x10001; // sel=0, manual CS
     send_packet(2);
-    count_down(PULSE_WIDTH * 40);
+    count_down(PULSE_WIDTH * 5);
 
     spi_write(0x40); // Caravel Stream Write
     // for(int i = 0; i < 10000; i++);

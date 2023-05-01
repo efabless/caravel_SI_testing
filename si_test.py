@@ -4,7 +4,7 @@ import logging
 import os
 import csv
 import sys
-import time
+import time, datetime
 import subprocess
 import signal
 from manifest import TestDict, device1_sn, device2_sn, device3_sn, voltage
@@ -312,6 +312,9 @@ def process_input_io(test, io):
 
 
 def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, external):
+    logging.info(f"=============================================================")
+    logging.info(f"  Flashing:  {test.test_name} : {datetime.datetime.now()}")
+    logging.info(f"=============================================================")
     test.power_down()
     test.apply_reset()
     test.power_up_1v8()
@@ -322,6 +325,11 @@ def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, ex
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.device1v8.supply.set_voltage(test.voltage)
     test.reset()
+
+    logging.info(f"=============================================================")
+    logging.info(f"  Running:  {test.test_name} : {datetime.datetime.now()}")
+    logging.info(f"=============================================================")
+
     if uart:
         return process_uart(test, uart_data)
     elif mem:
@@ -341,6 +349,10 @@ def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, ex
         return process_external(test)
     else:
         return process_data(test)
+
+    logging.info(f"=============================================================")
+    logging.info(f"  Completed:  {test.test_name} : {datetime.datetime.now()}")
+    logging.info(f"=============================================================")
 
 
 def exec_test(
@@ -368,7 +380,9 @@ def exec_test(
 if __name__ == "__main__":
     try:
         logging.basicConfig(level=logging.INFO)
-        logging.info("  Running:  caravel.py")
+        logging.info(f"=============================================================")
+        logging.info(f"  Beginning Tests")
+        logging.info(f"=============================================================")
         # open multiple devices
         devices = device.open_devices()
         # connect devices using hardcoded serial numbers
@@ -408,7 +422,9 @@ if __name__ == "__main__":
                 test.passing_criteria = t["passing_criteria"]
                 for v in voltage:
                     test.voltage = v
-                    logging.info(f"  Running:  {test.test_name}")
+                    # logging.info(f"=============================================================")
+                    # logging.info(f"  Running:  {test.test_name}")
+                    # logging.info(f"=============================================================")
                     if t["uart"]:
                         exec_test(
                             test,
@@ -450,6 +466,10 @@ if __name__ == "__main__":
                         )
                     else:
                         exec_test(test, start_time, writer, t["hex_file_path"])
+        logging.info(f"=============================================================")
+        logging.info(f"  All Tests Complete")
+        logging.info(f"=============================================================")
+
         test.close_devices()
         sys.exit(0)
     except KeyboardInterrupt:

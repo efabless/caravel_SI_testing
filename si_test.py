@@ -65,20 +65,34 @@ def init_ad_ios(device1_data, device2_data, device3_data):
 
 
 def process_data(test):
-    phase = 0
-    for passing in test.passing_criteria:
+    if test.test_name == "receive_packet":
         pulse_count = test.receive_packet(250)
-        if pulse_count == passing:
-            print(f"pass phase {phase}")
-            phase = phase + 1
-
-        if pulse_count == 9:
-            print(f"{test.test_name} test failed with {test.voltage}v supply!")
-            return False
-
-    if len(test.passing_criteria) == phase:
-        print(f"{test.test_name} test Passed with {test.voltage}v supply!")
+        if pulse_count == 2:
+            print("Test started")
+        for i in range(1, 8):
+            test.send_packet(i)
+            pulse_count = test.receive_packet(250)
+            if pulse_count == i:
+                print("sent {i} pulses successfully")
+            else:
+                print(f"{test.test_name} test failed with {test.voltage}v supply!")
+                return False
         return True
+    else:
+        phase = 0
+        for passing in test.passing_criteria:
+            pulse_count = test.receive_packet(250)
+            if pulse_count == passing:
+                print(f"pass phase {phase}")
+                phase = phase + 1
+
+            if pulse_count == 9:
+                print(f"{test.test_name} test failed with {test.voltage}v supply!")
+                return False
+
+        if len(test.passing_criteria) == phase:
+            print(f"{test.test_name} test Passed with {test.voltage}v supply!")
+            return True
 
 
 def process_uart(test, uart):
@@ -142,35 +156,35 @@ def process_uart(test, uart):
             print(f"{test.test_name} Test Failed!")
             uart.close()
             return False
-    elif test.test_name == "receive_packet":
-        while True:
-            uart_data, count = uart.read_uart()
-            if uart_data:
-                uart_data[count.value] = 0
-                rgRX = rgRX + uart_data.value.decode()
-                if "ready" in rgRX:
-                    print(rgRX)
-                    break
-            if time.time() > timeout:
-                print(f"{test.test_name} test failed with {test.voltage}v supply")
-                uart.close()
-                return False
-        rgRX = ""
-        for i in range(0, 8):
-            test.send_packet(i)
-            while True:
-                uart_data, count = uart.read_uart()
-                if uart_data:
-                    uart_data[count.value] = 0
-                    rgRX = rgRX + uart_data.value.decode()
-                    if f"number of = {i}" in rgRX:
-                        print(rgRX)
-                        break
-                if time.time() > timeout:
-                    print(f"{test.test_name} test failed with {test.voltage}v supply")
-                    uart.close()
-                    return False
-        return True
+    # elif test.test_name == "receive_packet":
+    #     while True:
+    #         uart_data, count = uart.read_uart()
+    #         if uart_data:
+    #             uart_data[count.value] = 0
+    #             rgRX = rgRX + uart_data.value.decode()
+    #             if "ready" in rgRX:
+    #                 print(rgRX)
+    #                 break
+    #         if time.time() > timeout:
+    #             print(f"{test.test_name} test failed with {test.voltage}v supply")
+    #             uart.close()
+    #             return False
+    #     rgRX = ""
+    #     for i in range(0, 8):
+    #         test.send_packet(i)
+    #         while True:
+    #             uart_data, count = uart.read_uart()
+    #             if uart_data:
+    #                 uart_data[count.value] = 0
+    #                 rgRX = rgRX + uart_data.value.decode()
+    #                 if f"{i}" in rgRX:
+    #                     print(rgRX)
+    #                     break
+    #             if time.time() > timeout:
+    #                 print(f"{test.test_name} test failed with {test.voltage}v supply")
+    #                 uart.close()
+    #                 return False
+    #     return True
 
     for i in range(0, 3):
         pulse_count = test.receive_packet(250)

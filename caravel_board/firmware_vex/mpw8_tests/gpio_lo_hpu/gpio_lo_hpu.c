@@ -33,8 +33,8 @@ void main(){
     int o_val;
     while (true){
         i_val = get_gpio_l() & mask;
-        o_val_h = get_gpio_h() >> 13;
-        o_val_l = i_val << 19;
+        o_val_h = get_gpio_h() << 13;
+        o_val_l = i_val >> 19;
         o_val = o_val_l | o_val_h;
         set_gpio_l(o_val);
     }

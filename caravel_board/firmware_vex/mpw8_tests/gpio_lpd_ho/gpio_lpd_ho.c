@@ -4,8 +4,7 @@
 void set_registers(){
     for (int i = 0; i < 38; i++){
         if (i<19){
-            configure_gpio(i, GPIO_MODE_MGMT_STD_INPUT_PULLUP);
-
+            configure_gpio(i, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
         }else{
             configure_gpio(i, GPIO_MODE_MGMT_STD_OUTPUT);
         }
@@ -15,7 +14,7 @@ void set_registers(){
 @ finish configuration 
     send packet with size 1
 
-GPIO[0:18] is configured as input pull up and mapped to GPIO[19:37]
+GPIO[0:18] is configured as input down up and mapped to GPIO[19:37]
 
 input value send to gpio[0:18] suppose to be received as output at GPIO[19:37]
 */
@@ -33,9 +32,9 @@ void main(){
     int o_val_h;
     while (true){
         i_val = get_gpio_l() & mask;
-        o_val_l = i_val >> 19;
+        o_val_l = i_val << 19;
         o_val_h = i_val & mask_h;
-        o_val_h = o_val_h << 13;
+        o_val_h = o_val_h >> 13;
         set_gpio_h(o_val_h);
         set_gpio_l(o_val_l);
     }

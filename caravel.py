@@ -7,6 +7,7 @@ import subprocess
 import sys
 from ctypes import *
 import logging
+import os
 
 
 def accurate_delay(delay):
@@ -148,7 +149,7 @@ class Test:
         if ret_code != 0:
             logging.error("Can't flash!")
             self.close_devices()
-            sys.exit()
+            os._exit()
 
     def change_voltage(self):
         """

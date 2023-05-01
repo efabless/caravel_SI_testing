@@ -627,12 +627,12 @@ if __name__ == "__main__":
                     else:
                         exec_test(test, start_time, writer, t["hex_file_path"])
             test.close_devices()
-        sys.exit(0)
+        os._exit(0)
     except KeyboardInterrupt:
         print("Interrupted")
         try:
             test.close_devices()
-            sys.exit(1)
+            os._exit(1)
         except SystemExit:
             test.close_devices()
             os._exit(1)

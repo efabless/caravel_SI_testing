@@ -22,7 +22,7 @@ Enable interrupt for timer0 and configure it as countdown 1 shot
 wait for interrupt
 
     @request sending data through the uart
-        send packet size = 2
+        send packet size = 1
 
     @received interrupt correctly  test pass
         send packet size = 5
@@ -46,7 +46,7 @@ void main()
     enable_uart_tx_irq(1);
 
     clear_flag();
-    send_packet(2); // sending data through the uart
+    send_packet(1); // sending data through the uart
     print("msg is sent to trigger interrupt");
 
     // Loop, waiting for the interrupt to change reg_mprj_datah

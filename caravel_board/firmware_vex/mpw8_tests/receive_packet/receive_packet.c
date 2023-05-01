@@ -24,13 +24,17 @@ void main()
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     // gpio_config_io();
     gpio_config_load();
-    enable_uart_TX(1);
-    print("ready");
+    // enable_uart_TX(1);
+    // print("ready");
     while (true)
     {
+        configure_mgmt_gpio_input();
         recieved_size = receive_packet();
-        recieved_char = recieved_size + "0";
+        configure_mgmt_gpio();
+        count_down(PULSE_WIDTH);
+        send_packet(recieved_size);
+        // recieved_char = recieved_size + "0";
         // print("number of = ");
-        print(recieved_char);
+        // print(recieved_char);
     }
 }

@@ -295,10 +295,34 @@ def process_io(test, io):
 
 def process_io_plud(test):
     pulse_count = test.receive_packet(250)
-    test_counter = 0
-    flag = False
+
     if pulse_count == 1:
         print("Start test")
+    if test.test_name == "gpio_lpu_ho":
+        default_val = 1
+        default_val_n = 0
+        run_io_plud(default_val, default_val_n, False, 0, 38, 1)
+        run_io_plud(default_val, default_val_n, True, 0, 38, 1)
+    elif test.test_name == "gpio_lpd_ho":
+        default_val = 0
+        default_val_n = 1
+        run_io_plud(default_val, default_val_n, False, 0, 38, 1)
+        run_io_plud(default_val, default_val_n, True, 0, 38, 1)
+    elif test.test_name == "gpio_lo_hpu":
+        default_val = 1
+        default_val_n = 0
+        run_io_plud_h(default_val, default_val_n, False, 38, 0, -1)
+        run_io_plud_h(default_val, default_val_n, True, 38, 0, -1)
+    elif test.test_name == "gpio_lo_hpd":
+        default_val = 0
+        default_val_n = 1
+        run_io_plud_h(default_val, default_val_n, False, 38, 0, -1)
+        run_io_plud_h(default_val, default_val_n, True, 38, 0, -1)
+
+
+def run_io_plud(default_val, default_val_n, first_itter):
+    test_counter = 0
+    flag = False
     for channel in range(0, 38):
         if channel == 5:
             hk_stop(True)
@@ -308,36 +332,41 @@ def process_io_plud(test):
             io = test.device3v3.dio_map[channel]
         else:
             io = test.device1v8.dio_map[channel]
-        if test.test_name == "gpio_lpu_ho":
-            if channel < 19:
-                io.set_state(True)
-                io.set_value(0)
+        if channel < 19 and first_itter:
+            io.set_state(True)
+            io.set_value(default_val_n)
+        elif channel < 19:
+            io.set_state(False)
+        elif first_itter:
+            if not flag:
+                time.sleep(10)
+                flag = True
+            io_state = io.get_value()
+            if io_state == default_val_n:
+                test_counter += 1
             else:
-                if not flag:
-                    time.sleep(10)
-                    flag = True
-                io_state = io.get_value()
-                if io_state == 0:
-                    test_counter += 1
-                else:
-                    print(f"channel {channel} FAILED!")
-                    return False
-        elif test.test_name == "gpio_lpd_ho":
-            if channel < 19:
-                io.set_state(True)
-                io.set_value(1)
+                print(f"channel {channel} FAILED!")
+                return False
+        else:
+            if not flag:
+                time.sleep(10)
+                flag = True
+            io_state = io.get_value()
+            if io_state == default_val:
+                test_counter += 1
             else:
-                if not flag:
-                    time.sleep(10)
-                    flag = True
-                io_state = io.get_value()
-                if io_state == 1:
-                    test_counter += 1
-                else:
-                    print(f"channel {channel} FAILED!")
-                    return False
+                print(f"channel {channel} FAILED!")
+                return False
+    if test_counter >= 36:
+        return True
+    else:
+        return False
+
+
+def run_io_plud_h(default_val, default_val_n, first_itter):
+    test_counter = 0
     flag = False
-    for channel in range(0, 37):
+    for channel in range(38, 0, -1):
         if channel == 5:
             hk_stop(True)
         if channel > 13 and channel < 22:
@@ -346,32 +375,31 @@ def process_io_plud(test):
             io = test.device3v3.dio_map[channel]
         else:
             io = test.device1v8.dio_map[channel]
-        if test.test_name == "gpio_lpu_ho":
-            if channel < 19:
-                io.set_state(False)
+        if channel > 18 and first_itter:
+            io.set_state(True)
+            io.set_value(default_val_n)
+        elif channel > 18:
+            io.set_state(False)
+        elif first_itter:
+            if not flag:
+                time.sleep(10)
+                flag = True
+            io_state = io.get_value()
+            if io_state == default_val_n:
+                test_counter += 1
             else:
-                if not flag:
-                    time.sleep(10)
-                    flag = True
-                io_state = io.get_value()
-                if io_state == 1:
-                    test_counter += 1
-                else:
-                    print(f"channel {channel} FAILED!")
-                    return False
-        elif test.test_name == "gpio_lpd_ho":
-            if channel < 19:
-                io.set_state(False)
+                print(f"channel {channel} FAILED!")
+                return False
+        else:
+            if not flag:
+                time.sleep(10)
+                flag = True
+            io_state = io.get_value()
+            if io_state == default_val:
+                test_counter += 1
             else:
-                if not flag:
-                    time.sleep(10)
-                    flag = True
-                io_state = io.get_value()
-                if io_state == 0:
-                    test_counter += 1
-                else:
-                    print(f"channel {channel} FAILED!")
-                    return False
+                print(f"channel {channel} FAILED!")
+                return False
     if test_counter >= 36:
         return True
     else:

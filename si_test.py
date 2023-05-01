@@ -294,6 +294,8 @@ def process_io(test, io):
 
 
 def process_io_plud(test):
+    p1_rt = False
+    p2_rt = False
     pulse_count = test.receive_packet(250)
 
     if pulse_count == 1:
@@ -301,23 +303,27 @@ def process_io_plud(test):
     if test.test_name == "gpio_lpu_ho":
         default_val = 1
         default_val_n = 0
-        run_io_plud(default_val, default_val_n, False, 0, 38, 1)
-        run_io_plud(default_val, default_val_n, True, 0, 38, 1)
+        p1_rt = run_io_plud(default_val, default_val_n, False)
+        p2_rt = run_io_plud(default_val, default_val_n, True)
     elif test.test_name == "gpio_lpd_ho":
         default_val = 0
         default_val_n = 1
-        run_io_plud(default_val, default_val_n, False, 0, 38, 1)
-        run_io_plud(default_val, default_val_n, True, 0, 38, 1)
+        p1_rt = run_io_plud(default_val, default_val_n, False)
+        p2_rt = run_io_plud(default_val, default_val_n, True)
     elif test.test_name == "gpio_lo_hpu":
         default_val = 1
         default_val_n = 0
-        run_io_plud_h(default_val, default_val_n, False, 38, 0, -1)
-        run_io_plud_h(default_val, default_val_n, True, 38, 0, -1)
+        p1_rt = run_io_plud_h(default_val, default_val_n, False)
+        p2_rt = run_io_plud_h(default_val, default_val_n, True)
     elif test.test_name == "gpio_lo_hpd":
         default_val = 0
         default_val_n = 1
-        run_io_plud_h(default_val, default_val_n, False, 38, 0, -1)
-        run_io_plud_h(default_val, default_val_n, True, 38, 0, -1)
+        p1_rt = run_io_plud_h(default_val, default_val_n, False)
+        p2_rt = run_io_plud_h(default_val, default_val_n, True)
+    if p1_rt and p2_rt:
+        return True
+    else:
+        return False
 
 
 def run_io_plud(default_val, default_val_n, first_itter):
@@ -357,7 +363,7 @@ def run_io_plud(default_val, default_val_n, first_itter):
             else:
                 print(f"channel {channel} FAILED!")
                 return False
-    if test_counter >= 36:
+    if test_counter == 19:
         return True
     else:
         return False
@@ -366,7 +372,7 @@ def run_io_plud(default_val, default_val_n, first_itter):
 def run_io_plud_h(default_val, default_val_n, first_itter):
     test_counter = 0
     flag = False
-    for channel in range(38, 0, -1):
+    for channel in range(37, -1, -1):
         if channel == 5:
             hk_stop(True)
         if channel > 13 and channel < 22:
@@ -400,7 +406,8 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
             else:
                 print(f"channel {channel} FAILED!")
                 return False
-    if test_counter >= 36:
+    print(test_counter)
+    if test_counter == 19:
         return True
     else:
         return False

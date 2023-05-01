@@ -1,5 +1,6 @@
 # TODO change path for every machine
 TOOLCHAIN_PATH=/home/marwan/Downloads/riscv/bin/
+#TOOLCHAIN_PATH=/home/rady/riscv64-unknown-elf-gcc-8.3.0-2020.04.1-x86_64-linux-ubuntu14/bin/
 
 
 TOOLCHAIN_PREFIX=riscv64

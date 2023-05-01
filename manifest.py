@@ -215,7 +215,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/IRQ_uart/IRQ_uart.hex",
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/IRQ_uart_rx/IRQ_uart_rx.hex",
         "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
     {
@@ -287,6 +287,26 @@ TestDict = [
         "spi": False,
         "external": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_i_h/gpio_i_h.hex",
+        "passing_criteria": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+        ],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
+        "test_name": "gpio_lpu_ro",
+        "uart": False,  # NOT Testing UART
+        "mem": False,  # NOT Testing mem
+        "io": True,
+        "mode": "plud",
+        "spi": False,
+        "external": False,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_lpu_ro/gpio_lpu_ro.hex",
         "passing_criteria": [
             1,
             2,

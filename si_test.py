@@ -250,6 +250,47 @@ def process_io(test, io):
     return True, None
 
 
+def process_io_plud(test):
+    pulse_count = test.receive_packet(250)
+    if pulse_count == 1:
+        print("Start test")
+    for channel in range(0, 37):
+        if channel == 5:
+            hk_stop(True)
+        print(f"start sending pulses to gpio[{channel}]")
+        if channel > 13 and channel < 22:
+            io = test.deviced.dio_map[channel]
+        elif channel > 21:
+            io = test.device3v3.dio_map[channel]
+        else:
+            io = test.device1v8.dio_map[channel]
+        if test.test_name == "gpio_lpu_ro":
+            if channel < 19:
+                io.set_state(True)
+                io.set_value(0)
+            else:
+                io_state = io.get_state()
+                if io_state == 0:
+                    print(f"{channel} is low")
+    for channel in range(0, 37):
+        if channel == 5:
+            hk_stop(True)
+        print(f"start sending pulses to gpio[{channel}]")
+        if channel > 13 and channel < 22:
+            io = test.deviced.dio_map[channel]
+        elif channel > 21:
+            io = test.device3v3.dio_map[channel]
+        else:
+            io = test.device1v8.dio_map[channel]
+        if test.test_name == "gpio_lpu_ro":
+            if channel < 19:
+                io.set_state(False)
+            else:
+                io_state = io.get_state()
+                if io_state == 1:
+                    print(f"{channel} is high")
+
+
 def process_external(test):
     phase = 0
     for passing in test.passing_criteria:
@@ -343,6 +384,8 @@ def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, ex
             return process_io(test, io)
         elif mode == "input":
             return process_input_io(test, io)
+        elif mode == "plud":
+            return process_io_plud(test)
         else:
             print(f"ERROR : No {mode} mode")
             exit(1)

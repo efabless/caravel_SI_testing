@@ -23,6 +23,7 @@ void main()
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     // gpio_config_io();
     gpio_config_load();
+    enable_uart_TX(1);
     print("ready");
     while (true)
     {

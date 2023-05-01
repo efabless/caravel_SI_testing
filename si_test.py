@@ -314,7 +314,7 @@ def process_input_io(test, io):
 
 def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, external):
     logging.info(f"=============================================================")
-    logging.info(f"  Flashing:  {test.test_name} : {datetime.datetime.now()}")
+    logging.info(f"  Flashing :  {test.test_name} : {datetime.datetime.now()}")
     logging.info(f"=============================================================")
     test.power_down()
     test.apply_reset()
@@ -328,7 +328,7 @@ def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, ex
     test.reset()
 
     logging.info(f"=============================================================")
-    logging.info(f"  Running:  {test.test_name} : {datetime.datetime.now()}")
+    logging.info(f"  Running  :  {test.test_name} : {datetime.datetime.now()}")
     logging.info(f"=============================================================")
 
     results = None

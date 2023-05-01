@@ -50,7 +50,7 @@ void main()
 
     clear_flag();
     send_packet(1); // sending data through the uart
-    print("msg is sent to trigger interrupt");
+    print("M");
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;

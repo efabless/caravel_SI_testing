@@ -18,7 +18,7 @@
 #include <common.h>
 
 /*
-Testing IRQ interrupts 
+Testing IRQ interrupts
 Enable interrupt for IRQ external pin mprj_io[7] -> should be drived to 1 by the environment
 **NOTE** housekeeping SPI should used to update register irq_1_inputsrc to 1 see verilog code
 
@@ -31,15 +31,15 @@ Enable interrupt for IRQ external pin mprj_io[7] -> should be drived to 1 by the
     @ timeout                       test fail
         send packet size = 9
 
-    @ end test 
+    @ end test
         send packet size = 3
         send packet size = 3
         send packet size = 3
 
 */
 
-
-void main(){
+void main()
+{
     configure_mgmt_gpio();
 
     // setting bit 7 as input
@@ -51,27 +51,28 @@ void main(){
 
     enable_external1_irq(1);
     clear_flag();
-    send_packet(1);//wait for environment to make mprj[7] high 
+    send_packet(1); // wait for environment to make mprj[7] high
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
-    int timeout = 400000; 
+    int timeout = 400000;
 
-    for (int i = 0; i < timeout; i++){
-        if (get_flag() == 1){
-            send_packet(5);//test pass irq sent
+    for (int i = 0; i < timeout; i++)
+    {
+        if (get_flag() == 1)
+        {
+            send_packet(5); // test pass irq sent
             is_pass = true;
             break;
         }
     }
-    if (!is_pass){
-        send_packet(9);// timeout
+    if (!is_pass)
+    {
+        send_packet(9); // timeout
     }
 
     // finish test
     send_packet(3);
     send_packet(3);
     send_packet(3);
-
 }
-

@@ -65,13 +65,13 @@ void main()
 
     value = spi_write_reg(); //
 
-//    spi_write(0x40); // Caravel Stream Write
+    //    spi_write(0x40); // Caravel Stream Write
     // for(int i = 0; i < 10000; i++);
 
-//    spi_write(0x01); // Write register for mfg code
+    //    spi_write(0x01); // Write register for mfg code
     // for(int i = 0; i < 20000; i++);
 
-//    value = spi_read(); // 0xD
+    //    value = spi_read(); // 0xD
 
     if (value == 0x04)
         send_packet(5); // read correct value

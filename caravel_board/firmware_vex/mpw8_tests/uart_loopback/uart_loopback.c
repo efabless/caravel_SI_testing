@@ -16,14 +16,16 @@
  */
 #include <common.h>
 
-
 void wait_for_char(char *c)
 {
-    while (uart_rxempty_read() == 1);
-    if (reg_uart_data == *c){
+    while (uart_rxempty_read() == 1)
+        ;
+    if (reg_uart_data == *c)
+    {
         send_packet(6); // recieved the correct character
     }
-    else{
+    else
+    {
         send_packet(9); // recieved incorrect correct character
     }
     uart_pop_char();
@@ -107,13 +109,14 @@ void main()
     uart_RX_enable(1);
     enable_uart_TX(1);
 
-
     print("M");
-    for (j = 0; j < 1000; j++);
+    for (j = 0; j < 1000; j++)
+        ;
     wait_for_char("M");
 
     print("B");
-    for (j = 0; j < 1000; j++);
+    for (j = 0; j < 1000; j++)
+        ;
     wait_for_char("B");
 
     print("A");
@@ -122,11 +125,13 @@ void main()
     wait_for_char("A");
 
     print("5");
-    for (j = 0; j < 1000; j++);
+    for (j = 0; j < 1000; j++)
+        ;
     wait_for_char("5");
 
     print("o");
-    for (j = 0; j < 1000; j++);
+    for (j = 0; j < 1000; j++)
+        ;
     wait_for_char("o");
 
     // finish test

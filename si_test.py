@@ -132,6 +132,17 @@ def process_uart(test, uart):
                         print(f"Couldn't send {dat} over UART!")
                         uart.close()
                         return False
+    elif test.test_name == "IRQ_uart_rx":
+        uart.write("I")
+        pulse_count = test.receive_packet(250)
+        if pulse_count == 5:
+            print(f"{test.test_name} Test passed!")
+            return True
+        if pulse_count == 9:
+            print(f"{test.test_name} Test Failed!")
+            uart.close()
+            return False
+
     for i in range(0, 3):
         pulse_count = test.receive_packet(250)
         if pulse_count == 3:

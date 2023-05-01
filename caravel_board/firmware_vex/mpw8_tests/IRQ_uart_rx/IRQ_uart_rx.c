@@ -16,14 +16,13 @@
  */
 #include <common.h>
 
-
 /*
 Testing uart interrupts
 Enable interrupt for timer0 and configure it as countdown 1 shot
 wait for interrupt
 
     @request sending data through the uart rx
-        send packet size = 1
+        send packet size = 2
 
     @received interrupt correctly  test pass
         send packet size = 5
@@ -38,20 +37,18 @@ wait for interrupt
 
 */
 
-
 void main()
 {
 
-
     configure_mgmt_gpio();
-    configure_gpio(6,GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(5,GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     gpio_config_load();
     uart_RX_enable(1);
     enable_uart_rx_irq(1);
 
     clear_flag();
-    send_packet(1); // sending data through the uart rx 
+    send_packet(2); // sending data through the uart rx
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
     int timeout = 400000;

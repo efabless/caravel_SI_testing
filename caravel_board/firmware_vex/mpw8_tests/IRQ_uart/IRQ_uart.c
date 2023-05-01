@@ -16,7 +16,6 @@
  */
 #include <common.h>
 
-
 /*
 Testing uart interrupts
 Enable interrupt for timer0 and configure it as countdown 1 shot
@@ -38,13 +37,11 @@ wait for interrupt
 
 */
 
-
 void main()
 {
 
-
     configure_mgmt_gpio();
-    configure_gpio(6,GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     gpio_config_load();
     enable_uart_tx_irq(1);
 

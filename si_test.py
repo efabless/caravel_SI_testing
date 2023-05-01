@@ -142,6 +142,35 @@ def process_uart(test, uart):
             print(f"{test.test_name} Test Failed!")
             uart.close()
             return False
+    elif test.test_name == "receive_packet":
+        while True:
+            uart_data, count = uart.read_uart()
+            if uart_data:
+                uart_data[count.value] = 0
+                rgRX = rgRX + uart_data.value.decode()
+                if "ready" in rgRX:
+                    print(rgRX)
+                    break
+            if time.time() > timeout:
+                print(f"{test.test_name} test failed with {test.voltage}v supply")
+                uart.close()
+                return False
+        rgRX = ""
+        for i in range(0, 8):
+            test.send_packet(i)
+            while True:
+                uart_data, count = uart.read_uart()
+                if uart_data:
+                    uart_data[count.value] = 0
+                    rgRX = rgRX + uart_data.value.decode()
+                    if f"number of = {i}" in rgRX:
+                        print(rgRX)
+                        break
+                if time.time() > timeout:
+                    print(f"{test.test_name} test failed with {test.voltage}v supply")
+                    uart.close()
+                    return False
+        return True
 
     for i in range(0, 3):
         pulse_count = test.receive_packet(250)
@@ -269,7 +298,7 @@ def process_io_plud(test):
                 io.set_state(True)
                 io.set_value(0)
             else:
-                io_state = io.get_state()
+                io_state = io.get_value()
                 if io_state == 0:
                     print(f"{channel} is low")
     for channel in range(0, 37):
@@ -286,7 +315,7 @@ def process_io_plud(test):
             if channel < 19:
                 io.set_state(False)
             else:
-                io_state = io.get_state()
+                io_state = io.get_value()
                 if io_state == 1:
                     print(f"{channel} is high")
 
@@ -504,7 +533,7 @@ if __name__ == "__main__":
                         )
                     else:
                         exec_test(test, start_time, writer, t["hex_file_path"])
-        test.close_devices()
+            test.close_devices()
         sys.exit(0)
     except KeyboardInterrupt:
         print("Interrupted")

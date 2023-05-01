@@ -29,6 +29,25 @@ TestDict = [
         ],  # Passing criteria to be sent to mgmt_gpio
     },
     {
+        "test_name": "receive_packet",
+        "uart": False,  # NOT Testing UART
+        "mem": False,  # NOT Testing mem
+        "io": False,
+        "spi": False,
+        "external": False,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/receive_packet/receive_packet.hex",
+        "passing_criteria": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+        ],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
         "test_name": "uart",
         "uart": True,  # Testing UART
         "mem": False,  # NOT Testing mem

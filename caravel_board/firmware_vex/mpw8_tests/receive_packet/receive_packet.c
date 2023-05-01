@@ -30,7 +30,7 @@ void main()
     {
         recieved_size = receive_packet();
         recieved_char = recieved_size + "0";
-        print("number of = ");
+        // print("number of = ");
         print(recieved_char);
     }
 }

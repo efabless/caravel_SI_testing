@@ -73,7 +73,7 @@ def process_data(test):
             test.send_packet(i)
             pulse_count = test.receive_packet(250)
             if pulse_count == i:
-                print("sent {i} pulses successfully")
+                print(f"sent {i} pulses successfully")
             else:
                 print(f"{test.test_name} test failed with {test.voltage}v supply!")
                 return False
@@ -295,43 +295,61 @@ def process_io(test, io):
 
 def process_io_plud(test):
     pulse_count = test.receive_packet(250)
+    test_counter = 0
+    flag = False
     if pulse_count == 1:
         print("Start test")
-    for channel in range(0, 37):
+    for channel in range(0, 38):
         if channel == 5:
             hk_stop(True)
-        print(f"start sending pulses to gpio[{channel}]")
         if channel > 13 and channel < 22:
             io = test.deviced.dio_map[channel]
         elif channel > 21:
             io = test.device3v3.dio_map[channel]
         else:
             io = test.device1v8.dio_map[channel]
-        if test.test_name == "gpio_lpu_ro":
+        if test.test_name == "gpio_lpu_ho":
             if channel < 19:
+                print(f"{channel} is low")
                 io.set_state(True)
                 io.set_value(0)
             else:
+                if not flag:
+                    time.sleep(10)
+                    flag = True
                 io_state = io.get_value()
                 if io_state == 0:
-                    print(f"{channel} is low")
+                    test_counter += 1
+                else:
+                    print(f"channel {channel} FAILED!")
+                    return False
+    flag = False
     for channel in range(0, 37):
         if channel == 5:
             hk_stop(True)
-        print(f"start sending pulses to gpio[{channel}]")
         if channel > 13 and channel < 22:
             io = test.deviced.dio_map[channel]
         elif channel > 21:
             io = test.device3v3.dio_map[channel]
         else:
             io = test.device1v8.dio_map[channel]
-        if test.test_name == "gpio_lpu_ro":
+        if test.test_name == "gpio_lpu_ho":
             if channel < 19:
                 io.set_state(False)
             else:
+                if not flag:
+                    time.sleep(10)
+                    flag = True
                 io_state = io.get_value()
                 if io_state == 1:
-                    print(f"{channel} is high")
+                    test_counter += 1
+                else:
+                    print(f"channel {channel} FAILED!")
+                    return False
+    if test_counter >= 36:
+        return True
+    else:
+        return False
 
 
 def process_external(test):

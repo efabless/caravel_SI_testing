@@ -82,24 +82,62 @@ void configure_mgmt_gpio_input(){
 
 int receive_packet(){
     int ones = 0;
-    int packet_size =1;
-    while (reg_gpio_in == 0); // busy wait 0
-    count_down(PULSE_WIDTH/2);
+    int packet_size =0;
+    int old_gpio = reg_gpio_in; 
+    int gpio ;
+    bool first_pulse = true;
+    // while (reg_gpio_in == old_gpio); // busy wait 0
+    // count_down(PULSE_WIDTH/2);
+    // while (true){
+    //     if (reg_gpio_in == 1){
+    //         ones++;
+    //     }
+    //     else if (reg_gpio_in == 0){
+    //         if (ones > 0)
+    //             packet_size++;
+    //         ones = 0;
+    //     }
+    //     if (ones>3){
+    //         configure_mgmt_gpio();
+    //         return packet_size;
+    //     }
+    //     count_down(PULSE_WIDTH);
+    // }
     while (true){
-        if (reg_gpio_in == 1){
-            ones++;
-        }
-        else if (reg_gpio_in == 0){
-            if (ones > 0)
-                packet_size++;
+        gpio = reg_gpio_in;
+        if (gpio != old_gpio){
+            if (first_pulse){
+                count_down(PULSE_WIDTH/2);
+                first_pulse = false;
+            }
+            packet_size++;
             ones = 0;
+            old_gpio = gpio;
+        }else{
+            ones++; 
         }
-        if (ones>3){
-            configure_mgmt_gpio();
+        if (ones >3)
             return packet_size;
-        }
         count_down(PULSE_WIDTH);
     }
 }
 
+bool recieved_pulse_num(int number_of_pulses){
+    int pulses_num= 0; 
+    int old_gpio = reg_gpio_in;
+    int timeout = 50000*  number_of_pulses;
+    int timeout_counter = 0;
+    int gpio ;
+    while (timeout_counter < timeout){
+        timeout_counter++;   
+        gpio = reg_gpio_in;
+        if (gpio != old_gpio){
+            pulses_num++;
+            old_gpio = gpio;
+        }
+        if (number_of_pulses*2 == pulses_num )
+            return true;
+    }
+    return false;
+}
 #endif // PACKET_C_HEADER_FILE

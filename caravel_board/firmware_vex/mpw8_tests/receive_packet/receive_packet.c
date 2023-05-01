@@ -16,6 +16,7 @@ loop
 void main()
 {
     configure_mgmt_gpio();
+    configure_all_gpios(GPIO_MODE_MGMT_STD_OUTPUT);
     send_packet(2);
     int recieved_size = 0;
     configure_mgmt_gpio_input();

@@ -310,7 +310,6 @@ def process_io_plud(test):
             io = test.device1v8.dio_map[channel]
         if test.test_name == "gpio_lpu_ho":
             if channel < 19:
-                print(f"{channel} is low")
                 io.set_state(True)
                 io.set_value(0)
             else:
@@ -319,6 +318,20 @@ def process_io_plud(test):
                     flag = True
                 io_state = io.get_value()
                 if io_state == 0:
+                    test_counter += 1
+                else:
+                    print(f"channel {channel} FAILED!")
+                    return False
+        elif test.test_name == "gpio_lpd_ho":
+            if channel < 19:
+                io.set_state(True)
+                io.set_value(1)
+            else:
+                if not flag:
+                    time.sleep(10)
+                    flag = True
+                io_state = io.get_value()
+                if io_state == 1:
                     test_counter += 1
                 else:
                     print(f"channel {channel} FAILED!")
@@ -342,6 +355,19 @@ def process_io_plud(test):
                     flag = True
                 io_state = io.get_value()
                 if io_state == 1:
+                    test_counter += 1
+                else:
+                    print(f"channel {channel} FAILED!")
+                    return False
+        elif test.test_name == "gpio_lpd_ho":
+            if channel < 19:
+                io.set_state(False)
+            else:
+                if not flag:
+                    time.sleep(10)
+                    flag = True
+                io_state = io.get_value()
+                if io_state == 0:
                     test_counter += 1
                 else:
                     print(f"channel {channel} FAILED!")

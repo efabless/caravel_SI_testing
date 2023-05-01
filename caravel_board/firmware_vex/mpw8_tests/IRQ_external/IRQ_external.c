@@ -31,7 +31,7 @@ Enable interrupt for IRQ external pin mprj_io[7] -> should be drived to 1 by the
     @ timeout                       test fail
         send packet size = 9
 
-    @ end test 
+    @ end test
         send packet size = 3
         send packet size = 3
         send packet size = 3
@@ -55,7 +55,7 @@ void main(){
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
-    int timeout = 400000; 
+    int timeout = 400000;
 
     for (int i = 0; i < timeout; i++){
         if (get_flag() == 1){
@@ -64,14 +64,13 @@ void main(){
             break;
         }
     }
-    if (!is_pass){
-        send_packet(9);// timeout
+    if (!is_pass)
+    {
+        send_packet(9); // timeout
     }
 
     // finish test
     send_packet(3);
     send_packet(3);
     send_packet(3);
-
 }
-

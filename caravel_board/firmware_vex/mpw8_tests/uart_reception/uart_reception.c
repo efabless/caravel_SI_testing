@@ -22,7 +22,7 @@
 // #include <defs.h>
 #include <stub.c>
 #include "../common/send_packet.c"
-#include "../../gpio_config/gpio_config_io.c"
+// #include "../../gpio_config/gpio_config_io.c"
 
 void wait_for_char(char *c)
 {
@@ -68,7 +68,10 @@ void main()
     reg_mprj_io_6 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_5 = GPIO_MODE_USER_STD_INPUT_NOPULL;
 
-    gpio_config_io();
+    // gpio_config_io();
+    reg_mprj_xfer = 1;
+    while (reg_mprj_xfer == 1)
+        ;
 
     // clear_registers();
     // clock_in_right_o_left_o_standard(0); // 6	and 31

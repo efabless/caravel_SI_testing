@@ -19,6 +19,7 @@ void main()
     count_down(PULSE_WIDTH * 50);
     send_packet(2);
     int recieved_size = 0;
+    char recieved_char;
     configure_mgmt_gpio_input();
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     // gpio_config_io();
@@ -28,7 +29,8 @@ void main()
     while (true)
     {
         recieved_size = receive_packet();
+        recieved_char = recieved_size + "0";
         print("number of = ");
-        print(recieved_size);
+        print(recieved_char);
     }
 }

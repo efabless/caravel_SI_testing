@@ -1,24 +1,29 @@
 #include <common.h>
 
-
-void set_registers(){
-    for (int i = 0; i < 38; i++){
-        if (i>=19){
+void set_registers()
+{
+    for (int i = 0; i < 38; i++)
+    {
+        if (i >= 19)
+        {
             configure_gpio(i, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-        }else{
+        }
+        else
+        {
             configure_gpio(i, GPIO_MODE_MGMT_STD_OUTPUT);
         }
     }
 }
 /*
-@ finish configuration 
+@ finish configuration
     send packet with size 1
 
 GPIO[19:37] is configured as input pull down and mapped to GPIO[0:18]
 
 input value send to gpio[19:37] suppose to be received as output at GPIO[0:18]
 */
-void main(){
+void main()
+{
     configure_mgmt_gpio();
     set_registers();
     set_gpio_h(0);
@@ -31,7 +36,8 @@ void main(){
     int o_val_l;
     int o_val_h;
     int o_val;
-    while (true){
+    while (true)
+    {
         i_val = get_gpio_l() & mask;
         o_val_h = get_gpio_h() >> 13;
         o_val_l = i_val << 19;

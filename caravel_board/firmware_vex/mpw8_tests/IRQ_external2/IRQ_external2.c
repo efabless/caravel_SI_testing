@@ -41,6 +41,7 @@ Enable interrupt for IRQ external pin mprj_io[12] -> should be drived to 1 by th
 
 
 void main(){
+    clear_flag();
     configure_mgmt_gpio();
 
     // setting bit 12 as input
@@ -51,7 +52,7 @@ void main(){
     gpio_config_load();
 
     enable_external2_irq(1);
-    clear_flag();
+    user_irq_2_ev_pending_write(1);
     send_packet(1);//wait for environment to make mprj[12] high 
 
     // Loop, waiting for the interrupt to change reg_mprj_datah

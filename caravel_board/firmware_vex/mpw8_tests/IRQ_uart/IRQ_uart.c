@@ -40,12 +40,12 @@ wait for interrupt
 void main()
 {
 
+    clear_flag();
     configure_mgmt_gpio();
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     gpio_config_load();
     enable_uart_tx_irq(1);
-
-    clear_flag();
+    uart_ev_pending_write(1);
     send_packet(1); // sending data through the uart
     print("M");
 

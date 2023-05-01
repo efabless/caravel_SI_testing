@@ -40,14 +40,14 @@ wait for interrupt
 void main()
 {
 
+    clear_flag();
     configure_mgmt_gpio();
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     gpio_config_load();
     uart_RX_enable(1);
     enable_uart_rx_irq(1);
-
-    clear_flag();
+    uart_ev_pending_write(1);
     send_packet(2); // sending data through the uart rx
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;

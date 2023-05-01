@@ -282,6 +282,7 @@ def process_spi(test, spi):
     #     data2 = data2 + str(spi.data[i])
     # print(int(data1, 2))
     # print(int(data2, 2))
+    return False
 
 
 def process_input_io(test, io):
@@ -330,29 +331,33 @@ def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, ex
     logging.info(f"  Running:  {test.test_name} : {datetime.datetime.now()}")
     logging.info(f"=============================================================")
 
+    results = None
+
     if uart:
-        return process_uart(test, uart_data)
+        results = process_uart(test, uart_data)
     elif mem:
-        return process_mem(test)
+        results = process_mem(test)
     elif io:
         hk_stop(False)
         if mode == "output":
-            return process_io(test, io)
+            results = process_io(test, io)
         elif mode == "input":
-            return process_input_io(test, io)
+            results = process_input_io(test, io)
         else:
             print(f"ERROR : No {mode} mode")
             exit(1)
     elif spi_flag:
-        return process_spi(test, spi)
+        results = process_spi(test, spi)
     elif external:
-        return process_external(test)
+        results = process_external(test)
     else:
-        return process_data(test)
+        results = process_data(test)
 
     logging.info(f"=============================================================")
     logging.info(f"  Completed:  {test.test_name} : {datetime.datetime.now()}")
     logging.info(f"=============================================================")
+
+    return results
 
 
 def exec_test(

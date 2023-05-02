@@ -271,12 +271,12 @@ class Test:
         # dwf.DwfDeviceReset(self.device3v3.handle)
         # dwf.DwfDeviceReset(self.deviced.handle)
 
-        for channel in self.device1v8.dio_map:
-            channel.set_state(False)
-        for channel in self.device3v3.dio_map:
-            channel.set_state(False)
-        for channel in self.deviced.dio_map:
-            channel.set_state(False)
+        for c in self.device1v8.dio_map:
+            self.device1v8.dio_map[c].set_state(False)
+        for c in self.device3v3.dio_map:
+            self.device3v3.dio_map[c].set_state(False)
+        for c in self.deviced.dio_map:
+            self.deviced.dio_map[c].set_state(False)
 
 class Device:
     """

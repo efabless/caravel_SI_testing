@@ -1,8 +1,15 @@
+<<<<<<< HEAD
+#include <common.h>
+
+//#include "../local_defs.h"
+//#include "../stub.c"
+=======
 #include "../defs.h"
 // #include "../gpio_config/gpio_config_io.c"
 #include "../common/send_packet.c"
 // #include "../local_defs.h"
 // #include "../stub.c"
+>>>>>>> chipignite-dev3
 
 // #include "../config_io.h"
 // #include "../defs_mpw-two-mfix.h"
@@ -66,27 +73,23 @@ void main()
     int num_pulses = 4;
     int num_bits = 19;
     configure_mgmt_gpio();
-    set_registers();
-    reg_mprj_datah = 0;
-    reg_mprj_datal = 0;
-    //    gpio_config_io();
-
-    reg_mprj_xfer = 1;
-    while (reg_mprj_xfer == 1)
-        ;
-
+    configure_all_gpios(GPIO_MODE_MGMT_STD_OUTPUT);
+    gpio_config_load();
+    set_gpio_h(0);
+    set_gpio_l(0);
+    // gpio_config_io();
     send_packet(1); // configuration finished
     while (1)
     {
         send_packet(3); // send 4 pulses at all gpios
         for (i = 0; i < 4; i++)
         {
-            reg_mprj_datal = 0xFFFFFFFF;
-            reg_mprj_datah = 0x3F;
-            count_down(PULSE_WIDTH);
-            reg_mprj_datah = 0x0;
-            reg_mprj_datal = 0x0;
-            count_down(PULSE_WIDTH);
+            set_gpio_l(0xFFFFFFFF);
+            set_gpio_h(0x3F);
+            count_down(PULSE_WIDTH);  
+            set_gpio_h(0x0);
+            set_gpio_l(0x0);  
+            count_down(PULSE_WIDTH); 
         }
     }
 }

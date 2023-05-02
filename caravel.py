@@ -7,6 +7,7 @@ import subprocess
 import sys
 from ctypes import *
 import logging
+import os
 
 # import flash
 
@@ -150,7 +151,8 @@ class Test:
         if ret_code != 0:
             logging.error("Can't flash!")
             self.close_devices()
-            os._exit(0)
+            os._exit(1)
+
 
         # flash.erase()
         # if flash.flash(hex_file):

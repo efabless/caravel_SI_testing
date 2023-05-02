@@ -1,11 +1,9 @@
-#include <defs.h>
-#include <stub.c>
-#include "../common/send_packet.c"
+#include <common.h>
 
 void set_registers()
 {
 
-//    reg_mprj_io_0 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
+    //    reg_mprj_io_0 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
     reg_mprj_io_0 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_1 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_2 = GPIO_MODE_MGMT_STD_OUTPUT;
@@ -56,13 +54,11 @@ void main()
     int num_pulses = 4;
     int num_bits = 19;
     configure_mgmt_gpio();
-    set_registers();
-    reg_mprj_datah = 0;
-    reg_mprj_datal = 0;
-    //    gpio_config_io();
-    reg_mprj_xfer = 1;
-    while (reg_mprj_xfer == 1)
-        ;
+    configure_all_gpios(GPIO_MODE_MGMT_STD_OUTPUT);
+    set_gpio_h(0);
+    set_gpio_l(0);
+    gpio_config_load();
+    // gpio_config_io();
     send_packet(1); // configuration finished
 
     for (j = 0; j < 9; j++)
@@ -70,9 +66,9 @@ void main()
         send_packet(j + 2); // send 4 pulses at gpio[j]
         for (i = 0; i < num_pulses; i++)
         {
-            reg_mprj_datal = 0x1 << j;
+            set_gpio_l(0x1 << j);
             count_down(PULSE_WIDTH);
-            reg_mprj_datal = 0x0;
+            set_gpio_l(0x0);
             count_down(PULSE_WIDTH);
         }
     }
@@ -83,9 +79,9 @@ void main()
         send_packet(j - 9 + 2); // send 4 pulses at gpio[j]
         for (i = 0; i < num_pulses; i++)
         {
-            reg_mprj_datal = 0x1 << j;
+            set_gpio_l(0x1 << j);
             count_down(PULSE_WIDTH);
-            reg_mprj_datal = 0x0;
+            set_gpio_l(0x0);
             count_down(PULSE_WIDTH);
         }
     }

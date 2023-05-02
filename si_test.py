@@ -65,20 +65,34 @@ def init_ad_ios(device1_data, device2_data, device3_data):
 
 
 def process_data(test):
-    phase = 0
-    for passing in test.passing_criteria:
+    if test.test_name == "receive_packet":
         pulse_count = test.receive_packet(250)
-        if pulse_count == passing:
-            print(f"pass phase {phase}")
-            phase = phase + 1
-
-        if pulse_count == 9:
-            print(f"{test.test_name} test failed with {test.voltage}v supply!")
-            return False
-
-    if len(test.passing_criteria) == phase:
-        print(f"{test.test_name} test Passed with {test.voltage}v supply!")
+        if pulse_count == 2:
+            print("Test started")
+        for i in range(1, 8):
+            test.send_packet(i)
+            pulse_count = test.receive_packet(250)
+            if pulse_count == i:
+                print(f"sent {i} pulses successfully")
+            else:
+                print(f"{test.test_name} test failed with {test.voltage}v supply!")
+                return False
         return True
+    else:
+        phase = 0
+        for passing in test.passing_criteria:
+            pulse_count = test.receive_packet(250)
+            if pulse_count == passing:
+                print(f"pass phase {phase}")
+                phase = phase + 1
+
+            if pulse_count == 9:
+                print(f"{test.test_name} test failed with {test.voltage}v supply!")
+                return False
+
+        if len(test.passing_criteria) == phase:
+            print(f"{test.test_name} test Passed with {test.voltage}v supply!")
+            return True
 
 
 def process_uart(test, uart):
@@ -132,6 +146,46 @@ def process_uart(test, uart):
                         print(f"Couldn't send {dat} over UART!")
                         uart.close()
                         return False
+    elif test.test_name == "IRQ_uart_rx":
+        uart.write("I")
+        pulse_count = test.receive_packet(250)
+        if pulse_count == 5:
+            print(f"{test.test_name} Test passed!")
+            return True
+        if pulse_count == 9:
+            print(f"{test.test_name} Test Failed!")
+            uart.close()
+            return False
+    # elif test.test_name == "receive_packet":
+    #     while True:
+    #         uart_data, count = uart.read_uart()
+    #         if uart_data:
+    #             uart_data[count.value] = 0
+    #             rgRX = rgRX + uart_data.value.decode()
+    #             if "ready" in rgRX:
+    #                 print(rgRX)
+    #                 break
+    #         if time.time() > timeout:
+    #             print(f"{test.test_name} test failed with {test.voltage}v supply")
+    #             uart.close()
+    #             return False
+    #     rgRX = ""
+    #     for i in range(0, 8):
+    #         test.send_packet(i)
+    #         while True:
+    #             uart_data, count = uart.read_uart()
+    #             if uart_data:
+    #                 uart_data[count.value] = 0
+    #                 rgRX = rgRX + uart_data.value.decode()
+    #                 if f"{i}" in rgRX:
+    #                     print(rgRX)
+    #                     break
+    #             if time.time() > timeout:
+    #                 print(f"{test.test_name} test failed with {test.voltage}v supply")
+    #                 uart.close()
+    #                 return False
+    #     return True
+
     for i in range(0, 3):
         pulse_count = test.receive_packet(250)
         if pulse_count == 3:
@@ -192,7 +246,7 @@ def process_io(test, io):
         rst = 2
     end_pulses = 0
     while end_pulses < 2:
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if phase == 0 and pulse_count == 1:
             print("Start test")
             phase = phase + 1
@@ -219,9 +273,9 @@ def process_io(test, io):
                 io = test.device1v8.dio_map[channel]
             state = "HI"
             timeout = time.time() + 20
-            accurate_delay(125)
+            accurate_delay(12.5)
             while 1:
-                accurate_delay(250)
+                accurate_delay(25)
                 x = io.get_value()
                 if state == "LOW":
                     if x:
@@ -238,6 +292,126 @@ def process_io(test, io):
                     print(f"Timeout failure on gpio[{channel}]!")
                     return False, channel
     return True, None
+
+
+def process_io_plud(test):
+    p1_rt = False
+    p2_rt = False
+    pulse_count = test.receive_packet(250)
+
+    if pulse_count == 1:
+        print("Start test")
+    if test.test_name == "gpio_lpu_ho":
+        default_val = 1
+        default_val_n = 0
+        p1_rt = run_io_plud(default_val, default_val_n, False)
+        p2_rt = run_io_plud(default_val, default_val_n, True)
+    elif test.test_name == "gpio_lpd_ho":
+        default_val = 0
+        default_val_n = 1
+        p1_rt = run_io_plud(default_val, default_val_n, False)
+        p2_rt = run_io_plud(default_val, default_val_n, True)
+    elif test.test_name == "gpio_lo_hpu":
+        default_val = 1
+        default_val_n = 0
+        p1_rt = run_io_plud_h(default_val, default_val_n, False)
+        p2_rt = run_io_plud_h(default_val, default_val_n, True)
+    elif test.test_name == "gpio_lo_hpd":
+        default_val = 0
+        default_val_n = 1
+        p1_rt = run_io_plud_h(default_val, default_val_n, False)
+        p2_rt = run_io_plud_h(default_val, default_val_n, True)
+    if p1_rt and p2_rt:
+        return True
+    else:
+        return False
+
+
+def run_io_plud(default_val, default_val_n, first_itter):
+    test_counter = 0
+    flag = False
+    for channel in range(0, 38):
+        if channel == 5:
+            hk_stop(True)
+        if channel > 13 and channel < 22:
+            io = test.deviced.dio_map[channel]
+        elif channel > 21:
+            io = test.device3v3.dio_map[channel]
+        else:
+            io = test.device1v8.dio_map[channel]
+        if channel < 19 and first_itter:
+            io.set_state(True)
+            io.set_value(default_val_n)
+        elif channel < 19:
+            io.set_state(False)
+        elif first_itter:
+            if not flag:
+                time.sleep(10)
+                flag = True
+            io_state = io.get_value()
+            if io_state == default_val_n:
+                test_counter += 1
+            else:
+                print(f"channel {channel} FAILED!")
+                return False
+        else:
+            if not flag:
+                time.sleep(10)
+                flag = True
+            io_state = io.get_value()
+            if io_state == default_val:
+                test_counter += 1
+            else:
+                print(f"channel {channel} FAILED!")
+                return False
+    if test_counter == 19:
+        return True
+    else:
+        return False
+
+
+def run_io_plud_h(default_val, default_val_n, first_itter):
+    test_counter = 0
+    flag = False
+    for channel in range(37, -1, -1):
+        if channel == 5:
+            hk_stop(True)
+        if channel > 13 and channel < 22:
+            io = test.deviced.dio_map[channel]
+        elif channel > 21:
+            io = test.device3v3.dio_map[channel]
+        else:
+            io = test.device1v8.dio_map[channel]
+        if channel > 18 and first_itter:
+            io.set_state(True)
+            io.set_value(default_val_n)
+        elif channel > 18:
+            io.set_state(False)
+        elif first_itter:
+            if not flag:
+                time.sleep(10)
+                flag = True
+            io_state = io.get_value()
+            if io_state == default_val_n:
+                test_counter += 1
+            else:
+                print(f"channel {channel} FAILED!")
+                return False
+        else:
+            if not flag:
+                time.sleep(10)
+                flag = True
+            io_state = io.get_value()
+            if io_state == default_val:
+                test_counter += 1
+            else:
+                print(f"channel {channel} FAILED!")
+                return False
+    print(test_counter)
+    if test_counter == 19:
+        return True
+    else:
+        return False
 
 
 def process_external(test):
@@ -294,13 +468,13 @@ def process_input_io(test, io):
     else:
         channel = 37
     while count < 19:
+        pulse_count = test.receive_packet(25)
         if channel == 5:
             hk_stop(True)
-        pulse_count = test.receive_packet(250)
         if pulse_count == 1:
             print(f"Sending 4 pulses on gpio[{channel}]")
-            test.send_pulse(4, channel, 50)
-            ack_pulse = test.receive_packet(250)
+            test.send_pulse(4, channel, 5)
+            ack_pulse = test.receive_packet(25)
             if ack_pulse == 5:
                 print(f"gpio[{channel}] Failed to send pulse")
                 return False, channel
@@ -345,6 +519,8 @@ def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, ex
             results = process_io(test, io)
         elif mode == "input":
             results = process_input_io(test, io)
+        elif mode == "plud":
+            results = process_io_plud(test)
         else:
             print(f"ERROR : No {mode} mode")
             exit(1)
@@ -485,7 +661,7 @@ if __name__ == "__main__":
         print("Interrupted")
         try:
             test.close_devices()
-            os._exit(0)
+            os._exit(1)
         except SystemExit:
             test.close_devices()
             os._exit(1)

@@ -14,15 +14,8 @@
  * limitations under the License.
  * SPDX-License-Identifier: Apache-2.0
  */
+#include <common.h>
 
-#include <csr.h>
-#include <soc.h>
-#include <irq_vex.h>
-#include <uart.h>
-
-#include "../defs.h"
-#include "../gpio_config/gpio_config_io.c"
-#include "../common/send_packet.c"
 
 /*
 Testing timer interrupts 
@@ -45,36 +38,22 @@ wait for interrupt
 
 */
 
-extern uint16_t flag;
 
 void main(){
-    uint16_t data;
-    int i;
-
-    flag = 0;
-    // configure_mgmt_gpio();
-
-    irq_setmask(0);
-	irq_setie(1);
-
-
-	irq_setmask(irq_getmask() | (1 << TIMER0_INTERRUPT));
+    
+    clear_flag();
+    configure_mgmt_gpio();
+    enable_timer0_irq(1);
     timer0_ev_pending_write(1);
-    /* Configure timer for a single-shot countdown */
-	reg_timer0_config = 0;
-	reg_timer0_data = 10000;
-    reg_timer0_config = 1;
-    reg_timer0_irq_en = 1;
-    // send_packet(1);//configuring the timers and start count down
+    timer0_oneshot_configure(10000);
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
     int timeout = 500000; 
-    configure_mgmt_gpio();
     send_packet(1);
 
     for (int i = 0; i < timeout; i++){
-        if (flag == 1){
+        if (get_flag() == 1){
             send_packet(5);//test pass irq sent
             is_pass = true;
             break;

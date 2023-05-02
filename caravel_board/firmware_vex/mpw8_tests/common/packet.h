@@ -3,7 +3,7 @@
 
 #include <timer0.h>
 #include <mgmt_gpio.h>
-#define PULSE_WIDTH 250000
+#define PULSE_WIDTH 2500000
 
 /**
  * Performs a countdown using timer0.

@@ -149,7 +149,7 @@ class Test:
         if ret_code != 0:
             logging.error("Can't flash!")
             self.close_devices()
-            os._exit()
+            os._exit(1)
 
     def change_voltage(self):
         """

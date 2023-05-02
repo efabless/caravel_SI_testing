@@ -1,5 +1,4 @@
 #include <common.h>
-#define PULSE_WIDTH 250000
 
 void set_registers()
 {
@@ -51,8 +50,9 @@ void main()
     configure_mgmt_gpio();
     //    gpio_config_io();
     gpio_config_load();
+    count_down(PULSE_WIDTH * 20);
 
-    // send_packet(1); // configuration finished start test
+    // send_packet(2); // configuration finished start test
 
     while (true)
     {

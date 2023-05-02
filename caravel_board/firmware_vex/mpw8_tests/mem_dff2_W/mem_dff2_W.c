@@ -1,4 +1,4 @@
-#include <common>
+#include <common.h>
 
 /*
    @ start of test

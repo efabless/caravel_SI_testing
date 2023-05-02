@@ -240,6 +240,7 @@ def process_io(test, io):
     phase = 0
     io_pulse = 0
     if io == "low":
+        hk_stop(False)
         rst = 0
     if io == "high":
         rst = 2
@@ -272,9 +273,9 @@ def process_io(test, io):
                 io = test.device1v8.dio_map[channel]
             state = "HI"
             timeout = time.time() + 20
-            accurate_delay(125)
+            accurate_delay(12.5)
             while 1:
-                accurate_delay(250)
+                accurate_delay(25)
                 x = io.get_value()
                 if state == "LOW":
                     if x:
@@ -462,16 +463,17 @@ def process_spi(test, spi):
 def process_input_io(test, io):
     count = 0
     if io == "low":
+        hk_stop(False)
         channel = 0
     else:
         channel = 37
     while count < 19:
+        pulse_count = test.receive_packet(25)
         if channel == 5:
             hk_stop(True)
-        pulse_count = test.receive_packet(25)
         if pulse_count == 1:
             print(f"Sending 4 pulses on gpio[{channel}]")
-            test.send_pulse(4, channel, 25)
+            test.send_pulse(4, channel, 5)
             ack_pulse = test.receive_packet(25)
             if ack_pulse == 5:
                 print(f"gpio[{channel}] Failed to send pulse")
@@ -513,13 +515,12 @@ def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, ex
     elif mem:
         results = process_mem(test)
     elif io:
-        hk_stop(False)
         if mode == "output":
             results = process_io(test, io)
         elif mode == "input":
             results = process_input_io(test, io)
         elif mode == "plud":
-            results = process_io_plud(test, io)
+            results = process_io_plud(test)
         else:
             print(f"ERROR : No {mode} mode")
             exit(1)

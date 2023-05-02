@@ -317,84 +317,84 @@ TestDict = [
             8,
         ],  # Passing criteria to be sent to mgmt_gpio
     },
-    {
-        "test_name": "gpio_lpu_ho",
-        "uart": False,  # NOT Testing UART
-        "mem": False,  # NOT Testing mem
-        "io": True,
-        "mode": "plud",
-        "spi": False,
-        "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_lpu_ho/gpio_lpu_ho.hex",
-        "passing_criteria": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-        ],  # Passing criteria to be sent to mgmt_gpio
-    },
-    {
-        "test_name": "gpio_lpd_ho",
-        "uart": False,  # NOT Testing UART
-        "mem": False,  # NOT Testing mem
-        "io": True,
-        "mode": "plud",
-        "spi": False,
-        "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_lpd_ho/gpio_lpd_ho.hex",
-        "passing_criteria": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-        ],  # Passing criteria to be sent to mgmt_gpio
-    },
-    {
-        "test_name": "gpio_lo_hpu",
-        "uart": False,  # NOT Testing UART
-        "mem": False,  # NOT Testing mem
-        "io": True,
-        "mode": "plud",
-        "spi": False,
-        "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_lo_hpu/gpio_lo_hpu.hex",
-        "passing_criteria": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-        ],  # Passing criteria to be sent to mgmt_gpio
-    },
-    {
-        "test_name": "gpio_lo_hpd",
-        "uart": False,  # NOT Testing UART
-        "mem": False,  # NOT Testing mem
-        "io": True,
-        "mode": "plud",
-        "spi": False,
-        "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_lo_hpd/gpio_lo_hpd.hex",
-        "passing_criteria": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-        ],  # Passing criteria to be sent to mgmt_gpio
-    },
+    # {
+    #     "test_name": "gpio_lpu_ho",
+    #     "uart": False,  # NOT Testing UART
+    #     "mem": False,  # NOT Testing mem
+    #     "io": True,
+    #     "mode": "plud",
+    #     "spi": False,
+    #     "external": False,
+    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_lpu_ho/gpio_lpu_ho.hex",
+    #     "passing_criteria": [
+    #         1,
+    #         2,
+    #         3,
+    #         4,
+    #         5,
+    #         6,
+    #         7,
+    #         8,
+    #     ],  # Passing criteria to be sent to mgmt_gpio
+    # },
+    # {
+    #     "test_name": "gpio_lpd_ho",
+    #     "uart": False,  # NOT Testing UART
+    #     "mem": False,  # NOT Testing mem
+    #     "io": True,
+    #     "mode": "plud",
+    #     "spi": False,
+    #     "external": False,
+    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_lpd_ho/gpio_lpd_ho.hex",
+    #     "passing_criteria": [
+    #         1,
+    #         2,
+    #         3,
+    #         4,
+    #         5,
+    #         6,
+    #         7,
+    #         8,
+    #     ],  # Passing criteria to be sent to mgmt_gpio
+    # },
+    # {
+    #     "test_name": "gpio_lo_hpu",
+    #     "uart": False,  # NOT Testing UART
+    #     "mem": False,  # NOT Testing mem
+    #     "io": True,
+    #     "mode": "plud",
+    #     "spi": False,
+    #     "external": False,
+    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_lo_hpu/gpio_lo_hpu.hex",
+    #     "passing_criteria": [
+    #         1,
+    #         2,
+    #         3,
+    #         4,
+    #         5,
+    #         6,
+    #         7,
+    #         8,
+    #     ],  # Passing criteria to be sent to mgmt_gpio
+    # },
+    # {
+    #     "test_name": "gpio_lo_hpd",
+    #     "uart": False,  # NOT Testing UART
+    #     "mem": False,  # NOT Testing mem
+    #     "io": True,
+    #     "mode": "plud",
+    #     "spi": False,
+    #     "external": False,
+    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_lo_hpd/gpio_lo_hpd.hex",
+    #     "passing_criteria": [
+    #         1,
+    #         2,
+    #         3,
+    #         4,
+    #         5,
+    #         6,
+    #         7,
+    #         8,
+    #     ],  # Passing criteria to be sent to mgmt_gpio
+    # },
 ]

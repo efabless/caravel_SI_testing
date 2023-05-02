@@ -15,8 +15,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <common.h>
+#include <uart.h>
 
+#include "../defs.h"
+#include "../common/send_packet.c"
 
 /*
 Testing timer interrupts 
@@ -49,18 +51,21 @@ void main(){
     send_packet(1);//configuring the timers and start count down
 
     /* Configure timer for a single-shot countdown */
-    timer0_periodic_configure(0x3000);
+	reg_timer0_config = 0; // disable
+	reg_timer0_data = 0;
+    reg_timer0_data_periodic  = 0x3000;
+    reg_timer0_config = 1; // enable
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     // test path if counter value stop updated after reach 0 and also the value is always decrementing
-    // update_timer0_val();  // update reg_timer0_value with new counter value
-    old_value = get_timer0_val();
+    reg_timer0_update = 1; // update reg_timer0_value with new counter value
+    old_value = reg_timer0_value;
     // value us decrementing until it reachs zero
     bool is_pass = false;
     int timeout = 400000; 
     for (int i = 0; i < timeout; i++){
-        // update_timer0_val();  // update reg_timer0_value with new counter value
-        value = get_timer0_val();
+        reg_timer0_update = 1; // update reg_timer0_value with new counter value
+        value = reg_timer0_value;
         if (value > old_value){
             send_packet(5); //timer rollover
             is_pass = true;

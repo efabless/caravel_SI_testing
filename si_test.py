@@ -649,10 +649,13 @@ if __name__ == "__main__":
                         )
                     else:
                         exec_test(test, start_time, writer, t["hex_file_path"])
-            test.close_devices()
+                    test.close_devices()
+                    time.sleep(5)
+                    devices = device.open_devices()
         logging.info(f"=============================================================")
         logging.info(f"  All Tests Complete")
         logging.info(f"=============================================================")
+        test.close_devices()
         os._exit(0)
     except KeyboardInterrupt:
         print("Interrupted")

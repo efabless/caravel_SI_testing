@@ -16,7 +16,6 @@
  */
 #include <common.h>
 
-
 /*
 send pattern Monitor: Test UART (RTL) passed\n on UART SER_TX mprj[6]
 python code should get all the data received on mprj and decode it code like the on at vip/tbuart.v
@@ -82,14 +81,13 @@ void main()
 {
     int i, j;
     configure_mgmt_gpio();
-    configure_gpio(6,GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     // gpio_config_io();
     gpio_config_load();
 
     // Start test
     send_packet(2); // start of transmitting
     enable_uart_TX(1);
-
 
     print("Monitor: Test UART passed\n");
 

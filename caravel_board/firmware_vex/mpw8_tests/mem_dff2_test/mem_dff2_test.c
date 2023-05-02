@@ -1,6 +1,5 @@
 #include <common.h>
 
-
 /*
    @ start of test
       send packet with size = 1

@@ -99,8 +99,8 @@ void main()
 {
     int j;
     configure_mgmt_gpio();
-    configure_gpio(6,GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(5,GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     gpio_config_load();
 
     // Start test

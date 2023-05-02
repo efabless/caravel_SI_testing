@@ -20,8 +20,10 @@ void isr(void)
 //	irqs = irq_pending() & irq_getmask();
 //
 	irq_setmask(0);
+
+	flag = 1;
 //
-    reg_timer0_irq_en = 0; // disable interrupt
+//    reg_timer0_irq_en = 0; // disable interrupt
 //    reg_debug_irq_en = 0;
 
 //    reg_reset = 1;
@@ -31,11 +33,11 @@ void isr(void)
 
 //   reg_la1_data = 0xa;
 //   reg_la0_data = 0x20000;
-   reg_timer0_update = 1;
-   if (reg_timer0_value == 0)
-       flag = 1;
-   else
-       reg_timer0_irq_en = 1;
+//   reg_timer0_update = 1;
+//   if (reg_timer0_value == 0)
+//       flag = 1;
+//   else
+//       reg_timer0_irq_en = 1;
 
 
 //	if(irqs & (1 << TIMER0_INTERRUPT)) {

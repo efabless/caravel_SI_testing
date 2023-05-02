@@ -151,6 +151,12 @@ class Test:
             self.close_devices()
             os._exit(1)
 
+        # flash.erase()
+        # if flash.flash(hex_file):
+        #     logging.error("Can't flash!")
+        #     self.close_devices()
+        #     sys.exit()
+
     def change_voltage(self):
         """
         changes voltage output of the device connected to `VCORE` power supply

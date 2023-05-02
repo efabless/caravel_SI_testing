@@ -15,10 +15,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <common.h>
+#include <csr.h>
+#include <soc.h>
+#include <irq_vex.h>
+#include <uart.h>
+
+#include "../defs.h"
+// #include "../gpio_config/gpio_config_io.c"
+#include "../common/send_packet.c"
 
 /*
-Testing IRQ interrupts 
+Testing timer interrupts
 Enable interrupt for IRQ external pin mprj_io[7] -> should be drived to 1 by the environment
 **NOTE** housekeeping SPI should used to update register irq_1_inputsrc to 1 see verilog code
 
@@ -38,29 +45,45 @@ Enable interrupt for IRQ external pin mprj_io[7] -> should be drived to 1 by the
 
 */
 
+extern uint16_t flag;
 
-void main(){
-    clear_flag();
+void main()
+{
+    uint16_t data;
+    int i;
+
+    flag = 0;
     configure_mgmt_gpio();
 
     // setting bit 7 as input
-    configure_gpio(7, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    reg_mprj_io_7 = GPIO_MODE_MGMT_STD_INPUT_NOPULL;
     // gpio_config_io();
+    reg_mprj_xfer = 1;
+    while (reg_mprj_xfer == 1)
+        ;
 
-    // automatic bitbang approach
-    gpio_config_load();
+    irq_setmask(0);
+    irq_setie(1);
 
-    enable_external1_irq(1);
-    user_irq_1_ev_pending_write(1);
-    send_packet(1);//wait for environment to make mprj[7] high 
+    // irq_setmask(irq_getmask() | (1 << TIMER0_INTERRUPT));
+
+    // irq_setmask(irq_getmask() | 0x3f);
+    irq_setmask(irq_getmask() | (1 << USER_IRQ_4_INTERRUPT));
+    // irq_setmask(irq_getmask() | ( 0x3f));
+    reg_user4_irq_en = 1;
+    reg_irq_source = 1;
+    send_packet(1); // wait for environment to make mprj[7] high
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
-    int timeout = 400000;
+    int timeout =  10000000;
+//    int timeout = 100000000;
 
-    for (int i = 0; i < timeout; i++){
-        if (get_flag() == 1){
-            send_packet(5);//test pass irq sent
+    for (int i = 0; i < timeout; i++)
+    {
+        if (flag == 1)
+        {
+            send_packet(5); // test pass irq sent
             is_pass = true;
             break;
         }

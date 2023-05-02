@@ -9,6 +9,8 @@ from ctypes import *
 import logging
 import os
 
+# import flash
+
 
 def accurate_delay(delay):
     """Function to provide accurate time delay in millisecond"""
@@ -150,6 +152,7 @@ class Test:
             logging.error("Can't flash!")
             self.close_devices()
             os._exit(1)
+
 
         # flash.erase()
         # if flash.flash(hex_file):

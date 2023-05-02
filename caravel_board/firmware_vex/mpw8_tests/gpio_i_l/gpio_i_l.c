@@ -1,18 +1,18 @@
 #include <common.h>
-
+#define PULSE_WIDTH 250000
 
 void set_registers()
 {
-    configure_gpio(0 , GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(1 , GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(2 , GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(3 , GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(4 , GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(5 , GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(6 , GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(7 , GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(8 , GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(9 , GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(0, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(1, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(2, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(3, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(4, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(6, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(7, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(8, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(9, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
     configure_gpio(10, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
     configure_gpio(11, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
     configure_gpio(12, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
@@ -22,7 +22,6 @@ void set_registers()
     configure_gpio(16, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
     configure_gpio(17, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
     configure_gpio(18, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-
 }
 /*
 @ send on the next io (start from 0 to 18)
@@ -50,7 +49,7 @@ void main()
     set_gpio_h(0);
     set_gpio_l(0);
     configure_mgmt_gpio();
-//    gpio_config_io();
+    //    gpio_config_io();
     gpio_config_load();
 
     // send_packet(1); // configuration finished start test

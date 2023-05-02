@@ -1,9 +1,10 @@
 #include <common.h>
+#define PULSE_WIDTH 250000
 
 void set_registers()
 {
 
-//    reg_mprj_io_0 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
+    //    reg_mprj_io_0 = GPIO_MODE_MGMT_STD_INPUT_PULLDOWN;
     reg_mprj_io_0 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_1 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_2 = GPIO_MODE_MGMT_STD_OUTPUT;
@@ -61,24 +62,28 @@ void main()
     // gpio_config_io();
     send_packet(1); // configuration finished
 
-    for (j=0;j<9;j++){
-        send_packet(j+2); // send 4 pulses at gpio[j]
-        for (i = 0; i < num_pulses; i++){
+    for (j = 0; j < 9; j++)
+    {
+        send_packet(j + 2); // send 4 pulses at gpio[j]
+        for (i = 0; i < num_pulses; i++)
+        {
             set_gpio_l(0x1 << j);
-            count_down(PULSE_WIDTH);  
-            set_gpio_l(0x0);  
-            count_down(PULSE_WIDTH);  
+            count_down(PULSE_WIDTH);
+            set_gpio_l(0x0);
+            count_down(PULSE_WIDTH);
         }
     }
 
     send_packet(1); // reset counter
-    for (j=9;j<19;j++){
-        send_packet(j-9+2); // send 4 pulses at gpio[j]
-        for (i = 0; i < num_pulses; i++){
+    for (j = 9; j < 19; j++)
+    {
+        send_packet(j - 9 + 2); // send 4 pulses at gpio[j]
+        for (i = 0; i < num_pulses; i++)
+        {
             set_gpio_l(0x1 << j);
-            count_down(PULSE_WIDTH);  
-            set_gpio_l(0x0);  
-            count_down(PULSE_WIDTH);  
+            count_down(PULSE_WIDTH);
+            set_gpio_l(0x0);
+            count_down(PULSE_WIDTH);
         }
     }
 

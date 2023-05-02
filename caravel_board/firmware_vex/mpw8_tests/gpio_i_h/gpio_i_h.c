@@ -1,7 +1,8 @@
 #include <common.h>
+#define PULSE_WIDTH 250000
 
-
-void set_registers(){
+void set_registers()
+{
     configure_gpio(19, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
     configure_gpio(20, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
     configure_gpio(21, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
@@ -49,7 +50,7 @@ void main()
     set_gpio_h(0);
     set_gpio_l(0);
     configure_mgmt_gpio();
-//    gpio_config_io();
+    //    gpio_config_io();
     gpio_config_load();
     // send_packet(1); // configuration finished start test
 

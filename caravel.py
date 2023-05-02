@@ -267,9 +267,12 @@ class Test:
         # dwf.FDwfDigitalOutReset(self.device1v8.handle)
         # dwf.FDwfDigitalOutReset(self.device3v3.handle)
         # dwf.FDwfDigitalOutReset(self.deviced.handle)
-        dwf.DwfDeviceReset(self.device1v8.handle)
-        dwf.DwfDeviceReset(self.device3v3.handle)
-        dwf.DwfDeviceReset(self.deviced.handle)
+        # dwf.DwfDeviceReset(self.device1v8.handle)
+        # dwf.DwfDeviceReset(self.device3v3.handle)
+        # dwf.DwfDeviceReset(self.deviced.handle)
+
+        for channel in self.device1v8.dio_map, self.device3v3.dio_map,self.deviced.dio_map:
+            channel.set_state(False)
 
 class Device:
     """

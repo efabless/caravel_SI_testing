@@ -53,13 +53,13 @@ void main(){
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     // test path if counter value stop updated after reach 0 and also the value is always decrementing
-    update_timer0_val();  // update reg_timer0_value with new counter value
+    // update_timer0_val();  // update reg_timer0_value with new counter value
     old_value = get_timer0_val();
     // value us decrementing until it reachs zero
     bool is_pass = false;
     int timeout = 400000; 
     for (int i = 0; i < timeout; i++){
-        update_timer0_val();  // update reg_timer0_value with new counter value
+        // update_timer0_val();  // update reg_timer0_value with new counter value
         value = get_timer0_val();
         if (value > old_value){
             send_packet(5); //timer rollover

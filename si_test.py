@@ -4,7 +4,7 @@ import logging
 import os
 import csv
 import sys
-import time
+import time, datetime
 import subprocess
 import signal
 from manifest import TestDict, device1_sn, device2_sn, device3_sn, voltage
@@ -66,12 +66,12 @@ def init_ad_ios(device1_data, device2_data, device3_data):
 
 def process_data(test):
     if test.test_name == "receive_packet":
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if pulse_count == 2:
             print("Test started")
         for i in range(1, 8):
             test.send_packet(i)
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == i:
                 print(f"sent {i} pulses successfully")
             else:
@@ -81,7 +81,7 @@ def process_data(test):
     else:
         phase = 0
         for passing in test.passing_criteria:
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == passing:
                 print(f"pass phase {phase}")
                 phase = phase + 1
@@ -99,7 +99,7 @@ def process_uart(test, uart):
     uart.open()
     rgRX = ""
     timeout = time.time() + 50
-    while test.receive_packet(250) != 2:
+    while test.receive_packet(25) != 2:
         pass
     print("start UART transmission")
     if test.test_name == "uart":
@@ -115,15 +115,15 @@ def process_uart(test, uart):
                 print(f"{test.test_name} test failed with {test.voltage}v supply")
                 uart.close()
                 return False
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if pulse_count == 5:
             print("end UART transmission")
     elif test.test_name == "uart_reception":
         for i in test.passing_criteria:
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 4:
                 uart.write(i)
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 6:
                 print(f"Successfully sent {i} over UART!")
             if pulse_count == 9:
@@ -138,7 +138,7 @@ def process_uart(test, uart):
                     uart_data[count.value] = 0
                     dat = uart_data.value.decode()
                     uart.write(dat)
-                    pulse_count = test.receive_packet(250)
+                    pulse_count = test.receive_packet(25)
                     if pulse_count == 6:
                         print(f"Successfully sent {dat} over UART!")
                         break
@@ -148,7 +148,7 @@ def process_uart(test, uart):
                         return False
     elif test.test_name == "IRQ_uart_rx":
         uart.write("I")
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if pulse_count == 5:
             print(f"{test.test_name} Test passed!")
             return True
@@ -187,7 +187,7 @@ def process_uart(test, uart):
     #     return True
 
     for i in range(0, 3):
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if pulse_count == 3:
             print("end UART test")
     uart.close()
@@ -198,7 +198,7 @@ def process_mem(test):
     phase = 0
     mem_size = 0
     while True:
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if pulse_count == 1:
             print("start test")
         if pulse_count == 5:
@@ -245,7 +245,7 @@ def process_io(test, io):
         rst = 2
     end_pulses = 0
     while end_pulses < 2:
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if phase == 0 and pulse_count == 1:
             print("Start test")
             phase = phase + 1
@@ -296,7 +296,7 @@ def process_io(test, io):
 def process_io_plud(test):
     p1_rt = False
     p2_rt = False
-    pulse_count = test.receive_packet(250)
+    pulse_count = test.receive_packet(25)
 
     if pulse_count == 1:
         print("Start test")
@@ -416,7 +416,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
 def process_external(test):
     phase = 0
     for passing in test.passing_criteria:
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if pulse_count == passing:
             print(f"pass phase {phase}")
             if phase == 0:
@@ -456,6 +456,7 @@ def process_spi(test, spi):
     #     data2 = data2 + str(spi.data[i])
     # print(int(data1, 2))
     # print(int(data2, 2))
+    return False
 
 
 def process_input_io(test, io):
@@ -467,11 +468,11 @@ def process_input_io(test, io):
     while count < 19:
         if channel == 5:
             hk_stop(True)
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if pulse_count == 1:
             print(f"Sending 4 pulses on gpio[{channel}]")
             test.send_pulse(4, channel, 50)
-            ack_pulse = test.receive_packet(250)
+            ack_pulse = test.receive_packet(25)
             if ack_pulse == 5:
                 print(f"gpio[{channel}] Failed to send pulse")
                 return False, channel
@@ -486,6 +487,10 @@ def process_input_io(test, io):
 
 
 def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, external):
+    logging.info(f"=============================================================")
+    logging.info(f"  Flashing :  {test.test_name} : {datetime.datetime.now()}")
+    logging.info(f"=============================================================")
+    test.reset_devices()
     test.power_down()
     test.apply_reset()
     test.power_up_1v8()
@@ -496,27 +501,40 @@ def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, ex
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.device1v8.supply.set_voltage(test.voltage)
     test.reset()
+
+    logging.info(f"=============================================================")
+    logging.info(f"  Running  :  {test.test_name} : {datetime.datetime.now()}")
+    logging.info(f"=============================================================")
+
+    results = None
+
     if uart:
-        return process_uart(test, uart_data)
+        results = process_uart(test, uart_data)
     elif mem:
-        return process_mem(test)
+        results = process_mem(test)
     elif io:
         hk_stop(False)
         if mode == "output":
-            return process_io(test, io)
+            results = process_io(test, io)
         elif mode == "input":
-            return process_input_io(test, io)
+            results = process_input_io(test, io)
         elif mode == "plud":
-            return process_io_plud(test)
+            results = process_io_plud(test, io)
         else:
             print(f"ERROR : No {mode} mode")
             exit(1)
     elif spi_flag:
-        return process_spi(test, spi)
+        results = process_spi(test, spi)
     elif external:
-        return process_external(test)
+        results = process_external(test)
     else:
-        return process_data(test)
+        results = process_data(test)
+
+    logging.info(f"=============================================================")
+    logging.info(f"  Completed:  {test.test_name} : {datetime.datetime.now()}")
+    logging.info(f"=============================================================")
+
+    return results
 
 
 def exec_test(
@@ -544,7 +562,9 @@ def exec_test(
 if __name__ == "__main__":
     try:
         logging.basicConfig(level=logging.INFO)
-        logging.info("  Running:  caravel.py")
+        logging.info(f"=============================================================")
+        logging.info(f"  Beginning Tests")
+        logging.info(f"=============================================================")
         # open multiple devices
         devices = device.open_devices()
         # connect devices using hardcoded serial numbers
@@ -569,7 +589,7 @@ if __name__ == "__main__":
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
 
-        csv_header = ["test_name", "voltage (v)", "Pass/Fail", "Time"]
+        csv_header = ["Test_name", "Voltage (v)", "Pass/Fail", "Time (s)"]
         if os.path.exists("./results.csv"):
             os.remove("./results.csv")
 
@@ -584,7 +604,9 @@ if __name__ == "__main__":
                 test.passing_criteria = t["passing_criteria"]
                 for v in voltage:
                     test.voltage = v
-                    logging.info(f"  Running:  {test.test_name}")
+                    # logging.info(f"=============================================================")
+                    # logging.info(f"  Running:  {test.test_name}")
+                    # logging.info(f"=============================================================")
                     if t["uart"]:
                         exec_test(
                             test,
@@ -627,6 +649,9 @@ if __name__ == "__main__":
                     else:
                         exec_test(test, start_time, writer, t["hex_file_path"])
             test.close_devices()
+        logging.info(f"=============================================================")
+        logging.info(f"  All Tests Complete")
+        logging.info(f"=============================================================")
         os._exit(0)
     except KeyboardInterrupt:
         print("Interrupted")

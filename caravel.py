@@ -257,6 +257,21 @@ class Test:
         device.close(self.device3v3)
         # device.close(self.deviced)
 
+    def reset_devices(self):
+        # dwf.FDwfDigitalOutReset(self.device1v8.handle)
+        # dwf.FDwfDigitalOutReset(self.device3v3.handle)
+        # dwf.FDwfDigitalOutReset(self.deviced.handle)
+        # dwf.DwfDeviceReset(self.device1v8.handle)
+        # dwf.DwfDeviceReset(self.device3v3.handle)
+        # dwf.DwfDeviceReset(self.deviced.handle)
+
+        for c in self.device1v8.dio_map:
+            self.device1v8.dio_map[c].set_state(False)
+        for c in self.device3v3.dio_map:
+            self.device3v3.dio_map[c].set_state(False)
+        for c in self.deviced.dio_map:
+            self.deviced.dio_map[c].set_state(False)
+
 
 class Device:
     """
@@ -504,9 +519,10 @@ class UART:
         return
 
     def close(self):
-        dwf.FDwfDeviceClose(self.device_data.handle)
-        device.open(self.device_data.handle)
+        # dwf.FDwfDeviceClose(self.device_data.handle)
+        # device.open(self.device_data.handle)
         # dwf.FDwfDigitalUartReset(self.device_data.handle)
+        dwf.FDwfDigitalOutReset(self.device_data.handle)
 
 
 # class SPI:

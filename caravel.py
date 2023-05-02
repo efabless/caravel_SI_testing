@@ -7,6 +7,7 @@ import subprocess
 import sys
 from ctypes import *
 import logging
+import flash
 
 
 def accurate_delay(delay):
@@ -139,13 +140,19 @@ class Test:
         Args:
             hex_file (string): path to hex file
         """
-        sp = subprocess.run(
-            f"python3 caravel_hkflash.py {hex_file}",
-            cwd="./caravel_board/firmware_vex/util/",
-            shell=True,
-        )
-        ret_code = sp.returncode
-        if ret_code != 0:
+        # sp = subprocess.run(
+        #     f"python3 caravel_hkflash.py {hex_file}",
+        #     cwd="./caravel_board/firmware_vex/util/",
+        #     shell=True,
+        # )
+        # ret_code = sp.returncode
+        # if ret_code != 0:
+        #     logging.error("Can't flash!")
+        #     self.close_devices()
+        #     sys.exit()
+
+        flash.erase()
+        if flash.flash(hex_file):
             logging.error("Can't flash!")
             self.close_devices()
             sys.exit()
@@ -257,9 +264,12 @@ class Test:
         # device.close(self.deviced)
 
     def reset_devices(self):
-        dwf.FDwfDigitalOutReset(self.device1v8.handle)
-        dwf.FDwfDigitalOutReset(self.device3v3.handle)
-        dwf.FDwfDigitalOutReset(self.deviced.handle)
+        # dwf.FDwfDigitalOutReset(self.device1v8.handle)
+        # dwf.FDwfDigitalOutReset(self.device3v3.handle)
+        # dwf.FDwfDigitalOutReset(self.deviced.handle)
+        dwf.DwfDeviceReset(self.device1v8.handle)
+        dwf.DwfDeviceReset(self.device3v3.handle)
+        dwf.DwfDeviceReset(self.deviced.handle)
 
 class Device:
     """

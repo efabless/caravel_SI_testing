@@ -256,6 +256,10 @@ class Test:
         device.close(self.device3v3)
         # device.close(self.deviced)
 
+    def reset_devices(self):
+        dwf.FDwfDigitalOutReset(self.device1v8.handle)
+        dwf.FDwfDigitalOutReset(self.device3v3.handle)
+        dwf.FDwfDigitalOutReset(self.deviced.handle)
 
 class Device:
     """

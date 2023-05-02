@@ -316,6 +316,7 @@ def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, ex
     logging.info(f"=============================================================")
     logging.info(f"  Flashing :  {test.test_name} : {datetime.datetime.now()}")
     logging.info(f"=============================================================")
+    test.reset_devices()
     test.power_down()
     test.apply_reset()
     test.power_up_1v8()
@@ -412,7 +413,7 @@ if __name__ == "__main__":
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
 
-        csv_header = ["test_name", "voltage (v)", "Pass/Fail", "Time"]
+        csv_header = ["Test_name", "Voltage (v)", "Pass/Fail", "Time (s)"]
         if os.path.exists("./results.csv"):
             os.remove("./results.csv")
 

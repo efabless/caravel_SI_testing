@@ -7,6 +7,7 @@ import subprocess
 import sys
 from ctypes import *
 import logging
+
 # import flash
 
 
@@ -149,7 +150,7 @@ class Test:
         if ret_code != 0:
             logging.error("Can't flash!")
             self.close_devices()
-            sys.exit()
+            os._exit(0)
 
         # flash.erase()
         # if flash.flash(hex_file):
@@ -277,6 +278,7 @@ class Test:
             self.device3v3.dio_map[c].set_state(False)
         for c in self.deviced.dio_map:
             self.deviced.dio_map[c].set_state(False)
+
 
 class Device:
     """

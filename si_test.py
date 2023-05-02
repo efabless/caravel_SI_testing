@@ -186,6 +186,7 @@ def process_io(test, io):
     phase = 0
     io_pulse = 0
     if io == "low":
+        hk_stop(False)
         rst = 0
     if io == "high":
         rst = 2
@@ -288,6 +289,7 @@ def process_spi(test, spi):
 def process_input_io(test, io):
     count = 0
     if io == "low":
+        hk_stop(False)
         channel = 0
     else:
         channel = 37
@@ -339,7 +341,6 @@ def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, ex
     elif mem:
         results = process_mem(test)
     elif io:
-        hk_stop(False)
         if mode == "output":
             results = process_io(test, io)
         elif mode == "input":
@@ -477,12 +478,12 @@ if __name__ == "__main__":
         logging.info(f"=============================================================")
 
         test.close_devices()
-        sys.exit(0)
+        os._exit(0)
     except KeyboardInterrupt:
         print("Interrupted")
         try:
             test.close_devices()
-            sys.exit(1)
+            os._exit(0)
         except SystemExit:
             test.close_devices()
             os._exit(1)

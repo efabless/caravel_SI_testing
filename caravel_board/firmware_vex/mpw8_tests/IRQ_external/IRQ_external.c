@@ -76,7 +76,8 @@ void main()
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
-    int timeout = 400000;
+//    int timeout = 400000;
+    int timeout = 100000000;
 
     for (int i = 0; i < timeout; i++)
     {

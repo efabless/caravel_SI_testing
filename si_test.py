@@ -66,12 +66,12 @@ def init_ad_ios(device1_data, device2_data, device3_data):
 
 def process_data(test):
     if test.test_name == "receive_packet":
-        pulse_count = test.receive_packet(25)
+        pulse_count = test.receive_packet(250)
         if pulse_count == 2:
             print("Test started")
         for i in range(1, 8):
             test.send_packet(i)
-            pulse_count = test.receive_packet(25)
+            pulse_count = test.receive_packet(250)
             if pulse_count == i:
                 print(f"sent {i} pulses successfully")
             else:
@@ -81,7 +81,7 @@ def process_data(test):
     else:
         phase = 0
         for passing in test.passing_criteria:
-            pulse_count = test.receive_packet(25)
+            pulse_count = test.receive_packet(250)
             if pulse_count == passing:
                 print(f"pass phase {phase}")
                 phase = phase + 1
@@ -99,7 +99,7 @@ def process_uart(test, uart):
     uart.open()
     rgRX = ""
     timeout = time.time() + 50
-    while test.receive_packet(25) != 2:
+    while test.receive_packet(250) != 2:
         pass
     print("start UART transmission")
     if test.test_name == "uart":
@@ -115,15 +115,15 @@ def process_uart(test, uart):
                 print(f"{test.test_name} test failed with {test.voltage}v supply")
                 uart.close()
                 return False
-        pulse_count = test.receive_packet(25)
+        pulse_count = test.receive_packet(250)
         if pulse_count == 5:
             print("end UART transmission")
     elif test.test_name == "uart_reception":
         for i in test.passing_criteria:
-            pulse_count = test.receive_packet(25)
+            pulse_count = test.receive_packet(250)
             if pulse_count == 4:
                 uart.write(i)
-            pulse_count = test.receive_packet(25)
+            pulse_count = test.receive_packet(250)
             if pulse_count == 6:
                 print(f"Successfully sent {i} over UART!")
             if pulse_count == 9:
@@ -138,7 +138,7 @@ def process_uart(test, uart):
                     uart_data[count.value] = 0
                     dat = uart_data.value.decode()
                     uart.write(dat)
-                    pulse_count = test.receive_packet(25)
+                    pulse_count = test.receive_packet(250)
                     if pulse_count == 6:
                         print(f"Successfully sent {dat} over UART!")
                         break
@@ -148,7 +148,7 @@ def process_uart(test, uart):
                         return False
     elif test.test_name == "IRQ_uart_rx":
         uart.write("I")
-        pulse_count = test.receive_packet(25)
+        pulse_count = test.receive_packet(250)
         if pulse_count == 5:
             print(f"{test.test_name} Test passed!")
             return True
@@ -187,7 +187,7 @@ def process_uart(test, uart):
     #     return True
 
     for i in range(0, 3):
-        pulse_count = test.receive_packet(25)
+        pulse_count = test.receive_packet(250)
         if pulse_count == 3:
             print("end UART test")
     uart.close()
@@ -198,7 +198,7 @@ def process_mem(test):
     phase = 0
     mem_size = 0
     while True:
-        pulse_count = test.receive_packet(25)
+        pulse_count = test.receive_packet(250)
         if pulse_count == 1:
             print("start test")
         if pulse_count == 5:
@@ -296,7 +296,7 @@ def process_io(test, io):
 def process_io_plud(test):
     p1_rt = False
     p2_rt = False
-    pulse_count = test.receive_packet(25)
+    pulse_count = test.receive_packet(250)
 
     if pulse_count == 1:
         print("Start test")
@@ -416,7 +416,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
 def process_external(test):
     phase = 0
     for passing in test.passing_criteria:
-        pulse_count = test.receive_packet(25)
+        pulse_count = test.receive_packet(250)
         if pulse_count == passing:
             print(f"pass phase {phase}")
             if phase == 0:
@@ -471,7 +471,7 @@ def process_input_io(test, io):
         pulse_count = test.receive_packet(25)
         if pulse_count == 1:
             print(f"Sending 4 pulses on gpio[{channel}]")
-            test.send_pulse(4, channel, 50)
+            test.send_pulse(4, channel, 25)
             ack_pulse = test.receive_packet(25)
             if ack_pulse == 5:
                 print(f"gpio[{channel}] Failed to send pulse")

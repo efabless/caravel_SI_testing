@@ -37,9 +37,9 @@ void timer0_periodic_configure(unsigned int count){
  */
 void enable_timer0(bool is_enable){
     if (is_enable)
-        reg_timer0_config = reg_timer0_config | 1;// enable
+        reg_timer0_config = 1;// enable
     else
-        reg_timer0_config = reg_timer0_config & 0xFFFFFFFE; // disable counter
+        reg_timer0_config = 0; // disable counter
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

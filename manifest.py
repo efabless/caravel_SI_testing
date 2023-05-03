@@ -231,6 +231,16 @@ TestDict = [
         "passing_criteria": [1, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
     },
     {
+        "test_name": "IRQ_spi",
+        "uart": False,  # NOT Testing UART
+        "mem": False,  # NOT Testing mem
+        "io": False,
+        "spi": False,
+        "external": False,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/IRQ_spi/IRQ_spi.hex",
+        "passing_criteria": [2, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
         "test_name": "IRQ_uart",
         "uart": False,  # NOT Testing UART
         "mem": False,  # NOT Testing mem

@@ -74,7 +74,13 @@ TestDict = [
         "spi": False,
         "external": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/uart_loopback/uart_loopback.hex",
-        "passing_criteria": [None],  # Passing criteria to be sent to UART
+        "passing_criteria": [
+            "M",
+            "B",
+            "A",
+            "5",
+            "o",
+        ],  # Passing criteria to be sent to UART
     },
     {
         "test_name": "mem_dff2_W",

@@ -498,17 +498,23 @@ def process_input_io(test, io):
     return True, None
 
 
-def flash_test(test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, external):
-    logging.info(f"=============================================================")
-    logging.info(f"  Flashing :  {test.test_name} : {datetime.datetime.now()}")
-    logging.info(f"=============================================================")
+def flash_test(
+    test, hex_file, flash_flag, uart, uart_data, mem, io, mode, spi_flag, spi, external
+):
     test.reset_devices()
-    test.power_down()
-    test.apply_reset()
-    test.power_up_1v8()
-    test.flash(hex_file)
-    test.power_down()
-    test.release_reset()
+    if flash_flag:
+        logging.info(f"=============================================================")
+        logging.info(f"  Flashing :  {test.test_name} : {datetime.datetime.now()}")
+        logging.info(f"=============================================================")
+        test.power_down()
+        test.apply_reset()
+        test.power_up_1v8()
+        test.flash(hex_file)
+        test.power_down()
+        test.release_reset()
+    else:
+        test.power_down()
+        time.sleep(5)
     test.power_up()
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.device1v8.supply.set_voltage(test.voltage)
@@ -553,6 +559,7 @@ def exec_test(
     start_time,
     writer,
     hex_file,
+    flash_flag=True,
     uart=False,
     uart_data=None,
     mem=False,
@@ -563,7 +570,17 @@ def exec_test(
     external=False,
 ):
     results = flash_test(
-        test, hex_file, uart, uart_data, mem, io, mode, spi_flag, spi, external
+        test,
+        hex_file,
+        flash_flag,
+        uart,
+        uart_data,
+        mem,
+        io,
+        mode,
+        spi_flag,
+        spi,
+        external,
     )
     end_time = time.time() - start_time
     arr = [test.test_name, test.voltage, results, end_time]
@@ -613,23 +630,33 @@ if __name__ == "__main__":
                 start_time = time.time()
                 test.test_name = t["test_name"]
                 test.passing_criteria = t["passing_criteria"]
+                flash_flag = True
+                counter = 0
                 for v in voltage:
                     test.voltage = v
                     # logging.info(f"=============================================================")
                     # logging.info(f"  Running:  {test.test_name}")
                     # logging.info(f"=============================================================")
+                    if counter > 0:
+                        flash_flag = False
                     if t["uart"]:
                         exec_test(
                             test,
                             start_time,
                             writer,
                             t["hex_file_path"],
+                            flash_flag,
                             True,
                             uart_data,
                         )
                     elif t["mem"]:
                         exec_test(
-                            test, start_time, writer, t["hex_file_path"], mem=True
+                            test,
+                            start_time,
+                            writer,
+                            t["hex_file_path"],
+                            flash_flag,
+                            mem=True,
                         )
                     elif t["io"]:
                         exec_test(
@@ -637,6 +664,7 @@ if __name__ == "__main__":
                             start_time,
                             writer,
                             t["hex_file_path"],
+                            flash_flag,
                             io=t["io"],
                             mode=t["mode"],
                         )
@@ -646,6 +674,7 @@ if __name__ == "__main__":
                             start_time,
                             writer,
                             t["hex_file_path"],
+                            flash_flag,
                             spi_flag=t["spi"],
                             spi=spi,
                         )
@@ -655,10 +684,14 @@ if __name__ == "__main__":
                             start_time,
                             writer,
                             t["hex_file_path"],
+                            flash_flag,
                             external=t["external"],
                         )
                     else:
-                        exec_test(test, start_time, writer, t["hex_file_path"])
+                        exec_test(
+                            test, start_time, writer, t["hex_file_path"], flash_flag
+                        )
+                    counter += 1
                     test.close_devices()
                     time.sleep(5)
                     devices = device.open_devices()

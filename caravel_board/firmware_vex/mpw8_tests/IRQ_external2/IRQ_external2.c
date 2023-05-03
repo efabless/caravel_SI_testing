@@ -56,7 +56,7 @@ void main()
     configure_mgmt_gpio();
 
     // setting bit 7 as input
-    reg_mprj_io_7 = GPIO_MODE_MGMT_STD_INPUT_NOPULL;
+    reg_mprj_io_12 = GPIO_MODE_MGMT_STD_INPUT_NOPULL;
     // gpio_config_io();
     reg_mprj_xfer = 1;
     while (reg_mprj_xfer == 1)

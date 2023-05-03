@@ -7,7 +7,7 @@ import sys
 import time, datetime
 import subprocess
 import signal
-from manifest import TestDict, device1_sn, device2_sn, device3_sn, voltage
+from manifest import TestDict, device1_sn, device2_sn, device3_sn, voltage, analog
 
 
 def init_ad_ios(device1_data, device2_data, device3_data):
@@ -277,26 +277,29 @@ def process_io(test, io):
                 io = test.device3v3.dio_map[channel]
             else:
                 io = test.device1v8.dio_map[channel]
-            state = "HI"
-            timeout = time.time() + 20
-            accurate_delay(12.5)
-            while 1:
-                accurate_delay(25)
-                x = io.get_value()
-                if state == "LOW":
-                    if x:
-                        state = "HI"
-                elif state == "HI":
-                    if not x:
-                        state = "LOW"
-                        io_pulse = io_pulse + 1
-                if io_pulse == 4:
-                    io_pulse = 0
-                    print(f"gpio[{channel}] Passed")
-                    break
-                if time.time() > timeout:
-                    print(f"Timeout failure on gpio[{channel}]!")
-                    return False, channel
+            if analog and channel > 13 and channel < 25:
+                pass
+            else:
+                state = "HI"
+                timeout = time.time() + 20
+                accurate_delay(12.5)
+                while 1:
+                    accurate_delay(25)
+                    x = io.get_value()
+                    if state == "LOW":
+                        if x:
+                            state = "HI"
+                    elif state == "HI":
+                        if not x:
+                            state = "LOW"
+                            io_pulse = io_pulse + 1
+                    if io_pulse == 4:
+                        io_pulse = 0
+                        print(f"gpio[{channel}] Passed")
+                        break
+                    if time.time() > timeout:
+                        print(f"Timeout failure on gpio[{channel}]!")
+                        return False, channel
     return True, None
 
 
@@ -356,6 +359,8 @@ def run_io_plud(default_val, default_val_n, first_itter):
             io_state = io.get_value()
             if io_state == default_val_n:
                 test_counter += 1
+            elif analog and channel > 13 and channel < 25:
+                test_counter += 1
             else:
                 print(f"channel {channel} FAILED!")
                 return False
@@ -365,6 +370,8 @@ def run_io_plud(default_val, default_val_n, first_itter):
                 flag = True
             io_state = io.get_value()
             if io_state == default_val:
+                test_counter += 1
+            elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
                 print(f"channel {channel} FAILED!")
@@ -399,6 +406,8 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
             io_state = io.get_value()
             if io_state == default_val_n:
                 test_counter += 1
+            elif analog and channel > 13 and channel < 25:
+                test_counter += 1
             else:
                 print(f"channel {channel} FAILED!")
                 return False
@@ -408,6 +417,8 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
                 flag = True
             io_state = io.get_value()
             if io_state == default_val:
+                test_counter += 1
+            elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
                 print(f"channel {channel} FAILED!")

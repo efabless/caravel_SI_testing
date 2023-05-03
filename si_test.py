@@ -270,7 +270,6 @@ def process_io(test, io):
             phase = phase + 1
             if channel == 5:
                 hk_stop(True)
-            print(f"start sending pulses to gpio[{channel}]")
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
             elif channel > 21:
@@ -280,6 +279,7 @@ def process_io(test, io):
             if analog and channel > 13 and channel < 25:
                 pass
             else:
+                print(f"start sending pulses to gpio[{channel}]")
                 state = "HI"
                 timeout = time.time() + 20
                 accurate_delay(12.5)

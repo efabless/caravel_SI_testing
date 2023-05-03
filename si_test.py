@@ -331,8 +331,6 @@ def run_io_plud(default_val, default_val_n, first_itter):
     test_counter = 0
     flag = False
     for channel in range(0, 38):
-        if channel == 5:
-            hk_stop(True)
         if channel > 13 and channel < 22:
             io = test.deviced.dio_map[channel]
         elif channel > 21:
@@ -374,8 +372,6 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
     test_counter = 0
     flag = False
     for channel in range(37, -1, -1):
-        if channel == 5:
-            hk_stop(True)
         if channel > 13 and channel < 22:
             io = test.deviced.dio_map[channel]
         elif channel > 21:

@@ -66,11 +66,16 @@ def init_ad_ios(device1_data, device2_data, device3_data):
 
 def process_data(test):
     if test.test_name == "receive_packet":
+        io = test.device1v8.dio_map[0]
         pulse_count = test.receive_packet(250)
         if pulse_count == 2:
             print("Test started")
-        for i in range(1, 8):
-            test.send_packet(i)
+        for i in range(5, 8):
+            while not io.get_value():
+                pass
+            test.send_packet(i, 25)
+            while io.get_value():
+                pass
             pulse_count = test.receive_packet(250)
             if pulse_count == i:
                 print(f"sent {i} pulses successfully")

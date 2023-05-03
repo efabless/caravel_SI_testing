@@ -421,13 +421,17 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
 
 
 def process_external(test):
+    if test.test_name == "IRQ_external":
+        channel = 7
+    elif test.test_name == "IRQ_external2":
+        channel = 12
     phase = 0
     for passing in test.passing_criteria:
         pulse_count = test.receive_packet(250)
         if pulse_count == passing:
             print(f"pass phase {phase}")
             if phase == 0:
-                channel = test.device1v8.dio_map[7]
+                channel = test.device1v8.dio_map[channel]
                 channel.set_state(True)
                 channel.set_value(1)
             phase = phase + 1

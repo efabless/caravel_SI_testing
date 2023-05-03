@@ -493,19 +493,22 @@ def process_input_io(test, io):
         if channel == 5:
             hk_stop(True)
         if pulse_count == 1:
-            print(f"Sending 4 pulses on gpio[{channel}]")
-            test.send_pulse(4, channel, 5)
-            ack_pulse = test.receive_packet(25)
-            if ack_pulse == 5:
-                print(f"gpio[{channel}] Failed to send pulse")
-                return False, channel
-            elif ack_pulse == 3:
-                print(f"gpio[{channel}] sent pulse successfully")
-            if io == "low":
-                channel = channel + 1
+            if analog and channel > 13 and channel < 25:
+                pass
             else:
-                channel = channel - 1
-            count = count + 1
+                print(f"Sending 4 pulses on gpio[{channel}]")
+                test.send_pulse(4, channel, 5)
+                ack_pulse = test.receive_packet(25)
+                if ack_pulse == 5:
+                    print(f"gpio[{channel}] Failed to send pulse")
+                    return False, channel
+                elif ack_pulse == 3:
+                    print(f"gpio[{channel}] sent pulse successfully")
+                if io == "low":
+                    channel = channel + 1
+                else:
+                    channel = channel - 1
+                count = count + 1
     return True, None
 
 
@@ -514,9 +517,9 @@ def flash_test(
 ):
     test.reset_devices()
     if flash_flag:
-        logging.info(f"=============================================================")
-        logging.info(f"  Flashing :  {test.test_name} : {datetime.datetime.now()}")
-        logging.info(f"=============================================================")
+        logging.info(f"==============================================================================")
+        logging.info(f"  Flashing :  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
+        logging.info(f"==============================================================================")
         test.power_down()
         test.apply_reset()
         test.power_up_1v8()
@@ -531,9 +534,9 @@ def flash_test(
     test.device1v8.supply.set_voltage(test.voltage)
     test.reset()
 
-    logging.info(f"=============================================================")
-    logging.info(f"  Running  :  {test.test_name} : {datetime.datetime.now()}")
-    logging.info(f"=============================================================")
+    logging.info(f"==============================================================================")
+    logging.info(f"  Running  :  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
+    logging.info(f"==============================================================================")
 
     results = None
 
@@ -558,9 +561,9 @@ def flash_test(
     else:
         results = process_data(test)
 
-    logging.info(f"=============================================================")
-    logging.info(f"  Completed:  {test.test_name} : {datetime.datetime.now()}")
-    logging.info(f"=============================================================")
+    logging.info(f"==============================================================================")
+    logging.info(f"  Completed:  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
+    logging.info(f"==============================================================================")
 
     return results
 
@@ -602,7 +605,10 @@ if __name__ == "__main__":
     try:
         logging.basicConfig(level=logging.INFO)
         logging.info(f"=============================================================")
-        logging.info(f"  Beginning Tests")
+        if analog:
+            logging.info(f"  Beginning Tests for analog project")
+        else:
+            logging.info(f"  Beginning Tests for digital project")
         logging.info(f"=============================================================")
         # open multiple devices
         devices = device.open_devices()

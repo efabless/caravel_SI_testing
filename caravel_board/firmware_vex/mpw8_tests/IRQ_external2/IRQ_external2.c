@@ -70,7 +70,7 @@ void main()
     // irq_setmask(irq_getmask() | 0x3f);
     irq_setmask(irq_getmask() | (1 << USER_IRQ_5_INTERRUPT));
     // irq_setmask(irq_getmask() | ( 0x3f));
-    reg_user4_irq_en = 1;
+    reg_user5_irq_en = 1;
     reg_irq_source = 1;
     send_packet(1); // wait for environment to make mprj[7] high
 

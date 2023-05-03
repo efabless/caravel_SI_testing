@@ -205,10 +205,10 @@ extern uint32_t flashio_worker_end;
 //#define SPI_HOUSEKEEPING_CONN	0x8000
 
 // System Area (0x2F00_0000)
-#define reg_power_good    (*(volatile uint32_t*)0x2F000000)
-#define reg_clk_out_dest  (*(volatile uint32_t*)0x2F000004)
-#define reg_trap_out_dest (*(volatile uint32_t*)0x2F000008)
-#define reg_irq_source    (*(volatile uint32_t*)0x2F00000C)
+#define reg_power_good    (*(volatile uint32_t*)0x26200000)
+#define reg_clk_out_dest  (*(volatile uint32_t*)0x26200004)
+#define reg_trap_out_dest (*(volatile uint32_t*)0x26200008)
+#define reg_irq_source    (*(volatile uint32_t*)0x2620000C)
 
 // Bit fields for reg_power_good
 #define USER1_VCCD_POWER_GOOD 0x01

@@ -494,6 +494,7 @@ def process_input_io(test, io):
             hk_stop(True)
         if pulse_count == 1:
             if analog and channel > 13 and channel < 25:
+                count = count + 1
                 pass
             else:
                 print(f"Sending 4 pulses on gpio[{channel}]")

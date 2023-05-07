@@ -293,7 +293,8 @@ unsigned int get_active_gpios_num(){
 unsigned int get_gpio_num_bit(){
     #ifdef SKY 
     return 13;
-    #elif GF
+    #endif
+    #ifdef GF
     return 10;
     #endif
 }

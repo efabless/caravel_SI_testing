@@ -249,5 +249,6 @@ enum gpio_mode
     GPIO_MODE_USER_STD_BIDIRECTIONAL = 0x00C
 };
 
+#define GF
 // --------------------------------------------------------
 #endif

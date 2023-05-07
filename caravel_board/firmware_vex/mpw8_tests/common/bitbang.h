@@ -69,7 +69,7 @@ void bb_reset(){
 void bb_configure_2_gpios(unsigned int configL,unsigned int configR){
     int num_bits,mask;
     int left,right;
-    num_bits = 13;
+    num_bits = get_gpio_num_bit();
     mask = 0x1 << num_bits-1;
     for (int i = num_bits-1; i >= 0; i--){
         left = (configL & mask ) >> i;

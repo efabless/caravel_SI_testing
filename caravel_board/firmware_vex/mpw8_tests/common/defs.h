@@ -283,6 +283,7 @@ enum gpio_mode {
                 GPIO_MODE_USER_STD_BIDIRECTIONAL=0x1800,
                 GPIO_MODE_USER_STD_OUT_MONITORED=0x1802,
                 GPIO_MODE_USER_STD_ANALOG=0x000a};
-                
+
+#define SKY                
 // --------------------------------------------------------
 #endif

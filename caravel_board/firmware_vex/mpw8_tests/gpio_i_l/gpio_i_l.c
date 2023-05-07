@@ -2,25 +2,25 @@
 
 void set_registers()
 {
-    configure_gpio(0, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(1, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(2, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(3, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(4, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(6, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(7, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(8, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(9, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(10, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(11, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(12, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(13, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(14, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(15, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(16, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(17, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
-    configure_gpio(18, GPIO_MODE_MGMT_STD_INPUT_PULLDOWN);
+    configure_gpio(0, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(1, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(2, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(3, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(4, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(6, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(7, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(8, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(9, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(10, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(11, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(12, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(13, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(14, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(15, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(16, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(17, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(18, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
 }
 /*
 @ send on the next io (start from 0 to 18)

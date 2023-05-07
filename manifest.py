@@ -2,7 +2,12 @@ import os
 
 from devices import *
 
-voltage = [1.62, 1.8, 1.98]
+gf180mcu = True
+
+if gf180mcu:
+    voltage = [5.0]
+else:
+    voltage = [1.62, 1.8, 1.98]
 # voltage = [1.62, 1.70, 1.75, 1.80, 1.85, 1.90, 1.98]
 
 TestDict = [
@@ -83,63 +88,33 @@ TestDict = [
         ],  # Passing criteria to be sent to UART
     },
     {
-        "test_name": "mem_dff2_W",
+        "test_name": "mem_sram_W",
         "uart": False,  # NOT Testing UART
         "mem": False,  # Testing mem
         "io": False,
         "spi": False,
         "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_dff2_W/mem_dff2_W.hex",
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_sram_W/mem_sram_W.hex",
         "passing_criteria": [1, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
     },
     {
-        "test_name": "mem_dff2_test",
+        "test_name": "mem_sram_test",
         "uart": False,  # NOT Testing UART
         "mem": False,  # Testing mem
         "io": False,
         "spi": False,
         "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_dff2_test/mem_dff2_test.hex",
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_sram_test/mem_sram_test.hex",
         "passing_criteria": [1, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
     },
     {
-        "test_name": "mem_dff2_halfW",
+        "test_name": "mem_sram_halfW",
         "uart": False,  # NOT Testing UART
         "mem": False,  # Testing mem
         "io": False,
         "spi": False,
         "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_dff2_halfW/mem_dff2_halfW.hex",
-        "passing_criteria": [1, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
-    },
-    {
-        "test_name": "mem_dff_W",
-        "uart": False,  # NOT Testing UART
-        "mem": False,  # Testing mem
-        "io": False,
-        "spi": False,
-        "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_dff_W/mem_dff_W.hex",
-        "passing_criteria": [1, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
-    },
-    {
-        "test_name": "mem_dff_test",
-        "uart": False,  # NOT Testing UART
-        "mem": False,  # Testing mem
-        "io": False,
-        "spi": False,
-        "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_dff_test/mem_dff_test.hex",
-        "passing_criteria": [1, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
-    },
-    {
-        "test_name": "mem_dff_halfW",
-        "uart": False,  # NOT Testing UART
-        "mem": False,  # Testing mem
-        "io": False,
-        "spi": False,
-        "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_dff_halfW/mem_dff_halfW.hex",
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_sram_halfW/mem_sram_halfW.hex",
         "passing_criteria": [1, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
     },
     {

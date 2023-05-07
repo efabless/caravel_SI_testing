@@ -8,6 +8,7 @@ import sys
 from ctypes import *
 import logging
 import os
+from manifest import gf180mcu
 
 # import flash
 
@@ -193,7 +194,10 @@ class Test:
         self.device3v3.supply.turn_off()
         time.sleep(5)
         logging.info("   Turning on VIO with 3.3v")
-        self.device3v3.supply.set_voltage(3.3)
+        if gf180mcu:
+            self.device3v3.supply.set_voltage(5.0)
+        else:
+            self.device3v3.supply.set_voltage(3.3)
         time.sleep(1)
         logging.info(f"   Turning on VCORE with {self.voltage}v")
         self.device1v8.supply.set_voltage(self.voltage)
@@ -225,7 +229,10 @@ class Test:
         # self.device3v3.supply.turn_off()
         # time.sleep(5)
         logging.info("   Turning on VIO with 3.3v")
-        self.device3v3.supply.set_voltage(3.3)
+        if gf180mcu:
+            self.device3v3.supply.set_voltage(5.0)
+        else:
+            self.device3v3.supply.set_voltage(3.3)
         time.sleep(1)
         logging.info(f"   Turning on VCORE with {self.voltage}v")
         self.device1v8.supply.set_voltage(self.voltage)
@@ -241,10 +248,16 @@ class Test:
         # self.device3v3.supply.turn_off()
         # time.sleep(5)
         logging.info("   Turning on VIO with 3.3v")
-        self.device3v3.supply.set_voltage(3.3)
+        if gf180mcu:
+            self.device3v3.supply.set_voltage(5.0)
+        else:
+            self.device3v3.supply.set_voltage(3.3)
         time.sleep(1)
         logging.info(f"   Turning on VCORE with 1.8v")
-        self.device1v8.supply.set_voltage(1.8)
+        if gf180mcu:
+            self.device3v3.supply.set_voltage(5.0)
+        else:
+            self.device3v3.supply.set_voltage(1.8)
         time.sleep(1)
 
     def turn_off_devices(self):

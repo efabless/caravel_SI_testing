@@ -3,3 +3,5 @@ device1_sn = "###"  # last 3 digits of your first Analog Discovery Kit, connecte
 device2_sn = "###"  # last 3 digits of your second Analog Discovery Kit,connected to 3v3
 
 device3_sn = "###"  # last 3 digits of your third Analog Discovery Kit
+
+analog = False

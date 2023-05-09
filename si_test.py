@@ -1,5 +1,5 @@
 from caravel import Dio, Test, accurate_delay
-from io_config import Device, device, connect_devices, UART, SPI
+from io_config import Device, device, connect_devices, UART, SPI, LogicAnalyzer
 import logging
 import os
 import csv
@@ -198,6 +198,20 @@ def process_uart(test, uart):
             print("end UART test")
     uart.close()
     return True
+
+
+def process_clock(test, device):
+    la = LogicAnalyzer(device)
+    pulse_count = test.receive_packet(250)
+    if pulse_count == 2:
+        print("start test")
+    la.open()
+    freq = la.record(2)
+    frq_MHz = freq / 1000000
+    print("Channel 14: Measured frequency: %.2f MHz" % (frq_MHz))
+    freq = la.record(3)
+    frq_MHz = freq / 1000000
+    print("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz))
 
 
 def process_mem(test):
@@ -513,7 +527,7 @@ def process_input_io(test, io):
 
 
 def flash_test(
-    test, hex_file, flash_flag, uart, uart_data, mem, io, mode, spi_flag, spi, external
+    test, hex_file, flash_flag, uart, uart_data, mem, io, mode, spi_flag, spi, external, clock, la_device
 ):
     test.reset_devices()
     if flash_flag:
@@ -523,7 +537,7 @@ def flash_test(
         test.power_down()
         test.apply_reset()
         test.power_up_1v8()
-        test.flash(hex_file)
+        # test.flash(hex_file)
         test.power_down()
         test.release_reset()
     else:
@@ -558,6 +572,8 @@ def flash_test(
         results = process_spi(test, spi)
     elif external:
         results = process_external(test)
+    elif clock:
+        results = process_clock(test, la_device)
     else:
         results = process_data(test)
 
@@ -582,6 +598,8 @@ def exec_test(
     spi_flag=False,
     spi=None,
     external=False,
+    clock=False,
+    la_device=None,
 ):
     results = flash_test(
         test,
@@ -595,6 +613,8 @@ def exec_test(
         spi_flag,
         spi,
         external,
+        clock,
+        la_device,
     )
     end_time = time.time() - start_time
     arr = [test.test_name, test.voltage, results, end_time]
@@ -703,6 +723,16 @@ if __name__ == "__main__":
                             t["hex_file_path"],
                             flash_flag,
                             external=t["external"],
+                        )
+                    elif t["clock"]:
+                        exec_test(
+                            test,
+                            start_time,
+                            writer,
+                            t["hex_file_path"],
+                            flash_flag,
+                            clock=t["clock"],
+                            la_device=device3_data
                         )
                     else:
                         exec_test(

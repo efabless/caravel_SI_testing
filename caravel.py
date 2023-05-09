@@ -750,6 +750,88 @@ class SPI:
         """
         dwf.FDwfDigitalSpiReset(self.device_data.handle)
         return
+    
+class LogicAnalyzer:
+    def __init__(self, device_data):
+        self.device_data = device_data
+        self.sampling_frequency = 100e06
+        self.buffer_size = 8
+    
+    def open(self):
+        """
+            initialize the logic analyzer
+            parameters: - device data
+                        - sampling frequency in Hz, default is 100MHz
+                        - buffer size, default is 4096
+        """
+        # get internal clock frequency
+        internal_frequency = ctypes.c_double()
+        dwf.FDwfDigitalInInternalClockInfo(self.device_data.handle, ctypes.byref(internal_frequency))
+    
+        # set clock frequency divider (needed for lower frequency input signals)
+        dwf.FDwfDigitalInDividerSet(self.device_data.handle, ctypes.c_int(int(internal_frequency.value / self.sampling_frequency)))
+    
+        # set 16-bit sample format
+        dwf.FDwfDigitalInSampleFormatSet(self.device_data.handle, ctypes.c_int(16))
+    
+        # set buffer size
+        dwf.FDwfDigitalInBufferSizeSet(self.device_data.handle, ctypes.c_int(self.buffer_size))
+        # self.sampling_frequency = self.sampling_frequency
+        # self.buffer_size = self.buffer_size
+        return
+
+    def record(self, channel):
+        """
+            initialize the logic analyzer
+            parameters: - device data
+                        - channel - the selected DIO line number
+            returns:    - buffer - a list with the recorded logic values
+                        - time - a list with the time moments for each value in seconds (with the same index as "buffer")
+        """
+        # set up the instrument
+        dwf.FDwfDigitalInConfigure(self.device_data.handle, ctypes.c_bool(False), ctypes.c_bool(True))
+        time.sleep(0.10)
+    
+        # read data to an internal buffer
+        while True:
+            status = ctypes.c_byte()    # variable to store buffer status
+            dwf.FDwfDigitalInStatus(self.device_data.handle, ctypes.c_bool(True), ctypes.byref(status))
+    
+            if status.value == constants.stsDone.value:
+                # exit loop when finished
+                break
+
+        buffer = (ctypes.c_uint16 * self.buffer_size)()
+        dwf.FDwfDigitalInStatusData(self.device_data.handle, buffer, ctypes.c_int(self.buffer_size))
+    
+        # convert buffer to list of lists of integers
+        buffer = [int(element) for element in buffer]
+        result = [[] for _ in range(16)]
+        for point in buffer:
+            for index in range(16):
+                result[index].append(point & (1 << index))
+    
+        # calculate acquisition time
+        # time = range(0, self.buffer_size)
+        # time = [moment / self.sampling_frequency for moment in time]
+    
+        # get channel specific data
+        buffer = result[channel]
+        nSamples = len(buffer)
+        fFrequency = 0
+        pass_c = 2**channel
+        for i in range(1, nSamples):
+            if (buffer[i] == 0 and buffer[i-1] == pass_c):
+                fFrequency = self.sampling_frequency / (i * 2)
+                
+        return fFrequency
+    
+    def close(self):
+        """
+            reset the instrument
+        """
+        dwf.FDwfDigitalInReset(self.device_data.handle)
+        return
 
 
 def count_pulses(packet_data):

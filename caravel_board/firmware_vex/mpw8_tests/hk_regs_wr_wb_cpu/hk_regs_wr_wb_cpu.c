@@ -35,6 +35,7 @@ void main(){
 
     configure_mgmt_gpio();
     enable_hk_spi(0);
+    send_packet(2);
     int old_reg_hkspi_status = reg_hkspi_status;
     int old_reg_hkspi_chip_id = reg_hkspi_chip_id;
     int old_reg_hkspi_user_id = reg_hkspi_user_id;
@@ -152,6 +153,11 @@ void main(){
         send_packet(9);
     if (reg_clk_out_dest!= 0x2) // trap and clocks redirect
         send_packet(9);
+
+    send_packet(3);
+    send_packet(3);
+    send_packet(3);
+    
 }
 
 

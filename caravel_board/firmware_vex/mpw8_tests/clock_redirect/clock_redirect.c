@@ -31,7 +31,7 @@ void main(){
     configure_gpio(15,GPIO_MODE_MGMT_STD_OUTPUT);
     /* Apply configuration */
     gpio_config_load();
-    reg_clk_out_dest = 0x3; 
+    reg_clk_out_dest = 0x6;
     send_packet(2); // 
     
 }

@@ -206,9 +206,9 @@ TestDict = [
         "mem": False,  # NOT Testing mem
         "io": False,
         "spi": False,
-        "external": True,
+        "external": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/hk_regs_wr_wb_cpu/hk_regs_wr_wb_cpu.hex",
-        "passing_criteria": [1, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
+        "passing_criteria": [2, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "IRQ_external",
@@ -339,6 +339,86 @@ TestDict = [
         "spi": False,
         "external": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_i_h/gpio_i_h.hex",
+        "passing_criteria": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+        ],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
+        "test_name": "bitbang_o_l",
+        "uart": False,  # NOT Testing UART
+        "mem": False,  # NOT Testing mem
+        "io": "low",
+        "mode": "output",
+        "spi": False,
+        "external": False,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/bitbang_o_l/bitbang_o_l.hex",
+        "passing_criteria": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+        ],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
+        "test_name": "bitbang_o_h",
+        "uart": False,  # NOT Testing UART
+        "mem": False,  # NOT Testing mem
+        "io": "high",
+        "mode": "output",
+        "spi": False,
+        "external": False,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/bitbang_o_h/bitbang_o_h.hex",
+        "passing_criteria": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+        ],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
+        "test_name": "bitbang_i_l",
+        "uart": False,  # NOT Testing UART
+        "mem": False,  # NOT Testing mem
+        "io": "low",
+        "mode": "input",
+        "spi": False,
+        "external": False,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/bitbang_i_l/bitbang_i_l.hex",
+        "passing_criteria": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+        ],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
+        "test_name": "bitbang_i_h",
+        "uart": False,  # NOT Testing UART
+        "mem": False,  # NOT Testing mem
+        "io": "high",
+        "mode": "input",
+        "spi": False,
+        "external": False,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/bitbang_i_h/bitbang_i_h.hex",
         "passing_criteria": [
             1,
             2,

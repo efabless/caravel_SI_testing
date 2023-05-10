@@ -63,6 +63,7 @@ void main(){
     configure_gpio(0, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     gpio_config_load();
     (*(volatile uint32_t*) CSR_DEBUG_MODE_OUT_ADDR ) = 1; // enable debug mode
+    count_down(PULSE_WIDTH * 50);
     send_packet(2); // Start of the test
     return;
 }

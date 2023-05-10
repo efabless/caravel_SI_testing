@@ -33,6 +33,7 @@ void main(){
     configure_mgmt_gpio();
     count_down(PULSE_WIDTH * 50);
     send_packet(2);
+    count_down(PULSE_WIDTH * 50);
     send_packet(3);
     reg_hkspi_reset = 1;
     send_packet(9);

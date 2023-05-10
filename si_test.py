@@ -724,16 +724,16 @@ if __name__ == "__main__":
                             flash_flag,
                             external=t["external"],
                         )
-                    elif t["clock"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            writer,
-                            t["hex_file_path"],
-                            flash_flag,
-                            clock=t["clock"],
-                            la_device=device3_data
-                        )
+                    # elif t["clock"]:
+                    #     exec_test(
+                    #         test,
+                    #         start_time,
+                    #         writer,
+                    #         t["hex_file_path"],
+                    #         flash_flag,
+                    #         clock=t["clock"],
+                    #         la_device=device3_data
+                    #     )
                     else:
                         exec_test(
                             test, start_time, writer, t["hex_file_path"], flash_flag

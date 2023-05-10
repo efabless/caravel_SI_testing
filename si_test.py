@@ -537,7 +537,7 @@ def flash_test(
         test.power_down()
         test.apply_reset()
         test.power_up_1v8()
-        # test.flash(hex_file)
+        test.flash(hex_file)
         test.power_down()
         test.release_reset()
     else:

@@ -271,6 +271,16 @@ TestDict = [
         "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
     {
+        "test_name": "cpu_reset",
+        "uart": False,  # NOT Testing UART
+        "mem": False,  # NOT Testing mem
+        "io": False,
+        "spi": False,
+        "external": False,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/cpu_reset/cpu_reset.hex",
+        "passing_criteria": [2, 3, 2, 3],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
         "test_name": "gpio_o_l",
         "uart": False,  # NOT Testing UART
         "mem": False,  # NOT Testing mem

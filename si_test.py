@@ -620,7 +620,14 @@ if __name__ == "__main__":
         parser.add_argument(
             "-f",
             "--flash_only",
-            help="Flash only",
+            help="Only Flash test",
+            action="store_true",
+            default=False,
+        )
+        parser.add_argument(
+            "-r",
+            "--run_only",
+            help="Run test without flash",
             action="store_true",
             default=False,
         )
@@ -676,7 +683,7 @@ if __name__ == "__main__":
                     # logging.info(f"=============================================================")
                     # logging.info(f"  Running:  {test.test_name}")
                     # logging.info(f"=============================================================")
-                    if counter > 0 and not args.flash_only:
+                    if counter > 0 or args.run_only:
                         flash_flag = False
                     if t["uart"]:
                         exec_test(

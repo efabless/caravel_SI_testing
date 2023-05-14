@@ -1,3 +1,4 @@
+import argparse
 from caravel import Dio, Test, accurate_delay
 from io_config import Device, device, connect_devices, UART, SPI
 import logging
@@ -513,10 +514,14 @@ def process_input_io(test, io):
 
 
 def flash_test(
-    test, hex_file, flash_flag, uart, uart_data, mem, io, mode, spi_flag, spi, external
+    test, hex_file, flash_flag, uart, uart_data, mem, io, mode, spi_flag, spi, external, flash_only
 ):
+    if flash_only:
+        run_only = False
+    else:
+        run_only = True
     test.reset_devices()
-    if flash_flag:
+    if flash_flag or flash_only:
         logging.info(f"==============================================================================")
         logging.info(f"  Flashing :  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
         logging.info(f"==============================================================================")
@@ -540,32 +545,35 @@ def flash_test(
 
     results = None
 
-    if uart:
-        results = process_uart(test, uart_data)
-    elif mem:
-        results = process_mem(test)
-    elif io:
-        if mode == "output":
-            results = process_io(test, io)
-        elif mode == "input":
-            results = process_input_io(test, io)
-        elif mode == "plud":
-            results = process_io_plud(test)
+    if run_only:
+        if uart:
+            results = process_uart(test, uart_data)
+        elif mem:
+            results = process_mem(test)
+        elif io:
+            if mode == "output":
+                results = process_io(test, io)
+            elif mode == "input":
+                results = process_input_io(test, io)
+            elif mode == "plud":
+                results = process_io_plud(test)
+            else:
+                print(f"ERROR : No {mode} mode")
+                exit(1)
+        elif spi_flag:
+            results = process_spi(test, spi)
+        elif external:
+            results = process_external(test)
         else:
-            print(f"ERROR : No {mode} mode")
-            exit(1)
-    elif spi_flag:
-        results = process_spi(test, spi)
-    elif external:
-        results = process_external(test)
+            results = process_data(test)
+
+        logging.info(f"==============================================================================")
+        logging.info(f"  Completed:  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
+        logging.info(f"==============================================================================")
+
+        return results
     else:
-        results = process_data(test)
-
-    logging.info(f"==============================================================================")
-    logging.info(f"  Completed:  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
-    logging.info(f"==============================================================================")
-
-    return results
+        return True
 
 
 def exec_test(
@@ -582,6 +590,7 @@ def exec_test(
     spi_flag=False,
     spi=None,
     external=False,
+    flash_only=False,
 ):
     results = flash_test(
         test,
@@ -595,14 +604,27 @@ def exec_test(
         spi_flag,
         spi,
         external,
+        flash_only,
     )
     end_time = time.time() - start_time
-    arr = [test.test_name, test.voltage, results, end_time]
+    if results:
+        arr = [test.test_name, test.voltage, "passed", end_time]
+    else:
+        arr = [test.test_name, test.voltage, "failed", end_time]
     writer.writerow(arr)
 
 
 if __name__ == "__main__":
     try:
+        parser = argparse.ArgumentParser(description="SI validation.")
+        parser.add_argument(
+            "-f",
+            "--flash_only",
+            help="Flash only",
+            action="store_true",
+            default=False,
+        )
+        args = parser.parse_args()
         logging.basicConfig(level=logging.INFO)
         logging.info(f"=============================================================")
         if analog:
@@ -654,7 +676,7 @@ if __name__ == "__main__":
                     # logging.info(f"=============================================================")
                     # logging.info(f"  Running:  {test.test_name}")
                     # logging.info(f"=============================================================")
-                    if counter > 0:
+                    if counter > 0 and not args.flash_only:
                         flash_flag = False
                     if t["uart"]:
                         exec_test(
@@ -665,6 +687,7 @@ if __name__ == "__main__":
                             flash_flag,
                             True,
                             uart_data,
+                            flash_only=args.flash_only,
                         )
                     elif t["mem"]:
                         exec_test(
@@ -674,6 +697,7 @@ if __name__ == "__main__":
                             t["hex_file_path"],
                             flash_flag,
                             mem=True,
+                            flash_only=args.flash_only,
                         )
                     elif t["io"]:
                         exec_test(
@@ -684,6 +708,7 @@ if __name__ == "__main__":
                             flash_flag,
                             io=t["io"],
                             mode=t["mode"],
+                            flash_only=args.flash_only,
                         )
                     elif t["spi"]:
                         exec_test(
@@ -694,6 +719,7 @@ if __name__ == "__main__":
                             flash_flag,
                             spi_flag=t["spi"],
                             spi=spi,
+                            flash_only=args.flash_only,
                         )
                     elif t["external"]:
                         exec_test(
@@ -703,10 +729,11 @@ if __name__ == "__main__":
                             t["hex_file_path"],
                             flash_flag,
                             external=t["external"],
+                            flash_only=args.flash_only,
                         )
                     else:
                         exec_test(
-                            test, start_time, writer, t["hex_file_path"], flash_flag
+                            test, start_time, writer, t["hex_file_path"], flash_flag, flash_only=args.flash_only,
                         )
                     counter += 1
                     test.close_devices()

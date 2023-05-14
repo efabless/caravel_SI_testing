@@ -680,7 +680,7 @@ if __name__ == "__main__":
             test_flag = False
             for t in TestDict:
                 start_time = time.time()
-                if args.test and args.test == t["test_name"]:
+                if not args.test or args.test == t["test_name"]:
                     test.test_name = t["test_name"]
                     test.passing_criteria = t["passing_criteria"]
                     flash_flag = True

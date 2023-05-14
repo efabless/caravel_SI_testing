@@ -757,6 +757,7 @@ if __name__ == "__main__":
                 
                 if not test_flag:
                     print(f"ERROR : Coun't find test {args.test}")
+                    break
         logging.info(f"=============================================================")
         logging.info(f"  All Tests Complete")
         logging.info(f"=============================================================")

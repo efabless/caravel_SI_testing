@@ -755,9 +755,9 @@ if __name__ == "__main__":
                         time.sleep(5)
                         devices = device.open_devices()
                 
-                if not test_flag:
-                    print(f"ERROR : Coun't find test {args.test}")
-                    break
+            if not test_flag:
+                print(f"ERROR : Coun't find test {args.test}")
+
         logging.info(f"=============================================================")
         logging.info(f"  All Tests Complete")
         logging.info(f"=============================================================")

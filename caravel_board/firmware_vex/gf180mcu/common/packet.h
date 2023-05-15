@@ -79,7 +79,7 @@ void configure_mgmt_gpio_input()
     reg_gpio_mode1 = 1;
     reg_gpio_mode0 = 0; // Fixed for full swing operation
     reg_gpio_ien = 1;
-    reg_gpio_oe = 0;
+    reg_gpio_oeb = 1;
     reg_gpio_out = 0; // default
     count_down(PULSE_WIDTH * 20);
 }

@@ -46,7 +46,11 @@ void main(){
 
 
    // test finish
+   count_down(PULSE_WIDTH*10);
    send_packet(3);
-   send_packet(3);
-   send_packet(3);
+   count_down(PULSE_WIDTH*10);
+   send_packet(4);
+   count_down(PULSE_WIDTH*10);
+   send_packet(5);
+
 }

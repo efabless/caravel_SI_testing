@@ -12,6 +12,6 @@
 
 .SUFFIXES:
 TESTNAME = mem_sram_W_upper
-LINKER_SCRIPT = ../common/sections_lower_sram.lds
+LINKER_SCRIPT = ../common/sections_upper_sram.lds
 
 include ../common/Makefile.common

@@ -1,4 +1,4 @@
-from caravel import Dio, Test, accurate_delay
+from caravel import Dio, FreqCounter, Test, accurate_delay
 from io_config import Device, device, connect_devices, UART, SPI, LogicAnalyzer
 import logging
 import os
@@ -162,35 +162,6 @@ def process_uart(test, uart):
             print(f"{test.test_name} Test Failed!")
             uart.close()
             return False
-    # elif test.test_name == "receive_packet":
-    #     while True:
-    #         uart_data, count = uart.read_uart()
-    #         if uart_data:
-    #             uart_data[count.value] = 0
-    #             rgRX = rgRX + uart_data.value.decode()
-    #             if "ready" in rgRX:
-    #                 print(rgRX)
-    #                 break
-    #         if time.time() > timeout:
-    #             print(f"{test.test_name} test failed with {test.voltage}v supply")
-    #             uart.close()
-    #             return False
-    #     rgRX = ""
-    #     for i in range(0, 8):
-    #         test.send_packet(i)
-    #         while True:
-    #             uart_data, count = uart.read_uart()
-    #             if uart_data:
-    #                 uart_data[count.value] = 0
-    #                 rgRX = rgRX + uart_data.value.decode()
-    #                 if f"{i}" in rgRX:
-    #                     print(rgRX)
-    #                     break
-    #             if time.time() > timeout:
-    #                 print(f"{test.test_name} test failed with {test.voltage}v supply")
-    #                 uart.close()
-    #                 return False
-    #     return True
 
     for i in range(0, 3):
         pulse_count = test.receive_packet(250)
@@ -201,17 +172,44 @@ def process_uart(test, uart):
 
 
 def process_clock(test, device):
-    la = LogicAnalyzer(device)
+    fc = FreqCounter(device)
     pulse_count = test.receive_packet(250)
     if pulse_count == 2:
         print("start test")
-    la.open()
-    freq = la.record(2)
-    frq_MHz = freq / 1000000
-    print("Channel 14: Measured frequency: %.2f MHz" % (frq_MHz))
-    freq = la.record(3)
-    frq_MHz = freq / 1000000
-    print("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz))
+    fc.open()
+    time.sleep(5)
+    data, data_time = fc.record(1)
+    counter = 0
+    state = 0
+    for i in range(len(data)):
+        if data[i] <= 0 and state == 1:
+            state = 0
+        if data[i] >= 2 and state == 0:
+            one_time = data_time[i]
+            state = 1
+            counter += 1
+        if counter == 2:
+            freq = 1 / one_time
+            frq_MHz_1 = freq / 1000000
+            print("Channel 14: Measured frequency: %.2f MHz" % (frq_MHz_1))
+            break
+
+    data, data_time = fc.record(2)
+    counter = 0
+    state = 0
+    for i in range(len(data)):
+        if data[i] <= 0 and state == 1:
+            state = 0
+        if data[i] >= 2 and state == 0:
+            one_time = data_time[i]
+            state = 1
+            counter += 1
+        if counter == 2:
+            freq = 1 / one_time
+            frq_MHz_2 = freq / 1000000
+            print("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz_2))
+            break
+    return f"IO[14]:{frq_MHz_1}, IO[15]:{frq_MHz_2}"
 
 
 def process_mem(test):
@@ -724,16 +722,16 @@ if __name__ == "__main__":
                             flash_flag,
                             external=t["external"],
                         )
-                    # elif t["clock"]:
-                    #     exec_test(
-                    #         test,
-                    #         start_time,
-                    #         writer,
-                    #         t["hex_file_path"],
-                    #         flash_flag,
-                    #         clock=t["clock"],
-                    #         la_device=device3_data
-                    #     )
+                    elif t["clock"]:
+                        exec_test(
+                            test,
+                            start_time,
+                            writer,
+                            t["hex_file_path"],
+                            flash_flag,
+                            clock=t["clock"],
+                            la_device=device3_data
+                        )
                     else:
                         exec_test(
                             test, start_time, writer, t["hex_file_path"], flash_flag

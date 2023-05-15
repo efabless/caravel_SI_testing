@@ -751,6 +751,75 @@ class SPI:
         dwf.FDwfDigitalSpiReset(self.device_data.handle)
         return
     
+
+class FreqCounter:
+    def __init__(self, device_data):
+        self.device_data = device_data
+        self.sampling_frequency = 100e06
+        self.buffer_size = 8192
+    def open(self, sampling_frequency=100e06, buffer_size=8192, offset=0, amplitude_range=1):
+        """
+            initialize the oscilloscope
+            parameters: - device data
+                        - sampling frequency in Hz, default is 20MHz
+                        - buffer size, default is 8192
+                        - offset voltage in Volts, default is 0V
+                        - amplitude range in Volts, default is ±5V
+        """
+        # enable all channels
+        dwf.FDwfAnalogInChannelEnableSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_bool(True))
+    
+        # set offset voltage (in Volts)
+        dwf.FDwfAnalogInChannelOffsetSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_double(offset))
+    
+        # set range (maximum signal amplitude in Volts)
+        dwf.FDwfAnalogInChannelRangeSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_double(amplitude_range))
+    
+        # set the buffer size (data point in a recording)
+        dwf.FDwfAnalogInBufferSizeSet(self.device_data.handle, ctypes.c_int(buffer_size))
+    
+        # set the acquisition frequency (in Hz)
+        dwf.FDwfAnalogInFrequencySet(self.device_data.handle, ctypes.c_double(sampling_frequency))
+    
+        # disable averaging (for more info check the documentation)
+        dwf.FDwfAnalogInChannelFilterSet(self.device_data.handle, ctypes.c_int(-1), constants.filterDecimate)
+        self.sampling_frequency = sampling_frequency
+        self.buffer_size = buffer_size
+        return
+    
+    def record(self, channel):
+        """
+            record an analog signal
+            parameters: - device data
+                        - the selected oscilloscope channel (1-2, or 1-4)
+            returns:    - buffer - a list with the recorded voltages
+                        - time - a list with the time moments for each voltage in seconds (with the same index as "buffer")
+        """
+        # set up the instrument
+        dwf.FDwfAnalogInConfigure(self.device_data.handle, ctypes.c_bool(False), ctypes.c_bool(True))
+    
+        # read data to an internal buffer
+        while True:
+            status = ctypes.c_byte()    # variable to store buffer status
+            dwf.FDwfAnalogInStatus(self.device_data.handle, ctypes.c_bool(True), ctypes.byref(status))
+    
+            # check internal buffer status
+            if status.value == constants.DwfStateDone.value:
+                    # exit loop when ready
+                    break
+    
+        # copy buffer
+        buffer = (ctypes.c_double * self.buffer_size)()   # create an empty buffer
+        dwf.FDwfAnalogInStatusData(self.device_data.handle, ctypes.c_int(channel - 1), buffer, ctypes.c_int(self.buffer_size))
+    
+        # calculate aquisition time
+        time = range(0, self.buffer_size)
+        time = [moment / self.sampling_frequency for moment in time]
+    
+        # convert into list
+        buffer = [float(element) for element in buffer]
+        return buffer, time
+    
 class LogicAnalyzer:
     def __init__(self, device_data):
         self.device_data = device_data

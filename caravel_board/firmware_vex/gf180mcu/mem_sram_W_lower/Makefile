@@ -11,7 +11,7 @@
 # ---- Test patterns for project raven ----
 
 .SUFFIXES:
-TESTNAME = mem_sram_W
-
+TESTNAME = mem_sram_W_lower
+LINKER_SCRIPT = ../common/sections_lower_sram.lds
 
 include ../common/Makefile.common

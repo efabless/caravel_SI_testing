@@ -15,10 +15,9 @@
 void main(){
 
    configure_mgmt_gpio();
-   count_down(PULSE_WIDTH*50);
    send_packet(1); // start of the test
 //   #define dff_size  (*(volatile uint32_t*)0x0)
-   volatile uint32_t* base_addr = ((volatile uint32_t*)  0x00000000 );
+   volatile uint32_t* base_addr = ((volatile uint32_t*)  0x00000400 );
    int dff_size = 0x400 / 4;
 //   #define iterator  (*(volatile uint32_t*)0x4)  // first address in the ram store the iterator
    int iterator = 0;

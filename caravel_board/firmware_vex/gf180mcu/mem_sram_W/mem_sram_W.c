@@ -16,28 +16,29 @@ void main(){
 
    configure_mgmt_gpio();
    send_packet(1); // start of the test
-   #define dff_size  (*(volatile uint32_t*)0x0)  
-   dff_size = 0x200;
-   #define iterator  (*(volatile uint32_t*)0x4)  // first address in the ram store the iterator 
-   iterator = 0;
-   for (iterator = 8; iterator < dff_size; iterator++ ){
+//   #define dff_size  (*(volatile uint32_t*)0x0)
+   volatile uint32_t* base_addr = ((volatile uint32_t*)  0x00000000 );
+   int dff_size = 0x400 / 4;
+//   #define iterator  (*(volatile uint32_t*)0x4)  // first address in the ram store the iterator
+   int iterator = 0;
+   for (iterator = 0; iterator < dff_size; iterator++ ){
       // reg_debug_2 = iterator;
-      *((unsigned int *) 0x00000000 + iterator) = 0x55555555; 
+      *(base_addr + iterator) = 0x55555555;
    }
-   for (iterator = 8; iterator < dff_size; iterator++ ){
+   for (iterator = 0; iterator < dff_size; iterator++ ){
       // reg_debug_2 = iterator;
-      if (*((unsigned int *) 0x00000000 + iterator) !=  0x55555555){
+      if (*( base_addr + iterator) !=  0x55555555){
          send_packet(9); // error
          return;
       }
    }
-   for (iterator = 8; iterator < dff_size; iterator++ ){
+   for (iterator = 0; iterator < dff_size; iterator++ ){
       // reg_debug_2 = iterator;
-      *((unsigned int *) 0x00000000 + iterator) = 0xAAAAAAAA; 
+      *( base_addr + iterator) = 0xAAAAAAAA;
    }
-   for (iterator = 8; iterator < dff_size; iterator++ ){
+   for (iterator = 0; iterator < dff_size; iterator++ ){
    // reg_debug_2 = iterator;
-      if (*((unsigned int *) 0x00000000 + iterator) != 0xAAAAAAAA){
+      if (*( base_addr + iterator) != 0xAAAAAAAA){
          send_packet(9); // error
          return;
       }

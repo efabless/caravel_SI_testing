@@ -61,36 +61,36 @@ class Test:
     #             return 0
     #     return pulses
 
-    # def receive_packet(self, pulse_width=25):
-    #     """recieves packet using the wire protocol, uses the gpio_mgmt I/O
-    #
-    #     Returns:
-    #         int: pulse count
-    #     """
-    #     ones = 0
-    #     pulses = 0
-    #     self.gpio_mgmt.set_state(False)
-    #     while self.gpio_mgmt.get_value() != False:
-    #         pass
-    #     state = "LOW"
-    #     accurate_delay(pulse_width / 2.0)
-    #     for i in range(0, 30):
-    #         accurate_delay(pulse_width)
-    #         x = self.gpio_mgmt.get_value()
-    #         if state == "LOW":
-    #             if x:
-    #                 state = "HI"
-    #         elif state == "HI":
-    #             if not x:
-    #                 state = "LOW"
-    #                 ones = 0
-    #                 pulses = pulses + 1
-    #         if x:
-    #             ones = ones + 1
-    #         if ones > 3:
-    #             break
-    #     # print("A packet has been received!")
-    #     return pulses
+    def receive_packet(self, pulse_width=25):
+        """recieves packet using the wire protocol, uses the gpio_mgmt I/O
+
+        Returns:
+            int: pulse count
+        """
+        ones = 0
+        pulses = 0
+        self.gpio_mgmt.set_state(False)
+        while self.gpio_mgmt.get_value() != False:
+            pass
+        state = "LOW"
+        accurate_delay(pulse_width / 2.0)
+        for i in range(0, 30):
+            accurate_delay(pulse_width)
+            x = self.gpio_mgmt.get_value()
+            if state == "LOW":
+                if x:
+                    state = "HI"
+            elif state == "HI":
+                if not x:
+                    state = "LOW"
+                    ones = 0
+                    pulses = pulses + 1
+            if x:
+                ones = ones + 1
+            if ones > 3:
+                break
+        # print("A packet has been received!")
+        return pulses
 
     def send_packet(self, num_pulses, pulse_width=25):
         num_pulses = num_pulses + 1

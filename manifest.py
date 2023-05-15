@@ -88,34 +88,64 @@ TestDict = [
         ],  # Passing criteria to be sent to UART
     },
     {
-        "test_name": "mem_sram_W",
+        "test_name": "mem_sram_W_lower",
         "uart": False,  # NOT Testing UART
         "mem": False,  # Testing mem
         "io": False,
         "spi": False,
         "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_W/mem_sram_W.hex",
-        "passing_criteria": [1, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_W_lower/mem_sram_W_lower.hex",
+        "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
     },
     {
-        "test_name": "mem_sram_test",
+        "test_name": "mem_sram_test_lower",
         "uart": False,  # NOT Testing UART
         "mem": False,  # Testing mem
         "io": False,
         "spi": False,
         "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_test/mem_sram_test.hex",
-        "passing_criteria": [1, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_test_lower/mem_sram_test_lower.hex",
+        "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
     },
     {
-        "test_name": "mem_sram_halfW",
+        "test_name": "mem_sram_halfW_lower",
         "uart": False,  # NOT Testing UART
         "mem": False,  # Testing mem
         "io": False,
         "spi": False,
         "external": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_halfW/mem_sram_halfW.hex",
-        "passing_criteria": [1, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_halfW_lower/mem_sram_halfW_lower.hex",
+        "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
+        "test_name": "mem_sram_W_upper",
+        "uart": False,  # NOT Testing UART
+        "mem": False,  # Testing mem
+        "io": False,
+        "spi": False,
+        "external": False,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_W_upper/mem_sram_W_upper.hex",
+        "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
+        "test_name": "mem_sram_test_upper",
+        "uart": False,  # NOT Testing UART
+        "mem": False,  # Testing mem
+        "io": False,
+        "spi": False,
+        "external": False,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_test_upper/mem_sram_test_upper.hex",
+        "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
+        "test_name": "mem_sram_halfW_upper",
+        "uart": False,  # NOT Testing UART
+        "mem": False,  # Testing mem
+        "io": False,
+        "spi": False,
+        "external": False,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_halfW_upper/mem_sram_halfW_upper.hex",
+        "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "cpu_stress",

@@ -15,7 +15,7 @@
 void main(){
 
    configure_mgmt_gpio();
-//   count_down(PULSE_WIDTH*50);
+   count_down(PULSE_WIDTH*50);
 
    send_packet(1); // start of the test
 //   #define dff_size  (*(volatile uint32_t*)0x0)

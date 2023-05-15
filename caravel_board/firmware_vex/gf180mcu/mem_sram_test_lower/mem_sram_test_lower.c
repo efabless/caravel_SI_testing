@@ -18,17 +18,17 @@ void main()
    configure_mgmt_gpio();
    send_packet(1); // start of the test
                    //   #define dff_size  (*(volatile uint32_t*)0x0)
-   volatile uint32_t *base_addr = ((volatile uint32_t *)0x00000000);
+   volatile uint8_t *base_addr = ((volatile uint8_t *) 0x00000000);
    int dff_size = 0x400;
    //   #define iterator  (*(volatile uint32_t*)0x4)  // first address in the ram store the iterator
    int iterator = 0;
    for (iterator = 8; iterator < dff_size; iterator++)
    {
-      *((unsigned char *)0x00000000 + iterator) = 0x55;
+      *(base_addr + iterator) = 0x55;
    }
    for (iterator = 8; iterator < dff_size; iterator++)
    {
-      if (*((unsigned char *)0x00000000 + iterator) != 0x55)
+      if (*(base_addr + iterator) != 0x55)
       {
          send_packet(9); // error
          return;
@@ -37,11 +37,11 @@ void main()
 
    for (iterator = 8; iterator < dff_size; iterator++)
    {
-      *((unsigned char *)0x00000000 + iterator) = 0xAA;
+      *(base_addr + iterator) = 0xAA;
    }
    for (iterator = 8; iterator < dff_size; iterator++)
    {
-      if (*((unsigned char *)0x00000000 + iterator) != 0xAA)
+      if (*(base_addr + iterator) != 0xAA)
       {
          send_packet(9); // error
          return;

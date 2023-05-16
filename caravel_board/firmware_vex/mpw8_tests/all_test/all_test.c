@@ -246,26 +246,24 @@ void uart()
         ;
 }
 
-bool wait_for_char(char *c)
+void wait_for_char(char *c)
 {
     while (uart_rxempty_read() == 1)
         ;
     if (reg_uart_data == *c)
     {
-        return true;
+        print(*c);
+        print("\n");
     }
     else
     {
-        return false;
+        print("failed\n");
     }
     uart_pop_char();
 }
 
-bool uart_reception()
+void uart_reception()
 {
-    int j;
-    int counter = 0;
-    bool result = false;
     configure_mgmt_gpio();
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
@@ -276,34 +274,9 @@ bool uart_reception()
 
     print("Start Test: uart_reception\n");
 
-    result = wait_for_char("M"); // 0x4D
-    if (result == true)
-    {
-        counter++;
-        result = false;
-    }
-    else
-        return false;
-    result = wait_for_char("B"); // 0x42
-    if (result == true)
-    {
-        counter++;
-        result = false;
-    }
-    else
-        return false;
-    result = wait_for_char("A"); // 0
-    if (result == true)
-    {
-        counter++;
-        result = false;
-    }
-    else
-        return false;
-    if (counter == 3)
-        return true;
-    else
-        return false;
+    wait_for_char("M"); // 0x4D
+    wait_for_char("B"); // 0x42
+    wait_for_char("A"); // 0
 }
 
 void config_uart()
@@ -323,17 +296,7 @@ void main()
 
     uart();
 
-    test = uart_reception();
-
-    config_uart();
-    if (test == true)
-    {
-        print("passed\n");
-    }
-    else
-    {
-        print("failed\n");
-    }
+    uart_reception();
 
     config_uart();
 

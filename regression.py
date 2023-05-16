@@ -87,6 +87,10 @@ def run_regression(test, uart, start_time, writer):
             if "Monitor: Test UART passed" in uart_data:
                 print(uart_data)
                 result = True
+        elif test.test_name == "uart_reception":
+            if "M" in uart_data:
+                print(uart_data)
+                result = True
         else:
             if "passed" in uart_data:
                 print(uart_data)

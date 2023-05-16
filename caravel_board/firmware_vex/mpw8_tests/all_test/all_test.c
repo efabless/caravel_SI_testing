@@ -271,7 +271,11 @@ bool uart_reception()
     configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     gpio_config_load();
 
+    enable_uart_TX(1);
     uart_RX_enable(1);
+
+    print("Start Test: uart_reception\n");
+
     result = wait_for_char("M"); // 0x4D
     if (result == true)
     {
@@ -318,10 +322,6 @@ void main()
     print("Start Test: uart\n");
 
     uart();
-
-    config_uart();
-
-    print("Start Test: uart_reception\n");
 
     test = uart_reception();
 

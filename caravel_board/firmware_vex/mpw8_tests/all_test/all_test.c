@@ -284,7 +284,7 @@ bool uart_reception()
     }
     else
         return false;
-    wait_for_char("B"); // 0x42
+    result = wait_for_char("B"); // 0x42
     if (result == true)
     {
         counter++;
@@ -292,7 +292,7 @@ bool uart_reception()
     }
     else
         return false;
-    wait_for_char("A"); // 0
+    result = wait_for_char("A"); // 0
     if (result == true)
     {
         counter++;

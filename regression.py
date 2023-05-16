@@ -121,6 +121,15 @@ def flash_regression(test, flash_flag):
 
 if __name__ == "__main__":
     try:
+        parser = argparse.ArgumentParser(description="SI validation.")
+        parser.add_argument(
+            "-r",
+            "--run_only",
+            help="Run test without flash",
+            action="store_true",
+            default=False,
+        )
+        args = parser.parse_args()
         # open multiple devices
         devices = device.open_devices()
         # connect devices using hardcoded serial numbers
@@ -145,7 +154,10 @@ if __name__ == "__main__":
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
         counter = 0
-        flash_flag = True
+        if args.run_only:
+            flash_flag = False
+        else:
+            flash_flag = True
         csv_header = ["Test_name", "Voltage (v)", "Pass/Fail", "Time (s)"]
         if os.path.exists("./results.csv"):
             os.remove("./results.csv")

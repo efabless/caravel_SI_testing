@@ -227,12 +227,17 @@ bool IRQ_uart_rx()
     return true;
 }
 
-void main()
+void config_uart()
 {
-    configure_mgmt_gpio();
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     gpio_config_load();
     enable_uart_TX(1);
+}
+
+void main()
+{
+    configure_mgmt_gpio();
+    config_uart();
     bool test;
     print("Start Test: IRQ_timer\n");
     // test = IRQ_external();
@@ -265,31 +270,28 @@ void main()
 
     test = IRQ_timer();
 
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    gpio_config_load();
-    enable_uart_TX(1);
+    config_uart();
     if (test == true)
     {
         print("passed\n");
     }
     else
     {
-        send_packet("failed\n");
+        print("failed\n");
     }
 
-    // print("Start Test: IRQ_spi\n");
+    print("Start Test: IRQ_spi\n");
 
-    // test = IRQ_spi();
-    // if (test == true)
-    // {
-    //     send_packet(3);
-    //     send_packet(3);
-    //     send_packet(3);
-    // }
-    // else
-    // {
-    //     send_packet(9);
-    // }
+    test = IRQ_spi();
+    config_uart();
+    if (test == true)
+    {
+        print("passed\n");
+    }
+    else
+    {
+        print("failed\n");
+    }
 
     // send_packet(10);
 
@@ -318,4 +320,7 @@ void main()
     // {
     //     send_packet(9);
     // }
+
+    config_uart();
+    print("End Test\n");
 }

@@ -66,19 +66,33 @@ def init_ad_ios(device1_data, device2_data, device3_data):
     return device1_dio_map, device2_dio_map, device3_dio_map
 
 
-def run_regression(test, uart):
+def run_regression(test, uart, start_time, writer):
+    result = False
     uart.open()
-    uart_data = uart.read_data()
-    if "Start Test:" in uart_data:
-        print(uart_data)
+    while True:
+        uart_data = uart.read_data()
+        uart_data = uart_data.decode()
+        if "Start Test:" in uart_data:
+            print(uart_data)
+            test.test_name = uart_data.split(": ")[1]
+        elif "End Test" in uart_data:
+            print(uart_data)
+            break
 
-    uart_data = uart.read_data()
-    if "passed" in uart_data:
-        print(uart_data)
-        return True
-    elif "failed" in uart_data:
-        print(uart_data)
-        return False
+        uart_data = uart.read_data()
+        uart_data = uart_data.decode()
+        if "passed" in uart_data:
+            print(uart_data)
+            result = True
+        elif "failed" in uart_data:
+            print(uart_data)
+            result = False
+        end_time = time.time() - start_time
+        if result:
+            arr = [test.test_name, test.voltage, "passed", end_time]
+        else:
+            arr = [test.test_name, test.voltage, "failed", end_time]
+        writer.writerow(arr)
 
 def flash_regression(test, flash_flag):
     test.reset_devices()
@@ -136,13 +150,7 @@ if __name__ == "__main__":
                     flash_flag = False
                 flash_regression(test, flash_flag)
                 counter = 1
-                result = run_regression(test, uart_data)
-                end_time = time.time() - start_time
-                if result:
-                    arr = [test.test_name, test.voltage, "passed", end_time]
-                else:
-                    arr = [test.test_name, test.voltage, "failed", end_time]
-                writer.writerow(arr)
+                result = run_regression(test, uart_data, start_time, writer)
 
     except KeyboardInterrupt:
         print("Interrupted")

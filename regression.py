@@ -81,12 +81,20 @@ def run_regression(test, uart, start_time, writer):
 
         uart_data = uart.read_data()
         uart_data = uart_data.decode()
-        if "passed" in uart_data:
-            print(uart_data)
-            result = True
-        elif "failed" in uart_data:
-            print(uart_data)
-            result = False
+        if test.test_name == "uart":
+            if "Monitor: Test UART passed" in uart_data:
+                print(uart_data)
+                result = True
+        else:
+            if test.test_name == "uart_reception":
+                uart.write(["M", "B", "A"])
+            if "passed" in uart_data:
+                print(uart_data)
+                result = True
+            elif "failed" in uart_data:
+                print(uart_data)
+                result = False
+
         end_time = time.time() - start_time
         if result:
             arr = [test.test_name, test.voltage, "passed", end_time]

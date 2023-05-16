@@ -227,6 +227,81 @@ bool IRQ_uart_rx()
     return true;
 }
 
+void uart()
+{
+    int i, j;
+    configure_mgmt_gpio();
+    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    // gpio_config_io();
+    gpio_config_load();
+
+    // Start test
+    enable_uart_TX(1);
+
+    print("Monitor: Test UART passed\n");
+
+    // Allow transmission to complete before signalling that the program
+    // has ended.
+    for (j = 0; j < 1000; j++)
+        ;
+}
+
+bool wait_for_char(char *c)
+{
+    while (uart_rxempty_read() == 1)
+        ;
+    if (reg_uart_data == *c)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+    uart_pop_char();
+}
+
+bool uart_reception()
+{
+    int j;
+    int counter = 0;
+    bool result = false;
+    configure_mgmt_gpio();
+    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    gpio_config_load();
+
+    uart_RX_enable(1);
+    result = wait_for_char("M"); // 0x4D
+    if (result == true)
+    {
+        counter++;
+        result = false;
+    }
+    else
+        return false;
+    wait_for_char("B"); // 0x42
+    if (result == true)
+    {
+        counter++;
+        result = false;
+    }
+    else
+        return false;
+    wait_for_char("A"); // 0
+    if (result == true)
+    {
+        counter++;
+        result = false;
+    }
+    else
+        return false;
+    if (counter == 3)
+        return true;
+    else
+        return false;
+}
+
 void config_uart()
 {
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
@@ -239,34 +314,30 @@ void main()
     configure_mgmt_gpio();
     config_uart();
     bool test;
+
+    print("Start Test: uart\n");
+
+    uart();
+
+    config_uart();
+
+    print("Start Test: uart_reception\n");
+
+    test = uart_reception();
+
+    config_uart();
+    if (test == true)
+    {
+        print("passed\n");
+    }
+    else
+    {
+        print("failed\n");
+    }
+
+    config_uart();
+
     print("Start Test: IRQ_timer\n");
-    // test = IRQ_external();
-    // if (test == true)
-    // {
-    //     send_packet(3);
-    //     send_packet(3);
-    //     send_packet(3);
-    // }
-    // else
-    // {
-    //     send_packet(9);
-    // }
-
-    // send_packet(10);
-
-    // test = IRQ_external2();
-    // if (test == true)
-    // {
-    //     send_packet(3);
-    //     send_packet(3);
-    //     send_packet(3);
-    // }
-    // else
-    // {
-    //     send_packet(9);
-    // }
-
-    // send_packet(10);
 
     test = IRQ_timer();
 

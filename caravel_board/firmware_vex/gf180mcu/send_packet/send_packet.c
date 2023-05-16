@@ -1,7 +1,15 @@
 #include <common.h>
 
 void main(){
+
     configure_mgmt_gpio();
+
+    configure_gpio(1, GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(2, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(3, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(4, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    gpio_config_load();
+
     count_down(PULSE_WIDTH*50);
     // Uncomment the while() loop to make this continuous
     // while (1) {

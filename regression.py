@@ -79,6 +79,8 @@ def run_regression(test, uart, start_time, writer):
             print(uart_data)
             break
 
+        if test.test_name == "uart_reception":
+            uart.write(["M", "B", "A"])
         uart_data = uart.read_data()
         uart_data = uart_data.decode()
         if test.test_name == "uart":
@@ -86,8 +88,6 @@ def run_regression(test, uart, start_time, writer):
                 print(uart_data)
                 result = True
         else:
-            if test.test_name == "uart_reception":
-                uart.write(["M", "B", "A"])
             if "passed" in uart_data:
                 print(uart_data)
                 result = True

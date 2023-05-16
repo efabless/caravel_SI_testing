@@ -679,7 +679,6 @@ if __name__ == "__main__":
             writer.writerow(csv_header)
             test_flag = False
             for t in TestDict:
-                start_time = time.time()
                 if not args.test or args.test == t["test_name"]:
                     test.test_name = t["test_name"]
                     test.passing_criteria = t["passing_criteria"]
@@ -687,6 +686,7 @@ if __name__ == "__main__":
                     counter = 0
                     test_flag = True
                     for v in voltage:
+                        start_time = time.time()
                         test.voltage = v
                         # logging.info(f"=============================================================")
                         # logging.info(f"  Running:  {test.test_name}")

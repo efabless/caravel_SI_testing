@@ -506,6 +506,20 @@ class UART:
         else:
             return None, count
 
+    def read_data(self):
+        timeout = time.time() + 50
+        rgRX = ""
+        while True:
+            uart_data, count = self.read_uart()
+            if uart_data:
+                uart_data[count.value] = 0
+                rgRX = rgRX + uart_data.value.decode()
+                return rgRX
+            if time.time() > timeout:
+                print("UART Timeout!")
+                self.close()
+                return False
+
     def write(self, data):
         """
         send data through UART

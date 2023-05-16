@@ -123,6 +123,7 @@ if __name__ == "__main__":
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
         counter = 0
+        flash_flag = True
         csv_header = ["Test_name", "Voltage (v)", "Pass/Fail", "Time (s)"]
         if os.path.exists("./results.csv"):
             os.remove("./results.csv")

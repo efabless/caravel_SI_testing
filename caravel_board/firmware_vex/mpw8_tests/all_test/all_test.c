@@ -270,11 +270,11 @@ void main()
     enable_uart_TX(1);
     if (test == true)
     {
-        print("passed");
+        print("passed\n");
     }
     else
     {
-        send_packet("Failed");
+        send_packet("failed\n");
     }
 
     // print("Start Test: IRQ_spi\n");

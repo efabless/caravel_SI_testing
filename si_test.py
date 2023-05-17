@@ -633,7 +633,7 @@ if __name__ == "__main__":
         device3 = Device(device3_data, 2, device3_dio_map)
         device_ps = Device(device_ps_data, 3, None)
 
-        test = Test(device1, device2, device3, device_ps=device_ps)
+        test = Test(device1, device2, device3, device_power=device_ps)
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
 

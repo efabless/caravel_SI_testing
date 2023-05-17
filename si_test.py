@@ -531,7 +531,8 @@ def flash_test(
         time.sleep(5)
     test.power_up()
     logging.info(f"   changing VCORE voltage to {test.voltage}v")
-    test.device1v8.supply.set_voltage(test.voltage)
+    # test.device1v8.supply.set_voltage(test.voltage)
+    test.device_power.supply.set_voltage(test.voltage)
     test.reset()
 
     logging.info(f"==============================================================================")

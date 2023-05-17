@@ -628,6 +628,7 @@ def exec_test(
     la_device=None,
     flash_only=False,
 ):
+    results = False
     results = flash_test(
         test,
         hex_file,

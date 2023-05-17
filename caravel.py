@@ -161,8 +161,6 @@ class Test:
             hex_file (string): path to hex file
         """
         with open("flash.log", "a") as f:
-            f.write('\n')
-            f.seek(0)
             f.write("==============================================")
             f.write(f"   Flashed {self.test_name}")
             f.write(" ==============================================\n")

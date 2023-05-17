@@ -1,12 +1,14 @@
+import argparse
 from caravel import Dio, FreqCounter, Test, accurate_delay
-from io_config import Device, device, connect_devices, UART, SPI, LogicAnalyzer
-import logging
+from io_config import Device, device, connect_devices, UART, SPI
 import os
 import csv
-import sys
-import time, datetime
+import time
+import datetime
 import subprocess
 import signal
+import sys
+from rich.table import Table
 from manifest import TestDict, device1_sn, device2_sn, device3_sn, voltage, analog
 
 
@@ -69,7 +71,7 @@ def process_data(test):
         io = test.device1v8.dio_map[0]
         pulse_count = test.receive_packet(250)
         if pulse_count == 2:
-            print("Test started")
+            test.console.print("Test started")
         for i in range(5, 8):
             while not io.get_value():
                 pass
@@ -78,9 +80,9 @@ def process_data(test):
                 pass
             pulse_count = test.receive_packet(250)
             if pulse_count == i:
-                print(f"sent {i} pulses successfully")
+                test.console.print(f"[green]sent {i} pulses successfully")
             else:
-                print(f"{test.test_name} test failed with {test.voltage}v supply!")
+                test.console.print(f"[red]{test.test_name} test failed with {test.voltage}v supply!")
                 return False
         return True
     else:
@@ -88,15 +90,15 @@ def process_data(test):
         for passing in test.passing_criteria:
             pulse_count = test.receive_packet(250)
             if pulse_count == passing:
-                print(f"pass phase {phase}")
+                test.console.print(f"pass phase {phase}")
                 phase = phase + 1
 
             if pulse_count == 9:
-                print(f"{test.test_name} test failed with {test.voltage}v supply!")
+                test.console.print(f"[red]{test.test_name} test failed with {test.voltage}v supply!")
                 return False
 
         if len(test.passing_criteria) == phase:
-            print(f"{test.test_name} test Passed with {test.voltage}v supply!")
+            test.console.print(f"[green]{test.test_name} test Passed with {test.voltage}v supply!")
             return True
 
 
@@ -106,7 +108,7 @@ def process_uart(test, uart):
     timeout = time.time() + 50
     while test.receive_packet(250) != 2:
         pass
-    print("start UART transmission")
+    test.console.print("start UART transmission")
     if test.test_name == "uart":
         while True:
             uart_data, count = uart.read_uart()
@@ -114,15 +116,15 @@ def process_uart(test, uart):
                 uart_data[count.value] = 0
                 rgRX = rgRX + uart_data.value.decode()
                 if test.passing_criteria[0] in rgRX:
-                    print(rgRX)
+                    test.console.print(rgRX)
                     break
             if time.time() > timeout:
-                print(f"{test.test_name} test failed with {test.voltage}v supply")
+                test.console.print(f"[red]{test.test_name} test failed with {test.voltage}v supply")
                 uart.close()
                 return False
         pulse_count = test.receive_packet(250)
         if pulse_count == 5:
-            print("end UART transmission")
+            test.console.print("end UART transmission")
     elif test.test_name == "uart_reception":
         for i in test.passing_criteria:
             pulse_count = test.receive_packet(250)
@@ -130,9 +132,9 @@ def process_uart(test, uart):
                 uart.write(i)
             pulse_count = test.receive_packet(250)
             if pulse_count == 6:
-                print(f"Successfully sent {i} over UART!")
+                test.console.print(f"[green]Successfully sent {i} over UART!")
             if pulse_count == 9:
-                print(f"Couldn't send {i} over UART!")
+                test.console.print(f"[red]Couldn't send {i} over UART!")
                 uart.close()
                 return False
     elif test.test_name == "uart_loopback":
@@ -146,27 +148,27 @@ def process_uart(test, uart):
                         uart.write(dat)
                         pulse_count = test.receive_packet(250)
                         if pulse_count == 6:
-                            print(f"Successfully sent {dat} over UART!")
+                            test.console.print(f"[green]Successfully sent {dat} over UART!")
                             break
                         if pulse_count == 9:
-                            print(f"Couldn't send {dat} over UART!")
+                            test.console.print(f"[red]Couldn't send {dat} over UART!")
                             uart.close()
                             return False
     elif test.test_name == "IRQ_uart_rx":
         uart.write("I")
         pulse_count = test.receive_packet(250)
         if pulse_count == 5:
-            print(f"{test.test_name} Test passed!")
+            test.console.print(f"[green]{test.test_name} Test passed!")
             return True
         if pulse_count == 9:
-            print(f"{test.test_name} Test Failed!")
+            test.console.print(f"[red]{test.test_name} Test Failed!")
             uart.close()
             return False
 
     for i in range(0, 3):
         pulse_count = test.receive_packet(250)
         if pulse_count == 3:
-            print("end UART test")
+            test.console.print("end UART test")
     uart.close()
     return True
 
@@ -175,7 +177,7 @@ def process_clock(test, device):
     fc = FreqCounter(device)
     pulse_count = test.receive_packet(250)
     if pulse_count == 2:
-        print("start test")
+        test.console.print("start test")
     fc.open()
     time.sleep(5)
     data, data_time = fc.record(1)
@@ -191,7 +193,7 @@ def process_clock(test, device):
         if counter == 2:
             freq = 1 / one_time
             frq_MHz_1 = freq / 1000000
-            print("Channel 14: Measured frequency: %.2f MHz" % (frq_MHz_1))
+            test.console.print("Channel 14: Measured frequency: %.2f MHz" % (frq_MHz_1))
             break
 
     data, data_time = fc.record(2)
@@ -207,7 +209,7 @@ def process_clock(test, device):
         if counter == 2:
             freq = 1 / one_time
             frq_MHz_2 = freq / 1000000
-            print("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz_2))
+            test.console.print("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz_2))
             break
     return f"IO[14]:{frq_MHz_1}, IO[15]:{frq_MHz_2}"
 
@@ -218,21 +220,21 @@ def process_mem(test):
     while True:
         pulse_count = test.receive_packet(250)
         if pulse_count == 1:
-            print("start test")
+            test.console.print("start test")
         if pulse_count == 5:
-            print(f"passed mem size {mem_size}")
+            test.console.print(f"passed mem size {mem_size}")
             mem_size = mem_size + 1
         if pulse_count == 3:
             if phase > 1:
-                print("Test finished")
+                test.console.print("Test finished")
                 return True
             else:
                 phase = phase + 1
-                print("end test")
+                test.console.print("end test")
 
         if pulse_count == 9:
-            print(
-                f"{test.test_name} test failed with {test.voltage}v supply, mem size {mem_size}"
+            test.console.print(
+                f"[red]{test.test_name} test failed with {test.voltage}v supply, mem size {mem_size}"
             )
             return mem_size
 
@@ -240,16 +242,16 @@ def process_mem(test):
 def hk_stop(close):
     global pid
     if not close:
-        print("running caravel_hkstop.py...")
+        test.console.print("running caravel_hkstop.py...")
         p = subprocess.Popen(
             ["python3", "caravel_board/firmware_vex/util/caravel_hkstop.py"],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
         pid = p.pid
-        print("subprocess pid:", pid)
+        # test.console.print("subprocess pid:", pid)
     elif pid:
-        print("stopping caravel_hkstop.py...")
+        test.console.print("stopping caravel_hkstop.py...")
         os.kill(pid, signal.SIGTERM)
         pid = None
 
@@ -266,7 +268,7 @@ def process_io(test, io):
     while end_pulses < 2:
         pulse_count = test.receive_packet(25)
         if phase == 0 and pulse_count == 1:
-            print("Start test")
+            test.console.print("Start test")
             phase = phase + 1
         elif phase > 0 and pulse_count == 1:
             rst = rst + 1
@@ -291,7 +293,7 @@ def process_io(test, io):
             if analog and channel > 13 and channel < 25:
                 pass
             else:
-                print(f"start sending pulses to gpio[{channel}]")
+                test.console.print(f"start sending pulses to gpio[{channel}]")
                 state = "HI"
                 timeout = time.time() + 20
                 accurate_delay(12.5)
@@ -307,10 +309,10 @@ def process_io(test, io):
                             io_pulse = io_pulse + 1
                     if io_pulse == 4:
                         io_pulse = 0
-                        print(f"gpio[{channel}] Passed")
+                        test.console.print(f"gpio[{channel}] Passed")
                         break
                     if time.time() > timeout:
-                        print(f"Timeout failure on gpio[{channel}]!")
+                        test.console.print(f"Timeout failure on gpio[{channel}]!")
                         return False, channel
     return True, None
 
@@ -321,7 +323,7 @@ def process_io_plud(test):
     pulse_count = test.receive_packet(250)
 
     if pulse_count == 1:
-        print("Start test")
+        test.console.print("Start test")
     if test.test_name == "gpio_lpu_ho":
         default_val = 1
         default_val_n = 0
@@ -374,7 +376,7 @@ def run_io_plud(default_val, default_val_n, first_itter):
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
-                print(f"channel {channel} FAILED!")
+                test.console.print(f"[red]channel {channel} FAILED!")
                 return False
         else:
             if not flag:
@@ -386,7 +388,7 @@ def run_io_plud(default_val, default_val_n, first_itter):
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
-                print(f"channel {channel} FAILED!")
+                test.console.print(f"[red]channel {channel} FAILED!")
                 return False
     hk_stop(True)
     if test_counter == 19:
@@ -421,7 +423,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
-                print(f"channel {channel} FAILED!")
+                test.console.print(f"[red]channel {channel} FAILED!")
                 return False
         else:
             if not flag:
@@ -433,9 +435,9 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
-                print(f"channel {channel} FAILED!")
+                test.console.print(f"[red]channel {channel} FAILED!")
                 return False
-    print(test_counter)
+    test.console.print(test_counter)
     hk_stop(True)
     if test_counter == 19:
         return True
@@ -452,30 +454,30 @@ def process_external(test):
     for passing in test.passing_criteria:
         pulse_count = test.receive_packet(250)
         if pulse_count == passing:
-            print(f"pass phase {phase}")
+            test.console.print(f"pass phase {phase}")
             if phase == 0:
                 channel = test.device1v8.dio_map[channel]
                 channel.set_state(True)
                 channel.set_value(1)
             phase = phase + 1
         if pulse_count == 9:
-            print(f"{test.test_name} test failed with {test.voltage}v supply!")
+            test.console.print(f"[red]{test.test_name} test failed with {test.voltage}v supply!")
             return False
 
     if len(test.passing_criteria) == phase:
-        print(f"{test.test_name} test Passed with {test.voltage}v supply!")
+        test.console.print(f"[green]{test.test_name} test Passed with {test.voltage}v supply!")
         return True
 
 
 def process_spi(test, spi):
     spi.open()
-    print(spi.read(1))
+    test.console.print(spi.read(1))
     # csb = spi.device_data.dio_map[spi.cs]
 
     # while not csb.get_value():
     #     pass
 
-    # print("CSB is high")
+    # test.console.print("CSB is high")
 
     # spi.enabled()
     # spi.rw_mode = "r"
@@ -488,8 +490,8 @@ def process_spi(test, spi):
     # for i in range(0, 8):
     #     spi.clk_trig()
     #     data2 = data2 + str(spi.data[i])
-    # print(int(data1, 2))
-    # print(int(data2, 2))
+    # test.console.print(int(data1, 2))
+    # test.console.print(int(data2, 2))
     return False
 
 
@@ -508,14 +510,14 @@ def process_input_io(test, io):
             if channel == 5:
                 hk_stop(True)
             if pulse_count == 1:
-                print(f"Sending 4 pulses on gpio[{channel}]")
+                test.console.print(f"Sending 4 pulses on gpio[{channel}]")
                 test.send_pulse(4, channel, 5)
                 ack_pulse = test.receive_packet(25)
                 if ack_pulse == 5:
-                    print(f"gpio[{channel}] Failed to send pulse")
+                    test.console.print(f"[red]gpio[{channel}] Failed to send pulse")
                     return False, channel
                 elif ack_pulse == 3:
-                    print(f"gpio[{channel}] sent pulse successfully")
+                    test.console.print(f"[green]gpio[{channel}] sent pulse successfully")
                 if io == "low":
                     channel = channel + 1
                 else:
@@ -525,13 +527,22 @@ def process_input_io(test, io):
 
 
 def flash_test(
-    test, hex_file, flash_flag, uart, uart_data, mem, io, mode, spi_flag, spi, external, clock, la_device
+    test, hex_file, flash_flag, uart, uart_data, mem, io, mode, spi_flag, spi, external, clock, la_device, flash_only
 ):
+    if flash_only:
+        run_only = False
+    else:
+        run_only = True
     test.reset_devices()
-    if flash_flag:
-        logging.info(f"==============================================================================")
-        logging.info(f"  Flashing :  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
-        logging.info(f"==============================================================================")
+    if flash_flag or flash_only:
+        test.console.print("==============================================================================")
+        test.console.print(f"  Flashing :  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
+        test.console.print("==============================================================================")
+
+        test.progress.update(
+            test.task,
+            description=f"Flashing {test.test_name}",
+        )
         test.power_down()
         test.apply_reset()
         test.power_up_1v8()
@@ -542,44 +553,52 @@ def flash_test(
         test.power_down()
         time.sleep(5)
     test.power_up()
-    logging.info(f"   changing VCORE voltage to {test.voltage}v")
     test.device1v8.supply.set_voltage(test.voltage)
     test.reset()
 
-    logging.info(f"==============================================================================")
-    logging.info(f"  Running  :  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
-    logging.info(f"==============================================================================")
+    test.console.print("==============================================================================")
+    test.console.print(f"  Running  :  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
+    test.console.print("==============================================================================")
 
     results = None
 
-    if uart:
-        results = process_uart(test, uart_data)
-    elif mem:
-        results = process_mem(test)
-    elif io:
-        if mode == "output":
-            results = process_io(test, io)
-        elif mode == "input":
-            results = process_input_io(test, io)
-        elif mode == "plud":
-            results = process_io_plud(test)
+    if run_only:
+        test.progress.update(
+            test.task,
+            advance=1,
+            description=f"Running {test.test_name} on {test.voltage}V",
+            visible=True,
+        )
+        if uart:
+            results = process_uart(test, uart_data)
+        elif mem:
+            results = process_mem(test)
+        elif io:
+            if mode == "output":
+                results = process_io(test, io)
+            elif mode == "input":
+                results = process_input_io(test, io)
+            elif mode == "plud":
+                results = process_io_plud(test)
+            else:
+                test.console.print(f"ERROR : No {mode} mode")
+                exit(1)
+        elif spi_flag:
+            results = process_spi(test, spi)
+        elif external:
+            results = process_external(test)
+        elif clock:
+            results = process_clock(test, la_device)
         else:
-            print(f"ERROR : No {mode} mode")
-            exit(1)
-    elif spi_flag:
-        results = process_spi(test, spi)
-    elif external:
-        results = process_external(test)
-    elif clock:
-        results = process_clock(test, la_device)
+            results = process_data(test)
+
+        test.console.print("==============================================================================")
+        test.console.print(f"  Completed:  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
+        test.console.print("==============================================================================")
+
+        return results
     else:
-        results = process_data(test)
-
-    logging.info(f"==============================================================================")
-    logging.info(f"  Completed:  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
-    logging.info(f"==============================================================================")
-
-    return results
+        return True
 
 
 def exec_test(
@@ -598,6 +617,7 @@ def exec_test(
     external=False,
     clock=False,
     la_device=None,
+    flash_only=False,
 ):
     results = flash_test(
         test,
@@ -611,23 +631,41 @@ def exec_test(
         spi_flag,
         spi,
         external,
+        flash_only,
         clock,
         la_device,
     )
     end_time = time.time() - start_time
-    arr = [test.test_name, test.voltage, results, end_time]
+    if results:
+        arr = [test.test_name, test.voltage, "passed", end_time]
+    else:
+        arr = [test.test_name, test.voltage, "failed", end_time]
     writer.writerow(arr)
 
 
 if __name__ == "__main__":
     try:
-        logging.basicConfig(level=logging.INFO)
-        logging.info(f"=============================================================")
-        if analog:
-            logging.info(f"  Beginning Tests for analog project")
-        else:
-            logging.info(f"  Beginning Tests for digital project")
-        logging.info(f"=============================================================")
+        parser = argparse.ArgumentParser(description="SI validation.")
+        parser.add_argument(
+            "-f",
+            "--flash_only",
+            help="Only Flash test",
+            action="store_true",
+            default=False,
+        )
+        parser.add_argument(
+            "-r",
+            "--run_only",
+            help="Run test without flash",
+            action="store_true",
+            default=False,
+        )
+        parser.add_argument(
+            "-t",
+            "--test",
+            help="Run Standalone test if in manifest",
+        )
+        args = parser.parse_args()
         # open multiple devices
         devices = device.open_devices()
         # connect devices using hardcoded serial numbers
@@ -638,7 +676,7 @@ if __name__ == "__main__":
             devices, d1_sn, d2_sn, d3_sn
         )
 
-        logging.info("   Initializing I/Os for both devices")
+        # logging.info("   Initializing I/Os for both devices")
         # Initializing I/Os
         device1_dio_map, device2_dio_map, device3_dio_map = init_ad_ios(
             device1_data, device2_data, device3_data
@@ -652,101 +690,142 @@ if __name__ == "__main__":
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
 
+        test.console.print("==============================================================================")
+        if analog:
+            test.console.print("  Beginning Tests for analog project")
+        else:
+            test.console.print("  Beginning Tests for digital project")
+        test.console.print("==============================================================================")
+
         csv_header = ["Test_name", "Voltage (v)", "Pass/Fail", "Time (s)"]
         if os.path.exists("./results.csv"):
             os.remove("./results.csv")
+        if os.path.exists("./flash.log"):
+            os.remove("./flash.log")
 
         with open("results.csv", "a", encoding="UTF8") as f:
             writer = csv.writer(f)
 
             # write the header
             writer.writerow(csv_header)
+            test_flag = False
+            test.task = test.progress.add_task("SI validation", total=(len(TestDict) * len(voltage)))
+            test.progress.start()
             for t in TestDict:
-                start_time = time.time()
-                test.test_name = t["test_name"]
-                test.passing_criteria = t["passing_criteria"]
-                flash_flag = True
-                counter = 0
-                for v in voltage:
-                    test.voltage = v
-                    # logging.info(f"=============================================================")
-                    # logging.info(f"  Running:  {test.test_name}")
-                    # logging.info(f"=============================================================")
-                    if counter > 0:
-                        flash_flag = False
-                    if t["uart"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            writer,
-                            t["hex_file_path"],
-                            flash_flag,
-                            True,
-                            uart_data,
-                        )
-                    elif t["mem"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            writer,
-                            t["hex_file_path"],
-                            flash_flag,
-                            mem=True,
-                        )
-                    elif t["io"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            writer,
-                            t["hex_file_path"],
-                            flash_flag,
-                            io=t["io"],
-                            mode=t["mode"],
-                        )
-                    elif t["spi"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            writer,
-                            t["hex_file_path"],
-                            flash_flag,
-                            spi_flag=t["spi"],
-                            spi=spi,
-                        )
-                    elif t["external"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            writer,
-                            t["hex_file_path"],
-                            flash_flag,
-                            external=t["external"],
-                        )
-                    elif t["clock"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            writer,
-                            t["hex_file_path"],
-                            flash_flag,
-                            clock=t["clock"],
-                            la_device=device3_data
-                        )
-                    else:
-                        exec_test(
-                            test, start_time, writer, t["hex_file_path"], flash_flag
-                        )
-                    counter += 1
-                    test.close_devices()
-                    time.sleep(5)
-                    devices = device.open_devices()
-        logging.info(f"=============================================================")
-        logging.info(f"  All Tests Complete")
-        logging.info(f"=============================================================")
+                if not args.test or args.test == t["test_name"]:
+                    test.test_name = t["test_name"]
+                    test.passing_criteria = t["passing_criteria"]
+                    flash_flag = True
+                    counter = 0
+                    test_flag = True
+                    for v in voltage:
+                        start_time = time.time()
+                        test.voltage = v
+                        if counter > 0 or args.run_only:
+                            flash_flag = False
+                        if t["uart"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                writer,
+                                t["hex_file_path"],
+                                flash_flag,
+                                True,
+                                uart_data,
+                                flash_only=args.flash_only,
+                            )
+                        elif t["mem"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                writer,
+                                t["hex_file_path"],
+                                flash_flag,
+                                mem=True,
+                                flash_only=args.flash_only,
+                            )
+                        elif t["io"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                writer,
+                                t["hex_file_path"],
+                                flash_flag,
+                                io=t["io"],
+                                mode=t["mode"],
+                                flash_only=args.flash_only,
+                            )
+                        elif t["spi"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                writer,
+                                t["hex_file_path"],
+                                flash_flag,
+                                spi_flag=t["spi"],
+                                spi=spi,
+                                flash_only=args.flash_only,
+                            )
+                        elif t["external"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                writer,
+                                t["hex_file_path"],
+                                flash_flag,
+                                external=t["external"],
+                                flash_only=args.flash_only,
+                            )
+                        elif t["clock"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                writer,
+                                t["hex_file_path"],
+                                flash_flag,
+                                clock=t["clock"],
+                                la_device=device3_data
+                            )
+                        else:
+                            exec_test(
+                                test, start_time, writer, t["hex_file_path"], flash_flag, flash_only=args.flash_only,
+                            )
+                        counter += 1
+                        test.close_devices()
+                        time.sleep(5)
+
+                        with open(os.devnull, 'a') as f:
+                            sys.stdout = f
+                            devices = device.open_devices()
+                            sys.stdout = sys.__stdout__
+
+            if not test_flag:
+                test.console.print(f"[red]ERROR : Coun't find test {args.test}")
+
+        test.console.print("==============================================================================")
+        test.console.print("  All Tests Complete")
+        test.console.print("==============================================================================")
         test.close_devices()
+        # Load CSV data
+        with open('results.csv') as f:
+            reader = csv.reader(f)
+            headers = next(reader)
+
+            table = Table(title="Regression Results")
+
+            for header in headers:
+                table.add_column(header)
+
+            for row in reader:
+                table.add_row(*row)
+
+            test.console.print(table)
+
+        test.progress.stop()
         os._exit(0)
     except KeyboardInterrupt:
-        print("Interrupted")
+        test.console.print("Interrupted")
+        test.progress.stop()
         try:
             test.close_devices()
             os._exit(1)

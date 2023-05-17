@@ -7,6 +7,7 @@ import time
 import datetime
 import subprocess
 import signal
+import sys
 from rich.table import Table
 from manifest import TestDict, device1_sn, device2_sn, device3_sn, voltage, analog
 
@@ -735,7 +736,11 @@ if __name__ == "__main__":
                         counter += 1
                         test.close_devices()
                         time.sleep(5)
-                        devices = device.open_devices()
+
+                        with open(os.devnull, 'a') as f:
+                            sys.stdout = f
+                            devices = device.open_devices()
+                            sys.stdout = sys.__stdout__
 
             if not test_flag:
                 test.console.print(f"[red]ERROR : Coun't find test {args.test}")

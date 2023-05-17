@@ -631,7 +631,7 @@ if __name__ == "__main__":
         device1 = Device(device1_data, 0, device1_dio_map)
         device2 = Device(device2_data, 1, device2_dio_map)
         device3 = Device(device3_data, 2, device3_dio_map)
-        device_ps = Device(device_ps_data, 3)
+        device_ps = Device(device_ps_data, 3, None)
 
         test = Test(device1, device2, device3, device_ps=device_ps)
         uart_data = UART(device1_data)

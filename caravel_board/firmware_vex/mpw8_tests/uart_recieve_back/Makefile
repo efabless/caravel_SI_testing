@@ -9,9 +9,7 @@
 # ---- Test patterns for project raven ----
 
 .SUFFIXES:
-TESTNAME = IRQ_external2
+TESTNAME = uart_recieve_back
 
 
 include ../common/Makefile.common
-
-

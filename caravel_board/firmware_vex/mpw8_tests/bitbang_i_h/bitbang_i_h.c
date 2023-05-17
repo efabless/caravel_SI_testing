@@ -1,27 +1,5 @@
 #include <common.h>
-
-void set_registers()
-{
-    configure_gpio(19, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(20, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(21, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(22, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(23, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(24, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(25, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(26, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(27, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(28, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(29, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(30, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(31, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(32, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(33, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(34, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(35, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(36, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(37, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-}
+#include <bitbang.h>
 /*
 @ send on the next io (start from 37 to 19)
     send packet with size 1
@@ -45,12 +23,10 @@ void main()
     int old_recieved;
     int timeout = 15000;
     long int timeout_count = 0;
-    set_registers();
     set_gpio_h(0);
     set_gpio_l(0);
     configure_mgmt_gpio();
-    //    gpio_config_io();
-    gpio_config_load();
+    bb_configure_all_gpios(GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     count_down(PULSE_WIDTH * 20);
     // send_packet(1); // configuration finished start test
 

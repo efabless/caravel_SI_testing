@@ -632,6 +632,8 @@ def exec_test(
         spi,
         external,
         flash_only,
+        clock,
+        la_device,
     )
     end_time = time.time() - start_time
     if results:

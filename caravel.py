@@ -8,7 +8,7 @@ import sys
 from ctypes import *
 import logging
 import os
-from rich.console import console
+from rich.console import Console
 from rich.progress import (
     Progress,
     TextColumn,
@@ -48,13 +48,14 @@ class Test:
         self.sram = sram
         self.passing_criteria = passing_criteria
         self.task = None
+        self.console = Console()
 
         self.progress = Progress(
             TextColumn("[progress.description]{task.description}"),
             BarColumn(),
             MofNCompleteColumn(),
             TimeElapsedColumn(),
-            console=console,
+            console=self.console,
         )
 
     def receive_packet(self, pulse_width=25):
@@ -173,7 +174,7 @@ class Test:
             )
         ret_code = sp.returncode
         if ret_code != 0:
-            console.error("Can't flash!")
+            self..error("Can't flash!")
             self.close_devices()
             os._exit(1)
 
@@ -384,7 +385,7 @@ class Dio:
                     - True means HIGH, False means LOW
         """
         if self.state is True:
-            console.error("can't set value for an input pin")
+            print("can't set value for an input pin")
         else:
             # load current state of the output state buffer
             mask = ctypes.c_uint16()

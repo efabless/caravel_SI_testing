@@ -617,12 +617,6 @@ if __name__ == "__main__":
             help="Run Standalone test if in manifest",
         )
         args = parser.parse_args()
-        test.console.log("=============================================================")
-        if analog:
-            test.console.log("  Beginning Tests for analog project")
-        else:
-            test.console.log("  Beginning Tests for digital project")
-        test.console.log("=============================================================")
         # open multiple devices
         devices = device.open_devices()
         # connect devices using hardcoded serial numbers
@@ -646,6 +640,13 @@ if __name__ == "__main__":
         test = Test(device1, device2, device3)
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
+
+        test.console.log("=============================================================")
+        if analog:
+            test.console.log("  Beginning Tests for analog project")
+        else:
+            test.console.log("  Beginning Tests for digital project")
+        test.console.log("=============================================================")
 
         csv_header = ["Test_name", "Voltage (v)", "Pass/Fail", "Time (s)"]
         if os.path.exists("./results.csv"):

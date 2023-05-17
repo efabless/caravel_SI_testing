@@ -161,9 +161,10 @@ class Test:
             hex_file (string): path to hex file
         """
         with open("flash.log", "a") as f:
-            f.write("=============================================================")
+            f.write("==============================================")
             f.write(f"   Flashing {self.test_name}")
-            f.write("=============================================================")
+            f.write(" ==============================================\n")
+            time.sleep(0.5)
             sp = subprocess.run(
                 f"python3 caravel_hkflash.py {hex_file}",
                 cwd="./caravel_board/firmware_vex/util/",

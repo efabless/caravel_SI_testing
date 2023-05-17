@@ -642,12 +642,12 @@ if __name__ == "__main__":
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
 
-        test.console.print("=============================================================")
+        test.console.print("==============================================================================")
         if analog:
             test.console.print("  Beginning Tests for analog project")
         else:
             test.console.print("  Beginning Tests for digital project")
-        test.console.print("=============================================================")
+        test.console.print("==============================================================================")
 
         csv_header = ["Test_name", "Voltage (v)", "Pass/Fail", "Time (s)"]
         if os.path.exists("./results.csv"):
@@ -740,23 +740,26 @@ if __name__ == "__main__":
             if not test_flag:
                 test.console.print(f"[red]ERROR : Coun't find test {args.test}")
 
-        test.console.print("=============================================================")
+        test.console.print("==============================================================================")
         test.console.print("  All Tests Complete")
-        test.console.print("=============================================================")
+        test.console.print("==============================================================================")
         test.close_devices()
-        test.progress.stop()
         # Load CSV data
         with open('results.csv') as f:
             reader = csv.reader(f)
-            data = list(reader)
+            headers = next(reader)
 
-        # Create table
-        table = Table(title="Regression Results")
-        for row in data:
-            table.add_row(*row)
+            table = Table(title="Regression Results")
 
-        # Print table to console
-        test.console.print(table)
+            for header in headers:
+                table.add_column(header)
+
+            for row in reader:
+                table.add_row(*row)
+
+            test.console.print(table)
+
+        test.progress.stop()
         os._exit(0)
     except KeyboardInterrupt:
         test.console.print("Interrupted")

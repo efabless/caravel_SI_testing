@@ -636,10 +636,21 @@ def exec_test(
         la_device,
     )
     end_time = time.time() - start_time
-    if results:
-        arr = [test.test_name, test.voltage, "passed", end_time]
-    else:
-        arr = [test.test_name, test.voltage, "failed", end_time]
+
+    if type(results) == bool:
+        if results:
+            arr = [test.test_name, test.voltage, "passed", end_time]
+        else:
+            arr = [test.test_name, test.voltage, "failed", end_time]
+    elif type(results) == tuple:
+        if type(results[0]) == bool:
+            if results[0]:
+                arr = [test.test_name, test.voltage, "passed", end_time]
+            else:
+                arr = [test.test_name, test.voltage, f"failed, {results[1]}", end_time]
+    elif type(results) == str:
+        arr = [test.test_name, test.voltage, results, end_time]
+
     writer.writerow(arr)
 
 

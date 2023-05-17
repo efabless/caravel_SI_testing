@@ -211,7 +211,10 @@ def process_clock(test, device):
             frq_MHz_2 = freq / 1000000
             test.console.print("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz_2))
             break
-    return f"IO[14]:{frq_MHz_1}, IO[15]:{frq_MHz_2}"
+    if frq_MHz_1 > 5 or frq_MHz_2 > 5:
+        return f"IO[14]:{frq_MHz_1}, IO[15]:{frq_MHz_2}"
+    else:
+        return False
 
 
 def process_mem(test):
@@ -637,9 +640,9 @@ def exec_test(
         spi_flag,
         spi,
         external,
-        flash_only,
         clock,
         la_device,
+        flash_only,
     )
     end_time = time.time() - start_time
 

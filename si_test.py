@@ -392,6 +392,9 @@ def run_io_plud(default_val, default_val_n, first_itter):
                 return False
     hk_stop(True)
     if test_counter == 19:
+        test.console.print(
+            f"[green]{test.test_name} test passed"
+        )
         return True
     else:
         return False
@@ -440,6 +443,9 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
     test.console.print(test_counter)
     hk_stop(True)
     if test_counter == 19:
+        test.console.print(
+            f"[green]{test.test_name} test Passed"
+        )
         return True
     else:
         return False

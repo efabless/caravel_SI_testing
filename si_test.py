@@ -212,7 +212,7 @@ def process_clock(test, device):
             test.console.print("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz_2))
             break
     if frq_MHz_1 > 5 or frq_MHz_2 > 5:
-        return f"IO[14]:{frq_MHz_1}, IO[15]:{frq_MHz_2}"
+        return "IO[14]:%.2f MHz, IO[15]:%.2f MHz" % (frq_MHz_1, frq_MHz_2)
     else:
         return False
 
@@ -658,7 +658,7 @@ def exec_test(
             else:
                 arr = [test.test_name, test.voltage, f"failed, {results[1]}", end_time]
     elif type(results) == str:
-        arr = [test.test_name, test.voltage, results, end_time]
+        arr = [test.test_name, test.voltage, results, "%.2f" % (end_time)]
 
     writer.writerow(arr)
 

@@ -1,5 +1,5 @@
 import argparse
-from caravel import Dio, Test, accurate_delay
+from caravel import Dio, FreqCounter, Test, accurate_delay
 from io_config import Device, device, connect_devices, UART, SPI
 import os
 import csv
@@ -171,6 +171,47 @@ def process_uart(test, uart):
             test.console.print("end UART test")
     uart.close()
     return True
+
+
+def process_clock(test, device):
+    fc = FreqCounter(device)
+    pulse_count = test.receive_packet(250)
+    if pulse_count == 2:
+        test.console.print("start test")
+    fc.open()
+    time.sleep(5)
+    data, data_time = fc.record(1)
+    counter = 0
+    state = 0
+    for i in range(len(data)):
+        if data[i] <= 0 and state == 1:
+            state = 0
+        if data[i] >= 2 and state == 0:
+            one_time = data_time[i]
+            state = 1
+            counter += 1
+        if counter == 2:
+            freq = 1 / one_time
+            frq_MHz_1 = freq / 1000000
+            test.console.print("Channel 14: Measured frequency: %.2f MHz" % (frq_MHz_1))
+            break
+
+    data, data_time = fc.record(2)
+    counter = 0
+    state = 0
+    for i in range(len(data)):
+        if data[i] <= 0 and state == 1:
+            state = 0
+        if data[i] >= 2 and state == 0:
+            one_time = data_time[i]
+            state = 1
+            counter += 1
+        if counter == 2:
+            freq = 1 / one_time
+            frq_MHz_2 = freq / 1000000
+            test.console.print("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz_2))
+            break
+    return f"IO[14]:{frq_MHz_1}, IO[15]:{frq_MHz_2}"
 
 
 def process_mem(test):
@@ -486,7 +527,7 @@ def process_input_io(test, io):
 
 
 def flash_test(
-    test, hex_file, flash_flag, uart, uart_data, mem, io, mode, spi_flag, spi, external, flash_only
+    test, hex_file, flash_flag, uart, uart_data, mem, io, mode, spi_flag, spi, external, clock, la_device, flash_only
 ):
     if flash_only:
         run_only = False
@@ -546,6 +587,8 @@ def flash_test(
             results = process_spi(test, spi)
         elif external:
             results = process_external(test)
+        elif clock:
+            results = process_clock(test, la_device)
         else:
             results = process_data(test)
 
@@ -572,6 +615,8 @@ def exec_test(
     spi_flag=False,
     spi=None,
     external=False,
+    clock=False,
+    la_device=None,
     flash_only=False,
 ):
     results = flash_test(
@@ -728,6 +773,16 @@ if __name__ == "__main__":
                                 flash_flag,
                                 external=t["external"],
                                 flash_only=args.flash_only,
+                            )
+                        elif t["clock"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                writer,
+                                t["hex_file_path"],
+                                flash_flag,
+                                clock=t["clock"],
+                                la_device=device3_data
                             )
                         else:
                             exec_test(

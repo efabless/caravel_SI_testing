@@ -559,58 +559,122 @@ class UART:
         dwf.FDwfDigitalOutReset(self.device_data.handle)
 
 
-# class SPI:
-#     def __init__(self, device_data, rw_mode="r", data=[]):
-#         self.device_data = device_data
-#         self.cs = 33
-#         self.sck = 32
-#         self.miso = 35
-#         self.mosi = 34
-#         self.clk_freq = 1e06
-#         self.mode = 0
-#         self.order = True
-#         self.data = data
-#         self.rw_mode = rw_mode
+class SPI:
+    def __init__(self, device_data, rw_mode="r", data=[]):
+        self.device_data = device_data
+        self.cs = 33
+        self.sck = 32
+        self.miso = 35
+        self.mosi = 34
+        self.clk_freq = 10e06
+        self.mode = 0
+        self.order = True
+        self.data = data
+        self.rw_mode = rw_mode
 
-#     def enabled(self):
-#         csb = self.device_data.dio_map[self.cs]
+    def open(self):
+        """
+            initializes SPI communication
+            parameters: - device data
+                        - cs (DIO line used for chip select)
+                        - sck (DIO line used for serial clock)
+                        - miso (DIO line used for master in - slave out, optional)
+                        - mosi (DIO line used for master out - slave in, optional)
+                        - frequency (communication frequency in Hz, default is 1MHz)
+                        - mode (SPI mode: 0: CPOL=0, CPHA=0; 1: CPOL-0, CPHA=1; 2: CPOL=1, CPHA=0; 3: CPOL=1, CPHA=1)
+                        - order (endianness, True means MSB first - default, False means LSB first)
+        """
+        # set the clock frequency
+        dwf.FDwfDigitalSpiFrequencySet(self.device_data.handle, ctypes.c_double(self.clk_frequency))
+    
+        # set the clock pin
+        dwf.FDwfDigitalSpiClockSet(self.device_data.handle, ctypes.c_int(self.sck))
+    
+        if self.mosi != None:
+            # set the mosi pin
+            dwf.FDwfDigitalSpiDataSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_int(self.mosi))
+    
+            # set the initial state
+            dwf.FDwfDigitalSpiIdleSet(self.device_data.handle, ctypes.c_int(0), constants.DwfDigitalOutIdleZet)
+    
+        if self.miso != None:
+            # set the miso pin
+            dwf.FDwfDigitalSpiDataSet(self.device_data.handle, ctypes.c_int(1), ctypes.c_int(self.miso))
+    
+            # set the initial state
+            dwf.FDwfDigitalSpiIdleSet(self.device_data.handle, ctypes.c_int(1), constants.DwfDigitalOutIdleZet)
+    
+        # set the SPI mode
+        dwf.FDwfDigitalSpiModeSet(self.device_data.handle, ctypes.c_int(self.mode))
+    
+        # set endianness
+        if self.order:
+            # MSB first
+            dwf.FDwfDigitalSpiOrderSet(self.device_data.handle, ctypes.c_int(1))
+        else:
+            # LSB first
+            dwf.FDwfDigitalSpiOrderSet(self.device_data.handle, ctypes.c_int(0))
+    
+        # set the cs pin HIGH
+        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(1))
+    
+        # dummy write
+        dwf.FDwfDigitalSpiWriteOne(self.device_data.handle, ctypes.c_int(1), ctypes.c_int(0), ctypes.c_int(0))
+        return
 
-#         while csb.get_value():
-#             pass
-
-#         print("CSB is low")
-
-#         return True
-
-#     def clk_trig(self):
-#         clk = self.device_data.dio_map[self.sck]
-#         if self.rw_mode == "r":
-#             while not clk.get_value():
-#                 pass
-#             # print("clk is high")
-#             self.read_data()
-#             while clk.get_value():
-#                 pass
-#             # print("clk is low")
-#         if self.rw_mode == "w":
-#             while clk.get_value():
-#                 pass
-#             self.write_data()
-#             while not clk.get_value():
-#                 pass
-
-#     def read_data(self):
-#         input = self.device_data.dio_map[self.miso]
-#         if input.get_value() == True:
-#             self.data.append(1)
-#         elif input.get_value() == False:
-#             self.data.append(0)
-#         print(self.data)
-
-#     def write_data(self):
-#         input = self.device_data.dio_map[self.mosi]
-#         input.set_state(True)
-#         input.set_value(self.data.pop(0))
+    
+    def read(self, count=1):
+        """
+            receives data from SPI
+            parameters: - device data
+                        - count (number of bytes to receive)
+                        - chip select line number
+            return:     - integer list containing the received bytes
+        """
+        # enable the chip select line
+        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(0))
+    
+        # create buffer to store data
+        buffer = (ctypes.c_ubyte*count)()
+    
+        # read array of 8 bit elements
+        dwf.FDwfDigitalSpiRead(self.device_data.handle, ctypes.c_int(1), ctypes.c_int(8), buffer, ctypes.c_int(len(buffer)))
+    
+        # disable the chip select line
+        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(cs), ctypes.c_int(1))
+    
+        # decode data
+        data = [int(element) for element in buffer]
+        return data
+    
+    def write(self, data):
+        """
+            send data through SPI
+            parameters: - device data
+                        - data of type string, int, or list of characters/integers
+                        - chip select line number
+        """
+        # cast data
+        if type(data) == int:
+            data = "".join(chr (data))
+        elif type(data) == list:
+            data = "".join(chr (element) for element in data)
+    
+        # enable the chip select line
+        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(0))
+    
+        # create buffer to write
+        data = bytes(data, "utf-8")
+        buffer = (ctypes.c_ubyte * len(data))()
+        for index in range(0, len(buffer)):
+            buffer[index] = ctypes.c_ubyte(data[index])
+    
+        # write array of 8 bit elements
+        dwf.FDwfDigitalSpiWrite(self.device_data.handle, ctypes.c_int(1), ctypes.c_int(8), buffer, ctypes.c_int(len(buffer)))
+    
+        # disable the chip select line
+        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(cs), ctypes.c_int(1))
+        return
 
 
 class SPI:
@@ -774,6 +838,157 @@ class SPI:
         reset the spi interface
         """
         dwf.FDwfDigitalSpiReset(self.device_data.handle)
+        return
+
+
+class FreqCounter:
+    def __init__(self, device_data):
+        self.device_data = device_data
+        self.sampling_frequency = 100e06
+        self.buffer_size = 8192
+    def open(self, sampling_frequency=100e06, buffer_size=8192, offset=0, amplitude_range=1):
+        """
+            initialize the oscilloscope
+            parameters: - device data
+                        - sampling frequency in Hz, default is 20MHz
+                        - buffer size, default is 8192
+                        - offset voltage in Volts, default is 0V
+                        - amplitude range in Volts, default is ±5V
+        """
+        # enable all channels
+        dwf.FDwfAnalogInChannelEnableSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_bool(True))
+    
+        # set offset voltage (in Volts)
+        dwf.FDwfAnalogInChannelOffsetSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_double(offset))
+    
+        # set range (maximum signal amplitude in Volts)
+        dwf.FDwfAnalogInChannelRangeSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_double(amplitude_range))
+    
+        # set the buffer size (data point in a recording)
+        dwf.FDwfAnalogInBufferSizeSet(self.device_data.handle, ctypes.c_int(buffer_size))
+    
+        # set the acquisition frequency (in Hz)
+        dwf.FDwfAnalogInFrequencySet(self.device_data.handle, ctypes.c_double(sampling_frequency))
+    
+        # disable averaging (for more info check the documentation)
+        dwf.FDwfAnalogInChannelFilterSet(self.device_data.handle, ctypes.c_int(-1), constants.filterDecimate)
+        self.sampling_frequency = sampling_frequency
+        self.buffer_size = buffer_size
+        return
+    
+    def record(self, channel):
+        """
+            record an analog signal
+            parameters: - device data
+                        - the selected oscilloscope channel (1-2, or 1-4)
+            returns:    - buffer - a list with the recorded voltages
+                        - time - a list with the time moments for each voltage in seconds (with the same index as "buffer")
+        """
+        # set up the instrument
+        dwf.FDwfAnalogInConfigure(self.device_data.handle, ctypes.c_bool(False), ctypes.c_bool(True))
+    
+        # read data to an internal buffer
+        while True:
+            status = ctypes.c_byte()    # variable to store buffer status
+            dwf.FDwfAnalogInStatus(self.device_data.handle, ctypes.c_bool(True), ctypes.byref(status))
+    
+            # check internal buffer status
+            if status.value == constants.DwfStateDone.value:
+                    # exit loop when ready
+                    break
+    
+        # copy buffer
+        buffer = (ctypes.c_double * self.buffer_size)()   # create an empty buffer
+        dwf.FDwfAnalogInStatusData(self.device_data.handle, ctypes.c_int(channel - 1), buffer, ctypes.c_int(self.buffer_size))
+    
+        # calculate aquisition time
+        time = range(0, self.buffer_size)
+        time = [moment / self.sampling_frequency for moment in time]
+    
+        # convert into list
+        buffer = [float(element) for element in buffer]
+        return buffer, time
+    
+class LogicAnalyzer:
+    def __init__(self, device_data):
+        self.device_data = device_data
+        self.sampling_frequency = 100e06
+        self.buffer_size = 8
+    
+    def open(self):
+        """
+            initialize the logic analyzer
+            parameters: - device data
+                        - sampling frequency in Hz, default is 100MHz
+                        - buffer size, default is 4096
+        """
+        # get internal clock frequency
+        internal_frequency = ctypes.c_double()
+        dwf.FDwfDigitalInInternalClockInfo(self.device_data.handle, ctypes.byref(internal_frequency))
+    
+        # set clock frequency divider (needed for lower frequency input signals)
+        dwf.FDwfDigitalInDividerSet(self.device_data.handle, ctypes.c_int(int(internal_frequency.value / self.sampling_frequency)))
+    
+        # set 16-bit sample format
+        dwf.FDwfDigitalInSampleFormatSet(self.device_data.handle, ctypes.c_int(16))
+    
+        # set buffer size
+        dwf.FDwfDigitalInBufferSizeSet(self.device_data.handle, ctypes.c_int(self.buffer_size))
+        # self.sampling_frequency = self.sampling_frequency
+        # self.buffer_size = self.buffer_size
+        return
+
+    def record(self, channel):
+        """
+            initialize the logic analyzer
+            parameters: - device data
+                        - channel - the selected DIO line number
+            returns:    - buffer - a list with the recorded logic values
+                        - time - a list with the time moments for each value in seconds (with the same index as "buffer")
+        """
+        # set up the instrument
+        dwf.FDwfDigitalInConfigure(self.device_data.handle, ctypes.c_bool(False), ctypes.c_bool(True))
+        time.sleep(0.10)
+    
+        # read data to an internal buffer
+        while True:
+            status = ctypes.c_byte()    # variable to store buffer status
+            dwf.FDwfDigitalInStatus(self.device_data.handle, ctypes.c_bool(True), ctypes.byref(status))
+    
+            if status.value == constants.stsDone.value:
+                # exit loop when finished
+                break
+
+        buffer = (ctypes.c_uint16 * self.buffer_size)()
+        dwf.FDwfDigitalInStatusData(self.device_data.handle, buffer, ctypes.c_int(self.buffer_size))
+    
+        # convert buffer to list of lists of integers
+        buffer = [int(element) for element in buffer]
+        result = [[] for _ in range(16)]
+        for point in buffer:
+            for index in range(16):
+                result[index].append(point & (1 << index))
+    
+        # calculate acquisition time
+        # time = range(0, self.buffer_size)
+        # time = [moment / self.sampling_frequency for moment in time]
+    
+        # get channel specific data
+        buffer = result[channel]
+        nSamples = len(buffer)
+        fFrequency = 0
+        pass_c = 2**channel
+        for i in range(1, nSamples):
+            if (buffer[i] == 0 and buffer[i-1] == pass_c):
+                fFrequency = self.sampling_frequency / (i * 2)
+                
+        return fFrequency
+    
+    def close(self):
+        """
+            reset the instrument
+        """
+        dwf.FDwfDigitalInReset(self.device_data.handle)
         return
 
 

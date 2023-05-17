@@ -8,6 +8,14 @@ import sys
 from ctypes import *
 import logging
 import os
+from rich.console import console
+from rich.progress import (
+    Progress,
+    TextColumn,
+    BarColumn,
+    MofNCompleteColumn,
+    TimeElapsedColumn,
+)
 
 # import flash
 
@@ -39,6 +47,15 @@ class Test:
         self.voltage = voltage
         self.sram = sram
         self.passing_criteria = passing_criteria
+        self.task = None
+
+        self.progress = Progress(
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            MofNCompleteColumn(),
+            TimeElapsedColumn(),
+            console=console,
+        )
 
     def receive_packet(self, pulse_width=25):
         """recieves packet using the wire protocol, uses the gpio_mgmt I/O
@@ -121,7 +138,7 @@ class Test:
         Args:
             duration (int, optional): duration of reset. Defaults to 1.
         """
-        logging.info("   applying reset on channel 0 device 1")
+        # logging.info("   applying reset on channel 0 device 1")
         self.rstb.set_state(True)
         self.rstb.set_value(0)
 
@@ -131,7 +148,7 @@ class Test:
         Args:
             duration (int, optional): duration of reset. Defaults to 1.
         """
-        logging.info("   releasing reset on channel 0 device 1")
+        # logging.info("   releasing reset on channel 0 device 1")
         self.rstb.set_state(False)
         # self.rstb.set_value(1)
 
@@ -142,14 +159,21 @@ class Test:
         Args:
             hex_file (string): path to hex file
         """
-        sp = subprocess.run(
-            f"python3 caravel_hkflash.py {hex_file}",
-            cwd="./caravel_board/firmware_vex/util/",
-            shell=True,
-        )
+        with open("flash.log", "a") as f:
+            f.write("=============================================================")
+            f.write(f"   Flashing {self.test_name}")
+            f.write("=============================================================")
+            sp = subprocess.run(
+                f"python3 caravel_hkflash.py {hex_file}",
+                cwd="./caravel_board/firmware_vex/util/",
+                shell=True,
+                stdout=f,
+                stderr=subprocess.PIPE,
+                universal_newlines=True
+            )
         ret_code = sp.returncode
         if ret_code != 0:
-            logging.error("Can't flash!")
+            console.error("Can't flash!")
             self.close_devices()
             os._exit(1)
 
@@ -192,10 +216,10 @@ class Test:
         self.device1v8.supply.turn_off()
         self.device3v3.supply.turn_off()
         time.sleep(5)
-        logging.info("   Turning on VIO with 3.3v")
+        # logging.info("   Turning on VIO with 3.3v")
         self.device3v3.supply.set_voltage(3.3)
         time.sleep(1)
-        logging.info(f"   Turning on VCORE with {self.voltage}v")
+        # logging.info(f"   Turning on VCORE with {self.voltage}v")
         self.device1v8.supply.set_voltage(self.voltage)
         time.sleep(1)
 
@@ -224,10 +248,10 @@ class Test:
         # self.device1v8.supply.turn_off()
         # self.device3v3.supply.turn_off()
         # time.sleep(5)
-        logging.info("   Turning on VIO with 3.3v")
+        # logging.info("   Turning on VIO with 3.3v")
         self.device3v3.supply.set_voltage(3.3)
         time.sleep(1)
-        logging.info(f"   Turning on VCORE with {self.voltage}v")
+        # logging.info(f"   Turning on VCORE with {self.voltage}v")
         self.device1v8.supply.set_voltage(self.voltage)
         time.sleep(1)
 
@@ -240,10 +264,10 @@ class Test:
         # self.device1v8.supply.turn_off()
         # self.device3v3.supply.turn_off()
         # time.sleep(5)
-        logging.info("   Turning on VIO with 3.3v")
+        # logging.info("   Turning on VIO with 3.3v")
         self.device3v3.supply.set_voltage(3.3)
         time.sleep(1)
-        logging.info(f"   Turning on VCORE with 1.8v")
+        # logging.info(f"   Turning on VCORE with 1.8v")
         self.device1v8.supply.set_voltage(1.8)
         time.sleep(1)
 
@@ -360,7 +384,7 @@ class Dio:
                     - True means HIGH, False means LOW
         """
         if self.state is True:
-            logging.error("can't set value for an input pin")
+            console.error("can't set value for an input pin")
         else:
             # load current state of the output state buffer
             mask = ctypes.c_uint16()

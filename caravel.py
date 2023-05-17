@@ -174,7 +174,7 @@ class Test:
             )
         ret_code = sp.returncode
         if ret_code != 0:
-            self..error("Can't flash!")
+            self.console.error("Can't flash!")
             self.close_devices()
             os._exit(1)
 

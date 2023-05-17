@@ -59,7 +59,7 @@ void main()
     set_gpio_l(0);
     gpio_config_load();
     // gpio_config_io();
-    count_down(PULSE_WIDTH*20);
+    count_down(PULSE_WIDTH*100);
     send_packet(1); // configuration finished
 
     for (j = 0; j < 9; j++)

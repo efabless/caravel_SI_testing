@@ -803,15 +803,19 @@ def connect_devices(devices, dev1_sn, dev2_sn, dev3_sn):
     # dev1 --> 7DA
     # dev2 --> AA0
     if devices:
-        for device_info in devices:
-            if device_info.serial_number[-3:] == dev1_sn:
-                device1_data = device_info
-            elif device_info.serial_number[-3:] == dev2_sn:
-                device2_data = device_info
-            elif device_info.serial_number[-3:] == dev3_sn:
-                device3_data = device_info
+        with open('flash.log', 'a') as f:
+            sys.stdout = f
+            for device_info in devices:
+                if device_info.serial_number[-3:] == dev1_sn:
+                    device1_data = device_info
+                elif device_info.serial_number[-3:] == dev2_sn:
+                    device2_data = device_info
+                elif device_info.serial_number[-3:] == dev3_sn:
+                    device3_data = device_info
+            sys.stdout = sys.__stdout__
     else:
-        logging.error(" No connected devices")
+        console = Console()
+        console.error(" No connected devices")
         sys.exit()
     return device1_data, device2_data, device3_data
 

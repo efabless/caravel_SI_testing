@@ -7,7 +7,7 @@ import sys
 import time, datetime
 import subprocess
 import signal
-from manifest import TestDict, device1_sn, device2_sn, device3_sn, voltage, analog
+from manifest import TestDict, device1_sn, device2_sn, device3_sn, device_ps_sn, voltage, analog
 
 
 def init_ad_ios(device1_data, device2_data, device3_data):
@@ -616,8 +616,9 @@ if __name__ == "__main__":
         d1_sn = bytes(device1_sn, "utf-8")
         d2_sn = bytes(device2_sn, "utf-8")
         d3_sn = bytes(device3_sn, "utf-8")
-        device1_data, device2_data, device3_data = connect_devices(
-            devices, d1_sn, d2_sn, d3_sn
+        dps_sn = bytes(device_ps_sn, "utf-8")
+        device1_data, device2_data, device3_data, device_ps_data = connect_devices(
+            devices, d1_sn, d2_sn, d3_sn, dps_sn
         )
 
         logging.info("   Initializing I/Os for both devices")
@@ -629,8 +630,9 @@ if __name__ == "__main__":
         device1 = Device(device1_data, 0, device1_dio_map)
         device2 = Device(device2_data, 1, device2_dio_map)
         device3 = Device(device3_data, 2, device3_dio_map)
+        device_ps = Device(device_ps_data, 3)
 
-        test = Test(device1, device2, device3)
+        test = Test(device1, device2, device3, device_ps=device_ps)
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
 

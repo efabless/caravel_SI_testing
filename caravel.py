@@ -26,6 +26,7 @@ class Test:
         device1v8,
         device3v3,
         deviced=None,
+        device_power=None,
         test_name=None,
         passing_criteria=[],
         voltage=1.6,
@@ -34,6 +35,7 @@ class Test:
         self.device1v8 = device1v8
         self.device3v3 = device3v3
         self.deviced = deviced
+        self.device_power = device_power
         self.rstb = self.device1v8.dio_map["rstb"]
         self.gpio_mgmt = self.device1v8.dio_map["gpio_mgmt"]
         self.test_name = test_name
@@ -185,7 +187,8 @@ class Test:
         """
         changes voltage output of the device connected to `VCORE` power supply
         """
-        self.device1v8.supply.set_voltage(self.voltage)
+        # self.device1v8.supply.set_voltage(self.voltage)
+        self.device_power.supply.set_voltage(self.voltage)
 
     def exec_flashing(self):
         """
@@ -201,7 +204,8 @@ class Test:
         self.release_reset()
         self.powerup_sequence()
         logging.info(f"   changing VCORE voltage to {self.voltage}v")
-        self.device1v8.supply.set_voltage(self.voltage)
+        # self.device1v8.supply.set_voltage(self.voltage)
+        self.device_power.supply.set_voltage(self.voltage)
         self.reset()
 
     def powerup_sequence(self):
@@ -210,17 +214,18 @@ class Test:
             turns off both devices
             turns on device and change voltage to the required one
         """
-        self.device1v8.supply.turn_off()
-        self.device3v3.supply.turn_off()
+        self.device_power.supply.turn_off()
+        # self.device1v8.supply.turn_off()
+        # self.device3v3.supply.turn_off()
         time.sleep(5)
-        logging.info("   Turning on VIO with 3.3v")
-        if gf180mcu:
-            self.device3v3.supply.set_voltage(5.0)
-        else:
-            self.device3v3.supply.set_voltage(3.3)
+        # logging.info("   Turning on VIO with 3.3v")
+        # if gf180mcu:
+        #     self.device3v3.supply.set_voltage(5.0)
+        # else:
+        #     self.device3v3.supply.set_voltage(3.3)
         time.sleep(1)
         logging.info(f"   Turning on VCORE with {self.voltage}v")
-        self.device1v8.supply.set_voltage(self.voltage)
+        self.device_power.supply.set_voltage(self.voltage)
         time.sleep(1)
 
     def power_down(self):
@@ -229,15 +234,10 @@ class Test:
             turns off both devices
             turns on device and change voltage to the required one
         """
-        self.device1v8.supply.turn_off()
-        self.device3v3.supply.turn_off()
+        # self.device1v8.supply.turn_off()
+        # self.device3v3.supply.turn_off()
+        self.device_power.supply.turn_off()
         time.sleep(5)
-        # logging.info("   Turning on VIO with 3.3v")
-        # self.device3v3.supply.set_voltage(3.3)
-        # time.sleep(1)
-        # logging.info(f"   Turning on VCORE with {self.voltage}v")
-        # self.device1v8.supply.set_voltage(self.voltage)
-        # time.sleep(1)
 
     def power_up(self):
         """
@@ -247,15 +247,16 @@ class Test:
         """
         # self.device1v8.supply.turn_off()
         # self.device3v3.supply.turn_off()
-        # time.sleep(5)
-        logging.info("   Turning on VIO with 3.3v")
-        if gf180mcu:
-            self.device3v3.supply.set_voltage(5.0)
-        else:
-            self.device3v3.supply.set_voltage(3.3)
-        time.sleep(1)
+        time.sleep(5)
+        # logging.info("   Turning on VIO with 3.3v")
+        # if gf180mcu:
+        #     self.device3v3.supply.set_voltage(5.0)
+        # else:
+        #     self.device3v3.supply.set_voltage(3.3)
+        # time.sleep(1)
         logging.info(f"   Turning on VCORE with {self.voltage}v")
-        self.device1v8.supply.set_voltage(self.voltage)
+        # self.device1v8.supply.set_voltage(self.voltage)
+        self.device_power.supply.set_voltage(self.voltage)
         time.sleep(1)
 
     def power_up_1v8(self):
@@ -267,37 +268,41 @@ class Test:
         # self.device1v8.supply.turn_off()
         # self.device3v3.supply.turn_off()
         # time.sleep(5)
-        logging.info("   Turning on VIO with 3.3v")
-        if gf180mcu:
-            self.device3v3.supply.set_voltage(5.0)
-        else:
-            self.device3v3.supply.set_voltage(3.3)
+        # logging.info("   Turning on VIO with 3.3v")
+        # if gf180mcu:
+        #     self.device3v3.supply.set_voltage(5.0)
+        # else:
+        #     self.device3v3.supply.set_voltage(3.3)
         time.sleep(1)
-        logging.info(f"   Turning on VCORE with 1.8v")
+        logging.info(f"   Turning on VCORE with {self.voltage}v")
         if gf180mcu:
-            self.device1v8.supply.set_voltage(5.0)
+            # self.device1v8.supply.set_voltage(5.0)
+            self.device_power.supply.set_voltage(5.0)
         else:
-            self.device1v8.supply.set_voltage(1.8)
+            self.device_power.supply.set_voltage(1.8)
         time.sleep(1)
 
     def turn_off_devices(self):
         """
         turns off all devices
         """
-        self.device1v8.supply.turn_off()
-        self.device3v3.supply.turn_off()
+        self.device_power.supply.turn_off()
+        # self.device1v8.supply.turn_off()
+        # self.device3v3.supply.turn_off()
         # self.deviced.supply.turn_off()
 
     def close_devices(self):
         """
         turns off devices and closes them
         """
-        self.device1v8.supply.turn_off()
-        self.device3v3.supply.turn_off()
+        self.device_power.supply.turn_off()
+        # self.device1v8.supply.turn_off()
+        # self.device3v3.supply.turn_off()
         # self.deviced.supply.turn_off()
-        device.close(self.device1v8)
+        device.close(self.device_power)
+        # device.close(self.device1v8)
         device.close(self.device3v3)
-        # device.close(self.deviced)
+        device.close(self.deviced)
 
     def reset_devices(self):
         # dwf.FDwfDigitalOutReset(self.device1v8.handle)
@@ -799,7 +804,7 @@ def count_pulses(packet_data):
     return pulse_count
 
 
-def connect_devices(devices, dev1_sn, dev2_sn, dev3_sn):
+def connect_devices(devices, dev1_sn, dev2_sn, dev3_sn, dev_ps_sn):
     """connects devices based on their serial number
 
     Args:
@@ -818,10 +823,12 @@ def connect_devices(devices, dev1_sn, dev2_sn, dev3_sn):
                 device2_data = device_info
             elif device_info.serial_number[-3:] == dev3_sn:
                 device3_data = device_info
+            elif device_info.serial_number[-3:] == dev_ps_sn:
+                device_ps_data = device_info
     else:
         logging.error(" No connected devices")
         sys.exit()
-    return device1_data, device2_data, device3_data
+    return device1_data, device2_data, device3_data, device_ps_data
 
 
 # def test_send_packet(device1v8, device3v3):

@@ -819,11 +819,11 @@ def connect_devices(devices, dev1_sn, dev2_sn, dev3_sn, dev_ps_sn):
         for device_info in devices:
             if device_info.serial_number[-3:] == dev1_sn:
                 device1_data = device_info
-            elif device_info.serial_number[-3:] == dev2_sn:
+            if device_info.serial_number[-3:] == dev2_sn:
                 device2_data = device_info
-            elif device_info.serial_number[-3:] == dev3_sn:
+            if device_info.serial_number[-3:] == dev3_sn:
                 device3_data = device_info
-            elif device_info.serial_number[-3:] == dev_ps_sn:
+            if device_info.serial_number[-3:] == dev_ps_sn:
                 device_ps_data = device_info
     else:
         logging.error(" No connected devices")

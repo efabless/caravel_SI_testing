@@ -31,12 +31,14 @@ void isr(void)
 
 //   reg_la1_data = 0xa;
 //   reg_la0_data = 0x20000;
-   reg_timer0_update = 1;
-   if (reg_timer0_value == 0)
-       flag = 1;
-   else
-       reg_timer0_irq_en = 1;
 
+//   reg_timer0_update = 1;
+//   if (reg_timer0_value == 0)
+//       flag = 1;
+//   else
+//       reg_timer0_irq_en = 1;
+
+    flag = 1;
 
 //	if(irqs & (1 << TIMER0_INTERRUPT)) {
 ////		uart_isr();

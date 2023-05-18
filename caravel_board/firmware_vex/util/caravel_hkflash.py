@@ -368,6 +368,7 @@ while not status and trys < 3:
                     print(binascii.hexlify(buf2))
                     trys += 1
                     status = False
+                    nbytes = 0
                     break
                     # sys.exit(1)
 

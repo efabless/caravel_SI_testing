@@ -1,4 +1,5 @@
 #include <common.h>
+#define PULSE_WIDTH 2500000
 
 void set_registers()
 {

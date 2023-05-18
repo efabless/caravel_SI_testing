@@ -252,7 +252,7 @@ def process_io(test, io):
         rst = 2
     end_pulses = 0
     while end_pulses < 2:
-        pulse_count = test.receive_packet(25)
+        pulse_count = test.receive_packet(250)
         if phase == 0 and pulse_count == 1:
             print("Start test")
             phase = phase + 1
@@ -282,9 +282,9 @@ def process_io(test, io):
                 print(f"start sending pulses to gpio[{channel}]")
                 state = "HI"
                 timeout = time.time() + 20
-                accurate_delay(12.5)
+                accurate_delay(125)
                 while 1:
-                    accurate_delay(25)
+                    accurate_delay(250)
                     x = io.get_value()
                     if state == "LOW":
                         if x:

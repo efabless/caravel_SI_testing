@@ -492,13 +492,13 @@ def process_input_io(test, io):
         if analog and channel > 13 and channel < 25:
             count = count + 1
         else:
-            pulse_count = test.receive_packet(25)
+            pulse_count = test.receive_packet(250)
             if channel == 5:
                 hk_stop(True)
             if pulse_count == 1:
                 print(f"Sending 4 pulses on gpio[{channel}]")
                 test.send_pulse(4, channel, 5)
-                ack_pulse = test.receive_packet(25)
+                ack_pulse = test.receive_packet(250)
                 if ack_pulse == 5:
                     print(f"gpio[{channel}] Failed to send pulse")
                     return False, channel

@@ -572,7 +572,6 @@ def flash_test(
 def exec_test(
     test,
     start_time,
-    writer,
     hex_file,
     flash_flag=True,
     uart=False,
@@ -599,7 +598,9 @@ def exec_test(
     )
     end_time = time.time() - start_time
     arr = [test.test_name, test.voltage, results, end_time]
-    writer.writerow(arr)
+    with open("results.csv", "a", encoding="UTF8") as f:
+        writer = csv.writer(f)
+        writer.writerow(arr)
 
 
 if __name__ == "__main__":
@@ -643,78 +644,72 @@ if __name__ == "__main__":
 
         with open("results.csv", "a", encoding="UTF8") as f:
             writer = csv.writer(f)
-
-            # write the header
             writer.writerow(csv_header)
-            for t in TestDict:
-                start_time = time.time()
-                test.test_name = t["test_name"]
-                test.passing_criteria = t["passing_criteria"]
-                flash_flag = True
-                counter = 0
-                for v in voltage:
-                    test.voltage = v
-                    # logging.info(f"=============================================================")
-                    # logging.info(f"  Running:  {test.test_name}")
-                    # logging.info(f"=============================================================")
-                    if counter > 0:
-                        flash_flag = False
-                    if t["uart"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            writer,
-                            t["hex_file_path"],
-                            flash_flag,
-                            True,
-                            uart_data,
-                        )
-                    elif t["mem"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            writer,
-                            t["hex_file_path"],
-                            flash_flag,
-                            mem=True,
-                        )
-                    elif t["io"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            writer,
-                            t["hex_file_path"],
-                            flash_flag,
-                            io=t["io"],
-                            mode=t["mode"],
-                        )
-                    elif t["spi"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            writer,
-                            t["hex_file_path"],
-                            flash_flag,
-                            spi_flag=t["spi"],
-                            spi=spi,
-                        )
-                    elif t["external"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            writer,
-                            t["hex_file_path"],
-                            flash_flag,
-                            external=t["external"],
-                        )
-                    else:
-                        exec_test(
-                            test, start_time, writer, t["hex_file_path"], flash_flag
-                        )
-                    counter += 1
-                    test.close_devices()
-                    time.sleep(5)
-                    devices = device.open_devices()
+
+        for t in TestDict:
+            start_time = time.time()
+            test.test_name = t["test_name"]
+            test.passing_criteria = t["passing_criteria"]
+            flash_flag = True
+            counter = 0
+            for v in voltage:
+                test.voltage = v
+                # logging.info(f"=============================================================")
+                # logging.info(f"  Running:  {test.test_name}")
+                # logging.info(f"=============================================================")
+                if counter > 0:
+                    flash_flag = False
+                if t["uart"]:
+                    exec_test(
+                        test,
+                        start_time,
+                        t["hex_file_path"],
+                        flash_flag,
+                        True,
+                        uart_data,
+                    )
+                elif t["mem"]:
+                    exec_test(
+                        test,
+                        start_time,
+                        t["hex_file_path"],
+                        flash_flag,
+                        mem=True,
+                    )
+                elif t["io"]:
+                    exec_test(
+                        test,
+                        start_time,
+                        t["hex_file_path"],
+                        flash_flag,
+                        io=t["io"],
+                        mode=t["mode"],
+                    )
+                elif t["spi"]:
+                    exec_test(
+                        test,
+                        start_time,
+                        t["hex_file_path"],
+                        flash_flag,
+                        spi_flag=t["spi"],
+                        spi=spi,
+                    )
+                elif t["external"]:
+                    exec_test(
+                        test,
+                        start_time,
+                        t["hex_file_path"],
+                        flash_flag,
+                        external=t["external"],
+                    )
+                else:
+                    exec_test(
+                        test, start_time, writer, t["hex_file_path"], flash_flag
+                    )
+                counter += 1
+                test.close_devices()
+                time.sleep(5)
+                devices = device.open_devices()
         logging.info(f"=============================================================")
         logging.info(f"  All Tests Complete")
         logging.info(f"=============================================================")

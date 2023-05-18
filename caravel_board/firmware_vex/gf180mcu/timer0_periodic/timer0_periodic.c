@@ -15,10 +15,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <uart.h>
+#include <common.h>
 
-#include "../defs.h"
-#include "../common/send_packet.c"
 
 /*
 Testing timer interrupts 

@@ -328,7 +328,7 @@ while not status and trys < 3:
 
     with open(file_path, mode="r") as f:
         x = f.readline()
-        while x != "":
+        while x != "" and status:
             if x[0] == "@":
                 addr = int(x[1:], 16)
                 print("setting address to {}".format(hex(addr)))

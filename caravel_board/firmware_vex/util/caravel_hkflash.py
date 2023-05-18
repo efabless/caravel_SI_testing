@@ -306,7 +306,9 @@ report_status(jedec)
 
 status = False
 trys = 0
+
 while not status and trys < 3:
+    status = True
     print("************************************")
     print("verifying...")
     print("************************************")
@@ -365,6 +367,7 @@ while not status and trys < 3:
                     print("<----->")
                     print(binascii.hexlify(buf2))
                     trys += 1
+                    status = False
                     # sys.exit(1)
 
                 if nbytes > 256:
@@ -402,7 +405,8 @@ while not status and trys < 3:
                 print("<----->")
                 print(binascii.hexlify(buf2))
                 trys += 1
-                sys.exit(1)
+                status = False
+                # sys.exit(1)
 
     print("\ntotal_bytes = {}".format(total_bytes))
 

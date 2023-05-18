@@ -304,44 +304,87 @@ print("\ntotal_bytes = {}".format(total_bytes))
 
 report_status(jedec)
 
-print("************************************")
-print("verifying...")
-print("************************************")
+status = False
+trys = 0
 
-buf = bytearray()
-addr = 0
-nbytes = 0
-total_bytes = 0
+while not status and trys < 3:
+    status = True
+    print("************************************")
+    print("verifying...")
+    print("************************************")
 
-while is_busy(slave):
-    time.sleep(0.5)
+    buf = bytearray()
+    addr = 0
+    nbytes = 0
+    total_bytes = 0
 
-# slave.write([CARAVEL_REG_WRITE, 0x0b, 0x01])
-# slave.write([CARAVEL_REG_WRITE, 0x0b, 0x00])
+    while is_busy(slave):
+        time.sleep(0.5)
 
-report_status(jedec)
+    # slave.write([CARAVEL_REG_WRITE, 0x0b, 0x01])
+    # slave.write([CARAVEL_REG_WRITE, 0x0b, 0x00])
 
-with open(file_path, mode="r") as f:
-    x = f.readline()
-    while x != "":
-        if x[0] == "@":
-            addr = int(x[1:], 16)
-            print("setting address to {}".format(hex(addr)))
-        else:
-            # print(x)
-            values = bytearray.fromhex(x[0 : len(x) - 1])
-            buf[nbytes:nbytes] = values
-            nbytes += len(values)
-            # print(binascii.hexlify(values))
+    report_status(jedec)
 
+    with open(file_path, mode="r") as f:
         x = f.readline()
+        while x != "":
+            if x[0] == "@":
+                addr = int(x[1:], 16)
+                print("setting address to {}".format(hex(addr)))
+            else:
+                # print(x)
+                values = bytearray.fromhex(x[0 : len(x) - 1])
+                buf[nbytes:nbytes] = values
+                nbytes += len(values)
+                # print(binascii.hexlify(values))
 
-        if nbytes >= 256 or (x != "" and x[0] == "@" and nbytes > 0):
+            x = f.readline()
 
+            if nbytes >= 256 or (x != "" and x[0] == "@" and nbytes > 0):
+
+                total_bytes += nbytes
+                # print('\n----------------------\n')
+                # print(binascii.hexlify(buf))
+                # print("\ntotal_bytes = {}".format(total_bytes))
+
+                read_cmd = bytearray(
+                    (
+                        CARAVEL_PASSTHRU,
+                        CMD_READ_LO_SPEED,
+                        (addr >> 16) & 0xFF,
+                        (addr >> 8) & 0xFF,
+                        addr & 0xFF,
+                    )
+                )
+                # print(binascii.hexlify(read_cmd))
+                buf2 = slave.exchange(read_cmd, nbytes)
+                if buf == buf2:
+                    print("addr {}: read compare successful".format(hex(addr)))
+                else:
+                    print("addr {}: *** read compare FAILED ***".format(hex(addr)))
+                    print(binascii.hexlify(buf))
+                    print("<----->")
+                    print(binascii.hexlify(buf2))
+                    trys += 1
+                    status = False
+                    # sys.exit(1)
+
+                if nbytes > 256:
+                    buf = buf[255:]
+                    addr += 256
+                    nbytes -= 256
+                    print("*** over 256 hit")
+                else:
+                    buf = bytearray()
+                    addr += 256
+                    nbytes = 0
+
+        if nbytes > 0:
             total_bytes += nbytes
             # print('\n----------------------\n')
             # print(binascii.hexlify(buf))
-            # print("\ntotal_bytes = {}".format(total_bytes))
+            # print("\nnbytes = {}".format(nbytes))
 
             read_cmd = bytearray(
                 (
@@ -361,45 +404,15 @@ with open(file_path, mode="r") as f:
                 print(binascii.hexlify(buf))
                 print("<----->")
                 print(binascii.hexlify(buf2))
-                sys.exit(1)
+                trys += 1
+                status = False
+                # sys.exit(1)
 
-            if nbytes > 256:
-                buf = buf[255:]
-                addr += 256
-                nbytes -= 256
-                print("*** over 256 hit")
-            else:
-                buf = bytearray()
-                addr += 256
-                nbytes = 0
+    print("\ntotal_bytes = {}".format(total_bytes))
 
-    if nbytes > 0:
-        total_bytes += nbytes
-        # print('\n----------------------\n')
-        # print(binascii.hexlify(buf))
-        # print("\nnbytes = {}".format(nbytes))
-
-        read_cmd = bytearray(
-            (
-                CARAVEL_PASSTHRU,
-                CMD_READ_LO_SPEED,
-                (addr >> 16) & 0xFF,
-                (addr >> 8) & 0xFF,
-                addr & 0xFF,
-            )
-        )
-        # print(binascii.hexlify(read_cmd))
-        buf2 = slave.exchange(read_cmd, nbytes)
-        if buf == buf2:
-            print("addr {}: read compare successful".format(hex(addr)))
-        else:
-            print("addr {}: *** read compare FAILED ***".format(hex(addr)))
-            print(binascii.hexlify(buf))
-            print("<----->")
-            print(binascii.hexlify(buf2))
-            sys.exit(1)
-
-print("\ntotal_bytes = {}".format(total_bytes))
+if not status:
+    print("Flashing failed after 3 attempts.  Exiting...")
+    sys.exit(1)
 
 pll_trim = slave.exchange([CARAVEL_REG_READ, 0x04], 1)
 print("pll_trim = {}\n".format(binascii.hexlify(pll_trim)))

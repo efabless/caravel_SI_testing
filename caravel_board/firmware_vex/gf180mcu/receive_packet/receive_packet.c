@@ -47,4 +47,6 @@ void main()
         // print("number of = ");
         // print(recieved_char);
     }
+    configure_gpio_default();
+    gpio_config_load();
 }

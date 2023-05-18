@@ -106,4 +106,7 @@ void main()
     send_packet(1); // finish test
     send_packet(1); // finish test
     send_packet(1); // finish test
+
+    configure_gpio_default();
+    gpio_config_load();
 }

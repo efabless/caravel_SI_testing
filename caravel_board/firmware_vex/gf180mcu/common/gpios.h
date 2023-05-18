@@ -75,6 +75,14 @@ void gpio_config_load(){
  * These configurations will not be change the GPIOs modes until calling gpio_config_load()
  * 
  */
+void configure_gpio_default(){
+}
+    reg_mprj_io_1 = GPIO_MODE_MGMT_STD_OUTPUT
+    reg_mprj_io_2 = GPIO_MODE_MGMT_STD_INPUT_NOPULL
+    reg_mprj_io_3 = GPIO_MODE_MGMT_STD_INPUT_NOPULL
+    reg_mprj_io_4 = GPIO_MODE_MGMT_STD_INPUT_NOPULL
+}
+
 void configure_gpio(int gpio_num,enum gpio_mode config){
     switch(gpio_num){
         case 0 :

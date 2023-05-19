@@ -300,7 +300,7 @@ class Test:
         # self.device3v3.supply.turn_off()
         # self.deviced.supply.turn_off()
         device.close(self.device_power)
-        # device.close(self.device1v8)
+        device.close(self.device1v8)
         device.close(self.device3v3)
         device.close(self.deviced)
 

@@ -220,31 +220,73 @@ while is_busy(slave):
 print("done")
 print("status = {}".format(hex(get_status(slave))))
 
-buf = bytearray()
-addr = 0
-nbytes = 0
-total_bytes = 0
+status = False
+trys = 0
 
-with open(file_path, mode="r") as f:
-    x = f.readline()
-    while x != "":
-        if x[0] == "@":
-            addr = int(x[1:], 16)
-            print("setting address to {}".format(hex(addr)))
-        else:
-            # print(x)
-            values = bytearray.fromhex(x[0 : len(x) - 1])
-            buf[nbytes:nbytes] = values
-            nbytes += len(values)
-            # print(binascii.hexlify(values))
+while not status and trys < 3:
+    status = True
 
+    buf = bytearray()
+    addr = 0
+    nbytes = 0
+    total_bytes = 0
+
+    with open(file_path, mode="r") as f:
         x = f.readline()
+        while x != "":
+            if x[0] == "@":
+                addr = int(x[1:], 16)
+                print("setting address to {}".format(hex(addr)))
+            else:
+                # print(x)
+                values = bytearray.fromhex(x[0 : len(x) - 1])
+                buf[nbytes:nbytes] = values
+                nbytes += len(values)
+                # print(binascii.hexlify(values))
 
-        if nbytes >= 256 or (x != "" and x[0] == "@" and nbytes > 0):
+            x = f.readline()
+
+            if nbytes >= 256 or (x != "" and x[0] == "@" and nbytes > 0):
+                total_bytes += nbytes
+                # print('\n----------------------\n')
+                # print(binascii.hexlify(buf))
+                # print("\ntotal_bytes = {}".format(total_bytes))
+
+                slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
+                wcmd = bytearray(
+                    (
+                        CARAVEL_PASSTHRU,
+                        CMD_PROGRAM_PAGE,
+                        (addr >> 16) & 0xFF,
+                        (addr >> 8) & 0xFF,
+                        addr & 0xFF,
+                    )
+                )
+                # wcmd = bytearray((CARAVEL_PASSTHRU, CMD_WRITE_ENABLE, CMD_PROGRAM_PAGE,(addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff))
+                # print(binascii.hexlify(wcmd))
+                # wcmd.extend(buf[0:255])
+                wcmd.extend(buf)
+                slave.exchange(wcmd)
+                while is_busy(slave):
+                    time.sleep(0.1)
+
+                print("addr {}: flash page write successful".format(hex(addr)))
+
+                if nbytes > 256:
+                    buf = buf[255:]
+                    addr += 256
+                    nbytes -= 256
+                    print("*** over 256 hit")
+                else:
+                    buf = bytearray()
+                    addr += 256
+                    nbytes = 0
+
+        if nbytes > 0:
             total_bytes += nbytes
             # print('\n----------------------\n')
             # print(binascii.hexlify(buf))
-            # print("\ntotal_bytes = {}".format(total_bytes))
+            # print("\nnbytes = {}".format(nbytes))
 
             slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
             wcmd = bytearray(
@@ -256,9 +298,7 @@ with open(file_path, mode="r") as f:
                     addr & 0xFF,
                 )
             )
-            # wcmd = bytearray((CARAVEL_PASSTHRU, CMD_WRITE_ENABLE, CMD_PROGRAM_PAGE,(addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff))
-            # print(binascii.hexlify(wcmd))
-            # wcmd.extend(buf[0:255])
+            # wcmd = bytearray((CARAVEL_PASSTHRU, CMD_WRITE_ENABLE, CMD_PROGRAM_PAGE, (addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff))
             wcmd.extend(buf)
             slave.exchange(wcmd)
             while is_busy(slave):
@@ -266,49 +306,11 @@ with open(file_path, mode="r") as f:
 
             print("addr {}: flash page write successful".format(hex(addr)))
 
-            if nbytes > 256:
-                buf = buf[255:]
-                addr += 256
-                nbytes -= 256
-                print("*** over 256 hit")
-            else:
-                buf = bytearray()
-                addr += 256
-                nbytes = 0
+    print("\ntotal_bytes = {}".format(total_bytes))
 
-    if nbytes > 0:
-        total_bytes += nbytes
-        # print('\n----------------------\n')
-        # print(binascii.hexlify(buf))
-        # print("\nnbytes = {}".format(nbytes))
+    report_status(jedec)
 
-        slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
-        wcmd = bytearray(
-            (
-                CARAVEL_PASSTHRU,
-                CMD_PROGRAM_PAGE,
-                (addr >> 16) & 0xFF,
-                (addr >> 8) & 0xFF,
-                addr & 0xFF,
-            )
-        )
-        # wcmd = bytearray((CARAVEL_PASSTHRU, CMD_WRITE_ENABLE, CMD_PROGRAM_PAGE, (addr >> 16) & 0xff, (addr >> 8) & 0xff, addr & 0xff))
-        wcmd.extend(buf)
-        slave.exchange(wcmd)
-        while is_busy(slave):
-            time.sleep(0.1)
 
-        print("addr {}: flash page write successful".format(hex(addr)))
-
-print("\ntotal_bytes = {}".format(total_bytes))
-
-report_status(jedec)
-
-status = False
-trys = 0
-
-while not status and trys < 3:
-    status = True
     print("************************************")
     print("verifying...")
     print("************************************")

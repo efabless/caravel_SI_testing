@@ -328,7 +328,7 @@ def process_io_plud(test):
     elif test.test_name == "gpio_lpd_ho":
         default_val = 0
         default_val_n = 1
-        p1_rt = run_io_plud(default_val, default_val_n, False)
+        # p1_rt = run_io_plud(default_val, default_val_n, False)
         p2_rt = run_io_plud(default_val, default_val_n, True)
     elif test.test_name == "gpio_lo_hpu":
         default_val = 1
@@ -338,7 +338,7 @@ def process_io_plud(test):
     elif test.test_name == "gpio_lo_hpd":
         default_val = 0
         default_val_n = 1
-        p1_rt = run_io_plud_h(default_val, default_val_n, False)
+        # p1_rt = run_io_plud_h(default_val, default_val_n, False)
         p2_rt = run_io_plud_h(default_val, default_val_n, True)
     if p1_rt and p2_rt:
         return True

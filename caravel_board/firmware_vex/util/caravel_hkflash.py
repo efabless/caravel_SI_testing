@@ -223,7 +223,7 @@ print("status = {}".format(hex(get_status(slave))))
 status = False
 trys = 0
 
-while not status and trys < 3:
+while not status and trys < 5:
     status = True
 
     buf = bytearray()

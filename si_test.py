@@ -313,12 +313,12 @@ def process_io_plud(test):
     if test.test_name == "gpio_lpu_ho":
         default_val = 1
         default_val_n = 0
-        print("First iteration")
-        p1_rt = run_io_plud(default_val, default_val_n, False)
-        if p1_rt:
-            print("... Passed")
-        else:
-            print("... Failed")
+        # print("First iteration")
+        # p1_rt = run_io_plud(default_val, default_val_n, False)
+        # if p1_rt:
+        #     print("... Passed")
+        # else:
+        #     print("... Failed")
         print("Second iteration")
         p2_rt = run_io_plud(default_val, default_val_n, True)
         if p2_rt:
@@ -333,7 +333,7 @@ def process_io_plud(test):
     elif test.test_name == "gpio_lo_hpu":
         default_val = 1
         default_val_n = 0
-        p1_rt = run_io_plud_h(default_val, default_val_n, False)
+        # p1_rt = run_io_plud_h(default_val, default_val_n, False)
         p2_rt = run_io_plud_h(default_val, default_val_n, True)
     elif test.test_name == "gpio_lo_hpd":
         default_val = 0

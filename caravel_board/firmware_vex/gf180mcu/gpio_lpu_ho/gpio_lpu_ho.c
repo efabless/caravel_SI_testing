@@ -32,17 +32,26 @@ void main()
 //    count_down(PULSE_WIDTH * 50);
 
     send_packet(1); // configuration finished start test
-    int mask = 0x7FFFF;
-    int mask_h = 0x7E000;
+
+//    int mask = 0x0007FFFF;
+    int mask   = 0x0001FFFF; // lower 13 bits
+    int mask_h = 0x0007E000; // upper 6 bits from 0 to 18
+
     int i_val = 0;
     int o_val_l;
     int o_val_h;
     while (true)
     {
+        // read the gpio 0 thru 18 and mask off the bottom 13 bits
+        // shift the input by 19 to the high gpio
         i_val = get_gpio_l() & mask;
         o_val_l = i_val << 19;
+
+        // mask off the bits for IO[33] to IO[37] for the upper register
         o_val_h = i_val & mask_h;
         o_val_h = o_val_h >> 13;
+
+        // set output values
         set_gpio_h(o_val_h);
         set_gpio_l(o_val_l);
     }

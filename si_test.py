@@ -313,8 +313,18 @@ def process_io_plud(test):
     if test.test_name == "gpio_lpu_ho":
         default_val = 1
         default_val_n = 0
+        print("First iteration")
         p1_rt = run_io_plud(default_val, default_val_n, False)
+        if p1_rt:
+            print("... Passed")
+        else:
+            print("... Failed")
+        print("Second iteration")
         p2_rt = run_io_plud(default_val, default_val_n, True)
+        if p2_rt:
+            print("... Passed")
+        else:
+            print("... Failed")
     elif test.test_name == "gpio_lpd_ho":
         default_val = 0
         default_val_n = 1
@@ -337,16 +347,32 @@ def process_io_plud(test):
 
 
 def run_io_plud(default_val, default_val_n, first_itter):
+
+    # In the first iteration, set the low gpio analyzer channels to outputs and assert
+    # the default_n value (0 if pu, 1 if pd).  The firmware will reflect the low IO as inputs to corresponding
+    # outputs on the high chain.  For example, IO[0] reflects its input to IO[19].
+    # As the test iterates to the high chain, the test waits 10 secs before reading the first IO.
+    # For each high chain gpio, the test checks to find that default_n is read from the corresponding
+    # output.  It increments a counter each time and checks for a full set of 19 matches to pass the
+    # test.
+    #
+    # If the test is called with the first_itter set to false, it repeats a similar check, but sets the
+    # analyzer channel for the low chain to inputs.  The test then checks the reflecting outputs to confirm
+    # a pull-up or pull-down value is reflected to the corresponding high chain.
+
     test_counter = 0
     flag = False
     hk_stop(False)
+
     for channel in range(0, 38):
+        # map the io to the correct device and channel
         if channel > 13 and channel < 22:
             io = test.deviced.dio_map[channel]
         elif channel > 21:
             io = test.device3v3.dio_map[channel]
         else:
             io = test.device1v8.dio_map[channel]
+
         if channel < 19 and first_itter:
             io.set_state(True)
             io.set_value(default_val_n)
@@ -387,13 +413,16 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
     test_counter = 0
     flag = False
     hk_stop(False)
+
     for channel in range(37, -1, -1):
+
         if channel > 13 and channel < 22:
             io = test.deviced.dio_map[channel]
         elif channel > 21:
             io = test.device3v3.dio_map[channel]
         else:
             io = test.device1v8.dio_map[channel]
+
         if channel > 18 and first_itter:
             io.set_state(True)
             io.set_value(default_val_n)

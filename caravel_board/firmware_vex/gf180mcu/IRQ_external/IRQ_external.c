@@ -20,9 +20,9 @@
 #include <irq_vex.h>
 #include <uart.h>
 
-#include "../defs.h"
+#include <common.h>
 // #include "../gpio_config/gpio_config_io.c"
-#include "../common/send_packet.c"
+//#include "../common/send_packet.c"
 
 /*
 Testing timer interrupts
@@ -45,7 +45,7 @@ Enable interrupt for IRQ external pin mprj_io[7] -> should be drived to 1 by the
 
 */
 
-extern uint16_t flag;
+extern unsigned int flag;
 
 void main()
 {

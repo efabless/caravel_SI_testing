@@ -62,6 +62,7 @@ void main()
     while (reg_mprj_xfer == 1)
         ;
 
+    count_down(PULSE_WIDTH * 50);
     irq_setmask(0);
     irq_setie(1);
 

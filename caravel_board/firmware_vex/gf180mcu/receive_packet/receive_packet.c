@@ -16,7 +16,7 @@ loop
 void main()
 {
     configure_mgmt_gpio();
-    count_down(PULSE_WIDTH * 50);
+//    count_down(PULSE_WIDTH * 50);
     send_packet(2);
     bool is_recieved;
     configure_mgmt_gpio_input();

@@ -56,13 +56,11 @@ void main()
     configure_mgmt_gpio();
 
     // setting bit 7 as input
-    reg_mprj_io_7 = GPIO_MODE_MGMT_STD_INPUT_NOPULL;
-    // gpio_config_io();
-    reg_mprj_xfer = 1;
-    while (reg_mprj_xfer == 1)
-        ;
 
-    count_down(PULSE_WIDTH * 50);
+    configure_gpio(7, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    gpio_config_load();
+
+//    count_down(PULSE_WIDTH * 50);
     irq_setmask(0);
     irq_setie(1);
 

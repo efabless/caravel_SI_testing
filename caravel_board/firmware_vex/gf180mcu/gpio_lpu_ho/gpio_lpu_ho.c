@@ -29,6 +29,8 @@ void main()
     set_gpio_h(0);
     set_gpio_l(0);
     gpio_config_load();
+//    count_down(PULSE_WIDTH * 50);
+
     send_packet(1); // configuration finished start test
     int mask = 0x7FFFF;
     int mask_h = 0x7E000;

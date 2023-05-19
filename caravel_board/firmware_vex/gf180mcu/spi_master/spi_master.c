@@ -63,7 +63,7 @@ void main()
     send_packet(2);
     count_down(PULSE_WIDTH * 5);
 
-    value = spi_write_reg(); //
+    value = spi_read(); //
 
     //    spi_write(0x40); // Caravel Stream Write
     // for(int i = 0; i < 10000; i++);

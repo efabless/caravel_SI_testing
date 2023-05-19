@@ -14,6 +14,25 @@
 #include <irq_vex.h>
 
 #endif
+
+//
+/**
+ * Insert delay
+ *
+ * @param num number of delays steps. step is increment local variable and check it's value
+ *
+ *
+ */
+void dummy_delay(int num){
+    for (int i=0;i < num;i++){
+        #ifdef ARM
+        reg_wb_enable = reg_wb_enable;
+        #endif //ARM
+        continue;
+    }
+}
+
+#include <packet.h>
 #include <gpios.h>
 #include <timer0.h>
 #include <mgmt_gpio.h>
@@ -21,7 +40,6 @@
 #include <la.h>
 #include <uart_api.h>
 #include <spi_master.h>
-#include <packet.h>
 
 /**
  * Enable communication  between firmware and user project 
@@ -97,23 +115,6 @@ void output_enable_all_gpio_user(char is_enable){
 
 }
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-// 
-/**
- * Insert delay 
- * 
- * @param num number of delays steps. step is increment local variable and check it's value
- * 
- * 
- */
-void dummy_delay(int num){
-    for (int i=0;i < num;i++){
-        #ifdef ARM
-        reg_wb_enable = reg_wb_enable;
-        #endif //ARM
-        continue;
-    }
-}
 
 
 

@@ -66,6 +66,8 @@ void gpio_config_load(){
     reg_mprj_xfer = 1;
     while ((reg_mprj_xfer&0x1) == 1);
 
+    count_down(PULSE_WIDTH * 50);
+
 }
 /**
  * Configure one GPIO with the input config
@@ -205,9 +207,9 @@ void set_gpio_h(unsigned int data){reg_mprj_datah = data;}
  * 
  * \todo verify this function
  */
-void set_gpio(long data){
+void set_gpio(long long data){
     reg_mprj_datal = data; 
-    reg_mprj_datah = data <<32; 
+    reg_mprj_datah = data >> 32;
 
 }
 /**

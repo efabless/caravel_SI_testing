@@ -1,23 +1,9 @@
-<<<<<<< HEAD
 #include <common.h>
-
-//#include "../local_defs.h"
-//#include "../stub.c"
-=======
-#include "../defs.h"
-// #include "../gpio_config/gpio_config_io.c"
-#include "../common/send_packet.c"
-// #include "../local_defs.h"
-// #include "../stub.c"
->>>>>>> chipignite-dev3
-
-// #include "../config_io.h"
-// #include "../defs_mpw-two-mfix.h"
 
 void set_registers()
 {
 
-    reg_mprj_io_0 = GPIO_MODE_MGMT_STD_ANALOG;
+    reg_mprj_io_0 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_1 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_2 = GPIO_MODE_MGMT_STD_OUTPUT;
     reg_mprj_io_3 = GPIO_MODE_MGMT_STD_OUTPUT;

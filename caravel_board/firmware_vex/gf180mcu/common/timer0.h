@@ -4,6 +4,20 @@
 #ifndef TIMER0_C_HEADER_FILE
 #define TIMER0_C_HEADER_FILE
 
+/**
+ * Enable or Disable timer0
+ *
+ * @param is_enable when 1 (true) timer0 is enable (start counting), 0 (false) timer0 is disabled
+ *
+ */
+void enable_timer0(int value){
+    reg_timer0_config = value;
+//    if (is_enable)
+//        reg_timer0_config = 1;// enable
+//    else
+//        reg_timer0_config = 0; // disable counter
+}
+
 // timer 
 /**
  * Start Timer in oneshot countdown mode start value is count
@@ -28,18 +42,6 @@ void timer0_periodic_configure(unsigned int count){
 	reg_timer0_data = 0;
     reg_timer0_data_periodic  = count;
     enable_timer0(1); // enable
-}
-/**
- * Enable or Disable timer0
- * 
- * @param is_enable when 1 (true) timer0 is enable (start counting), 0 (false) timer0 is disabled
- * 
- */
-void enable_timer0(bool is_enable){
-    if (is_enable)
-        reg_timer0_config = 1;// enable
-    else
-        reg_timer0_config = 0; // disable counter
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -1,0 +1,270 @@
+Running make in gpio_o_h
+generating hex for [gpio_o_h]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [gpio_o_h]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o gpio_o_h.elf ../common/crt0_vex.S ../common/isr.c gpio_o_h.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  gpio_o_h.elf > gpio_o_h.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog gpio_o_h.elf gpio_o_h.hex
+sed -ie 's/@10/@00/g' gpio_o_h.hex
+
+Running make in mem_sram_test_lower
+generating hex for [mem_sram_test_lower]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [mem_sram_test_lower]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections_lower_sram.lds,--strip-debug -ffreestanding -nostdlib -o mem_sram_test_lower.elf ../common/crt0_vex.S ../common/isr.c mem_sram_test_lower.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  mem_sram_test_lower.elf > mem_sram_test_lower.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog mem_sram_test_lower.elf mem_sram_test_lower.hex
+sed -ie 's/@10/@00/g' mem_sram_test_lower.hex
+
+Running make in spi_master
+generating hex for [spi_master]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [spi_master]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o spi_master.elf ../common/crt0_vex.S ../common/isr.c spi_master.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  spi_master.elf > spi_master.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog spi_master.elf spi_master.hex
+sed -ie 's/@10/@00/g' spi_master.hex
+
+Running make in gpio_i_l
+generating hex for [gpio_i_l]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [gpio_i_l]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o gpio_i_l.elf ../common/crt0_vex.S ../common/isr.c gpio_i_l.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  gpio_i_l.elf > gpio_i_l.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog gpio_i_l.elf gpio_i_l.hex
+sed -ie 's/@10/@00/g' gpio_i_l.hex
+
+Running make in timer0_oneshot
+generating hex for [timer0_oneshot]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [timer0_oneshot]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o timer0_oneshot.elf ../common/crt0_vex.S ../common/isr.c timer0_oneshot.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  timer0_oneshot.elf > timer0_oneshot.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog timer0_oneshot.elf timer0_oneshot.hex
+sed -ie 's/@10/@00/g' timer0_oneshot.hex
+
+Running make in mem_sram_W_upper
+generating hex for [mem_sram_W_upper]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [mem_sram_W_upper]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections_upper_sram.lds,--strip-debug -ffreestanding -nostdlib -o mem_sram_W_upper.elf ../common/crt0_vex.S ../common/isr.c mem_sram_W_upper.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  mem_sram_W_upper.elf > mem_sram_W_upper.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog mem_sram_W_upper.elf mem_sram_W_upper.hex
+sed -ie 's/@10/@00/g' mem_sram_W_upper.hex
+
+Running make in receive_packet
+generating hex for [receive_packet]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [receive_packet]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o receive_packet.elf ../common/crt0_vex.S ../common/isr.c receive_packet.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  receive_packet.elf > receive_packet.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog receive_packet.elf receive_packet.hex
+sed -ie 's/@10/@00/g' receive_packet.hex
+
+Running make in mem_sram_halfW_lower
+generating hex for [mem_sram_halfW_lower]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [mem_sram_halfW_lower]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections_lower_sram.lds,--strip-debug -ffreestanding -nostdlib -o mem_sram_halfW_lower.elf ../common/crt0_vex.S ../common/isr.c mem_sram_halfW_lower.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  mem_sram_halfW_lower.elf > mem_sram_halfW_lower.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog mem_sram_halfW_lower.elf mem_sram_halfW_lower.hex
+sed -ie 's/@10/@00/g' mem_sram_halfW_lower.hex
+
+Running make in IRQ_spi
+generating hex for [IRQ_spi]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [IRQ_spi]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o IRQ_spi.elf ../common/crt0_vex.S ../common/isr.c IRQ_spi.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  IRQ_spi.elf > IRQ_spi.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog IRQ_spi.elf IRQ_spi.hex
+sed -ie 's/@10/@00/g' IRQ_spi.hex
+
+Running make in gpio_lo_hpd
+generating hex for [gpio_lo_hpd]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [gpio_lo_hpd]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o gpio_lo_hpd.elf ../common/crt0_vex.S ../common/isr.c gpio_lo_hpd.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  gpio_lo_hpd.elf > gpio_lo_hpd.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog gpio_lo_hpd.elf gpio_lo_hpd.hex
+sed -ie 's/@10/@00/g' gpio_lo_hpd.hex
+
+Running make in gpio_lpd_ho
+generating hex for [gpio_lpd_ho]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [gpio_lpd_ho]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o gpio_lpd_ho.elf ../common/crt0_vex.S ../common/isr.c gpio_lpd_ho.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  gpio_lpd_ho.elf > gpio_lpd_ho.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog gpio_lpd_ho.elf gpio_lpd_ho.hex
+sed -ie 's/@10/@00/g' gpio_lpd_ho.hex
+
+Running make in IRQ_external
+generating hex for [IRQ_external]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [IRQ_external]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o IRQ_external.elf ../common/crt0_vex.S ../common/isr.c IRQ_external.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  IRQ_external.elf > IRQ_external.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog IRQ_external.elf IRQ_external.hex
+sed -ie 's/@10/@00/g' IRQ_external.hex
+
+Running make in uart_loopback
+generating hex for [uart_loopback]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [uart_loopback]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o uart_loopback.elf ../common/crt0_vex.S ../common/isr.c uart_loopback.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  uart_loopback.elf > uart_loopback.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog uart_loopback.elf uart_loopback.hex
+sed -ie 's/@10/@00/g' uart_loopback.hex
+
+Running make in mem_sram_test_upper
+generating hex for [mem_sram_test_upper]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [mem_sram_test_upper]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections_upper_sram.lds,--strip-debug -ffreestanding -nostdlib -o mem_sram_test_upper.elf ../common/crt0_vex.S ../common/isr.c mem_sram_test_upper.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  mem_sram_test_upper.elf > mem_sram_test_upper.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog mem_sram_test_upper.elf mem_sram_test_upper.hex
+sed -ie 's/@10/@00/g' mem_sram_test_upper.hex
+
+Running make in mem_sram_W_lower
+generating hex for [mem_sram_W_lower]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [mem_sram_W_lower]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections_lower_sram.lds,--strip-debug -ffreestanding -nostdlib -o mem_sram_W_lower.elf ../common/crt0_vex.S ../common/isr.c mem_sram_W_lower.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  mem_sram_W_lower.elf > mem_sram_W_lower.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog mem_sram_W_lower.elf mem_sram_W_lower.hex
+sed -ie 's/@10/@00/g' mem_sram_W_lower.hex
+
+Running make in timer0_periodic
+generating hex for [timer0_periodic]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [timer0_periodic]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o timer0_periodic.elf ../common/crt0_vex.S ../common/isr.c timer0_periodic.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  timer0_periodic.elf > timer0_periodic.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog timer0_periodic.elf timer0_periodic.hex
+sed -ie 's/@10/@00/g' timer0_periodic.hex
+
+Running make in mem_sram_halfW_upper
+generating hex for [mem_sram_halfW_upper]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [mem_sram_halfW_upper]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections_upper_sram.lds,--strip-debug -ffreestanding -nostdlib -o mem_sram_halfW_upper.elf ../common/crt0_vex.S ../common/isr.c mem_sram_halfW_upper.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  mem_sram_halfW_upper.elf > mem_sram_halfW_upper.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog mem_sram_halfW_upper.elf mem_sram_halfW_upper.hex
+sed -ie 's/@10/@00/g' mem_sram_halfW_upper.hex
+
+Running make in IRQ_uart
+generating hex for [IRQ_uart]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [IRQ_uart]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o IRQ_uart.elf ../common/crt0_vex.S ../common/isr.c IRQ_uart.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  IRQ_uart.elf > IRQ_uart.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog IRQ_uart.elf IRQ_uart.hex
+sed -ie 's/@10/@00/g' IRQ_uart.hex
+
+Running make in send_packet
+generating hex for [send_packet]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [send_packet]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o send_packet.elf ../common/crt0_vex.S ../common/isr.c send_packet.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  send_packet.elf > send_packet.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog send_packet.elf send_packet.hex
+sed -ie 's/@10/@00/g' send_packet.hex
+
+Running make in gpio_o_l
+generating hex for [gpio_o_l]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [gpio_o_l]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o gpio_o_l.elf ../common/crt0_vex.S ../common/isr.c gpio_o_l.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  gpio_o_l.elf > gpio_o_l.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog gpio_o_l.elf gpio_o_l.hex
+sed -ie 's/@10/@00/g' gpio_o_l.hex
+
+Running make in gpio_i_h
+generating hex for [gpio_i_h]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [gpio_i_h]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o gpio_i_h.elf ../common/crt0_vex.S ../common/isr.c gpio_i_h.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  gpio_i_h.elf > gpio_i_h.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog gpio_i_h.elf gpio_i_h.hex
+sed -ie 's/@10/@00/g' gpio_i_h.hex
+
+Running make in IRQ_external2
+generating hex for [IRQ_external2]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [IRQ_external2]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o IRQ_external2.elf ../common/crt0_vex.S ../common/isr.c IRQ_external2.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  IRQ_external2.elf > IRQ_external2.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog IRQ_external2.elf IRQ_external2.hex
+sed -ie 's/@10/@00/g' IRQ_external2.hex
+
+Running make in gpio_lo_hpu
+generating hex for [gpio_lo_hpu]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [gpio_lo_hpu]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o gpio_lo_hpu.elf ../common/crt0_vex.S ../common/isr.c gpio_lo_hpu.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  gpio_lo_hpu.elf > gpio_lo_hpu.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog gpio_lo_hpu.elf gpio_lo_hpu.hex
+sed -ie 's/@10/@00/g' gpio_lo_hpu.hex
+
+Running make in IRQ_uart_rx
+generating hex for [IRQ_uart_rx]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [IRQ_uart_rx]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o IRQ_uart_rx.elf ../common/crt0_vex.S ../common/isr.c IRQ_uart_rx.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  IRQ_uart_rx.elf > IRQ_uart_rx.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog IRQ_uart_rx.elf IRQ_uart_rx.hex
+sed -ie 's/@10/@00/g' IRQ_uart_rx.hex
+
+Running make in IRQ_timer
+generating hex for [IRQ_timer]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [IRQ_timer]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o IRQ_timer.elf ../common/crt0_vex.S ../common/isr.c IRQ_timer.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  IRQ_timer.elf > IRQ_timer.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog IRQ_timer.elf IRQ_timer.hex
+sed -ie 's/@10/@00/g' IRQ_timer.hex
+
+Running make in cpu_stress
+generating hex for [cpu_stress]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [cpu_stress]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o cpu_stress.elf ../common/crt0_vex.S ../common/isr.c cpu_stress.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  cpu_stress.elf > cpu_stress.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog cpu_stress.elf cpu_stress.hex
+sed -ie 's/@10/@00/g' cpu_stress.hex
+
+Running make in gpio_lpu_ho
+generating hex for [gpio_lpu_ho]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [gpio_lpu_ho]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o gpio_lpu_ho.elf ../common/crt0_vex.S ../common/isr.c gpio_lpu_ho.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  gpio_lpu_ho.elf > gpio_lpu_ho.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog gpio_lpu_ho.elf gpio_lpu_ho.hex
+sed -ie 's/@10/@00/g' gpio_lpu_ho.hex
+
+Running make in uart
+generating hex for [uart]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [uart]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o uart.elf ../common/crt0_vex.S ../common/isr.c uart.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  uart.elf > uart.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog uart.elf uart.hex
+sed -ie 's/@10/@00/g' uart.hex
+
+Running make in uart_reception
+generating hex for [uart_reception]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [uart_reception]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o uart_reception.elf ../common/crt0_vex.S ../common/isr.c uart_reception.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  uart_reception.elf > uart_reception.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog uart_reception.elf uart_reception.hex
+sed -ie 's/@10/@00/g' uart_reception.hex
+
+Running make in config_io_o_new
+generating hex for [config_io_o_new]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+generating hex for [config_io_o_new]
+/usr/local/bin/riscv64-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,../common/sections.lds,--strip-debug -ffreestanding -nostdlib -o config_io_o_new.elf ../common/crt0_vex.S ../common/isr.c config_io_o_new.c
+/usr/local/bin/riscv64-unknown-elf-objdump -s  config_io_o_new.elf > config_io_o_new.lst
+/usr/local/bin/riscv64-unknown-elf-objcopy -O verilog config_io_o_new.elf config_io_o_new.hex
+sed -ie 's/@10/@00/g' config_io_o_new.hex
+

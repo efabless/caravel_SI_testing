@@ -45,7 +45,7 @@ void main()
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     gpio_config_load();
-    count_down(PULSE_WIDTH * 50);
+//    count_down(PULSE_WIDTH * 50);
 
     uart_RX_enable(1);
     enable_uart_rx_irq(1);

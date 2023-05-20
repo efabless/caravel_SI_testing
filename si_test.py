@@ -228,14 +228,14 @@ def process_mem(test):
 def hk_stop(close):
     global pid
     if not close:
-        print("running caravel_hkstop.py...")
+        print("... running caravel_hkstop.py")
         p = subprocess.Popen(
             ["python3", "caravel_board/firmware_vex/util/caravel_hkstop.py"],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
         pid = p.pid
-        print("subprocess pid:", pid)
+        # print("subprocess pid:", pid)
     elif pid:
         print("stopping caravel_hkstop.py...")
         os.kill(pid, signal.SIGTERM)
@@ -713,9 +713,7 @@ if __name__ == "__main__":
             counter = 0
             for v in voltage:
                 test.voltage = v
-                # logging.info(f"=============================================================")
-                # logging.info(f"  Running:  {test.test_name}")
-                # logging.info(f"=============================================================")
+                time.sleep(5)
                 if counter > 0:
                     flash_flag = False
                 if t["uart"]:

@@ -31,6 +31,9 @@ checking user clock and caravel clock  at gpio 15 and gpio 14
    
 */
 
+void check_all_gpio_ctrl_regs(unsigned int data_in);
+void wr_all_gpio_ctrl_regs(unsigned int data_in);
+
 void main(){
 
     configure_mgmt_gpio();
@@ -201,6 +204,7 @@ void wr_all_gpio_ctrl_regs(unsigned int data_in){
     reg_mprj_io_36  = data_in;
     reg_mprj_io_37  = data_in;
 }
+
 void check_all_gpio_ctrl_regs(unsigned int data_in){
     unsigned int mask = 0;
     for (int i = 0; i < 13; i++){

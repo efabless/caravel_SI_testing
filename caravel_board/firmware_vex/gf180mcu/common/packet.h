@@ -71,7 +71,7 @@ void configure_mgmt_gpio()
     reg_gpio_ien = 1;
     reg_gpio_oeb = 0;
     reg_gpio_out = 1; // default
-    count_down(PULSE_WIDTH * 70);
+    count_down(PULSE_WIDTH * 40);
 }
 
 void configure_mgmt_gpio_input()

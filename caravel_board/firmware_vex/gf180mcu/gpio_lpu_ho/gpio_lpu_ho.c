@@ -46,7 +46,7 @@ void main()
         // read the gpio 0 thru 18 and mask off the bottom 13 bits
         // shift the input by 19 to the high gpio
         data = get_gpio_l();
-        i_val = get_gpio_l() & data;
+        i_val = data & mask;
         o_val_l = i_val << 19;
 
         // mask off the bits for IO[33] to IO[37] for the upper register

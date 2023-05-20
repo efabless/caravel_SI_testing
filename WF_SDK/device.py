@@ -119,7 +119,7 @@ class state:
 
 """-----------------------------------------------------------------------"""
 
-def open_devices(config=0):
+def open_devices(config=0, debug=False):
     # declare string variables
     devicename = ctypes.create_string_buffer(64)
     serialnum = ctypes.create_string_buffer(16)
@@ -127,16 +127,18 @@ def open_devices(config=0):
     hdwf = ctypes.c_int()
     # enumerate connected devices
     dwf.FDwfEnum(ctypes.c_int(0), ctypes.byref(cDevice))
-    print("Number of Devices: "+str(cDevice.value))
+    if debug:
+        print("Number of Devices: "+str(cDevice.value))
     # open devices
     datas = []
     for iDevice in range(0, cDevice.value):
         dwf.FDwfEnumDeviceName(ctypes.c_int(iDevice), devicename)
         dwf.FDwfEnumSN(ctypes.c_int(iDevice), serialnum)
-        print("------------------------------")
-        print("Device "+str(iDevice+1)+" : ")
-        print("\t" + str(devicename.value))
-        print("\t" + str(serialnum.value))
+        if debug:
+            print("------------------------------")
+            print("Device "+str(iDevice+1)+" : ")
+            print("\t" + str(devicename.value))
+            print("\t" + str(serialnum.value))
         dwf.FDwfDeviceConfigOpen(ctypes.c_int(iDevice), ctypes.c_int(config), ctypes.byref(hdwf))
         device_data = data()
         device_data.handle = hdwf.value

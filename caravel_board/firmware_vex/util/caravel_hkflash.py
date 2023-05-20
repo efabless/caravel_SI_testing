@@ -239,6 +239,8 @@ status = False
 trys = 0
 
 while not status and trys < MAX_TRYS:
+
+    print(f"Flashing... ({trys})")
     status = True
 
     buf = bytearray()

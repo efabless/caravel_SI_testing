@@ -460,7 +460,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
             io.set_state(False)
         elif first_itter:
             if not flag:
-                time.sleep(10)
+                time.sleep(15)
                 flag = True
             io_state = io.get_value()
             if io_state == default_val_n:
@@ -472,7 +472,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
                 return False
         else:
             if not flag:
-                time.sleep(10)
+                time.sleep(15)
                 flag = True
             io_state = io.get_value()
             if io_state == default_val:
@@ -482,7 +482,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
             else:
                 print(f"... channel {channel} FAILED!")
                 return False
-    print(test_counter)
+    # print(test_counter)
     hk_stop(True)
     if test_counter == 19:
         return True

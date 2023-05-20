@@ -195,45 +195,6 @@ if debug:
 if int.from_bytes(mfg, byteorder="big") != 0x0456:
     exit(2)
 
-time.sleep(1.0)
-led.toggle()
-
-if debug:
-    print(" ")
-    print("Resetting Flash...")
-slave.write([CARAVEL_PASSTHRU, CMD_RESET_CHIP])
-
-if debug:
-    print("status = 0x{:02x}".format(get_status(slave), "02x"))
-    print(" ")
-
-jedec = slave.exchange([CARAVEL_PASSTHRU, CMD_JEDEC_DATA], 3)
-
-if debug:
-    print("JEDEC = {}".format(binascii.hexlify(jedec)))
-
-if jedec[0:1] != bytes.fromhex("ef"):
-    # if jedec[0:1] != bytes.fromhex('e6'):
-    print("Winbond SRAM not found")
-    sys.exit(1)
-
-if debug:
-    print("Erasing chip...")
-slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
-slave.write([CARAVEL_PASSTHRU, CMD_ERASE_CHIP])
-
-for i in range(15):
-    time.sleep(0.5)
-    led.toggle()
-
-while is_busy(slave):
-    time.sleep(0.5)
-    led.toggle()
-
-if debug:
-    print("done")
-    print("status = {}".format(hex(get_status(slave))))
-
 MAX_TRYS = 5
 status = False
 trys = 0
@@ -242,6 +203,45 @@ while not status and trys < MAX_TRYS:
 
     print(f"Flashing... ({trys})")
     status = True
+
+    time.sleep(1.0)
+    led.toggle()
+
+    if debug:
+        print(" ")
+        print("Resetting Flash...")
+    slave.write([CARAVEL_PASSTHRU, CMD_RESET_CHIP])
+
+    if debug:
+        print("status = 0x{:02x}".format(get_status(slave), "02x"))
+        print(" ")
+
+    jedec = slave.exchange([CARAVEL_PASSTHRU, CMD_JEDEC_DATA], 3)
+
+    if debug:
+        print("JEDEC = {}".format(binascii.hexlify(jedec)))
+
+    if jedec[0:1] != bytes.fromhex("ef"):
+        # if jedec[0:1] != bytes.fromhex('e6'):
+        print("Winbond SRAM not found")
+        sys.exit(1)
+
+    if debug:
+        print("Erasing chip...")
+    slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
+    slave.write([CARAVEL_PASSTHRU, CMD_ERASE_CHIP])
+
+    for i in range(15):
+        time.sleep(0.5)
+        led.toggle()
+
+    while is_busy(slave):
+        time.sleep(0.5)
+        led.toggle()
+
+    if debug:
+        print("done")
+        print("status = {}".format(hex(get_status(slave))))
 
     buf = bytearray()
     addr = 0

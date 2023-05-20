@@ -220,10 +220,11 @@ while is_busy(slave):
 print("done")
 print("status = {}".format(hex(get_status(slave))))
 
+MAX_TRYS = 5
 status = False
 trys = 0
 
-while not status and trys < 5:
+while not status and trys < MAX_TRYS:
     status = True
 
     buf = bytearray()
@@ -416,7 +417,7 @@ while not status and trys < 5:
     print("\ntotal_bytes = {}".format(total_bytes))
 
 if not status:
-    print("Flashing failed after 3 attempts.  Exiting...")
+    print(f"Flashing failed after {MAX_TRYS} attempts.  Exiting...")
     sys.exit(1)
 
 pll_trim = slave.exchange([CARAVEL_REG_READ, 0x04], 1)

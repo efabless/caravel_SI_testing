@@ -224,7 +224,8 @@ while not status and trys < MAX_TRYS:
     if jedec[0:1] != bytes.fromhex("ef"):
         # if jedec[0:1] != bytes.fromhex('e6'):
         print("Winbond SRAM not found")
-        sys.exit(1)
+        # sys.exit(1)
+        continue
 
     if debug:
         print("Erasing chip...")

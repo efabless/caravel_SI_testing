@@ -40,15 +40,17 @@ void main()
     int i_val = 0;
     int o_val_l;
     int o_val_h;
+    int data;
     while (true)
     {
         // read the gpio 0 thru 18 and mask off the bottom 13 bits
         // shift the input by 19 to the high gpio
-        i_val = get_gpio_l() & mask;
+        data = get_gpio_l();
+        i_val = get_gpio_l() & data;
         o_val_l = i_val << 19;
 
         // mask off the bits for IO[33] to IO[37] for the upper register
-        o_val_h = i_val & mask_h;
+        o_val_h = data & mask_h;
         o_val_h = o_val_h >> 13;
 
         // set output values

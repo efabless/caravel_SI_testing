@@ -237,7 +237,7 @@ def hk_stop(close):
         pid = p.pid
         # print("subprocess pid:", pid)
     elif pid:
-        print("stopping caravel_hkstop.py...")
+        print("... stopping caravel_hkstop.py")
         os.kill(pid, signal.SIGTERM)
         pid = None
 
@@ -418,7 +418,7 @@ def run_io_plud(default_val, default_val_n, first_itter):
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
-                print(f"channel {channel} FAILED!")
+                print(f"... channel {channel} FAILED!")
                 return False
         else:
             if not flag:
@@ -430,7 +430,7 @@ def run_io_plud(default_val, default_val_n, first_itter):
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
-                print(f"channel {channel} FAILED!")
+                print(f"... channel {channel} FAILED!")
                 return False
     hk_stop(True)
     if test_counter == 19:
@@ -468,7 +468,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
-                print(f"channel {channel} FAILED!")
+                print(f"... channel {channel} FAILED!")
                 return False
         else:
             if not flag:
@@ -480,7 +480,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
-                print(f"channel {channel} FAILED!")
+                print(f"... channel {channel} FAILED!")
                 return False
     print(test_counter)
     hk_stop(True)

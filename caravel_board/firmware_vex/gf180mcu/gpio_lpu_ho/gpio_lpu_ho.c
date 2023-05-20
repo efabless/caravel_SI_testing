@@ -34,7 +34,7 @@ void main()
     send_packet(1); // configuration finished start test
 
 //    int mask = 0x0007FFFF;
-    int mask   = 0x0001FFFF; // lower 13 bits
+    int mask   = 0x00001FFF; // lower 13 bits
     int mask_h = 0x0007E000; // upper 6 bits from 0 to 18
 
     int i_val = 0;

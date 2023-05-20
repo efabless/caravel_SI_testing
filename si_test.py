@@ -761,7 +761,7 @@ if __name__ == "__main__":
                     )
                 else:
                     exec_test(
-                        test, start_time, writer, t["hex_file_path"], flash_flag
+                        test, start_time, t["hex_file_path"], flash_flag
                     )
                 counter += 1
                 test.close_devices()

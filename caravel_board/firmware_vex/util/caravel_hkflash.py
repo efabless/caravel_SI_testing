@@ -89,9 +89,11 @@ def report_status(jedec):
         print("changing cmd values...")
         print("status reg_1 = {}".format(hex(get_status(slave))))
     else:
-        print("status reg_1 = {}".format(hex(get_status(slave))))
+        if debug:
+            print("status reg_1 = {}".format(hex(get_status(slave))))
         status = slave.exchange([CARAVEL_PASSTHRU, 0x35], 1)
-        print("status reg_2 = {}".format(hex(int.from_bytes(status, byteorder="big"))))
+        if debug:
+            print("status reg_2 = {}".format(hex(int.from_bytes(status, byteorder="big"))))
         # print("status = {}".format(hex(from_bytes(slave.exchange([CMD_READ_STATUS], 2)[1], byteorder='big'))))
 
 
@@ -140,7 +142,8 @@ elif len(gooddevs) > 1:
     Ftdi.show_devices()
     sys.exit(1)
 else:
-    print("Success: Found one matching FTDI device at " + gooddevs[0])
+    if debug:
+        print("Success: Found one matching FTDI device at " + gooddevs[0])
 
 spi = SpiController(cs_count=2)
 # spi.configure('ftdi://::/1')

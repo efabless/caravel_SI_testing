@@ -8,6 +8,7 @@ from array import array as Array
 import binascii
 from io import StringIO
 
+debug = False
 
 SR_WIP = 0b00000001  # Busy/Work-in-progress bit
 SR_WEL = 0b00000010  # Write enable bit
@@ -161,17 +162,21 @@ led.toggle()
 slave.write([CARAVEL_REG_WRITE, 0x0B, 0x01])
 # ------------
 
-print(" ")
-print("Caravel data:")
 mfg = slave.exchange([CARAVEL_STREAM_READ, 0x01], 2)
-# print("mfg = {}".format(binascii.hexlify(mfg)))
-print("   mfg        = {:04x}".format(int.from_bytes(mfg, byteorder="big")))
+
+if debug:
+    print(" ")
+    print("Caravel data:")
+    # print("mfg = {}".format(binascii.hexlify(mfg)))
+    print("   mfg        = {:04x}".format(int.from_bytes(mfg, byteorder="big")))
 
 led.toggle()
 
 product = slave.exchange([CARAVEL_REG_READ, 0x03], 1)
 # print("product = {}".format(binascii.hexlify(product)))
-print("   product    = {:02x}".format(int.from_bytes(product, byteorder="big")))
+
+if debug:
+    print("   product    = {:02x}".format(int.from_bytes(product, byteorder="big")))
 
 led.toggle()
 
@@ -181,7 +186,8 @@ data = slave.exchange([CARAVEL_STREAM_READ, 0x04], 4)
 #         int("{0:32b}".format(int.from_bytes(data, byteorder="big"))[::-1], 2)
 # )
 # )
-print("   project ID = {:08x}".format(int('{0:032b}'.format(int.from_bytes(data, byteorder='big'))[::-1], 2)))
+if debug:
+    print("   project ID = {:08x}".format(int('{0:032b}'.format(int.from_bytes(data, byteorder='big'))[::-1], 2)))
 
 if int.from_bytes(mfg, byteorder="big") != 0x0456:
     exit(2)
@@ -189,23 +195,27 @@ if int.from_bytes(mfg, byteorder="big") != 0x0456:
 time.sleep(1.0)
 led.toggle()
 
-print(" ")
-print("Resetting Flash...")
+if debug:
+    print(" ")
+    print("Resetting Flash...")
 slave.write([CARAVEL_PASSTHRU, CMD_RESET_CHIP])
 
-print("status = 0x{:02x}".format(get_status(slave), "02x"))
-
-print(" ")
+if debug:
+    print("status = 0x{:02x}".format(get_status(slave), "02x"))
+    print(" ")
 
 jedec = slave.exchange([CARAVEL_PASSTHRU, CMD_JEDEC_DATA], 3)
-print("JEDEC = {}".format(binascii.hexlify(jedec)))
+
+if debug:
+    print("JEDEC = {}".format(binascii.hexlify(jedec)))
 
 if jedec[0:1] != bytes.fromhex("ef"):
     # if jedec[0:1] != bytes.fromhex('e6'):
     print("Winbond SRAM not found")
     sys.exit(1)
 
-print("Erasing chip...")
+if debug:
+    print("Erasing chip...")
 slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
 slave.write([CARAVEL_PASSTHRU, CMD_ERASE_CHIP])
 
@@ -217,8 +227,9 @@ while is_busy(slave):
     time.sleep(0.5)
     led.toggle()
 
-print("done")
-print("status = {}".format(hex(get_status(slave))))
+if debug:
+    print("done")
+    print("status = {}".format(hex(get_status(slave))))
 
 MAX_TRYS = 5
 status = False
@@ -237,7 +248,8 @@ while not status and trys < MAX_TRYS:
         while x != "":
             if x[0] == "@":
                 addr = int(x[1:], 16)
-                print("setting address to {}".format(hex(addr)))
+                if debug:
+                    print("setting address to {}".format(hex(addr)))
             else:
                 # print(x)
                 values = bytearray.fromhex(x[0 : len(x) - 1])
@@ -271,13 +283,15 @@ while not status and trys < MAX_TRYS:
                 while is_busy(slave):
                     time.sleep(0.1)
 
-                print("addr {}: flash page write successful".format(hex(addr)))
+                if debug:
+                    print("addr {}: flash page write successful".format(hex(addr)))
 
                 if nbytes > 256:
                     buf = buf[255:]
                     addr += 256
                     nbytes -= 256
-                    print("*** over 256 hit")
+                    if debug:
+                        print("*** over 256 hit")
                 else:
                     buf = bytearray()
                     addr += 256
@@ -305,16 +319,18 @@ while not status and trys < MAX_TRYS:
             while is_busy(slave):
                 time.sleep(0.1)
 
-            print("addr {}: flash page write successful".format(hex(addr)))
+            if debug:
+                print("addr {}: flash page write successful".format(hex(addr)))
 
-    print("\ntotal_bytes = {}".format(total_bytes))
+    if debug:
+        print("\ntotal_bytes = {}".format(total_bytes))
 
     report_status(jedec)
 
-
-    print("************************************")
-    print("verifying...")
-    print("************************************")
+    if debug:
+        print("************************************")
+        print("verifying...")
+        print("************************************")
 
     buf = bytearray()
     addr = 0
@@ -334,7 +350,8 @@ while not status and trys < MAX_TRYS:
         while x != "" and status is True:
             if x[0] == "@":
                 addr = int(x[1:], 16)
-                print("setting address to {}".format(hex(addr)))
+                if debug:
+                    print("setting address to {}".format(hex(addr)))
             else:
                 # print(x)
                 values = bytearray.fromhex(x[0 : len(x) - 1])
@@ -363,12 +380,14 @@ while not status and trys < MAX_TRYS:
                 # print(binascii.hexlify(read_cmd))
                 buf2 = slave.exchange(read_cmd, nbytes)
                 if buf == buf2:
-                    print("addr {}: read compare successful".format(hex(addr)))
+                    if debug:
+                        print("addr {}: read compare successful".format(hex(addr)))
                 else:
-                    print("addr {}: *** read compare FAILED ***".format(hex(addr)))
-                    print(binascii.hexlify(buf))
-                    print("<----->")
-                    print(binascii.hexlify(buf2))
+                    if debug:
+                        print("addr {}: *** read compare FAILED ***".format(hex(addr)))
+                        print(binascii.hexlify(buf))
+                        print("<----->")
+                        print(binascii.hexlify(buf2))
                     trys += 1
                     status = False
                     nbytes = 0
@@ -379,7 +398,8 @@ while not status and trys < MAX_TRYS:
                     buf = buf[255:]
                     addr += 256
                     nbytes -= 256
-                    print("*** over 256 hit")
+                    if debug:
+                        print("*** over 256 hit")
                 else:
                     buf = bytearray()
                     addr += 256
@@ -403,25 +423,29 @@ while not status and trys < MAX_TRYS:
             # print(binascii.hexlify(read_cmd))
             buf2 = slave.exchange(read_cmd, nbytes)
             if buf == buf2:
-                print("addr {}: read compare successful".format(hex(addr)))
+                if debug:
+                    print("addr {}: read compare successful".format(hex(addr)))
             else:
-                print("addr {}: *** read compare FAILED ***".format(hex(addr)))
-                print(binascii.hexlify(buf))
-                print("<----->")
-                print(binascii.hexlify(buf2))
+                if debug:
+                    print("addr {}: *** read compare FAILED ***".format(hex(addr)))
+                    print(binascii.hexlify(buf))
+                    print("<----->")
+                    print(binascii.hexlify(buf2))
                 trys += 1
                 status = False
                 break
                 # sys.exit(1)
 
-    print("\ntotal_bytes = {}".format(total_bytes))
+    if debug:
+        print("\ntotal_bytes = {}".format(total_bytes))
 
 if not status:
     print(f"Flashing failed after {MAX_TRYS} attempts.  Exiting...")
     sys.exit(1)
 
 pll_trim = slave.exchange([CARAVEL_REG_READ, 0x04], 1)
-print("pll_trim = {}\n".format(binascii.hexlify(pll_trim)))
+if debug:
+    print("pll_trim = {}\n".format(binascii.hexlify(pll_trim)))
 
 # print("Setting trim values...\n")
 # slave.write([CARAVEL_REG_WRITE, 0x04, 0x7f])

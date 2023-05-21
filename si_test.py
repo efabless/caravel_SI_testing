@@ -63,40 +63,43 @@ def init_ad_ios(device1_data, device2_data, device3_data):
 
     return device1_dio_map, device2_dio_map, device3_dio_map
 
-def process_data(test):
-    if test.test_name == "receive_packet":
-        io = test.device1v8.dio_map[0]
-        pulse_count = test.receive_packet(250)
-        if pulse_count == 2:
-            print("Test started")
-        for i in range(5, 8):
-            while not io.get_value():
-                pass
-            test.send_packet(i, 25)
-            while io.get_value():
-                pass
+def process_mgmt_gpio(test):
+    test_names = ["send_packet", "receive_packet"]
+    for name in test_names:
+        test.test_name = name
+        if test.test_name == "receive_packet":
+            io = test.device1v8.dio_map[0]
             pulse_count = test.receive_packet(250)
-            if pulse_count == i:
-                print(f"sent {i} pulses successfully")
-            else:
-                print(f"{test.test_name} test failed with {test.voltage}v supply!")
-                return False
-        return True
-    else:
-        phase = 0
-        for passing in test.passing_criteria:
-            pulse_count = test.receive_packet(250)
-            if pulse_count == passing:
-                print(f"pass phase {phase}")
-                phase = phase + 1
-
-            if pulse_count == 9:
-                print(f"{test.test_name} test failed with {test.voltage}v supply!")
-                return False
-
-        if len(test.passing_criteria) == phase:
-            print(f"{test.test_name} test Passed with {test.voltage}v supply!")
+            if pulse_count == 2:
+                print("Test started")
+            for i in range(5, 8):
+                while not io.get_value():
+                    pass
+                test.send_packet(i, 25)
+                while io.get_value():
+                    pass
+                pulse_count = test.receive_packet(250)
+                if pulse_count == i:
+                    print(f"sent {i} pulses successfully")
+                else:
+                    print(f"{test.test_name} test failed with {test.voltage}v supply!")
+                    return False
             return True
+        else:
+            phase = 0
+            for passing in test.passing_criteria:
+                pulse_count = test.receive_packet(250)
+                if pulse_count == passing:
+                    print(f"pass phase {phase}")
+                    phase = phase + 1
+
+                if pulse_count == 9:
+                    print(f"{test.test_name} test failed with {test.voltage}v supply!")
+                    return False
+
+            if len(test.passing_criteria) == phase:
+                print(f"{test.test_name} test Passed with {test.voltage}v supply!")
+                return True
 
 def process_uart(test, uart):
     """Function to test all UART functionality
@@ -254,7 +257,7 @@ def flash_test(
     # elif external:
     #     results = process_external(test)
     else:
-        results = process_data(test)
+        results = process_mgmt_gpio(test)
 
     logging.info(f"==============================================================================")
     logging.info(f"  Completed:  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")

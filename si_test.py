@@ -169,6 +169,11 @@ def process_uart(test, uart):
                     print(f"Couldn't send {i} over UART!")
                     uart.close()
                     return False
+                if time.time() > timeout:
+                    print("UART Timeout!")
+                    uart.close()
+                    return False
+
 
         elif test.test_name == "uart_loopback":
             uart.open()

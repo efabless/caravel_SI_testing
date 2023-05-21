@@ -94,4 +94,6 @@ void main()
     send_packet(3);
     send_packet(3);
     send_packet(3);
+    configure_gpio_default();
+    gpio_config_load();
 }

@@ -72,8 +72,12 @@ class Test:
         ones = 0
         pulses = 0
         self.gpio_mgmt.set_state(False)
+        timeout = time.time() + 50
         while self.gpio_mgmt.get_value() != False:
-            pass
+            if time.time() > timeout:
+                print("Timeout!")
+                self.close_devices()
+                os._exit(1)
         state = "LOW"
         accurate_delay(pulse_width / 2.0)
         for i in range(0, 30):

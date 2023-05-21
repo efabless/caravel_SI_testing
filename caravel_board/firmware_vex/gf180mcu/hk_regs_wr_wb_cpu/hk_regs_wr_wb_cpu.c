@@ -34,11 +34,9 @@ checking user clock and caravel clock  at gpio 15 and gpio 14
 void check_all_gpio_ctrl_regs(unsigned int data_in);
 void wr_all_gpio_ctrl_regs(unsigned int data_in);
 
-void main(){
-
-    configure_mgmt_gpio();
+bool hk_regs_wr_wb_cpu()
+{
     enable_hk_spi(0);
-    send_packet(2);
     int old_reg_hkspi_status = reg_hkspi_status;
     int old_reg_hkspi_chip_id = reg_hkspi_chip_id;
     int old_reg_hkspi_user_id = reg_hkspi_user_id;
@@ -73,33 +71,33 @@ void main(){
     check_all_gpio_ctrl_regs(data_in);
     // housekeeping
     if (reg_hkspi_status!= old_reg_hkspi_status) // RO
-        send_packet(9);
+        return false;
     if (reg_hkspi_chip_id!= old_reg_hkspi_chip_id) // RO
-        send_packet(9);
+        return false;
     if (reg_hkspi_user_id!= old_reg_hkspi_user_id) // RO
-        send_packet(9);
-    #if PLL_SUP
+        return false;
+#if PLL_SUP
     if (reg_hkspi_pll_ena!= 0x1)  // size =2
-        send_packet(9);
+        return false;
     if (reg_hkspi_pll_bypass != 0x1) // size = 1
-        send_packet(9);
-    #endif //pll sup
+        return false;
+#endif                                      // pll sup
     if (reg_hkspi_irq!= old_reg_hkspi_irq)  // RO
-        send_packet(9);
-    #if TRAP_SUP
+        return false;
+#if TRAP_SUP
     if (reg_hkspi_trap!= old_reg_hkspi_trap)  // RO
-        send_packet(9);
-    #endif
+        return false;
+#endif
     if (reg_hkspi_pll_trim!= 0x1555555) // size 26
-        send_packet(9);
+        return false;
     if (reg_hkspi_pll_source!= 0x15) // size 6 bits 0-2 = phase 0 divider, bits 3-5 = phase 90 divider
-        send_packet(9);
+        return false;
     if (reg_hkspi_pll_divider!= 0x15) // size 5 -> PLL output divider, PLL output divider2 , PLL feedback divider
-        send_packet(9);
+        return false;
     if (reg_hkspi_disable!= 0x1) // size 1
-        send_packet(9);
+        return false;
     if (reg_clk_out_dest!= 0x5) // trap and clocks redirect
-        send_packet(9);
+        return false;
     // // write 01 to all registers
     data_in = 0xAAAAAAAA;
     wr_all_gpio_ctrl_regs(data_in);
@@ -129,40 +127,36 @@ void main(){
     
         // housekeeping
     if (reg_hkspi_status!= old_reg_hkspi_status) // RO
-        send_packet(9);
+        return false;
     if (reg_hkspi_chip_id!= old_reg_hkspi_chip_id) // RO
-        send_packet(9);
+        return false;
     if (reg_hkspi_user_id!= old_reg_hkspi_user_id) // RO
-        send_packet(9);
-    #if PLL_SUP
+        return false;
+#if PLL_SUP
     if (reg_hkspi_pll_ena!= 0x2)  // size =2
-        send_packet(9);
+        return false;
     if (reg_hkspi_pll_bypass != 0x0) // size = 1
-        send_packet(9);
+        return false;
     if (reg_hkspi_irq!= old_reg_hkspi_irq)  // RO
-        send_packet(9);
-    #endif // pll sup
-    #if TRAP_SUP
+        return false;
+#endif // pll sup
+#if TRAP_SUP
     if (reg_hkspi_trap!= old_reg_hkspi_trap)  // RO
-        send_packet(9);
-    #endif
+        return false;
+#endif
     if (reg_hkspi_pll_trim!= 0x2AAAAAA) // size 26
-        send_packet(9);
+        return false;
     if (reg_hkspi_pll_source!= 0x2A) // size 6 bits 0-2 = phase 0 divider, bits 3-5 = phase 90 divider
-        send_packet(9);
+        return false;
     if (reg_hkspi_pll_divider!= 0xA)// size 5 -> PLL output divider, PLL output divider2 , PLL feedback divider
-        send_packet(9);
+        return false;
     if (reg_hkspi_disable!= 0x0) // size 1
-        send_packet(9);
+        return false;
     if (reg_clk_out_dest!= 0x2) // trap and clocks redirect
-        send_packet(9);
+        return false;
 
-    send_packet(3);
-    send_packet(3);
-    send_packet(3);
-    
+    return true;
 }
-
 
 void wr_all_gpio_ctrl_regs(unsigned int data_in){
     reg_mprj_io_0   = data_in;
@@ -213,79 +207,79 @@ void check_all_gpio_ctrl_regs(unsigned int data_in){
     }
     unsigned int data_exp = data_in & mask;
     if (reg_mprj_io_0 != data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_1 != data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_2 != data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_3 != data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_4 != data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_5 != data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_6 != data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_7 != data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_8 != data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_9 != data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_10!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_11!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_12!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_13!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_14!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_15!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_16!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_17!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_18!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_19!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_20!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_21!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_22!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_23!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_24!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_25!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_26!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_27!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_28!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_29!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_30!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_31!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_32!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_33!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_34!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_35!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_36!= data_exp)
-        send_packet(9);
+        return false;
     if (reg_mprj_io_37!= data_exp)
-        send_packet(9);
+        return false;
 }

@@ -5,6 +5,7 @@
 #define GPIO_C_HEADER_FILE
 
 #include <defs.h>
+#include <uart_api.h>
 
 /**
  * Configure all GPIOs with the config
@@ -167,6 +168,13 @@ void configure_gpio(int gpio_num,enum gpio_mode config){
         default:
             break;
     }
+}
+
+void config_uart()
+{
+    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    gpio_config_load();
+    enable_uart_TX(1);
 }
 
 /**

@@ -53,8 +53,6 @@ void uart_reception()
     // Start test
     send_packet(2); // Start of the test
 
-    count_down(PULSE_WIDTH * 50);
-
     send_packet(4);     // wait for new character
     wait_for_char("M"); // 0x4D
 

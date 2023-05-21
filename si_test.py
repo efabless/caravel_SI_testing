@@ -121,20 +121,21 @@ def process_uart(test, uart):
             if pulse_count == 2:
                 received = test.io_receive(4, 6)
                 if received:
-                    print("gpio[6] Passed")
+                    print("IO[6] Passed")
                 else:
-                    print("Timeout failure on gpio[6]!")
+                    print("Timeout failure on IO[6]!")
                     return False
             pulse_count = test.receive_packet(250)
             if pulse_count == 3:
                 print("Send 4 packets to IO[5]")
+                time.sleep(5)
                 test.send_pulse(4, 5, 5)
                 ack_pulse = test.receive_packet(250)
-                if ack_pulse == 5:
-                    print("gpio[5] Failed to send pulse")
+                if ack_pulse == 9:
+                    print("IO[5] Failed to send pulse")
                     return False
-                elif ack_pulse == 3:
-                    print("gpio[5] sent pulse successfully")
+                elif ack_pulse == 4:
+                    print("IO[5] sent pulse successfully")
 
         elif test.test_name == "uart":
             pulse_count = test.receive_packet(250)

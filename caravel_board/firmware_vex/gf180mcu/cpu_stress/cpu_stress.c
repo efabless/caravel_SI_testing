@@ -103,13 +103,12 @@ int f8(int a, int b, int c, int d, int e, int f, int g, int h){
       send packet with size = 1
    
 */
-void main()
+bool cpu_stress()
 {
    int n;
    int B[10];
-    configure_mgmt_gpio();
 
-    // start test
+   // start test
    //  reg_mprj_datal = 0xAAAA0000;
 
    //  n =factorial(12);
@@ -120,10 +119,8 @@ void main()
 
    n = fibbonacci(10);
    if(n != 55)
-      send_packet(9); // fail
-   else
-      send_packet(1);//phase 1 pass 
-	
+      return false;
+
     int sumA = 0;
     for(int i=0; i<10; i++){
         B[i] = A[i];
@@ -131,26 +128,24 @@ void main()
     }
 
    if(sumA != 401)
-      send_packet(9); // fail
-   else 
-    send_packet(2); //phase 2 pass
+        return false;
 
-    recursiveInsertionSort(B, 10);
+   recursiveInsertionSort(B, 10);
 
-    int sumB = 0;
-    for(int i=0; i<10; i++){
+   int sumB = 0;
+   for (int i = 0; i < 10; i++)
+   {
         sumB += B[i];
-    }
+   }
 
    if(sumA != sumB)
-      send_packet(9); // fail
-   else 
-      send_packet(3); //phase 3 pass
+        return false;
 
-    for(int i=0; i<10; i++){
+   for (int i = 0; i < 10; i++)
+   {
         B[i] = A[i];
         sumA += A[i];
-    }
+   }
     quick_sort(B, 0, 9);
 
     for(int i=0; i<10; i++){
@@ -158,19 +153,12 @@ void main()
     }
 
    if(sumA != sumB)
-      send_packet(9); // fail
-   else 
-      send_packet(4); //phase 4 pass
-    
-    int sum = f8(10, 20, 30, 40, 50, 60, 70, 80);
+        return false;
+
+   int sum = f8(10, 20, 30, 40, 50, 60, 70, 80);
 
    if(sum != (10+20+30+40+50+60+70+80))
-      send_packet(9); // fail
-   else 
-      send_packet(5); //phase 5 pass
+        return false;
 
-   // test finish 
-   send_packet(1);
-   send_packet(1);
-   send_packet(1);
+   return true;
 }

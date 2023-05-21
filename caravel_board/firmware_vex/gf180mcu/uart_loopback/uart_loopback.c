@@ -16,20 +16,20 @@
  */
 #include <common.h>
 
-void wait_for_char(char *c)
-{
-    while (uart_rxempty_read() == 1)
-        ;
-    if (reg_uart_data == *c)
-    {
-        send_packet(6); // recieved the correct character
-    }
-    else
-    {
-        send_packet(9); // recieved incorrect correct character
-    }
-    uart_pop_char();
-}
+// void wait_for_char(char *c)
+// {
+//     while (uart_rxempty_read() == 1)
+//         ;
+//     if (reg_uart_data == *c)
+//     {
+//         send_packet(6); // recieved the correct character
+//     }
+//     else
+//     {
+//         send_packet(9); // recieved incorrect correct character
+//     }
+//     uart_pop_char();
+// }
 
 /*
 Connect the transimssion and the reciever of the uart
@@ -51,7 +51,7 @@ Connect the transimssion and the reciever of the uart
 
 */
 
-void main()
+void uart_loopback()
 {
     int j;
     configure_mgmt_gpio();

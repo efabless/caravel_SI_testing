@@ -33,7 +33,7 @@ python code should get all the data received on mprj and decode it code like the
 
 */
 
-void main()
+void uart()
 {
     int i, j;
     configure_mgmt_gpio();

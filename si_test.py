@@ -200,17 +200,17 @@ def process_soc(test, uart):
         uart_data = uart.read_data()
         uart_data = uart_data.decode()
         if "Start Test:" in uart_data:
-            test.test_name = uart_data.split(": ")[1]
-            print(f"Start Test: {test.test_name}")
+            test.test_name = uart_data.strip().split(": ")[1]
+            print(f"Running test {test.test_name}...", end=" ")
         elif "End Test" in uart_data:
-            print(uart_data)
+            print("End Test")
             break
         uart_data = uart.read_data()
         uart_data = uart_data.decode()
         if "passed" in uart_data:
-            print(f"{test.test_name} passed")
+            print(" passed")
         elif "failed" in uart_data:
-            print(f"{test.test_name} failed")
+            print(" failed")
             return False
     return True
 

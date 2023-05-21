@@ -157,19 +157,4 @@ bool recieved_pulse_num(int number_of_pulses)
     }
     return false;
 }
-
-void wait_for_char(char *c)
-{
-    while (uart_rxempty_read() == 1)
-        ;
-    if (reg_uart_data == *c)
-    {
-        send_packet(6); // recieved the correct character
-    }
-    else
-    {
-        send_packet(9); // recieved incorrect correct character
-    }
-    uart_pop_char();
-}
 #endif // PACKET_C_HEADER_FILE

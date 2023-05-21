@@ -47,13 +47,12 @@ Enable interrupt for IRQ external pin mprj_io[7] -> should be drived to 1 by the
 
 extern unsigned int flag;
 
-void main()
+bool IRQ_external2()
 {
     uint16_t data;
     int i;
 
     flag = 0;
-    configure_mgmt_gpio();
 
     // setting bit 12 as input
     configure_gpio(12, GPIO_MODE_MGMT_STD_OUTPUT);
@@ -69,7 +68,8 @@ void main()
     // irq_setmask(irq_getmask() | ( 0x3f));
     reg_user5_irq_en = 1;
     reg_irq_source = 2;
-    send_packet(1); // wait for environment to make mprj[7] high
+    config_uart();
+    print("Start Test: IRQ_external2\n");
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
@@ -80,18 +80,12 @@ void main()
     {
         if (flag == 1)
         {
-            send_packet(5); // test pass irq sent
             is_pass = true;
-            break;
+            return true;
         }
     }
     if (!is_pass)
     {
-        send_packet(9); // timeout
+        return false;
     }
-
-    // finish test
-    send_packet(3);
-    send_packet(3);
-    send_packet(3);
 }

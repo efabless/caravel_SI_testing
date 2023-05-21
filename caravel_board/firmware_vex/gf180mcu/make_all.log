@@ -898,3 +898,155 @@ generating hex for [config_io_o_new]
 /usr/local/bin/riscv64-unknown-elf-objcopy -O verilog config_io_o_new.elf config_io_o_new.hex
 sed -ie 's/@10/@00/g' config_io_o_new.hex
 
+Running make in IRQ_uart
+generating hex for [IRQ_uart]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in gpio_lo_hpd
+generating hex for [gpio_lo_hpd]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in gpio_i_l
+generating hex for [gpio_i_l]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in IRQ_spi
+generating hex for [IRQ_spi]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in gpio_i_h
+generating hex for [gpio_i_h]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in timer0_oneshot
+generating hex for [timer0_oneshot]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in uart
+generating hex for [uart]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in mem_sram_W_upper
+generating hex for [mem_sram_W_upper]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in gpio_lpu_ho
+generating hex for [gpio_lpu_ho]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in mem_sram_W_lower
+generating hex for [mem_sram_W_lower]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in hk_regs_wr_wb_cpu
+generating hex for [hk_regs_wr_wb_cpu]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in IRQ_uart_rx
+generating hex for [IRQ_uart_rx]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in bitbang_o_l
+generating hex for [bitbang_o_l]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in cpu_stress
+generating hex for [cpu_stress]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in timer0_periodic
+generating hex for [timer0_periodic]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in uart_loopback
+generating hex for [uart_loopback]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in bitbang_i_h
+generating hex for [bitbang_i_h]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in mem_sram_halfW_lower
+generating hex for [mem_sram_halfW_lower]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in gpio_o_h
+generating hex for [gpio_o_h]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in gpio_lpd_ho
+generating hex for [gpio_lpd_ho]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in gpio_lo_hpu
+generating hex for [gpio_lo_hpu]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in bitbang_i_l
+generating hex for [bitbang_i_l]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in mem_sram_test_lower
+generating hex for [mem_sram_test_lower]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in mem_sram_test_upper
+generating hex for [mem_sram_test_upper]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in uart_reception
+generating hex for [uart_reception]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in clock_redirect
+generating hex for [clock_redirect]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in bitbang_o_h
+generating hex for [bitbang_o_h]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in IRQ_external2
+generating hex for [IRQ_external2]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in spi_master
+generating hex for [spi_master]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in uart_io
+generating hex for [uart_io]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in gpio_o_l
+generating hex for [gpio_o_l]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in mem_sram_halfW_upper
+generating hex for [mem_sram_halfW_upper]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in IRQ_external
+generating hex for [IRQ_external]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in receive_packet
+generating hex for [receive_packet]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in send_packet
+generating hex for [send_packet]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in IRQ_timer
+generating hex for [IRQ_timer]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in uart_tests
+generating hex for [uart_tests]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+
+Running make in config_io_o_new
+generating hex for [config_io_o_new]
+rm -f *.elf *.hex *.bin *.vvp *.vcd *.hexe *.lst *.hexe *.lst
+

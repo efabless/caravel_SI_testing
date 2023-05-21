@@ -37,11 +37,10 @@ wait for interrupt
 
 */
 
-void main()
+bool IRQ_uart_rx()
 {
 
     clear_flag();
-    configure_mgmt_gpio();
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     gpio_config_load();
@@ -50,7 +49,8 @@ void main()
     uart_RX_enable(1);
     enable_uart_rx_irq(1);
     uart_ev_pending_write(1);
-    send_packet(2); // sending data through the uart rx
+    config_uart();
+    print("Start Test: IRQ_uart_rx\n");
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
     int timeout = 400000;
@@ -59,18 +59,12 @@ void main()
     {
         if (get_flag() == 1)
         {
-            send_packet(5); // test pass irq sent
             is_pass = true;
-            break;
+            return true;
         }
     }
     if (!is_pass)
     {
-        send_packet(9); // timeout
+        return false;
     }
-
-    // finish test
-    send_packet(3);
-    send_packet(3);
-    send_packet(3);
 }

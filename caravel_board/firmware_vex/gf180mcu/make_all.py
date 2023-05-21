@@ -22,6 +22,6 @@ for root, dirs, files in os.walk(cwd):
         # Print the directory name and run the make command
         logger.info(f"Running make in {dir_name}")
         os.chdir(root)
-        make_output = os.popen("make clean; make").read()
+        make_output = os.popen("make clean").read()
         logger.info(make_output)
         os.chdir(cwd)

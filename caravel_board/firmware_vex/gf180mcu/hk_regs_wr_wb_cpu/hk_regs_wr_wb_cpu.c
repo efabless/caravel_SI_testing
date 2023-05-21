@@ -31,7 +31,7 @@ checking user clock and caravel clock  at gpio 15 and gpio 14
    
 */
 
-void check_all_gpio_ctrl_regs(unsigned int data_in);
+bool check_all_gpio_ctrl_regs(unsigned int data_in);
 void wr_all_gpio_ctrl_regs(unsigned int data_in);
 
 bool hk_regs_wr_wb_cpu()
@@ -68,7 +68,8 @@ bool hk_regs_wr_wb_cpu()
     reg_hkspi_disable    =  data_in; 
 
     // read ones that has been written
-    check_all_gpio_ctrl_regs(data_in);
+    if (!check_all_gpio_ctrl_regs(data_in))
+        return false;
     // housekeeping
     if (reg_hkspi_status!= old_reg_hkspi_status) // RO
         return false;
@@ -199,7 +200,8 @@ void wr_all_gpio_ctrl_regs(unsigned int data_in){
     reg_mprj_io_37  = data_in;
 }
 
-void check_all_gpio_ctrl_regs(unsigned int data_in){
+bool check_all_gpio_ctrl_regs(unsigned int data_in)
+{
     unsigned int mask = 0;
     for (int i = 0; i < 13; i++){
         mask = mask << 1;

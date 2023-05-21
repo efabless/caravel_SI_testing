@@ -205,6 +205,18 @@ def process_soc(test, uart):
         elif "End Test" in uart_data:
             print("End Test")
             break
+
+        if test.test_name == "IRQ_external" or test.test_name == "IRQ_external2":
+            if test.test_name == "IRQ_external":
+                channel = 7
+            else:
+                channel = 12
+            channel = test.device1v8.dio_map[channel]
+            channel.set_state(True)
+            channel.set_value(1)
+        elif test.test_name == "IRQ_uart_rx":
+            uart.open()
+            uart.write("I")
         uart_data = uart.read_data()
         uart_data = uart_data.decode()
         if "passed" in uart_data:

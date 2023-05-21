@@ -38,35 +38,26 @@ wait for interrupt
 
 */
 
+bool IRQ_timer()
+{
 
-void main(){
-    
     clear_flag();
-    configure_mgmt_gpio();
     enable_timer0_irq(1);
     timer0_ev_pending_write(1);
     timer0_oneshot_configure(10000);
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
-    int timeout = 500000; 
-    send_packet(1);
+    int timeout = 500000;
 
     for (int i = 0; i < timeout; i++){
-        if (get_flag() == 1){
-            send_packet(5);//test pass irq sent
+        if (get_flag() == 1)
+        {
             is_pass = true;
-            break;
+            return true;
         }
     }
     if (!is_pass){
-        send_packet(9);// timeout
+        return false;
     }
-
-    // finish test
-    send_packet(3);
-    send_packet(3);
-    send_packet(3);
-
 }
-

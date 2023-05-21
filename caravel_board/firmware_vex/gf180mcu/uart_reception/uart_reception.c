@@ -40,6 +40,21 @@ Connect the transimssion and the reciever of the uart
 
 */
 
+void wait_for_char(char *c)
+{
+    while (uart_rxempty_read() == 1)
+        ;
+    if (reg_uart_data == *c)
+    {
+        send_packet(6); // recieved the correct character
+    }
+    else
+    {
+        send_packet(9); // recieved incorrect correct character
+    }
+    uart_pop_char();
+}
+
 void uart_reception()
 {
     int j;
@@ -47,6 +62,8 @@ void uart_reception()
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     gpio_config_load();
+    uart_RX_enable(0);
+    enable_uart_TX(0);
 
     uart_RX_enable(1);
 

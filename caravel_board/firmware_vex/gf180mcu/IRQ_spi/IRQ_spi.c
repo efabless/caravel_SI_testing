@@ -37,14 +37,12 @@ wait for interrupt
 
 */
 
-void main()
+bool IRQ_spi()
 {
 
     clear_flag();
-    configure_mgmt_gpio();
     enable_hk_spi_irq(1);
     user_irq_0_ev_pending_write(1);
-    send_packet(2); // 
     reg_hkspi_irq = 1;
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
@@ -54,18 +52,12 @@ void main()
     {
         if (get_flag() == 1)
         {
-            send_packet(5); // test pass irq sent
             is_pass = true;
-            break;
+            return true;
         }
     }
     if (!is_pass)
     {
-        send_packet(9); // timeout
+        return false;
     }
-
-    // finish test
-    send_packet(3);
-    send_packet(3);
-    send_packet(3);
 }

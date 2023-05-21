@@ -65,7 +65,7 @@ void uart_reception()
     wait_for_char("A"); // 0
 
     // finish test
-    send_packet(3);
-    send_packet(3);
-    send_packet(3);
+    // send_packet(3);
+    // send_packet(3);
+    // send_packet(3);
 }

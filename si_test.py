@@ -81,30 +81,12 @@ def process_uart(test, uart):
         if name == "uart_io":
             pulse_count = test.receive_packet(250)
             if pulse_count == 2:
-                print("Recieve 4 packets to IO[6]")
-                io_pulse = 0
-                io = test.device1v8.dio_map[6]
-                state = "HI"
-                timeout = time.time() + 20
-                accurate_delay(125)
-                while 1:
-                    accurate_delay(250)
-                    x = io.get_value()
-                    if state == "LOW":
-                        if x:
-                            state = "HI"
-                    elif state == "HI":
-                        if not x:
-                            state = "LOW"
-                            io_pulse = io_pulse + 1
-                    if io_pulse == 4:
-                        io_pulse = 0
-                        print("gpio[6] Passed")
-                        break
-                    if time.time() > timeout:
-                        print("Timeout failure on gpio[6]!")
-                        return False
-
+                received = test.io_receive(4, 6)
+                if received:
+                    print("gpio[6] Passed")
+                else:
+                    print("Timeout failure on gpio[6]!")
+                    return False
             pulse_count = test.receive_packet(250)
             if pulse_count == 3:
                 print("Send 4 packets to IO[5]")
@@ -117,29 +99,26 @@ def process_uart(test, uart):
                     print("gpio[5] sent pulse successfully")
 
         elif test.test_name == "uart":
-            uart.open()
-            rgRX = ""
-            timeout = time.time() + 50
-            while True:
-                uart_data, count = uart.read_uart()
-                if uart_data:
-                    uart_data[count.value] = 0
-                    rgRX = rgRX + uart_data.value.decode()
-                    if test.passing_criteria[0] in rgRX:
-                        print(rgRX)
-                        break
-                if time.time() > timeout:
-                    print(f"{test.test_name} test failed with {test.voltage}v supply")
-                    uart.close()
-                    return False
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 2:
+                print("Start UART transmission")
+            uart_data = uart.read_data()
+            if "Monitor: Test UART passed" in uart_data:
+                print("UART test passed")
+            else:
+                print("UART test failed")
+                return False
             pulse_count = test.receive_packet(250)
             if pulse_count == 5:
                 print("end UART transmission")
+
         elif test.test_name == "uart_reception":
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 2:
+                print("Start UART transmission")
             uart.open()
-            rgRX = ""
             timeout = time.time() + 50
-            for i in test.passing_criteria:
+            for i in ["M", "B", "A"]:
                 pulse_count = test.receive_packet(250)
                 if pulse_count == 4:
                     uart.write(i)
@@ -150,9 +129,9 @@ def process_uart(test, uart):
                     print(f"Couldn't send {i} over UART!")
                     uart.close()
                     return False
+
         elif test.test_name == "uart_loopback":
             uart.open()
-            rgRX = ""
             timeout = time.time() + 50
             for i in range(0, 5):
                 while time.time() < timeout:
@@ -160,16 +139,17 @@ def process_uart(test, uart):
                     if uart_data:
                         uart_data[count.value] = 0
                         dat = uart_data.value.decode()
-                        if dat in test.passing_criteria:
-                            uart.write(dat)
-                            pulse_count = test.receive_packet(250)
-                            if pulse_count == 6:
-                                print(f"Successfully sent {dat} over UART!")
-                                break
-                            if pulse_count == 9:
-                                print(f"Couldn't send {dat} over UART!")
-                                uart.close()
-                                return False
+                        # if dat in test.passing_criteria:
+                        uart.write(dat)
+                        pulse_count = test.receive_packet(250)
+                        if pulse_count == 6:
+                            print(f"Successfully sent {dat} over UART!")
+                            break
+                        if pulse_count == 9:
+                            print(f"Couldn't send {dat} over UART!")
+                            uart.close()
+                            return False
+    return True
 
 
 def flash_test(

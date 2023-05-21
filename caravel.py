@@ -319,6 +319,37 @@ class Test:
         for c in self.deviced.dio_map:
             self.deviced.dio_map[c].set_state(False)
 
+    def io_receive(self, pulses, channel):
+        io_pulse = 0
+        if channel > 13 and channel < 22:
+            io = self.deviced.dio_map[channel]
+        elif channel > 21:
+            io = self.device3v3.dio_map[channel]
+        else:
+            io = self.device1v8.dio_map[channel]
+        print(f"recieve pulse on gpio[{channel}]")
+        state = "HI"
+        timeout = time.time() + 20
+        accurate_delay(125)
+        while 1:
+            accurate_delay(250)
+            x = io.get_value()
+            if state == "LOW":
+                if x:
+                    state = "HI"
+            elif state == "HI":
+                if not x:
+                    state = "LOW"
+                    io_pulse = io_pulse + 1
+            if io_pulse == pulses:
+                io_pulse = 0
+                return True
+            if time.time() > timeout:
+                return False
+
+
+
+
 
 class Device:
     """
@@ -564,6 +595,22 @@ class UART:
             self.device_data.handle, data, ctypes.c_int(ctypes.sizeof(data) - 1)
         )
         return
+    
+    def read_data(self):
+        self.open()
+        timeout = time.time() + 50
+        rgRX = b""
+        while True:
+            uart_data, count = self.read_uart()
+            if uart_data:
+                uart_data[count.value] = 0
+                rgRX = rgRX + uart_data.value
+                if b'\n' in rgRX:
+                    return rgRX
+            if time.time() > timeout:
+                print("UART Timeout!")
+                self.close()
+                return False
 
     def close(self):
         # dwf.FDwfDeviceClose(self.device_data.handle)

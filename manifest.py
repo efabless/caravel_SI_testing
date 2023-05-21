@@ -14,10 +14,7 @@ TestDict = [
     {
         "test_name": "mgmt_gpio_tests",
         "uart": False,  # NOT Testing UART
-        "mem": False,  # NOT Testing mem
-        "io": False,
-        "spi": False,
-        "external": False,
+        "mgmt_gpio": True,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mgmt_gpio_tests/mgmt_gpio_tests.hex",
         "passing_criteria": [
             1,
@@ -33,10 +30,7 @@ TestDict = [
     {
         "test_name": "uart_tests",
         "uart": True,  # Testing UART
-        "mem": False,  # NOT Testing mem
-        "io": False,
-        "spi": False,
-        "external": False,
+        "mgmt_gpio": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/uart_tests/uart_tests.hex",
         "passing_criteria": [
             "Monitor: Test UART passed"
@@ -45,152 +39,33 @@ TestDict = [
     {
         "test_name": "mem_tests_lower",
         "uart": False,  # NOT Testing UART
-        "mem": False,  # Testing mem
-        "io": False,
-        "spi": False,
-        "external": False,
+        "mgmt_gpio": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_tests_lower/mem_tests_lower.hex",
         "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "mem_tests_upper",
         "uart": False,  # NOT Testing UART
-        "mem": False,  # Testing mem
-        "io": False,
-        "spi": False,
-        "external": False,
+        "mgmt_gpio": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_tests_upper/mem_tests_upper.hex",
         "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
     },
-    # {
-    #     "test_name": "cpu_stress",
-    #     "uart": False,  # NOT Testing UART
-    #     "mem": False,  # NOT Testing mem
-    #     "io": False,
-    #     "spi": False,
-    #     "external": False,
-    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/cpu_stress/cpu_stress.hex",
-    #     "passing_criteria": [
-    #         1,
-    #         2,
-    #         3,
-    #         4,
-    #         5,
-    #         1,
-    #         1,
-    #         1,
-    #     ],  # Passing criteria to be sent to mgmt_gpio
-    # },
-    # {
-    #     "test_name": "timer0_oneshot",
-    #     "uart": False,  # NOT Testing UART
-    #     "mem": False,  # NOT Testing mem
-    #     "io": False,
-    #     "spi": False,
-    #     "external": False,
-    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/timer0_oneshot/timer0_oneshot.hex",
-    #     "passing_criteria": [1, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
-    # },
-    # {
-    #     "test_name": "timer0_periodic",
-    #     "uart": False,  # NOT Testing UART
-    #     "mem": False,  # NOT Testing mem
-    #     "io": False,
-    #     "spi": False,
-    #     "external": False,
-    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/timer0_periodic/timer0_periodic.hex",
-    #     "passing_criteria": [1, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
-    # },
-    # # {
-    # #     "test_name": "spi_master",
-    # #     "uart": False,  # NOT Testing UART
-    # #     "mem": False,  # NOT Testing mem
-    # #     "io": False,
-    # #     "spi": True,
-    # #     "external": False,
-    # #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/spi_master/spi_master.hex",
-    # #     "passing_criteria": [
-    # #         1,
-    # #         2,
-    # #         3,
-    # #         4,
-    # #         5,
-    # #         1,
-    # #         1,
-    # #         1,
-    # #     ],  # Passing criteria to be sent to mgmt_gpio
-    # # },
-    # {
-    #     "test_name": "IRQ_external",
-    #     "uart": False,  # NOT Testing UART
-    #     "mem": False,  # NOT Testing mem
-    #     "io": False,
-    #     "spi": False,
-    #     "external": True,
-    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/IRQ_external/IRQ_external.hex",
-    #     "passing_criteria": [1, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
-    # },
-    # {
-    #     "test_name": "IRQ_external2",
-    #     "uart": False,  # NOT Testing UART
-    #     "mem": False,  # NOT Testing mem
-    #     "io": False,
-    #     "spi": False,
-    #     "external": True,
-    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/IRQ_external2/IRQ_external2.hex",
-    #     "passing_criteria": [1, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
-    # },
-    # {
-    #     "test_name": "IRQ_timer",
-    #     "uart": False,  # NOT Testing UART
-    #     "mem": False,  # NOT Testing mem
-    #     "io": False,
-    #     "spi": False,
-    #     "external": False,
-    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/IRQ_timer/IRQ_timer.hex",
-    #     "passing_criteria": [1, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
-    # },
-    # {
-    #     "test_name": "IRQ_spi",
-    #     "uart": False,  # NOT Testing UART
-    #     "mem": False,  # NOT Testing mem
-    #     "io": False,
-    #     "spi": False,
-    #     "external": False,
-    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/IRQ_spi/IRQ_spi.hex",
-    #     "passing_criteria": [2, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
-    # },
-    # {
-    #     "test_name": "IRQ_uart",
-    #     "uart": False,  # NOT Testing UART
-    #     "mem": False,  # NOT Testing mem
-    #     "io": False,
-    #     "spi": False,
-    #     "external": False,
-    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/IRQ_uart/IRQ_uart.hex",
-    #     "passing_criteria": [1, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
-    # },
-    # {
-    #     "test_name": "IRQ_uart_rx",
-    #     "uart": True,  # NOT Testing UART
-    #     "mem": False,  # NOT Testing mem
-    #     "io": False,
-    #     "spi": False,
-    #     "external": False,
-    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/IRQ_uart_rx/IRQ_uart_rx.hex",
-    #     "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
-    # },
-    # {
-    #     "test_name": "hk_regs_wr_wb_cpu",
-    #     "uart": True,  # NOT Testing UART
-    #     "mem": False,  # NOT Testing mem
-    #     "io": False,
-    #     "spi": False,
-    #     "external": False,
-    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/hk_regs_wr_wb_cpu/hk_regs_wr_wb_cpu.hex",
-    #     "passing_criteria": [2, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
-    # },
-    # {
+    {
+        "test_name": "soc_tests",
+        "uart": False,  # NOT Testing UART
+        "mgmt_gpio": False,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/soc_tests/soc_tests.hex",
+        "passing_criteria": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            1,
+            1,
+            1,
+        ],  # Passing criteria to be sent to mgmt_gpio
+    },
     #     "test_name": "gpio_o_l",
     #     "uart": False,  # NOT Testing UART
     #     "mem": False,  # NOT Testing mem

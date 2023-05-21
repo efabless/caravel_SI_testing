@@ -227,7 +227,7 @@ def process_soc(test, uart):
     return True
 
 def flash_test(
-    test, hex_file, flash_flag, uart, uart_data, mem, io, mode, spi_flag, spi, external
+    test, hex_file, flash_flag, uart, uart_data, mgmt_gpio
 ):
     test.reset_devices()
     if flash_flag:
@@ -257,7 +257,9 @@ def flash_test(
 
     if uart:
         results = process_uart(test, uart_data)
-    elif mem:
+    elif mgmt_gpio:
+        results = process_mgmt_gpio(test)
+    else:
         results = process_soc(test, uart_data)
     # elif io:
     #     if mode == "output":
@@ -273,8 +275,7 @@ def flash_test(
     #     results = process_spi(test, spi)
     # elif external:
     #     results = process_external(test)
-    else:
-        results = process_mgmt_gpio(test)
+    
 
     logging.info(f"==============================================================================")
     logging.info(f"  Completed:  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
@@ -290,12 +291,7 @@ def exec_test(
     flash_flag=True,
     uart=False,
     uart_data=None,
-    mem=False,
-    io=False,
-    mode="low",
-    spi_flag=False,
-    spi=None,
-    external=False,
+    mgmt_gpio=False,
 ):
     results = flash_test(
         test,
@@ -303,12 +299,7 @@ def exec_test(
         flash_flag,
         uart,
         uart_data,
-        mem,
-        io,
-        mode,
-        spi_flag,
-        spi,
-        external,
+        mgmt_gpio,
     )
     end_time = time.time() - start_time
     arr = [test.test_name, test.voltage, results, end_time]
@@ -377,47 +368,46 @@ if __name__ == "__main__":
                         start_time,
                         t["hex_file_path"],
                         flash_flag,
-                        True,
-                        uart_data,
+                        uart=t["uart"],
+                        uart_data=uart_data,
                     )
-                elif t["mem"]:
+                elif t["mgmt_gpio"]:
                     exec_test(
                         test,
                         start_time,
                         t["hex_file_path"],
                         flash_flag,
-                        mem=True,
-                        uart_data=uart_data
+                        mgmt_gpio=t["mgmt_gpio"],
                     )
-                elif t["io"]:
-                    exec_test(
-                        test,
-                        start_time,
-                        t["hex_file_path"],
-                        flash_flag,
-                        io=t["io"],
-                        mode=t["mode"],
-                    )
-                elif t["spi"]:
-                    exec_test(
-                        test,
-                        start_time,
-                        t["hex_file_path"],
-                        flash_flag,
-                        spi_flag=t["spi"],
-                        spi=spi,
-                    )
-                elif t["external"]:
-                    exec_test(
-                        test,
-                        start_time,
-                        t["hex_file_path"],
-                        flash_flag,
-                        external=t["external"],
-                    )
+                # elif t["io"]:
+                #     exec_test(
+                #         test,
+                #         start_time,
+                #         t["hex_file_path"],
+                #         flash_flag,
+                #         io=t["io"],
+                #         mode=t["mode"],
+                #     )
+                # elif t["spi"]:
+                #     exec_test(
+                #         test,
+                #         start_time,
+                #         t["hex_file_path"],
+                #         flash_flag,
+                #         spi_flag=t["spi"],
+                #         spi=spi,
+                #     )
+                # elif t["external"]:
+                #     exec_test(
+                #         test,
+                #         start_time,
+                #         t["hex_file_path"],
+                #         flash_flag,
+                #         external=t["external"],
+                #     )
                 else:
                     exec_test(
-                        test, start_time, t["hex_file_path"], flash_flag
+                        test, start_time, t["hex_file_path"], flash_flag, uart_data=uart_data
                     )
                 counter += 1
                 test.close_devices()

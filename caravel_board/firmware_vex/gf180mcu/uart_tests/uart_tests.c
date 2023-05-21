@@ -12,4 +12,7 @@ void main()
     uart_reception();
     send_packet(1); // Start uart_loopback test
     uart_loopback();
+
+    configure_gpio_default();
+    gpio_config_load();
 }

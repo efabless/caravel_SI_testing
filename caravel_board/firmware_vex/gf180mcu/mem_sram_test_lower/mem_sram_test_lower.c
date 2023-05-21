@@ -12,12 +12,9 @@
 
 */
 
-void main()
+bool mem_sram_test_lower()
 {
-
-   configure_mgmt_gpio();
-   send_packet(1); // start of the test
-                   //   #define dff_size  (*(volatile uint32_t*)0x0)
+   //   #define dff_size  (*(volatile uint32_t*)0x0)
    volatile uint8_t *base_addr = ((volatile uint8_t *) 0x00000000);
    int dff_size = 0x400;
    //   #define iterator  (*(volatile uint32_t*)0x4)  // first address in the ram store the iterator
@@ -30,8 +27,7 @@ void main()
    {
       if (*(base_addr + iterator) != 0x55)
       {
-         send_packet(9); // error
-         return;
+         return false;
       }
    }
 
@@ -43,16 +39,10 @@ void main()
    {
       if (*(base_addr + iterator) != 0xAA)
       {
-         send_packet(9); // error
-         return;
+         return false;
       }
    }
 
    // test finish
-   count_down(PULSE_WIDTH * 10);
-   send_packet(3);
-   count_down(PULSE_WIDTH * 10);
-   send_packet(4);
-   count_down(PULSE_WIDTH * 10);
-   send_packet(5);
+   return true;
 }

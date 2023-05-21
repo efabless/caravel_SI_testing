@@ -12,13 +12,9 @@
 
 */
 
-void main(){
-
-   configure_mgmt_gpio();
-//   count_down(PULSE_WIDTH*50);
-
-   send_packet(1); // start of the test
-//   #define dff_size  (*(volatile uint32_t*)0x0)
+bool mem_sram_W_upper()
+{
+   //   #define dff_size  (*(volatile uint32_t*)0x0)
    volatile uint32_t* base_addr = ((volatile uint32_t*)  0x00000400 );
    int dff_size = 0x400 / 4;
 //   #define iterator  (*(volatile uint32_t*)0x4)  // first address in the ram store the iterator
@@ -30,8 +26,7 @@ void main(){
    for (iterator = 0; iterator < dff_size; iterator++ ){
       // reg_debug_2 = iterator;
       if (*( base_addr + iterator) !=  0x55555555){
-         send_packet(9); // error
-         return;
+         return false;
       }
    }
    for (iterator = 0; iterator < dff_size; iterator++ ){
@@ -41,18 +36,11 @@ void main(){
    for (iterator = 0; iterator < dff_size; iterator++ ){
    // reg_debug_2 = iterator;
       if (*( base_addr + iterator) != 0xAAAAAAAA){
-         send_packet(9); // error
-         return;
+         return false;
       }
    }
 
 
    // test finish
-   count_down(PULSE_WIDTH*10);
-   send_packet(3);
-   count_down(PULSE_WIDTH*10);
-   send_packet(4);
-   count_down(PULSE_WIDTH*10);
-   send_packet(5);
-
+   return true;
 }

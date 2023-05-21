@@ -5,21 +5,21 @@ void main()
 {
 
     config_uart();
-    print("Start Test: mem_sram_halfW_upper");
+    print("Start Test: mem_sram_halfW_upper\n");
     if (mem_sram_halfW_upper())
         print("passed\n");
     else
         print("failed\n");
 
     config_uart();
-    print("Start Test: mem_sram_test_upper");
+    print("Start Test: mem_sram_test_upper\n");
     if (mem_sram_test_upper())
         print("passed\n");
     else
         print("failed\n");
 
     config_uart();
-    print("Start Test: mem_sram_W_upper");
+    print("Start Test: mem_sram_W_upper\n");
     if (mem_sram_W_upper())
         print("passed\n");
     else

@@ -174,7 +174,6 @@ def process_uart(test, uart):
                     uart.close()
                     return False
 
-
         elif test.test_name == "uart_loopback":
             uart.open()
             timeout = time.time() + 50
@@ -376,6 +375,7 @@ if __name__ == "__main__":
                         t["hex_file_path"],
                         flash_flag,
                         mem=True,
+                        uart_data=uart_data
                     )
                 elif t["io"]:
                     exec_test(

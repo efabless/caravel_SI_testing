@@ -798,6 +798,7 @@ if __name__ == "__main__":
                             exec_test(
                                 test,
                                 start_time,
+                                writer,
                                 t["hex_file_path"],
                                 flash_flag,
                                 uart=t["uart"],
@@ -808,6 +809,7 @@ if __name__ == "__main__":
                             exec_test(
                                 test,
                                 start_time,
+                                writer,
                                 t["hex_file_path"],
                                 flash_flag,
                                 mgmt_gpio=t["mgmt_gpio"],
@@ -857,7 +859,13 @@ if __name__ == "__main__":
                         #     )
                         else:
                             exec_test(
-                                test, start_time, writer, t["hex_file_path"], flash_flag, flash_only=args.flash_only, uart_data=uart_data
+                                test,
+                                start_time,
+                                writer,
+                                t["hex_file_path"],
+                                flash_flag,
+                                flash_only=args.flash_only,
+                                uart_data=uart_data
                             )
                         counter += 1
                         test.close_devices()

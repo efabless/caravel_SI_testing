@@ -67,4 +67,6 @@ bool IRQ_uart_rx()
     }
     empty_buffer();
     uart_RX_enable(0);
+    enable_uart_rx_irq(0);
+    uart_ev_pending_write(0);
 }

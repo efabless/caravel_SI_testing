@@ -65,4 +65,6 @@ bool IRQ_uart_rx()
     {
         return false; // timeout
     }
+    empty_buffer();
+    uart_RX_enable(0);
 }

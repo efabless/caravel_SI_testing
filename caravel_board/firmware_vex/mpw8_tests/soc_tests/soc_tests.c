@@ -51,17 +51,6 @@ void main()
         print("failed\n");
     }
 
-    if (IRQ_uart_rx())
-    {
-        config_uart();
-        print("passed\n");
-    }
-    else
-    {
-        config_uart();
-        print("failed\n");
-    }
-
     config_uart();
     print("Start Test: IRQ_spi\n");
     if (IRQ_spi())
@@ -117,6 +106,17 @@ void main()
     config_uart();
     print("Start Test: timer0_periodic\n");
     if (timer0_periodic())
+    {
+        config_uart();
+        print("passed\n");
+    }
+    else
+    {
+        config_uart();
+        print("failed\n");
+    }
+
+    if (IRQ_uart_rx())
     {
         config_uart();
         print("passed\n");

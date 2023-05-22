@@ -125,10 +125,8 @@ void wait_for_char(char *c)
 
 void empty_buffer()
 {
-    while (uart_rxempty_read() != 0)
-    {
+    while (uart_rxempty_read() != 1)
         uart_pop_char();
-    }
 }
 
 #ifdef DOXYGEN_DOCS_ONLY

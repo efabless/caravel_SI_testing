@@ -68,7 +68,7 @@ class Test:
         pulses = 0
         self.gpio_mgmt.set_state(False)
         timeout = time.time() + 50
-        while not self.gpio_mgmt.get_value():
+        while self.gpio_mgmt.get_value() != False:
             if time.time() > timeout:
                 print("Timeout!")
                 self.close_devices()

@@ -123,6 +123,14 @@ void wait_for_char(char *c)
     uart_pop_char();
 }
 
+void empty_buffer()
+{
+    while (uart_rxempty_read() != 0)
+    {
+        uart_pop_char();
+    }
+}
+
 #ifdef DOXYGEN_DOCS_ONLY
 /**
  * Send ASCII symbol or symbols through UART 

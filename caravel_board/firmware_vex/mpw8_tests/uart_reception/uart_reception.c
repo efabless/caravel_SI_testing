@@ -48,9 +48,8 @@ void uart_reception()
     configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     gpio_config_load();
 
-    empty_buffer();
-
     uart_RX_enable(1);
+    empty_buffer();
 
     // Start test
     send_packet(2); // Start of the test

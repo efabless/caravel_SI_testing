@@ -47,10 +47,9 @@ void uart_loopback()
     // Start test
     send_packet(2); // Start of the test
 
-    empty_buffer();
-
     uart_RX_enable(1);
     enable_uart_TX(1);
+    empty_buffer();
 
     print("M");
     for (j = 0; j < 1000; j++)

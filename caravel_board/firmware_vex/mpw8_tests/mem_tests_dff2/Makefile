@@ -12,6 +12,5 @@
 
 .SUFFIXES:
 TESTNAME = mem_tests_dff2
-LINKER_SCRIPT = ../common/sections_dff2.lds
 
 include ../common/Makefile.common

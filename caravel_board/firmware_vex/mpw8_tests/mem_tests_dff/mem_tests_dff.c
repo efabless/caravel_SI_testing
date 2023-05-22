@@ -7,15 +7,9 @@ void main()
     config_uart();
     print("Start Test: mem_dff_halfW\n");
     if (mem_dff_halfW())
-    {
-        config_uart();
         print("passed\n");
-    }
     else
-    {
-        config_uart();
         print("failed\n");
-    }
 
     config_uart();
     print("Start Test: mem_dff_test\n");

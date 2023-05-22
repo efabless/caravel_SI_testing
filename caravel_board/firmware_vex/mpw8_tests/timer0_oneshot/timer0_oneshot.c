@@ -38,13 +38,10 @@ wait for interrupt
 
 */
 
-
-void main(){
+bool timer0_oneshot()
+{
     uint32_t value;
     uint32_t old_value;
-
-    configure_mgmt_gpio();
-    send_packet(1);//configuring the timers and start count down
 
     /* Configure timer for a single-shot countdown */
     timer0_oneshot_configure(0xF3000);
@@ -63,7 +60,7 @@ void main(){
             if (value==0)
                 break;
         }else{
-            send_packet(9); //timer updated incorrectly
+            return false; // timer updated incorrectly
         }
 	    old_value = value;
         // if(value==0){
@@ -77,15 +74,8 @@ void main(){
         update_timer0_val(); // update reg_timer0_value with new counter value
 
     if (get_timer0_val() == 0){
-        send_packet(5); //timer updated correctly
+        return true; // timer updated correctly
     }else{
-        send_packet(9); //timer updated incorrectly
+        return false; // timer updated incorrectly
     }
-    
-    // finish test
-    send_packet(3);
-    send_packet(3);
-    send_packet(3);
-
 }
-

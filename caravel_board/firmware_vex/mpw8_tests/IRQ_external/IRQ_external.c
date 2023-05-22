@@ -37,19 +37,16 @@ Enable interrupt for IRQ external pin mprj_io[7] -> should be drived to 1 by the
 
 */
 
-
-void main()
+bool IRQ_external()
 {
 
     clear_flag();
-    configure_mgmt_gpio();
 
     configure_gpio(7,GPIO_MODE_MGMT_STD_INPUT_NOPULL);
 
     gpio_config_load();
     enable_external1_irq(1);
     reg_irq_source = 1;
-    send_packet(1); // wait for environment to make mprj[7] high
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
@@ -60,18 +57,12 @@ void main()
     {
         if (get_flag() == 1)
         {
-            send_packet(5); // test pass irq sent
             is_pass = true;
-            break;
+            return true;
         }
     }
     if (!is_pass)
     {
-        send_packet(9); // timeout
+        return false; // timeout
     }
-
-    // finish test
-    send_packet(3);
-    send_packet(3);
-    send_packet(3);
 }

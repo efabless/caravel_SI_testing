@@ -144,7 +144,7 @@ def process_uart(test, uart):
             pulse_count = test.receive_packet(250)
             if pulse_count == 2:
                 test.console.print("Start UART transmission")
-            uart_data = uart.read_data()
+            uart_data = uart.read_data(test)
             uart_data = uart_data.decode()
             if "Monitor: Test UART passed" in uart_data:
                 test.console.print("UART test passed")
@@ -200,7 +200,7 @@ def process_uart(test, uart):
 
 def process_soc(test, uart):
     while True:
-        uart_data = uart.read_data()
+        uart_data = uart.read_data(test)
         uart_data = uart_data.decode()
         if "Start Test:" in uart_data:
             test.test_name = uart_data.strip().split(": ")[1]
@@ -220,7 +220,7 @@ def process_soc(test, uart):
         elif test.test_name == "IRQ_uart_rx":
             uart.open()
             uart.write("I")
-        uart_data = uart.read_data()
+        uart_data = uart.read_data(test)
         uart_data = uart_data.decode()
         if "passed" in uart_data:
             test.console.print(" passed")

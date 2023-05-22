@@ -15,10 +15,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <uart.h>
-
-#include "../defs.h"
-#include "../common/send_packet.c"
+#include <common.h>
 
 /*
 Testing timer interrupts 
@@ -41,14 +38,10 @@ wait for interrupt
 
 */
 
-
-void main(){
+bool timer0_periodic()
+{
     uint32_t value;
     uint32_t old_value;
-
-    configure_mgmt_gpio();
-
-    send_packet(1);//configuring the timers and start count down
 
     /* Configure timer for a single-shot countdown */
 	reg_timer0_config = 0; // disable
@@ -66,22 +59,15 @@ void main(){
     for (int i = 0; i < timeout; i++){
         reg_timer0_update = 1; // update reg_timer0_value with new counter value
         value = reg_timer0_value;
-        if (value > old_value){
-            send_packet(5); //timer rollover
+        if (value > old_value)
+        {
             is_pass = true;
-            break;
+            return true;
         }
-	    old_value = value;
+        old_value = value;
     }
 
     if (!is_pass){
-        send_packet(9); //timer hasn't rollover
+        return false; // timer hasn't rollover
     }
-
-    // finish test
-    send_packet(3);
-    send_packet(3);
-    send_packet(3);
-
 }
-

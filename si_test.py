@@ -87,7 +87,6 @@ def process_mgmt_gpio(test):
                 else:
                     test.console.print(f"{test.test_name} test failed with {test.voltage}v supply!")
                     return False
-            return True
         else:
             phase = 0
             for passing in test.passing_criteria:
@@ -102,7 +101,7 @@ def process_mgmt_gpio(test):
 
             if len(test.passing_criteria) == phase:
                 test.console.print(f"{test.test_name} test Passed with {test.voltage}v supply!")
-                return True
+    return True
 
 
 def process_uart(test, uart):

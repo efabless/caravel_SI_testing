@@ -61,9 +61,4 @@ void uart_reception()
 
     send_packet(4);     // wait for new character
     wait_for_char("A"); // 0
-
-    // finish test
-    send_packet(3);
-    send_packet(3);
-    send_packet(3);
 }

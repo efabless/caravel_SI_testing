@@ -74,9 +74,4 @@ void uart_loopback()
     for (j = 0; j < 1000; j++)
         ;
     wait_for_char("o");
-
-    // finish test
-    send_packet(3);
-    send_packet(3);
-    send_packet(3);
 }

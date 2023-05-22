@@ -51,9 +51,4 @@ void uart()
     for (j = 0; j < 1000; j++)
         ;
     send_packet(5); // end of transmitting
-
-    // finish test
-    send_packet(3);
-    send_packet(3);
-    send_packet(3);
 }

@@ -70,7 +70,8 @@ class Test:
         timeout = time.time() + 50
         while self.gpio_mgmt.get_value() != False:
             if time.time() > timeout:
-                print("Timeout!")
+                self.console.print("Timeout!")
+                self.progress.stop()
                 self.close_devices()
                 os._exit(1)
         state = "LOW"
@@ -584,7 +585,7 @@ class UART:
         )
         return
 
-    def read_data(self):
+    def read_data(self, test):
         self.open()
         timeout = time.time() + 50
         rgRX = b""
@@ -596,7 +597,8 @@ class UART:
                 if b'\n' in rgRX:
                     return rgRX
             if time.time() > timeout:
-                print("UART Timeout!")
+                test.console.print("UART Timeout!")
+                test.progress.stop()
                 self.close()
                 return False
 

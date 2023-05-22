@@ -67,8 +67,12 @@ class Test:
         ones = 0
         pulses = 0
         self.gpio_mgmt.set_state(False)
-        while self.gpio_mgmt.get_value() != False:
-            pass
+        timeout = time.time() + 50
+        while not self.gpio_mgmt.get_value():
+            if time.time() > timeout:
+                print("Timeout!")
+                self.close_devices()
+                os._exit(1)
         state = "LOW"
         accurate_delay(pulse_width / 2.0)
         for i in range(0, 30):
@@ -86,7 +90,7 @@ class Test:
                 ones = ones + 1
             if ones > 3:
                 break
-        # print("A packet has been received!")
+        # test.console.print("A packet has been received!")
         return pulses
 
     def send_packet(self, num_pulses, pulse_width=25):
@@ -306,6 +310,34 @@ class Test:
         for c in self.deviced.dio_map:
             self.deviced.dio_map[c].set_state(False)
 
+    def io_receive(self, pulses, channel):
+        io_pulse = 0
+        if channel > 13 and channel < 22:
+            io = self.deviced.dio_map[channel]
+        elif channel > 21:
+            io = self.device3v3.dio_map[channel]
+        else:
+            io = self.device1v8.dio_map[channel]
+        self.console.print(f"recieve pulse on IO[{channel}]")
+        state = "HI"
+        timeout = time.time() + 20
+        accurate_delay(125)
+        while 1:
+            accurate_delay(250)
+            x = io.get_value()
+            if state == "LOW":
+                if x:
+                    state = "HI"
+            elif state == "HI":
+                if not x:
+                    state = "LOW"
+                    io_pulse = io_pulse + 1
+            if io_pulse == pulses:
+                io_pulse = 0
+                return True
+            if time.time() > timeout:
+                return False
+
 
 class Device:
     """
@@ -385,7 +417,7 @@ class Dio:
                     - True means HIGH, False means LOW
         """
         if self.state is True:
-            print("can't set value for an input pin")
+            test.console.print("can't set value for an input pin")
         else:
             # load current state of the output state buffer
             mask = ctypes.c_uint16()
@@ -551,6 +583,22 @@ class UART:
             self.device_data.handle, data, ctypes.c_int(ctypes.sizeof(data) - 1)
         )
         return
+
+    def read_data(self):
+        self.open()
+        timeout = time.time() + 50
+        rgRX = b""
+        while True:
+            uart_data, count = self.read_uart()
+            if uart_data:
+                uart_data[count.value] = 0
+                rgRX = rgRX + uart_data.value
+                if b'\n' in rgRX:
+                    return rgRX
+            if time.time() > timeout:
+                print("UART Timeout!")
+                self.close()
+                return False
 
     def close(self):
         # dwf.FDwfDeviceClose(self.device_data.handle)
@@ -1196,4 +1244,4 @@ def connect_devices(devices, dev1_sn, dev2_sn, dev3_sn):
 #     gpio_mgmt = device1v8.dio_map["gpio_mgmt"]
 #     for i in range(0, 7):
 #         pulse_count = receive_packet(device1v8)
-#         print(f"pulses: {pulse_count}")
+#         test.console.print(f"pulses: {pulse_count}")

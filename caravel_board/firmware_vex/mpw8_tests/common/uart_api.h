@@ -8,6 +8,7 @@
 void arm_mgmt_uart_enable(){reg_wb_enable = reg_wb_enable | 0x40;}
 void arm_mgmt_uart_disable(){reg_wb_enable = reg_wb_enable  & 0xFFBF;}
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+#include <packet.h>
 // UART 
 /**
  * Enable or disable TX of UART
@@ -78,6 +79,7 @@ void uart_RX_enable(bool is_enable){
 
     }
 }
+
 /**
  * Wait receiving ASCII symbol and return it. 
  * 
@@ -104,6 +106,21 @@ void uart_pop_char(){
     uart_ev_pending_write(UART_EV_RX);
     #endif
     return;
+}
+
+void wait_for_char(char *c)
+{
+    while (uart_rxempty_read() == 1)
+        ;
+    if (reg_uart_data == *c)
+    {
+        send_packet(6); // recieved the correct character
+    }
+    else
+    {
+        send_packet(9); // recieved incorrect correct character
+    }
+    uart_pop_char();
 }
 
 #ifdef DOXYGEN_DOCS_ONLY

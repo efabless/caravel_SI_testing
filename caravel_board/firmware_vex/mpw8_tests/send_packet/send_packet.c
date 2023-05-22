@@ -1,6 +1,7 @@
 #include <common.h>
 
-void main(){
+void send_packet_test()
+{
     configure_mgmt_gpio();
     count_down(PULSE_WIDTH*50);
     // Uncomment the while() loop to make this continuous

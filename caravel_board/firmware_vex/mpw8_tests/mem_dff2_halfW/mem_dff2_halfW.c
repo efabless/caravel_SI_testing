@@ -15,11 +15,8 @@
 
 */
 
-void main()
+bool mem_dff2_halfW()
 {
-   configure_mgmt_gpio();
-   send_packet(1); // start of the test
-
    unsigned short *openram_start_address = (unsigned short *)0x00000400;
    unsigned int openram_size = 256;
 
@@ -34,12 +31,8 @@ void main()
       unsigned short data = (i + 7) * 13;
       if (data != *(openram_start_address + i))
       {
-         send_packet(9); // error
+         return false;
       }
    }
-
-   // test finish
-   send_packet(3);
-   send_packet(3);
-   send_packet(3);
+   return true;
 }

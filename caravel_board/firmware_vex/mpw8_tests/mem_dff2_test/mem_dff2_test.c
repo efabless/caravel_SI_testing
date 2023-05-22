@@ -14,7 +14,7 @@
 
 */
 
-void main()
+bool mem_dff2_test()
 {
    configure_mgmt_gpio();
    send_packet(1); // start of the test
@@ -33,12 +33,8 @@ void main()
       unsigned char data = (i + 7) * 13;
       if (data != *(openram_start_address + i))
       {
-         send_packet(9); // error
+         return false;
       }
    }
-
-   // test finish
-   send_packet(3);
-   send_packet(3);
-   send_packet(3);
+   return true;
 }

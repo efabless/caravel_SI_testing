@@ -15,11 +15,8 @@
 
 */
 
-void main()
+bool mem_dff_test()
 {
-   configure_mgmt_gpio();
-   send_packet(1); // start of the test
-
    unsigned char *dff_start_address = (unsigned char *)0x00000000;
    unsigned int dff_size = 1024;
 
@@ -46,12 +43,8 @@ void main()
       unsigned char data = (i + 7) * 13;
       if (data != *(dff_start_address + i))
       {
-         send_packet(9); // error
+         return false;
       }
    }
-
-   // test finish
-   send_packet(3);
-   send_packet(3);
-   send_packet(3);
+   return true;
 }

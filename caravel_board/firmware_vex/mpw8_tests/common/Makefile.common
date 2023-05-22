@@ -15,7 +15,7 @@ $(info generating hex for [${TESTNAME}])
 # 	cd ../../gpio_config; python3 ../../gpio_config/gpio_config_builder.py
 
 SOURCE_FILES = ../common/crt0_vex.S ../common/isr.c
-LINKER_SCRIPT = ../common/sections.lds
+LINKER_SCRIPT ?= ../common/sections.lds
 $(TESTNAME).elf: $(TESTNAME).c  $(LINKER_SCRIPT) $(SOURCE_FILES)
 	$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)-unknown-elf-gcc -I../common/ -O0 -mabi=ilp32 -march=rv32i -D__vexriscv__ -Wl,-Bstatic,-T,$(LINKER_SCRIPT),--strip-debug -ffreestanding -nostdlib -o $@ $(SOURCE_FILES) ../../gpio_program.c $<
 

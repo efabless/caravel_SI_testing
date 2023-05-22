@@ -164,7 +164,7 @@ void config_uart()
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     gpio_config_load();
     enable_uart_TX(1);
-    count_down(PULSE_WIDTH * 20);
+    count_down(PULSE_WIDTH * 10);
 }
 
 /**

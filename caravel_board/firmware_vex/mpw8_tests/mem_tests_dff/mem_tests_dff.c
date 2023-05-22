@@ -3,7 +3,6 @@
 
 void main()
 {
-    count_down(PULSE_WIDTH * 50);
     config_uart();
     print("Start Test: mem_dff_halfW\n");
     if (mem_dff_halfW())

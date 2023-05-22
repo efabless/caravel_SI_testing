@@ -61,6 +61,5 @@ void uart_reception()
 
     send_packet(4);     // wait for new character
     wait_for_char("A"); // 0
-    configure_gpio(6, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    gpio_config_load();
+    uart_RX_enable(0);
 }

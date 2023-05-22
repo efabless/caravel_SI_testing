@@ -47,6 +47,8 @@ bool IRQ_external2()
     gpio_config_load();
     enable_external2_irq(1);
     reg_irq_source = 2; // enable set housekeeping irq register
+    config_uart();
+    print("Start Test: IRQ_external2\n");
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;

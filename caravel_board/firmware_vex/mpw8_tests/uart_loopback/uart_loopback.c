@@ -47,6 +47,8 @@ void uart_loopback()
     // Start test
     send_packet(2); // Start of the test
 
+    uart_pop_char();
+
     uart_RX_enable(1);
     enable_uart_TX(1);
 
@@ -74,4 +76,5 @@ void uart_loopback()
     for (j = 0; j < 1000; j++)
         ;
     wait_for_char("o");
+    uart_RX_enable(0);
 }

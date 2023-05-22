@@ -51,4 +51,5 @@ void uart()
     for (j = 0; j < 1000; j++)
         ;
     send_packet(5); // end of transmitting
+    uart_RX_enable(0);
 }

@@ -77,9 +77,7 @@ void main()
         print("failed\n");
     }
 
-    config_uart();
-    print("Start Test: IRQ_uart\n");
-    if (IRQ_uart())
+    if (IRQ_uart_rx())
     {
         config_uart();
         print("passed\n");
@@ -90,7 +88,9 @@ void main()
         print("failed\n");
     }
 
-    if (IRQ_uart_rx())
+    config_uart();
+    print("Start Test: IRQ_uart\n");
+    if (IRQ_uart())
     {
         config_uart();
         print("passed\n");

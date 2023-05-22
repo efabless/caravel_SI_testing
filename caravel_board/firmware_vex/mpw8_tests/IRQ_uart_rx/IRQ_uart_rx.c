@@ -44,16 +44,14 @@ bool IRQ_uart_rx()
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     gpio_config_load();
+    uart_RX_enable(1);
     enable_uart_rx_irq(1);
     uart_ev_pending_write(1);
     config_uart();
     print("Start Test: IRQ_uart_rx\n");
-    uart_RX_enable(0);
-    enable_uart_TX(0);
-    uart_RX_enable(1);
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
-    int timeout = 400000;
+    int timeout = 40000;
 
     for (int i = 0; i < timeout; i++)
     {

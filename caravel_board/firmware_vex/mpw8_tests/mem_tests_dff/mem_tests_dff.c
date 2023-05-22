@@ -7,7 +7,10 @@ void main()
     config_uart();
     print("Start Test: mem_dff_halfW\n");
     if (mem_dff_halfW())
+    {
+        count_down(PULSE_WIDTH * 20);
         print("passed\n");
+    }
     else
         print("failed\n");
 

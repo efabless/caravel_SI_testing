@@ -112,7 +112,6 @@ void wait_for_char(char *c)
 {
     while (uart_rxempty_read() == 1)
         ;
-    print(reg_uart_data);
     if (reg_uart_data == *c)
     {
         send_packet(6); // recieved the correct character

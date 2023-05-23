@@ -36,14 +36,10 @@ void uart()
 {
     int i, j;
     configure_mgmt_gpio();
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    // gpio_config_io();
-    gpio_config_load();
+    config_uart();
 
     // Start test
     send_packet(2); // start of transmitting
-    enable_uart_TX(1);
 
     print("Monitor: Test UART passed\n");
 

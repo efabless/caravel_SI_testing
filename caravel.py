@@ -122,6 +122,7 @@ class Test:
             accurate_delay(pulse_width)
             channel.set_value(1)
             accurate_delay(pulse_width)
+        channel.set_state(False)
 
     def reset(self, duration=1):
         """applies reset to the caravel board

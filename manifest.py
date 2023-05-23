@@ -10,6 +10,7 @@ TestDict = [
         "test_name": "gpio_mgmt_tests",
         "uart": False,  # NOT Testing UART
         "mgmt_gpio": True,
+        "io": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_mgmt_tests/gpio_mgmt_tests.hex",
         "passing_criteria": [
             1,
@@ -26,40 +27,41 @@ TestDict = [
         "test_name": "uart_tests",
         "uart": True,  # Testing UART
         "mgmt_gpio": False,
+        "io": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/uart_tests/uart_tests.hex",
-        "passing_criteria": [
-            "Monitor: Test UART passed"
-        ],  # Passing criteria to be sent to UART
+        "passing_criteria": [None],  # Passing criteria to be sent to UART
     },
     {
         "test_name": "mem_tests_dff",
         "uart": False,  # NOT Testing UART
         "mgmt_gpio": False,
+        "io": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_tests_dff/mem_tests_dff.hex",
-        "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
+        "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "mem_tests_dff2",
         "uart": False,  # NOT Testing UART
         "mgmt_gpio": False,
+        "io": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_tests_dff2/mem_tests_dff2.hex",
-        "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
+        "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "soc_tests",
         "uart": False,  # NOT Testing UART
         "mgmt_gpio": False,
+        "io": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/soc_tests/soc_tests.hex",
-        "passing_criteria": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            1,
-            1,
-            1,
-        ],  # Passing criteria to be sent to mgmt_gpio
+        "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
+        "test_name": "gpio_o",
+        "uart": False,  # NOT Testing UART
+        "mgmt_gpio": False,
+        "io": True,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_o/gpio_o.hex",
+        "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
     # {
     #     "test_name": "cpu_stress",

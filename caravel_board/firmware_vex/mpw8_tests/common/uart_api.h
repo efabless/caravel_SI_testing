@@ -129,6 +129,21 @@ void empty_buffer()
         uart_pop_char();
 }
 
+char *uart_get_line()
+{
+    char *received_array = 0;
+    char received_char;
+    int count = 0;
+    while ((received_char = uart_getc()) != '\n')
+    {
+        received_array[count++] = received_char;
+        uart_pop_char();
+    }
+    received_array[count++] = received_char;
+    uart_pop_char();
+    return received_array;
+}
+
 #ifdef DOXYGEN_DOCS_ONLY
 /**
  * Send ASCII symbol or symbols through UART 

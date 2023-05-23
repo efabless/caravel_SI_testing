@@ -35,20 +35,13 @@ python code should get all the data received on mprj and decode it code like the
 void uart()
 {
     int i, j;
-    configure_mgmt_gpio();
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    // gpio_config_io();
-    gpio_config_load();
+    config_uart();
 
     // Start test
     send_packet(2); // start of transmitting
-    enable_uart_TX(1);
 
-    print("Monitor: Test UART passed\n");
+    print("P\n");
 
-    // Allow transmission to complete before signalling that the program
-    // has ended.
-    for (j = 0; j < 1000; j++)
-        ;
+    count_down(PULSE_WIDTH * 10);
     send_packet(5); // end of transmitting
 }

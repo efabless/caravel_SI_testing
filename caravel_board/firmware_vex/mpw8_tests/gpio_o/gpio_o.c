@@ -10,8 +10,8 @@ void main()
     set_gpio_h(0);
     set_gpio_l(0);
     gpio_config_load();
-    // config_uart();
-    enable_uart_TX(1);
+    config_uart();
+    // enable_uart_TX(1);
     print("Start Test: gpio_o\n");
 
     for (j = 0; j < 37; j++)

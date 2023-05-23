@@ -7,10 +7,10 @@ voltage = [1.62, 1.8, 1.98]
 
 TestDict = [
     {
-        "test_name": "mgmt_gpio_tests",
+        "test_name": "communication_test",
         "uart": False,  # NOT Testing UART
         "mgmt_gpio": True,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mgmt_gpio_tests/mgmt_gpio_tests.hex",
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/communication_test/communication_test.hex",
         "passing_criteria": [
             1,
             2,

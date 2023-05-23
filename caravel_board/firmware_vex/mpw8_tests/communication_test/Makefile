@@ -9,7 +9,7 @@
 # ---- Test patterns for project raven ----
 
 .SUFFIXES:
-TESTNAME = gpio_mgmt_tests
+TESTNAME = communication_test
 
 
 include ../common/Makefile.common

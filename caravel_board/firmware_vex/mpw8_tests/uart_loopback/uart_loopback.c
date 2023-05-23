@@ -49,7 +49,6 @@ void uart_loopback()
 
     uart_RX_enable(1);
     enable_uart_TX(1);
-    empty_buffer();
 
     print("M");
     for (j = 0; j < 1000; j++)
@@ -75,5 +74,4 @@ void uart_loopback()
     for (j = 0; j < 1000; j++)
         ;
     wait_for_char("o");
-    uart_RX_enable(0);
 }

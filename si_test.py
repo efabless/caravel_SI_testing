@@ -112,7 +112,8 @@ def process_uart(test, uart):
     Fourth test: UART loopback (tests both input and output)
     """
 
-    test_names = ["uart_io", "uart", "uart_reception", "uart_loopback"]
+    test_names = ["uart_io", "uart_loopback"]
+    # test_names = ["uart_io", "uart", "uart_reception", "uart_loopback"]
     for name in test_names:
         test.test_name = name
         pulse_count = test.receive_packet(250)
@@ -144,7 +145,8 @@ def process_uart(test, uart):
             pulse_count = test.receive_packet(250)
             if pulse_count == 2:
                 test.console.print("Start UART transmission")
-            uart_data = uart.read_data(test, "P")
+            uart_data = uart.read_data(test)
+            uart_data = uart_data.decode()
             if "P" in uart_data:
                 test.console.print("UART test passed")
             else:

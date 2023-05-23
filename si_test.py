@@ -141,7 +141,7 @@ def process_uart(test, uart):
         if pulse_count == 1:
             test.console.print(f"Start test: {name}")
 
-        elif test.test_name == "uart":
+        if test.test_name == "uart":
             pulse_count = test.receive_packet(250)
             if pulse_count == 2:
                 test.console.print("Start UART transmission")

@@ -32,17 +32,17 @@ TestDict = [
         ],  # Passing criteria to be sent to UART
     },
     {
-        "test_name": "mem_tests_lower",
+        "test_name": "mem_tests_dff",
         "uart": False,  # NOT Testing UART
         "mgmt_gpio": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_tests_lower/mem_tests_lower.hex",
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_tests_dff/mem_tests_dff.hex",
         "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
     },
     {
-        "test_name": "mem_tests_upper",
+        "test_name": "mem_tests_dff2",
         "uart": False,  # NOT Testing UART
         "mgmt_gpio": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_tests_upper/mem_tests_upper.hex",
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_tests_dff2/mem_tests_dff2.hex",
         "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
     },
     {

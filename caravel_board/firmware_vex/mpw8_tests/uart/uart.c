@@ -40,7 +40,7 @@ void uart()
     // Start test
     send_packet(2); // start of transmitting
 
-    print("P");
+    print("P\n");
 
     count_down(PULSE_WIDTH * 10);
     send_packet(5); // end of transmitting

@@ -585,16 +585,16 @@ class UART:
         )
         return
 
-    def read_data(self, test, data):
+    def read_data(self, test):
         self.open()
         timeout = time.time() + 50
-        rgRX = ""
+        rgRX = b""
         while True:
             uart_data, count = self.read_uart()
             if uart_data:
                 uart_data[count.value] = 0
-                rgRX = rgRX + uart_data.value.decode()
-                if data in rgRX:
+                rgRX = rgRX + uart_data.value
+                if b'\n' in rgRX:
                     return rgRX
             if time.time() > timeout:
                 test.console.print("UART Timeout!")

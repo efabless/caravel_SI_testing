@@ -5,4 +5,5 @@ void main()
 {
     send_packet_test();
     receive_packet_test();
+    uart_io();
 }

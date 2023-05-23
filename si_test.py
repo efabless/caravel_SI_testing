@@ -67,7 +67,7 @@ def init_ad_ios(device1_data, device2_data, device3_data):
 
 
 def process_mgmt_gpio(test):
-    test_names = ["send_packet", "receive_packet"]
+    test_names = ["send_packet", "receive_packet", "uart_io"]
     for name in test_names:
         test.test_name = name
         if test.test_name == "receive_packet":
@@ -87,6 +87,28 @@ def process_mgmt_gpio(test):
                 else:
                     test.console.print(f"{test.test_name} test failed with {test.voltage}v supply!")
                     return False
+
+        elif name == "uart_io":
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 2:
+                received = test.io_receive(4, 6)
+                if received:
+                    test.console.print("IO[6] Passed")
+                else:
+                    test.console.print("Timeout failure on IO[6]!")
+                    return False
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 3:
+                test.console.print("Send 4 packets to IO[5]")
+                time.sleep(5)
+                test.send_pulse(4, 5, 5)
+                ack_pulse = test.receive_packet(250)
+                if ack_pulse == 9:
+                    test.console.print("IO[5] Failed to send pulse")
+                    return False
+                elif ack_pulse == 4:
+                    test.console.print("IO[5] sent pulse successfully")
+
         else:
             phase = 0
             for passing in test.passing_criteria:
@@ -112,33 +134,12 @@ def process_uart(test, uart):
     Fourth test: UART loopback (tests both input and output)
     """
 
-    test_names = ["uart_reception", "uart_loopback", "uart_io", "uart"]
+    test_names = ["uart", "uart_reception", "uart_loopback"]
     for name in test_names:
         test.test_name = name
         pulse_count = test.receive_packet(250)
         if pulse_count == 1:
             test.console.print(f"Start test: {name}")
-
-        if name == "uart_io":
-            pulse_count = test.receive_packet(250)
-            if pulse_count == 2:
-                received = test.io_receive(4, 6)
-                if received:
-                    test.console.print("IO[6] Passed")
-                else:
-                    test.console.print("Timeout failure on IO[6]!")
-                    return False
-            pulse_count = test.receive_packet(250)
-            if pulse_count == 3:
-                test.console.print("Send 4 packets to IO[5]")
-                time.sleep(5)
-                test.send_pulse(4, 5, 5)
-                ack_pulse = test.receive_packet(250)
-                if ack_pulse == 9:
-                    test.console.print("IO[5] Failed to send pulse")
-                    return False
-                elif ack_pulse == 4:
-                    test.console.print("IO[5] sent pulse successfully")
 
         elif test.test_name == "uart":
             pulse_count = test.receive_packet(250)

@@ -74,7 +74,7 @@ def process_mgmt_gpio(test):
             io = test.device1v8.dio_map[0]
             pulse_count = test.receive_packet(250)
             if pulse_count == 2:
-                test.console.print(f"Start Test: {test.test_name}")
+                test.console.print("Test started")
             for i in range(5, 8):
                 while not io.get_value():
                     pass
@@ -112,7 +112,7 @@ def process_uart(test, uart):
     Fourth test: UART loopback (tests both input and output)
     """
 
-    test_names = ["uart", "uart_reception", "uart_loopback"]
+    test_names = ["uart_reception", "uart_loopback", "uart_io", "uart"]
     for name in test_names:
         test.test_name = name
         pulse_count = test.receive_packet(250)

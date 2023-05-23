@@ -21,9 +21,9 @@ void send_packet_test()
 	send_packet(7);
     count_down(PULSE_WIDTH*10);
 	send_packet(8);
-
-    // while(1);
-    // count_down(1000000);
+	
+    while(1);
+	// count_down(1000000);
 
     // }
 }

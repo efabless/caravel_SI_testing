@@ -37,6 +37,7 @@ void uart()
     int i, j;
     configure_mgmt_gpio();
     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     // gpio_config_io();
     gpio_config_load();
 
@@ -50,6 +51,7 @@ void uart()
     // has ended.
     for (j = 0; j < 1000; j++)
         ;
-    send_packet(5); // end of transmitting
     enable_uart_TX(0);
+    empty_buffer();
+    send_packet(5); // end of transmitting
 }

@@ -112,7 +112,7 @@ def process_uart(test, uart):
     Fourth test: UART loopback (tests both input and output)
     """
 
-    test_names = ["uart_reception", "uart_loopback", "uart_io", "uart"]
+    test_names = ["uart_io", "uart", "uart_reception", "uart_loopback"]
     for name in test_names:
         test.test_name = name
         pulse_count = test.receive_packet(250)

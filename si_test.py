@@ -334,34 +334,45 @@ def process_io(test, uart):
             channel = i
             if channel > 4:
                 hk_stop(True)
-            if channel > 13 and channel < 22:
-                io = test.deviced.dio_map[channel]
-            elif channel > 21:
-                io = test.device3v3.dio_map[channel]
-            else:
-                io = test.device1v8.dio_map[channel]
-            if analog and channel > 13 and channel < 25:
-                pass
-            else:
+            if test.test_name == "gpio_o":
+                if channel > 13 and channel < 22:
+                    io = test.deviced.dio_map[channel]
+                elif channel > 21:
+                    io = test.device3v3.dio_map[channel]
+                else:
+                    io = test.device1v8.dio_map[channel]
+                if analog and channel > 13 and channel < 25:
+                    pass
+                else:
+                    test.console.print(f"IO[{channel}]")
+                    timeout = time.time() + 5
+                    while 1:
+                        uart_data = uart.read_data(test)
+                        # uart_data = uart_data.decode()
+                        if b"d" in uart_data:
+                            if not io.get_value():
+                                io_pulse += 1
+                        if b"u" in uart_data:
+                            if not io.get_value():
+                                io_pulse += 1
+                        if io_pulse == 4:
+                            io_pulse = 0
+                            test.console.print(f"[green]IO[{channel}] Passed")
+                            break
+                        if time.time() > timeout:
+                            test.console.print(f"[red]Timeout failure on IO[{channel}]!")
+                            fail.append(channel)
+                            break
+            elif test.test_name == "gpio_i":
                 test.console.print(f"IO[{channel}]")
-                timeout = time.time() + 5
-                while 1:
-                    uart_data = uart.read_data(test)
-                    # uart_data = uart_data.decode()
-                    if b"d" in uart_data:
-                        if not io.get_value():
-                            io_pulse += 1
-                    if b"u" in uart_data:
-                        if not io.get_value():
-                            io_pulse += 1
-                    if io_pulse == 4:
-                        io_pulse = 0
-                        test.console.print(f"[green]IO[{channel}] Passed")
-                        break
-                    if time.time() > timeout:
-                        test.console.print(f"[red]Timeout failure on IO[{channel}]!")
-                        fail.append(channel)
-                        break
+                test.send_pulse(4, channel, 5)
+                uart_data = uart.read_data(test)
+                if b"p" in uart_data:
+                    print(f"[green]IO[{channel}] Passed")
+                elif b"f" in uart_data:
+                    print(f"[red]IO[{channel}] Failed")
+                    fail.append(channel)
+
     if len(fail) == 0:
         return True, None
     else:

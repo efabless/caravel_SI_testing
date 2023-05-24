@@ -28,3 +28,18 @@ void print(const char *p)
 	while (*p)
 		putchar(*(p++));
 }
+
+int get_int_from_string(char *string)
+{
+
+	int i;
+	int value;
+	for (i = 0; string[i] != '\n'; i++)
+	{
+		if (string[i] >= '0' && string[i] <= '9')
+		{
+			value = value * 10 + (string[i] - '0');
+		}
+	}
+	return value;
+}

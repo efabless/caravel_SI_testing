@@ -325,13 +325,14 @@ def process_io(test, uart):
     if "Start Test:" in uart_data:
         test.test_name = uart_data.strip().split(": ")[1]
         test.console.print(f"Running test {test.test_name}...")
-    while True:
-        io_pulse = 0
-        uart_data = uart.read_data(test)
-        uart_data = uart_data.decode()
-        if "g/" in uart_data:
-            channel = uart_data.strip().split("/")[1]
-            if channel == 5:
+    for i in range(38):
+        if i == 5 or i == 6:
+            pass
+        else:
+            io_pulse = 0
+            uart.write("g: " + str(i) + "\n")
+            channel = i
+            if channel > 4:
                 hk_stop(True)
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
@@ -343,30 +344,24 @@ def process_io(test, uart):
                 pass
             else:
                 test.console.print(f"IO[{channel}]")
-                state = "HI"
-                timeout = time.time() + 20
-                accurate_delay(12.5)
+                timeout = time.time() + 5
                 while 1:
-                    accurate_delay(25)
-                    x = io.get_value()
-                    if state == "LOW":
-                        if x:
-                            state = "HI"
-                    elif state == "HI":
-                        if not x:
-                            state = "LOW"
-                            io_pulse = io_pulse + 1
+                    uart_data = uart.read_data(test)
+                    # uart_data = uart_data.decode()
+                    if b"d" in uart_data:
+                        if not io.get_value():
+                            io_pulse += 1
+                    if b"u" in uart_data:
+                        if not io.get_value():
+                            io_pulse += 1
                     if io_pulse == 4:
                         io_pulse = 0
-                        test.console.print(f"[green]gpio[{channel}] Passed")
+                        test.console.print(f"[green]IO[{channel}] Passed")
                         break
                     if time.time() > timeout:
-                        test.console.print(f"[red]Timeout failure on gpio[{channel}]!")
+                        test.console.print(f"[red]Timeout failure on IO[{channel}]!")
                         fail.append(channel)
-                        # return False, channel
-        elif "End Test" in uart_data:
-            test.console.print("Test Ended")
-            break
+                        break
     if len(fail) == 0:
         return True, None
     else:
@@ -823,6 +818,7 @@ if __name__ == "__main__":
                                 flash_flag,
                                 io=t["io"],
                                 flash_only=args.flash_only,
+                                uart_data=uart_data,
                             )
                         else:
                             exec_test(

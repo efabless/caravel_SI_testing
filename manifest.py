@@ -71,6 +71,22 @@ TestDict = [
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_i/gpio_i.hex",
         "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
+    {
+        "test_name": "bitbang_o",
+        "uart": False,  # NOT Testing UART
+        "mgmt_gpio": False,
+        "io": True,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/bitbang_o/bitbang_o.hex",
+        "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
+        "test_name": "bitbang_i",
+        "uart": False,  # NOT Testing UART
+        "mgmt_gpio": False,
+        "io": True,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/bitbang_i/bitbang_i.hex",
+        "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
+    },
     # {
     #     "test_name": "cpu_stress",
     #     "uart": False,  # NOT Testing UART

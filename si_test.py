@@ -334,7 +334,7 @@ def process_io(test, uart):
             channel = i
             if channel > 4:
                 hk_stop(True)
-            if test.test_name == "gpio_o":
+            if test.test_name == "gpio_o" or test.test_name == "bitbang_o":
                 if channel > 13 and channel < 22:
                     io = test.deviced.dio_map[channel]
                 elif channel > 21:
@@ -363,7 +363,7 @@ def process_io(test, uart):
                             test.console.print(f"[red]Timeout failure on IO[{channel}]!")
                             fail.append(channel)
                             break
-            elif test.test_name == "gpio_i":
+            elif test.test_name == "gpio_i" or test.test_name == "bitbang_o":
                 test.console.print(f"IO[{channel}]")
                 test.send_pulse(4, channel, 1)
                 uart_data = uart.read_data(test)
@@ -535,63 +535,6 @@ def process_io(test, uart):
 #     if len(test.passing_criteria) == phase:
 #         test.console.print(f"[green]{test.test_name} test Passed with {test.voltage}v supply!")
 #         return True
-
-
-# def process_spi(test, spi):
-#     spi.open()
-#     test.console.print(spi.read(1))
-#     # csb = spi.device_data.dio_map[spi.cs]
-
-#     # while not csb.get_value():
-#     #     pass
-
-#     # test.console.print("CSB is high")
-
-#     # spi.enabled()
-#     # spi.rw_mode = "r"
-#     # data1 = ""
-#     # data2 = ""
-#     # for i in range(0, 8):
-#     #     spi.clk_trig()
-#     #     data1 = data1 + str(spi.data[i])
-#     # spi.data = []
-#     # for i in range(0, 8):
-#     #     spi.clk_trig()
-#     #     data2 = data2 + str(spi.data[i])
-#     # test.console.print(int(data1, 2))
-#     # test.console.print(int(data2, 2))
-#     return False
-
-
-# def process_input_io(test, io):
-#     count = 0
-#     if io == "low":
-#         hk_stop(False)
-#         channel = 0
-#     else:
-#         channel = 37
-#     while count < 19:
-#         if analog and channel > 13 and channel < 25:
-#             count = count + 1
-#         else:
-#             pulse_count = test.receive_packet(25)
-#             if channel == 5:
-#                 hk_stop(True)
-#             if pulse_count == 1:
-#                 test.console.print(f"Sending 4 pulses on gpio[{channel}]")
-#                 test.send_pulse(4, channel, 5)
-#                 ack_pulse = test.receive_packet(25)
-#                 if ack_pulse == 5:
-#                     test.console.print(f"[red]gpio[{channel}] Failed to send pulse")
-#                     return False, channel
-#                 elif ack_pulse == 3:
-#                     test.console.print(f"[green]gpio[{channel}] sent pulse successfully")
-#                 if io == "low":
-#                     channel = channel + 1
-#                 else:
-#                     channel = channel - 1
-#                 count = count + 1
-#     return True, None
 
 
 def flash_test(

@@ -35,7 +35,7 @@ void main()
     set_gpio_l(0);
     gpio_config_load();
     config_uart();
-    print("Start Test: gpio_i\n");
+    print("Start Test: bitbang_i\n");
 
     while (true)
     {

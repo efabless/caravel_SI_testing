@@ -1,5 +1,5 @@
 #include <common.h>
-#define PULSE_WIDTH 200000
+#define PULSE_WIDTH 250000
 
 void main()
 {

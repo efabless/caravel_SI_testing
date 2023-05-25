@@ -1,7 +1,7 @@
 #include <common.h>
 #define PULSE_WIDTH 200000
 
-void gpio_o()
+void main()
 {
     int i, j;
     int num_pulses = 4;

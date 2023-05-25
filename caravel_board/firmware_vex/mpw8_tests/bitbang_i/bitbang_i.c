@@ -18,7 +18,7 @@
 //     while (reg_uart_txfull == 1);
 // 	reg_uart_data = c;
 // }
-void bitbang_i()
+void main()
 {
     int io_number;
     int count = 0;
@@ -35,7 +35,7 @@ void bitbang_i()
     set_gpio_l(0);
     gpio_config_load();
     config_uart();
-    print("Start Test: bitbang_i\n");
+    print("Start Test: gpio_i\n");
 
     while (true)
     {

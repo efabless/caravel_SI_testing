@@ -48,7 +48,7 @@ bool IRQ_uart_rx()
     enable_uart_rx_irq(1);
     uart_ev_pending_write(1);
     config_uart();
-    print("Start Test: IRQ_uart_rx\n");
+    send_packet(2);
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
     int timeout = 40000;
@@ -58,12 +58,13 @@ bool IRQ_uart_rx()
         if (get_flag() == 1)
         {
             is_pass = true;
-            return true;
+            send_packet(5);
+            break;
         }
     }
     if (!is_pass)
     {
-        return false; // timeout
+        send_packet(9); // timeout
     }
     empty_buffer();
     uart_RX_enable(0);

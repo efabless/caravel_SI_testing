@@ -10,4 +10,6 @@ void main()
     uart_reception();
     send_packet(1); // Start uart_loopback test
     uart_loopback();
+    send_packet(1); // Start IRQ_uart_rx test
+    IRQ_uart_rx();
 }

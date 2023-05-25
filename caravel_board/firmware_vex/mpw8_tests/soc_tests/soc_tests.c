@@ -116,16 +116,16 @@ void main()
         print("failed\n");
     }
 
-    if (IRQ_uart_rx())
-    {
-        config_uart();
-        print("passed\n");
-    }
-    else
-    {
-        config_uart();
-        print("failed\n");
-    }
+    // if (IRQ_uart_rx())
+    // {
+    //     config_uart();
+    //     print("passed\n");
+    // }
+    // else
+    // {
+    //     config_uart();
+    //     print("failed\n");
+    // }
     config_uart();
     print("End Test\n");
 }

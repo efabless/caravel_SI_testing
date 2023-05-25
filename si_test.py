@@ -138,7 +138,7 @@ def process_uart(test, uart):
     Fourth test: UART loopback (tests both input and output)
     """
 
-    test_names = ["uart", "uart_reception", "uart_loopback"]
+    test_names = ["uart", "uart_reception", "uart_loopback", "IRQ_uart_rx"]
     fail = []
     for name in test_names:
         test.test_name = name
@@ -202,6 +202,22 @@ def process_uart(test, uart):
                             test.console.print(f"Couldn't send {dat} over UART!")
                             uart.close()
                             fail.append(test.test_name)
+
+        elif test.test_name == "IRQ_uart_rx":
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 2:
+                test.console.print("Start UART transmission")
+            uart.open()
+            uart.write("I")
+            pulse_count = test.receive_packet(250)
+            if pulse_count == 5:
+                test.console.print("[green]passed IRQ_uart_rx")
+                break
+            if pulse_count == 9:
+                test.console.print("[red]failed IRQ_uart_rx")
+                uart.close()
+                fail.append(test.test_name)
+
     if len(fail) == 0:
         return True
     else:

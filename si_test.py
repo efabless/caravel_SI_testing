@@ -365,12 +365,12 @@ def process_io(test, uart):
                             break
             elif test.test_name == "gpio_i":
                 test.console.print(f"IO[{channel}]")
-                test.send_pulse(4, channel, 5)
+                test.send_pulse(4, channel, 1)
                 uart_data = uart.read_data(test)
                 if b"p" in uart_data:
-                    print(f"[green]IO[{channel}] Passed")
+                    test.console.print(f"[green]IO[{channel}] Passed")
                 elif b"f" in uart_data:
-                    print(f"[red]IO[{channel}] Failed")
+                    test.console.print(f"[red]IO[{channel}] Failed")
                     fail.append(channel)
 
     if len(fail) == 0:

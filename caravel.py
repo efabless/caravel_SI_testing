@@ -116,7 +116,7 @@ class Test:
         channel.set_state(True)
         channel.set_value(1)
         num_pulses = num_pulses + 1
-        time.sleep(5)
+        accurate_delay(25)
         for i in range(0, num_pulses):
             channel.set_value(0)
             accurate_delay(pulse_width)

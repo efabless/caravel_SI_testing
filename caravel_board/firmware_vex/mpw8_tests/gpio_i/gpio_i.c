@@ -1,4 +1,5 @@
 #include <common.h>
+#define PULSE_WIDTH 100000
 
 /*
 @ send on the next io (start from 0 to 18)
@@ -11,6 +12,11 @@
     send packet of size 5
 
 */
+
+// void uart_puti(int c){
+//     while (reg_uart_txfull == 1);
+// 	reg_uart_data = c;
+// }
 void main()
 {
     int io_number;
@@ -19,11 +25,11 @@ void main()
     int recieved;
     int old_recieved;
     int temp_io = 0;
-    int timeout = 15000;
+    int timeout = 10000;
     long int timeout_count = 0;
     char *c;
     configure_all_gpios(GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(5, GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
     set_gpio_h(0);
     set_gpio_l(0);
     gpio_config_load();
@@ -69,9 +75,11 @@ void main()
                 break;
             if (timeout_count > timeout)
             {
+                count_down(PULSE_WIDTH);
                 print("f\n");
             }
         }
+        count_down(PULSE_WIDTH);
         print("p\n");
         count = 0;
     }

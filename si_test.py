@@ -68,6 +68,7 @@ def init_ad_ios(device1_data, device2_data, device3_data):
 
 def process_mgmt_gpio(test):
     test_names = ["send_packet", "receive_packet", "uart_io"]
+    fail = []
     for name in test_names:
         test.test_name = name
         if test.test_name == "receive_packet":
@@ -86,7 +87,7 @@ def process_mgmt_gpio(test):
                     test.console.print(f"sent {i} pulses successfully")
                 else:
                     test.console.print(f"{test.test_name} test failed with {test.voltage}v supply!")
-                    return False
+                    fail.append(test.test_name)
 
         elif name == "uart_io":
             pulse_count = test.receive_packet(250)
@@ -96,7 +97,7 @@ def process_mgmt_gpio(test):
                     test.console.print("IO[6] Passed")
                 else:
                     test.console.print("Timeout failure on IO[6]!")
-                    return False
+                    fail.append(test.test_name)
             pulse_count = test.receive_packet(250)
             if pulse_count == 3:
                 test.console.print("Send 4 packets to IO[5]")
@@ -105,7 +106,7 @@ def process_mgmt_gpio(test):
                 ack_pulse = test.receive_packet(250)
                 if ack_pulse == 9:
                     test.console.print("IO[5] Failed to send pulse")
-                    return False
+                    fail.append(test.test_name)
                 elif ack_pulse == 4:
                     test.console.print("IO[5] sent pulse successfully")
 
@@ -119,11 +120,14 @@ def process_mgmt_gpio(test):
 
                 if pulse_count == 9:
                     test.console.print(f"{test.test_name} test failed with {test.voltage}v supply!")
-                    return False
+                    fail.append(test.test_name)
 
             if len(test.passing_criteria) == phase:
                 test.console.print(f"{test.test_name} test Passed with {test.voltage}v supply!")
-    return True
+    if len(fail) == 0:
+        return True
+    else:
+        return False
 
 
 def process_uart(test, uart):
@@ -135,6 +139,7 @@ def process_uart(test, uart):
     """
 
     test_names = ["uart", "uart_reception", "uart_loopback"]
+    fail = []
     for name in test_names:
         test.test_name = name
         pulse_count = test.receive_packet(250)
@@ -151,7 +156,7 @@ def process_uart(test, uart):
                 test.console.print("UART test passed")
             else:
                 test.console.print("UART test failed")
-                return False
+                fail.append(test.test_name)
             pulse_count = test.receive_packet(250)
             if pulse_count == 5:
                 test.console.print("end UART transmission")
@@ -172,11 +177,11 @@ def process_uart(test, uart):
                 if pulse_count == 9:
                     test.console.print(f"Couldn't send {i} over UART!")
                     uart.close()
-                    return False
+                    fail.append(test.test_name)
                 if time.time() > timeout:
                     test.console.print("UART Timeout!")
                     uart.close()
-                    return False
+                    fail.append(test.test_name)
 
         elif test.test_name == "uart_loopback":
             uart.open()
@@ -196,8 +201,11 @@ def process_uart(test, uart):
                         if pulse_count == 9:
                             test.console.print(f"Couldn't send {dat} over UART!")
                             uart.close()
-                            return False
-    return True
+                            fail.append(test.test_name)
+    if len(fail) == 0:
+        return True
+    else:
+        return False
 
 def process_soc(test, uart):
     fail = []

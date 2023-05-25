@@ -126,4 +126,6 @@ void main()
         config_uart();
         print("failed\n");
     }
+    config_uart();
+    print("End Test\n");
 }

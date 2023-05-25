@@ -200,6 +200,7 @@ def process_uart(test, uart):
     return True
 
 def process_soc(test, uart):
+    fail = []
     while True:
         uart_data = uart.read_data(test)
         uart_data = uart_data.decode()
@@ -227,8 +228,11 @@ def process_soc(test, uart):
             test.console.print("[green]passed")
         elif "failed" in uart_data:
             test.console.print("[red]failed")
-            return False
-    return True
+            fail.append(test.test_name)
+    if len(fail) == 0:
+        return True
+    else:
+        return False
 
 
 # def process_clock(test, device):

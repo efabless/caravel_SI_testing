@@ -7,6 +7,4 @@ void main()
     gpio_i();
     bitbang_o();
     bitbang_i();
-    config_uart();
-    print("End Test\n");
 }

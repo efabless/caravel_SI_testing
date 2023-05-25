@@ -375,7 +375,7 @@ def process_io(test, uart):
                             test.console.print(f"[red]Timeout failure on IO[{channel}]!")
                             fail.append(channel)
                             break
-            elif test.test_name == "gpio_i" or test.test_name == "bitbang_o":
+            elif test.test_name == "gpio_i" or test.test_name == "bitbang_i":
                 test.console.print(f"IO[{channel}]")
                 test.send_pulse(4, channel, 1)
                 uart_data = uart.read_data(test)

@@ -2,7 +2,7 @@
 #include <bitbang.h>
 #define PULSE_WIDTH 200000
 
-void main()
+void bitbang_o()
 {
     int i, j;
     int num_pulses = 4;
@@ -13,7 +13,7 @@ void main()
     set_gpio_l(0);
     gpio_config_load();
     config_uart();
-    print("Start Test: gpio_o\n");
+    print("Start Test: bitbang_o\n");
     while (true)
     {
         c = uart_get_line();

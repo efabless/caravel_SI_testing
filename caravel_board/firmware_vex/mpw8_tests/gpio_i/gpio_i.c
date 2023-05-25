@@ -17,7 +17,7 @@
 //     while (reg_uart_txfull == 1);
 // 	reg_uart_data = c;
 // }
-void main()
+void gpio_i()
 {
     int io_number;
     int count = 0;

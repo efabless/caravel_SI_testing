@@ -407,138 +407,135 @@ def process_io(test, uart):
         return False, fail
 
 
-# def process_io_plud(test):
-#     p1_rt = False
-#     p2_rt = False
-#     pulse_count = test.receive_packet(250)
-
-#     if pulse_count == 1:
-#         test.console.print("Start test")
-#     if test.test_name == "gpio_lpu_ho":
-#         default_val = 1
-#         default_val_n = 0
-#         p1_rt = run_io_plud(default_val, default_val_n, False)
-#         p2_rt = run_io_plud(default_val, default_val_n, True)
-#     elif test.test_name == "gpio_lpd_ho":
-#         default_val = 0
-#         default_val_n = 1
-#         p1_rt = run_io_plud(default_val, default_val_n, False)
-#         p2_rt = run_io_plud(default_val, default_val_n, True)
-#     elif test.test_name == "gpio_lo_hpu":
-#         default_val = 1
-#         default_val_n = 0
-#         p1_rt = run_io_plud_h(default_val, default_val_n, False)
-#         p2_rt = run_io_plud_h(default_val, default_val_n, True)
-#     elif test.test_name == "gpio_lo_hpd":
-#         default_val = 0
-#         default_val_n = 1
-#         p1_rt = run_io_plud_h(default_val, default_val_n, False)
-#         p2_rt = run_io_plud_h(default_val, default_val_n, True)
-#     if p1_rt and p2_rt:
-#         return True
-#     else:
-#         return False
-
-
-# def run_io_plud(default_val, default_val_n, first_itter):
-#     test_counter = 0
-#     flag = False
-#     hk_stop(False)
-#     for channel in range(0, 38):
-#         if channel > 13 and channel < 22:
-#             io = test.deviced.dio_map[channel]
-#         elif channel > 21:
-#             io = test.device3v3.dio_map[channel]
-#         else:
-#             io = test.device1v8.dio_map[channel]
-#         if channel < 19 and first_itter:
-#             io.set_state(True)
-#             io.set_value(default_val_n)
-#         elif channel < 19:
-#             io.set_state(False)
-#         elif first_itter:
-#             if not flag:
-#                 time.sleep(10)
-#                 flag = True
-#             io_state = io.get_value()
-#             if io_state == default_val_n:
-#                 test_counter += 1
-#             elif analog and channel > 13 and channel < 25:
-#                 test_counter += 1
-#             else:
-#                 test.console.print(f"[red]channel {channel} FAILED!")
-#                 return False
-#         else:
-#             if not flag:
-#                 time.sleep(10)
-#                 flag = True
-#             io_state = io.get_value()
-#             if io_state == default_val:
-#                 test_counter += 1
-#             elif analog and channel > 13 and channel < 25:
-#                 test_counter += 1
-#             else:
-#                 test.console.print(f"[red]channel {channel} FAILED!")
-#                 return False
-#     hk_stop(True)
-#     if test_counter == 19:
-#         test.console.print(
-#             f"[green]{test.test_name} test passed"
-#         )
-#         return True
-#     else:
-#         return False
+def process_io_plud(test, uart):
+    p1_rt = False
+    p2_rt = False
+    uart_data = uart.read_data(test)
+    uart_data = uart_data.decode()
+    if "Start Test:" in uart_data:
+        test.test_name = uart_data.strip().split(": ")[1]
+        test.console.print(f"Running test {test.test_name}...")
+    if test.test_name == "gpio_lpu_ho":
+        default_val = 1
+        default_val_n = 0
+        p1_rt = run_io_plud(default_val, default_val_n, False)
+        p2_rt = run_io_plud(default_val, default_val_n, True)
+    elif test.test_name == "gpio_lpd_ho":
+        default_val = 0
+        default_val_n = 1
+        p1_rt = run_io_plud(default_val, default_val_n, False)
+        p2_rt = run_io_plud(default_val, default_val_n, True)
+    elif test.test_name == "gpio_lo_hpu":
+        default_val = 1
+        default_val_n = 0
+        p1_rt = run_io_plud_h(default_val, default_val_n, False)
+        p2_rt = run_io_plud_h(default_val, default_val_n, True)
+    elif test.test_name == "gpio_lo_hpd":
+        default_val = 0
+        default_val_n = 1
+        p1_rt = run_io_plud_h(default_val, default_val_n, False)
+        p2_rt = run_io_plud_h(default_val, default_val_n, True)
+    if p1_rt and p2_rt:
+        return True
+    else:
+        return False
 
 
-# def run_io_plud_h(default_val, default_val_n, first_itter):
-#     test_counter = 0
-#     flag = False
-#     hk_stop(False)
-#     for channel in range(37, -1, -1):
-#         if channel > 13 and channel < 22:
-#             io = test.deviced.dio_map[channel]
-#         elif channel > 21:
-#             io = test.device3v3.dio_map[channel]
-#         else:
-#             io = test.device1v8.dio_map[channel]
-#         if channel > 18 and first_itter:
-#             io.set_state(True)
-#             io.set_value(default_val_n)
-#         elif channel > 18:
-#             io.set_state(False)
-#         elif first_itter:
-#             if not flag:
-#                 time.sleep(10)
-#                 flag = True
-#             io_state = io.get_value()
-#             if io_state == default_val_n:
-#                 test_counter += 1
-#             elif analog and channel > 13 and channel < 25:
-#                 test_counter += 1
-#             else:
-#                 test.console.print(f"[red]channel {channel} FAILED!")
-#                 return False
-#         else:
-#             if not flag:
-#                 time.sleep(10)
-#                 flag = True
-#             io_state = io.get_value()
-#             if io_state == default_val:
-#                 test_counter += 1
-#             elif analog and channel > 13 and channel < 25:
-#                 test_counter += 1
-#             else:
-#                 test.console.print(f"[red]channel {channel} FAILED!")
-#                 return False
-#     test.console.print(test_counter)
-#     hk_stop(True)
-#     if test_counter == 19:
-#         test.console.print(
-#             f"[green]{test.test_name} test Passed"
-#         )
-#         return True
-#     else:
-#         return False
+def run_io_plud(default_val, default_val_n, first_itter):
+    test_counter = 0
+    flag = False
+    hk_stop(False)
+    for channel in range(0, 38):
+        if channel > 13 and channel < 22:
+            io = test.deviced.dio_map[channel]
+        elif channel > 21:
+            io = test.device3v3.dio_map[channel]
+        else:
+            io = test.device1v8.dio_map[channel]
+        if channel < 19 and first_itter:
+            io.set_state(True)
+            io.set_value(default_val_n)
+        elif channel < 19:
+            io.set_state(False)
+        elif first_itter:
+            if not flag:
+                time.sleep(10)
+                flag = True
+            io_state = io.get_value()
+            if io_state == default_val_n:
+                test_counter += 1
+            elif analog and channel > 13 and channel < 25:
+                test_counter += 1
+            else:
+                test.console.print(f"[red]channel {channel-19} FAILED!")
+        else:
+            if not flag:
+                time.sleep(10)
+                flag = True
+            io_state = io.get_value()
+            if io_state == default_val:
+                test_counter += 1
+            elif analog and channel > 13 and channel < 25:
+                test_counter += 1
+            else:
+                test.console.print(f"[red]channel {channel-19} FAILED!")
+    hk_stop(True)
+    if test_counter == 19:
+        test.console.print(
+            f"[green]{test.test_name} test passed"
+        )
+        return True
+    else:
+        return False
+
+
+def run_io_plud_h(default_val, default_val_n, first_itter):
+    test_counter = 0
+    flag = False
+    hk_stop(False)
+    for channel in range(37, -1, -1):
+        if channel > 13 and channel < 22:
+            io = test.deviced.dio_map[channel]
+        elif channel > 21:
+            io = test.device3v3.dio_map[channel]
+        else:
+            io = test.device1v8.dio_map[channel]
+        if channel > 18 and first_itter:
+            io.set_state(True)
+            io.set_value(default_val_n)
+        elif channel > 18:
+            io.set_state(False)
+        elif first_itter:
+            if not flag:
+                time.sleep(10)
+                flag = True
+            io_state = io.get_value()
+            if io_state == default_val_n:
+                test_counter += 1
+            elif analog and channel > 13 and channel < 25:
+                test_counter += 1
+            else:
+                test.console.print(f"[red]channel {channel+19} FAILED!")
+        else:
+            if not flag:
+                time.sleep(10)
+                flag = True
+            io_state = io.get_value()
+            if io_state == default_val:
+                test_counter += 1
+            elif analog and channel > 13 and channel < 25:
+                test_counter += 1
+            else:
+                test.console.print(f"[red]channel {channel+19} FAILED!")
+    test.console.print(test_counter)
+    hk_stop(True)
+    if test_counter == 19:
+        test.console.print(
+            f"[green]{test.test_name} test Passed"
+        )
+        return True
+    else:
+        return False
 
 
 # def process_external(test):
@@ -566,7 +563,7 @@ def process_io(test, uart):
 
 
 def flash_test(
-    test, hex_file, flash_flag, uart, uart_data, mgmt_gpio, io, flash_only
+    test, hex_file, flash_flag, uart, uart_data, mgmt_gpio, io, plud, flash_only
 ):
     if flash_only:
         run_only = False
@@ -614,6 +611,8 @@ def flash_test(
             results = process_mgmt_gpio(test)
         elif io:
             results = process_io(test, uart_data)
+        elif plud:
+            results = process_io(test, uart_data)
         else:
             results = process_soc(test, uart_data)
         # if uart:
@@ -658,6 +657,7 @@ def exec_test(
     uart_data=None,
     mgmt_gpio=False,
     io=False,
+    plud=False,
     flash_only=False,
 ):
     results = False
@@ -669,6 +669,7 @@ def exec_test(
         uart_data,
         mgmt_gpio,
         io,
+        plud,
         flash_only,
     )
     end_time = time.time() - start_time
@@ -799,6 +800,17 @@ if __name__ == "__main__":
                                 t["hex_file_path"],
                                 flash_flag,
                                 io=t["io"],
+                                flash_only=args.flash_only,
+                                uart_data=uart_data,
+                            )
+                        elif t["plud"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                writer,
+                                t["hex_file_path"],
+                                flash_flag,
+                                plud=t["plud"],
                                 flash_only=args.flash_only,
                                 uart_data=uart_data,
                             )

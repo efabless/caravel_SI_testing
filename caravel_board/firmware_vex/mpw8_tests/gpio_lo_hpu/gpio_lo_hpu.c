@@ -24,18 +24,18 @@ input value send to gpio[19:37] suppose to be received as output at GPIO[0:18]
 */
 void main()
 {
-    configure_mgmt_gpio();
     set_registers();
     set_gpio_h(0);
     set_gpio_l(0);
     gpio_config_load();
-    send_packet(1); // configuration finished start test
     int mask = 0xFFF80000;
     int mask_h = 0x7E000;
     int i_val = 0;
     int o_val_l;
     int o_val_h;
     int o_val;
+    config_uart();
+    print("Start Test: gpio_lo_hpu\n");
     while (true)
     {
         i_val = get_gpio_l() & mask;

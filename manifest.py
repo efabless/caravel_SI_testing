@@ -18,6 +18,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/send_packet/send_packet.hex",
         "passing_criteria": [
             1,
@@ -37,6 +38,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/receive_packet/receive_packet.hex",
         "passing_criteria": [
             1,
@@ -56,6 +58,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/uart/uart.hex",
         "passing_criteria": [
             "Monitor: Test UART passed"
@@ -68,6 +71,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/uart_reception/uart_reception.hex",
         "passing_criteria": ["M", "B", "A"],  # Passing criteria to be sent to UART
     },
@@ -78,6 +82,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/uart_loopback/uart_loopback.hex",
         "passing_criteria": [
             "M",
@@ -94,6 +99,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_W_lower/mem_sram_W_lower.hex",
         "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -104,6 +110,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_test_lower/mem_sram_test_lower.hex",
         "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -114,6 +121,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_halfW_lower/mem_sram_halfW_lower.hex",
         "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -124,6 +132,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_W_upper/mem_sram_W_upper.hex",
         "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -134,6 +143,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_test_upper/mem_sram_test_upper.hex",
         "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -144,6 +154,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/mem_sram_halfW_upper/mem_sram_halfW_upper.hex",
         "passing_criteria": [1, 3, 4, 5],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -154,6 +165,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/cpu_stress/cpu_stress.hex",
         "passing_criteria": [
             1,
@@ -173,6 +185,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/timer0_oneshot/timer0_oneshot.hex",
         "passing_criteria": [1, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -183,6 +196,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/timer0_periodic/timer0_periodic.hex",
         "passing_criteria": [1, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -212,6 +226,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": True,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/IRQ_external/IRQ_external.hex",
         "passing_criteria": [1, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -222,6 +237,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": True,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/IRQ_external2/IRQ_external2.hex",
         "passing_criteria": [1, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -232,6 +248,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/IRQ_timer/IRQ_timer.hex",
         "passing_criteria": [1, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -242,6 +259,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/IRQ_spi/IRQ_spi.hex",
         "passing_criteria": [2, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -252,6 +270,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/IRQ_uart/IRQ_uart.hex",
         "passing_criteria": [1, 5, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -262,6 +281,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/IRQ_uart_rx/IRQ_uart_rx.hex",
         "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -272,6 +292,7 @@ TestDict = [
         "io": False,
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/hk_regs_wr_wb_cpu/hk_regs_wr_wb_cpu.hex",
         "passing_criteria": [2, 3, 3, 3],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -283,6 +304,7 @@ TestDict = [
         "mode": "output",
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/gpio_o_l/gpio_o_l.hex",
         "passing_criteria": [
             1,
@@ -303,6 +325,7 @@ TestDict = [
         "mode": "output",
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/gpio_o_h/gpio_o_h.hex",
         "passing_criteria": [
             1,
@@ -323,6 +346,7 @@ TestDict = [
         "mode": "input",
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/gpio_i_l/gpio_i_l.hex",
         "passing_criteria": [
             1,
@@ -343,6 +367,7 @@ TestDict = [
         "mode": "input",
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/gpio_i_h/gpio_i_h.hex",
         "passing_criteria": [
             1,
@@ -363,6 +388,7 @@ TestDict = [
         "mode": "output",
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/bitbang_o_l/bitbang_o_l.hex",
         "passing_criteria": [
             1,
@@ -383,6 +409,7 @@ TestDict = [
         "mode": "output",
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/bitbang_o_h/bitbang_o_h.hex",
         "passing_criteria": [
             1,
@@ -403,6 +430,7 @@ TestDict = [
         "mode": "input",
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/bitbang_i_l/bitbang_i_l.hex",
         "passing_criteria": [
             1,
@@ -423,6 +451,7 @@ TestDict = [
         "mode": "input",
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/bitbang_i_h/bitbang_i_h.hex",
         "passing_criteria": [
             1,
@@ -443,6 +472,7 @@ TestDict = [
         "mode": "plud",
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/gpio_lpu_ho/gpio_lpu_ho.hex",
         "passing_criteria": [
             1,
@@ -463,6 +493,7 @@ TestDict = [
         "mode": "plud",
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/gpio_lpd_ho/gpio_lpd_ho.hex",
         "passing_criteria": [
             1,
@@ -483,6 +514,7 @@ TestDict = [
         "mode": "plud",
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/gpio_lo_hpu/gpio_lo_hpu.hex",
         "passing_criteria": [
             1,
@@ -503,7 +535,28 @@ TestDict = [
         "mode": "plud",
         "spi": False,
         "external": False,
+        "clock": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/gpio_lo_hpd/gpio_lo_hpd.hex",
+        "passing_criteria": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+        ],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
+        "test_name": "clock_redirect",
+        "uart": False,  # NOT Testing UART
+        "mem": False,  # NOT Testing mem
+        "io": False,
+        "spi": False,
+        "external": False,
+        "clock": True,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/gf180mcu/clock_redirect/clock_redirect.hex",
         "passing_criteria": [
             1,
             2,

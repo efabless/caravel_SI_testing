@@ -1,4 +1,4 @@
-from caravel import Dio, Test, accurate_delay
+from caravel import Dio, FreqCounter, Test, accurate_delay
 from io_config import Device, device, connect_devices, UART, SPI
 import logging
 import os
@@ -204,29 +204,48 @@ def process_uart(test, uart):
     return True
 
 
-def process_mem(test):
-    phase = 0
-    mem_size = 0
-    while True:
-        pulse_count = test.receive_packet(250)
-        if pulse_count == 1:
-            print("start test")
-        if pulse_count == 5:
-            print(f"passed mem size {mem_size}")
-            mem_size = mem_size + 1
-        if pulse_count == 3:
-            if phase > 1:
-                print("Test finished")
-                return True
-            else:
-                phase = phase + 1
-                print("end test")
+def process_clock(test, device):
+    fc = FreqCounter(device)
+    pulse_count = test.receive_packet(250)
+    if pulse_count == 2:
+        test.console.print("start test")
+    fc.open()
+    time.sleep(5)
+    data, data_time = fc.record(1)
+    counter = 0
+    state = 0
+    for i in range(len(data)):
+        if data[i] <= 0 and state == 1:
+            state = 0
+        if data[i] >= 2 and state == 0:
+            one_time = data_time[i]
+            state = 1
+            counter += 1
+        if counter == 2:
+            freq = 1 / one_time
+            frq_MHz_1 = freq / 1000000
+            test.console.print("Channel 14: Measured frequency: %.2f MHz" % (frq_MHz_1))
+            break
 
-        if pulse_count == 9:
-            print(
-                f"{test.test_name} test failed with {test.voltage}v supply, mem size {mem_size}"
-            )
-            return mem_size
+    data, data_time = fc.record(2)
+    counter = 0
+    state = 0
+    for i in range(len(data)):
+        if data[i] <= 0 and state == 1:
+            state = 0
+        if data[i] >= 2 and state == 0:
+            one_time = data_time[i]
+            state = 1
+            counter += 1
+        if counter == 2:
+            freq = 1 / one_time
+            frq_MHz_2 = freq / 1000000
+            test.console.print("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz_2))
+            break
+    if frq_MHz_1 > 5 or frq_MHz_2 > 5:
+        return "IO[14]:%.2f MHz, IO[15]:%.2f MHz" % (frq_MHz_1, frq_MHz_2)
+    else:
+        return False
 
 
 def hk_stop(close):
@@ -576,7 +595,7 @@ def process_input_io(test, io):
 
 
 def flash_test(
-    test, hex_file, flash_flag, uart, uart_data, mem, io, mode, spi_flag, spi, external
+    test, hex_file, flash_flag, uart, uart_data, mem, io, mode, spi_flag, spi, external, clock, la_device,
 ):
     test.reset_devices()
     if flash_flag:
@@ -606,8 +625,6 @@ def flash_test(
 
     if uart:
         results = process_uart(test, uart_data)
-    elif mem:
-        results = process_mem(test)
     elif io:
         if mode == "output":
             results = process_io(test, io)
@@ -622,6 +639,8 @@ def flash_test(
         results = process_spi(test, spi)
     elif external:
         results = process_external(test)
+    elif clock:
+        results = process_clock(test, la_device)
     else:
         results = process_data(test)
 
@@ -645,6 +664,8 @@ def exec_test(
     spi_flag=False,
     spi=None,
     external=False,
+    clock=False,
+    la_device=None,
 ):
     results = flash_test(
         test,
@@ -658,6 +679,8 @@ def exec_test(
         spi_flag,
         spi,
         external,
+        clock,
+        la_device,
     )
     end_time = time.time() - start_time
     arr = [test.test_name, test.voltage, results, end_time]
@@ -762,6 +785,16 @@ if __name__ == "__main__":
                         t["hex_file_path"],
                         flash_flag,
                         external=t["external"],
+                    )
+                elif t["clock"]:
+                    exec_test(
+                        test,
+                        start_time,
+                        writer,
+                        t["hex_file_path"],
+                        flash_flag,
+                        clock=t["clock"],
+                        la_device=device3_data
                     )
                 else:
                     exec_test(

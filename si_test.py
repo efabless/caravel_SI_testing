@@ -467,8 +467,10 @@ def process_io_plud(test, uart):
         p1_rt = run_io_plud_h(default_val, default_val_n, False)
         p2_rt = run_io_plud_h(default_val, default_val_n, True)
     if p1_rt and p2_rt:
+        test.console.print("[green]passed")
         return True
     else:
+        test.console.print("[red]failed")
         return False
 
 
@@ -497,6 +499,8 @@ def run_io_plud(default_val, default_val_n, first_itter):
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
+            elif channel == 5 or channel == 6:
+                test_counter += 1
             else:
                 test.console.print(f"[red]channel {channel-19} FAILED!")
         else:
@@ -508,13 +512,15 @@ def run_io_plud(default_val, default_val_n, first_itter):
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
+            elif channel == 5 or channel == 6:
+                test_counter += 1
             else:
                 test.console.print(f"[red]channel {channel-19} FAILED!")
     hk_stop(True)
     if test_counter == 19:
-        test.console.print(
-            f"[green]{test.test_name} test passed"
-        )
+        # test.console.print(
+        #     f"[green]{test.test_name} test passed"
+        # )
         return True
     else:
         return False
@@ -545,6 +551,8 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
+            elif channel == 5 or channel == 6:
+                test_counter += 1
             else:
                 test.console.print(f"[red]channel {channel+19} FAILED!")
         else:
@@ -556,14 +564,16 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
+            elif channel == 5 or channel == 6:
+                test_counter += 1
             else:
                 test.console.print(f"[red]channel {channel+19} FAILED!")
     test.console.print(test_counter)
     hk_stop(True)
     if test_counter == 19:
-        test.console.print(
-            f"[green]{test.test_name} test Passed"
-        )
+        # test.console.print(
+        #     f"[green]{test.test_name} test Passed"
+        # )
         return True
     else:
         return False

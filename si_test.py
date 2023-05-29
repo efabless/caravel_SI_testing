@@ -566,7 +566,6 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
                 test_counter += 1
             else:
                 test.console.print(f"[red]channel {channel+19} FAILED!")
-    test.console.print(test_counter)
     hk_stop(True)
     if test_counter == 19:
         # test.console.print(
@@ -714,28 +713,30 @@ def exec_test(
         verbose,
     )
     end_time = time.time() - start_time
+    arr = []
 
     if type(results) == bool:
         if results:
-            arr = [test.test_name, test.voltage, "passed", end_time]
+            arr.append([test.test_name, test.voltage, "passed", end_time])
         else:
-            arr = [test.test_name, test.voltage, "failed", end_time]
+            arr.append([test.test_name, test.voltage, "failed", end_time])
     elif type(results) == tuple:
         if type(results[0]) == bool:
             if results[0]:
-                arr = [test.test_name, test.voltage, "passed", end_time]
+                arr.append([test.test_name, test.voltage, "passed", end_time])
             else:
-                arr = [test.test_name, test.voltage, f"failed, {results[1]}", end_time]
+                arr.append([test.test_name, test.voltage, f"failed, {results[1]}", end_time])
     elif type(results) == list:
         for result in results:
             if result[1]:
-                arr = [result[0], test.voltage, "passed", end_time]
+                arr.append([result[0], test.voltage, "passed", end_time])
             else:
-                arr = [result[0], test.voltage, "failed", end_time]
+                arr.append([result[0], test.voltage, "failed", end_time])
     elif type(results) == str:
-        arr = [test.test_name, test.voltage, results, "%.2f" % (end_time)]
+        arr.append([test.test_name, test.voltage, results, "%.2f" % (end_time)])
 
-    writer.writerow(arr)
+    for test in arr:
+        writer.writerow(test)
 
 
 if __name__ == "__main__":

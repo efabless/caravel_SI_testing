@@ -66,7 +66,7 @@ def init_ad_ios(device1_data, device2_data, device3_data):
     return device1_dio_map, device2_dio_map, device3_dio_map
 
 
-def process_mgmt_gpio(test):
+def process_mgmt_gpio(test, verbose):
     test_names = ["send_packet", "receive_packet", "uart_io"]
     status = []
     counter = 0
@@ -105,10 +105,12 @@ def process_mgmt_gpio(test):
                     test.console.print("[red]failed")
                     status.append((test.test_name, False))
                 else:
-                    # test.console.print("IO[6] Passed")
+                    if verbose:
+                        test.console.print("IO[6] Passed")
                     pulse_count = test.receive_packet(25)
                     if pulse_count == 3:
-                        # test.console.print("Send 4 packets to IO[5]")
+                        if verbose:
+                            test.console.print("Send 4 packets to IO[5]")
                         time.sleep(5)
                         test.send_pulse(4, 5, 5)
                         ack_pulse = test.receive_packet(25)
@@ -121,11 +123,12 @@ def process_mgmt_gpio(test):
 
         else:
             phase = 0
+            test.console.print(f"Running test {test.test_name}...")
             for passing in test.passing_criteria:
                 pulse_count = test.receive_packet(25)
-                test.console.print(f"Running test {test.test_name}...")
                 if pulse_count == passing:
-                    # test.console.print(f"pass phase {phase}")
+                    if verbose:
+                        test.console.print(f"pass phase {phase}")
                     phase = phase + 1
 
                 if pulse_count == 9:
@@ -138,7 +141,7 @@ def process_mgmt_gpio(test):
     return status
 
 
-def process_uart(test, uart):
+def process_uart(test, uart, verbose):
     """Function to test all UART functionality
     First test: IO[5] as input to caravel and IO[6] as output from caravel
     Second test: UART as output from caravel
@@ -152,7 +155,8 @@ def process_uart(test, uart):
         test.test_name = name
         pulse_count = test.receive_packet(25)
         if pulse_count == 1:
-            test.console.print(f"Start test: {name}")
+            if verbose:
+                test.console.print(f"Start test: {name}")
 
         if test.test_name == "uart":
             pulse_count = test.receive_packet(25)
@@ -168,10 +172,11 @@ def process_uart(test, uart):
                 status.append((test.test_name, False))
             pulse_count = test.receive_packet(25)
             if pulse_count == 5:
-                pass
-                # test.console.print("end UART transmission")
+                if verbose:
+                    test.console.print("end UART transmission")
 
         elif test.test_name == "uart_reception":
+            passed = True
             pulse_count = test.receive_packet(25)
             if pulse_count == 2:
                 test.console.print(f"Running test {test.test_name}...")
@@ -183,18 +188,27 @@ def process_uart(test, uart):
                     uart.write(i)
                 pulse_count = test.receive_packet(25)
                 if pulse_count == 6:
-                    test.console.print("[green]passed")
-                    status.append((test.test_name, True))
+                    passed = True
+                    if verbose:
+                        test.console.print(f"Received {i} successfully")
                 if pulse_count == 9:
                     test.console.print("[red]failed")
                     uart.close()
+                    passed = False
                     status.append((test.test_name, False))
+                    break
                 if time.time() > timeout:
                     test.console.print("[red]UART Timeout!")
                     uart.close()
+                    passed = False
                     status.append((test.test_name, False))
+                    break
+            if passed:
+                test.console.print("[green]passed")
+                status.append((test.test_name, True))
 
         elif test.test_name == "uart_loopback":
+            passed = True
             uart.open()
             timeout = time.time() + 50
             test.console.print(f"Running test {test.test_name}...")
@@ -208,13 +222,18 @@ def process_uart(test, uart):
                         uart.write(dat)
                         pulse_count = test.receive_packet(25)
                         if pulse_count == 6:
-                            test.console.print("[green]passed")
-                            status.append((test.test_name, True))
+                            passed = True
+                            if verbose:
+                                test.console.print(f"sent {dat} successfully")
                             break
                         if pulse_count == 9:
                             test.console.print("[red]failed")
                             uart.close()
                             status.append((test.test_name, False))
+                            break
+            if passed:
+                test.console.print("[green]passed")
+                status.append((test.test_name, True))
 
         elif test.test_name == "IRQ_uart_rx":
             pulse_count = test.receive_packet(25)
@@ -340,7 +359,7 @@ def process_soc(test, uart):
 def hk_stop(close):
     global pid
     if not close:
-        test.console.print("running caravel_hkstop.py...")
+        # test.console.print("running caravel_hkstop.py...")
         p = subprocess.Popen(
             ["python3", "caravel_board/firmware_vex/util/caravel_hkstop.py"],
             stdout=subprocess.PIPE,
@@ -349,12 +368,12 @@ def hk_stop(close):
         pid = p.pid
         # test.console.print("subprocess pid:", pid)
     elif pid:
-        test.console.print("stopping caravel_hkstop.py...")
+        # test.console.print("stopping caravel_hkstop.py...")
         os.kill(pid, signal.SIGTERM)
         pid = None
 
 
-def process_io(test, uart):
+def process_io(test, uart, verbose):
     hk_stop(False)
     fail = []
     uart_data = uart.read_data(test)
@@ -381,7 +400,8 @@ def process_io(test, uart):
                 if analog and channel > 13 and channel < 25:
                     pass
                 else:
-                    test.console.print(f"IO[{channel}]")
+                    if verbose:
+                        test.console.print(f"IO[{channel}]")
                     timeout = time.time() + 5
                     while 1:
                         uart_data = uart.read_data(test)
@@ -394,7 +414,8 @@ def process_io(test, uart):
                                 io_pulse += 1
                         if io_pulse == 4:
                             io_pulse = 0
-                            test.console.print(f"[green]IO[{channel}] Passed")
+                            if verbose:
+                                test.console.print(f"[green]IO[{channel}] Passed")
                             break
                         if time.time() > timeout:
                             test.console.print(f"[red]Timeout failure on IO[{channel}]!")
@@ -405,7 +426,8 @@ def process_io(test, uart):
                 test.send_pulse(4, channel, 1)
                 uart_data = uart.read_data(test)
                 if b"p" in uart_data:
-                    test.console.print(f"[green]IO[{channel}] Passed")
+                    if verbose:
+                        test.console.print(f"[green]IO[{channel}] Passed")
                 elif b"f" in uart_data:
                     test.console.print(f"[red]IO[{channel}] Failed")
                     fail.append(channel)
@@ -572,7 +594,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
 
 
 def flash_test(
-    test, hex_file, flash_flag, uart, uart_data, mgmt_gpio, io, plud, flash_only
+    test, hex_file, flash_flag, uart, uart_data, mgmt_gpio, io, plud, flash_only, verbose
 ):
     if flash_only:
         run_only = False
@@ -615,13 +637,13 @@ def flash_test(
             visible=True,
         )
         if uart:
-            results = process_uart(test, uart_data)
+            results = process_uart(test, uart_data, verbose)
         elif mgmt_gpio:
-            results = process_mgmt_gpio(test)
+            results = process_mgmt_gpio(test, verbose)
         elif io:
-            results = process_io(test, uart_data)
+            results = process_io(test, uart_data, verbose)
         elif plud:
-            results = process_io(test, uart_data)
+            results = process_io_plud(test, uart_data)
         else:
             results = process_soc(test, uart_data)
         # if uart:
@@ -668,6 +690,7 @@ def exec_test(
     io=False,
     plud=False,
     flash_only=False,
+    verbose=False,
 ):
     results = False
     results = flash_test(
@@ -680,6 +703,7 @@ def exec_test(
         io,
         plud,
         flash_only,
+        verbose,
     )
     end_time = time.time() - start_time
 
@@ -720,6 +744,13 @@ if __name__ == "__main__":
             "-r",
             "--run_only",
             help="Run test without flash",
+            action="store_true",
+            default=False,
+        )
+        parser.add_argument(
+            "-v",
+            "--verbose",
+            help="Run with high verbosity",
             action="store_true",
             default=False,
         )
@@ -796,6 +827,7 @@ if __name__ == "__main__":
                                 uart=t["uart"],
                                 uart_data=uart_data,
                                 flash_only=args.flash_only,
+                                verbose=args.verbose,
                             )
                         elif t["mgmt_gpio"]:
                             exec_test(
@@ -806,6 +838,7 @@ if __name__ == "__main__":
                                 flash_flag,
                                 mgmt_gpio=t["mgmt_gpio"],
                                 flash_only=args.flash_only,
+                                verbose=args.verbose,
                             )
                         elif t["io"]:
                             exec_test(
@@ -817,6 +850,7 @@ if __name__ == "__main__":
                                 io=t["io"],
                                 flash_only=args.flash_only,
                                 uart_data=uart_data,
+                                verbose=args.verbose,
                             )
                         elif t["plud"]:
                             exec_test(
@@ -828,6 +862,7 @@ if __name__ == "__main__":
                                 plud=t["plud"],
                                 flash_only=args.flash_only,
                                 uart_data=uart_data,
+                                verbose=args.verbose,
                             )
                         else:
                             exec_test(
@@ -837,7 +872,8 @@ if __name__ == "__main__":
                                 t["hex_file_path"],
                                 flash_flag,
                                 flash_only=args.flash_only,
-                                uart_data=uart_data
+                                uart_data=uart_data,
+                                verbose=args.verbose,
                             )
                         counter += 1
                         test.close_devices()

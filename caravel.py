@@ -319,7 +319,7 @@ class Test:
             io = self.device3v3.dio_map[channel]
         else:
             io = self.device1v8.dio_map[channel]
-        self.console.print(f"recieve pulse on IO[{channel}]")
+        # self.console.print(f"recieve pulse on IO[{channel}]")
         state = "HI"
         timeout = time.time() + 20
         accurate_delay(12.5)

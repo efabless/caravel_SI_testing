@@ -94,23 +94,23 @@ def process_mgmt_gpio(test):
             pulse_count = test.receive_packet(25)
             if pulse_count == 2:
                 received = test.io_receive(4, 6)
-                if received:
-                    test.console.print("IO[6] Passed")
-                else:
+                if not received:
                     test.console.print("Timeout failure on IO[6]!")
                     status.append((test.test_name, False))
-            pulse_count = test.receive_packet(25)
-            if pulse_count == 3:
-                test.console.print("Send 4 packets to IO[5]")
-                time.sleep(5)
-                test.send_pulse(4, 5, 5)
-                ack_pulse = test.receive_packet(25)
-                if ack_pulse == 9:
-                    test.console.print("IO[5] Failed to send pulse")
-                    status.append((test.test_name, False))
-                elif ack_pulse == 4:
-                    test.console.print("IO[5] sent pulse successfully")
-                    status.append((test.test_name, True))
+                else:
+                    test.console.print("IO[6] Passed")
+                    pulse_count = test.receive_packet(25)
+                    if pulse_count == 3:
+                        test.console.print("Send 4 packets to IO[5]")
+                        time.sleep(5)
+                        test.send_pulse(4, 5, 5)
+                        ack_pulse = test.receive_packet(25)
+                        if ack_pulse == 9:
+                            test.console.print("IO[5] Failed to send pulse")
+                            status.append((test.test_name, False))
+                        elif ack_pulse == 4:
+                            test.console.print("IO[5] sent pulse successfully")
+                            status.append((test.test_name, True))
 
         else:
             phase = 0

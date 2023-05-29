@@ -434,8 +434,10 @@ def process_io(test, uart, verbose):
                     fail.append(channel)
 
     if len(fail) == 0:
+        test.console.print("[green]passed")
         return True, None
     else:
+        test.console.print("[red]failed")
         return False, fail
 
 

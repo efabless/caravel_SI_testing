@@ -600,7 +600,7 @@ class UART:
                 test.console.print("UART Timeout!")
                 test.progress.stop()
                 self.close()
-                return False
+                os._exit(1)
 
     def close(self):
         # dwf.FDwfDeviceClose(self.device_data.handle)

@@ -68,12 +68,12 @@ def init_ad_ios(device1_data, device2_data, device3_data):
 
 def process_mgmt_gpio(test):
     test_names = ["send_packet", "receive_packet", "uart_io"]
-    fail = []
+    status = []
     for name in test_names:
         test.test_name = name
         if test.test_name == "receive_packet":
             io = test.device1v8.dio_map[0]
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 2:
                 test.console.print("Test started")
             for i in range(5, 8):
@@ -82,52 +82,52 @@ def process_mgmt_gpio(test):
                 test.send_packet(i, 25)
                 while io.get_value():
                     pass
-                pulse_count = test.receive_packet(250)
+                pulse_count = test.receive_packet(25)
                 if pulse_count == i:
                     test.console.print(f"sent {i} pulses successfully")
+                    status.append((test.test_name, True))
                 else:
                     test.console.print(f"{test.test_name} test failed with {test.voltage}v supply!")
-                    fail.append(test.test_name)
+                    status.append((test.test_name, False))
 
         elif name == "uart_io":
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 2:
                 received = test.io_receive(4, 6)
                 if received:
                     test.console.print("IO[6] Passed")
                 else:
                     test.console.print("Timeout failure on IO[6]!")
-                    fail.append(test.test_name)
-            pulse_count = test.receive_packet(250)
+                    status.append((test.test_name, False))
+            pulse_count = test.receive_packet(25)
             if pulse_count == 3:
                 test.console.print("Send 4 packets to IO[5]")
                 time.sleep(5)
                 test.send_pulse(4, 5, 5)
-                ack_pulse = test.receive_packet(250)
+                ack_pulse = test.receive_packet(25)
                 if ack_pulse == 9:
                     test.console.print("IO[5] Failed to send pulse")
-                    fail.append(test.test_name)
+                    status.append((test.test_name, False))
                 elif ack_pulse == 4:
                     test.console.print("IO[5] sent pulse successfully")
+                    status.append((test.test_name, True))
 
         else:
             phase = 0
             for passing in test.passing_criteria:
-                pulse_count = test.receive_packet(250)
+                pulse_count = test.receive_packet(25)
                 if pulse_count == passing:
                     test.console.print(f"pass phase {phase}")
                     phase = phase + 1
 
                 if pulse_count == 9:
                     test.console.print(f"{test.test_name} test failed with {test.voltage}v supply!")
-                    fail.append(test.test_name)
+                    status.append((test.test_name, False))
 
             if len(test.passing_criteria) == phase:
                 test.console.print(f"{test.test_name} test Passed with {test.voltage}v supply!")
-    if len(fail) == 0:
-        return True
-    else:
-        return False
+                status.append((test.test_name, True))
+    return status
 
 
 def process_uart(test, uart):
@@ -139,49 +139,51 @@ def process_uart(test, uart):
     """
 
     test_names = ["uart", "uart_reception", "uart_loopback", "IRQ_uart_rx"]
-    fail = []
+    status = []
     for name in test_names:
         test.test_name = name
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if pulse_count == 1:
             test.console.print(f"Start test: {name}")
 
         if test.test_name == "uart":
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 2:
                 test.console.print("Start UART transmission")
             uart_data = uart.read_data(test)
             uart_data = uart_data.decode()
             if "Monitor: Test UART passed" in uart_data:
                 test.console.print("UART test passed")
+                status.append((test.test_name, True))
             else:
                 test.console.print("UART test failed")
-                fail.append(test.test_name)
-            pulse_count = test.receive_packet(250)
+                status.append((test.test_name, False))
+            pulse_count = test.receive_packet(25)
             if pulse_count == 5:
                 test.console.print("end UART transmission")
 
         elif test.test_name == "uart_reception":
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 2:
                 test.console.print("Start UART transmission")
             uart.open()
             timeout = time.time() + 50
             for i in ["M", "B", "A"]:
-                pulse_count = test.receive_packet(250)
+                pulse_count = test.receive_packet(25)
                 if pulse_count == 4:
                     uart.write(i)
-                pulse_count = test.receive_packet(250)
+                pulse_count = test.receive_packet(25)
                 if pulse_count == 6:
                     test.console.print(f"Successfully sent {i} over UART!")
+                    status.append((test.test_name, True))
                 if pulse_count == 9:
                     test.console.print(f"Couldn't send {i} over UART!")
                     uart.close()
-                    fail.append(test.test_name)
+                    status.append((test.test_name, False))
                 if time.time() > timeout:
                     test.console.print("UART Timeout!")
                     uart.close()
-                    fail.append(test.test_name)
+                    status.append((test.test_name, False))
 
         elif test.test_name == "uart_loopback":
             uart.open()
@@ -194,37 +196,36 @@ def process_uart(test, uart):
                         dat = uart_data.value.decode()
                         # if dat in test.passing_criteria:
                         uart.write(dat)
-                        pulse_count = test.receive_packet(250)
+                        pulse_count = test.receive_packet(25)
                         if pulse_count == 6:
                             test.console.print(f"Successfully sent {dat} over UART!")
+                            status.append((test.test_name, True))
                             break
                         if pulse_count == 9:
                             test.console.print(f"Couldn't send {dat} over UART!")
                             uart.close()
-                            fail.append(test.test_name)
+                            status.append((test.test_name, False))
 
         elif test.test_name == "IRQ_uart_rx":
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 2:
                 test.console.print("Start UART transmission")
             uart.open()
             uart.write("I")
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 5:
                 test.console.print("[green]passed IRQ_uart_rx")
+                status.append((test.test_name, True))
                 break
             if pulse_count == 9:
                 test.console.print("[red]failed IRQ_uart_rx")
                 uart.close()
-                fail.append(test.test_name)
+                status.append((test.test_name, False))
 
-    if len(fail) == 0:
-        return True
-    else:
-        return False
+    return status
 
 def process_soc(test, uart):
-    fail = []
+    status = []
     while True:
         uart_data = uart.read_data(test)
         uart_data = uart_data.decode()
@@ -250,18 +251,16 @@ def process_soc(test, uart):
         uart_data = uart_data.decode()
         if "passed" in uart_data:
             test.console.print("[green]passed")
+            status.append((test.test_name, True))
         elif "failed" in uart_data:
             test.console.print("[red]failed")
-            fail.append(test.test_name)
-    if len(fail) == 0:
-        return True
-    else:
-        return False
+            status.append((test.test_name, False))
+    return status
 
 
 # def process_clock(test, device):
 #     fc = FreqCounter(device)
-#     pulse_count = test.receive_packet(250)
+#     pulse_count = test.receive_packet(25)
 #     if pulse_count == 2:
 #         test.console.print("start test")
 #     fc.open()
@@ -307,7 +306,7 @@ def process_soc(test, uart):
 #     phase = 0
 #     mem_size = 0
 #     while True:
-#         pulse_count = test.receive_packet(250)
+#         pulse_count = test.receive_packet(25)
 #         if pulse_count == 1:
 #             test.console.print("start test")
 #         if pulse_count == 5:
@@ -545,7 +544,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
 #         channel = 12
 #     phase = 0
 #     for passing in test.passing_criteria:
-#         pulse_count = test.receive_packet(250)
+#         pulse_count = test.receive_packet(25)
 #         if pulse_count == passing:
 #             test.console.print(f"pass phase {phase}")
 #             if phase == 0:
@@ -638,9 +637,9 @@ def flash_test(
         # else:
         #     results = process_data(test)
 
-        test.console.print("==============================================================================")
-        test.console.print(f"  Completed:  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
-        test.console.print("==============================================================================")
+        # test.console.print("==============================================================================")
+        # test.console.print(f"  Completed:  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
+        # test.console.print("==============================================================================")
 
         return results
     else:
@@ -685,6 +684,11 @@ def exec_test(
                 arr = [test.test_name, test.voltage, "passed", end_time]
             else:
                 arr = [test.test_name, test.voltage, f"failed, {results[1]}", end_time]
+        else:
+            if results[1]:
+                arr = [results[0], test.voltage, "passed", end_time]
+            else:
+                arr = [results[0], test.voltage, "failed", end_time]
     elif type(results) == str:
         arr = [test.test_name, test.voltage, results, "%.2f" % (end_time)]
 

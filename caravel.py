@@ -322,9 +322,9 @@ class Test:
         self.console.print(f"recieve pulse on IO[{channel}]")
         state = "HI"
         timeout = time.time() + 20
-        accurate_delay(125)
+        accurate_delay(12.5)
         while 1:
-            accurate_delay(250)
+            accurate_delay(25)
             x = io.get_value()
             if state == "LOW":
                 if x:

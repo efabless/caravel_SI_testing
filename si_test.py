@@ -684,11 +684,12 @@ def exec_test(
                 arr = [test.test_name, test.voltage, "passed", end_time]
             else:
                 arr = [test.test_name, test.voltage, f"failed, {results[1]}", end_time]
-        else:
-            if results[1]:
-                arr = [results[0], test.voltage, "passed", end_time]
+    elif type(results) == list:
+        for result in results:
+            if result[1]:
+                arr = [result[0], test.voltage, "passed", end_time]
             else:
-                arr = [results[0], test.voltage, "failed", end_time]
+                arr = [result[0], test.voltage, "failed", end_time]
     elif type(results) == str:
         arr = [test.test_name, test.voltage, results, "%.2f" % (end_time)]
 

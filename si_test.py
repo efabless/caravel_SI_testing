@@ -422,7 +422,8 @@ def process_io(test, uart, verbose):
                             fail.append(channel)
                             break
             elif test.test_name == "gpio_i" or test.test_name == "bitbang_i":
-                test.console.print(f"IO[{channel}]")
+                if verbose:
+                    test.console.print(f"IO[{channel}]")
                 test.send_pulse(4, channel, 1)
                 uart_data = uart.read_data(test)
                 if b"p" in uart_data:

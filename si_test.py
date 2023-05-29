@@ -443,9 +443,12 @@ def process_io_plud(test, uart):
     p2_rt = False
     uart_data = uart.read_data(test)
     uart_data = uart_data.decode()
-    if "Start Test:" in uart_data:
-        test.test_name = uart_data.strip().split(": ")[1]
+    pulse_count = test.receive_packet(25)
+    if pulse_count == 2:
         test.console.print(f"Running test {test.test_name}...")
+    # if "Start Test:" in uart_data:
+    #     test.test_name = uart_data.strip().split(": ")[1]
+    #     test.console.print(f"Running test {test.test_name}...")
     if test.test_name == "gpio_lpu_ho":
         default_val = 1
         default_val_n = 0
@@ -499,8 +502,6 @@ def run_io_plud(default_val, default_val_n, first_itter):
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
-            elif channel == 5 or channel == 6:
-                test_counter += 1
             else:
                 test.console.print(f"[red]channel {channel-19} FAILED!")
         else:
@@ -511,8 +512,6 @@ def run_io_plud(default_val, default_val_n, first_itter):
             if io_state == default_val:
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
-                test_counter += 1
-            elif channel == 5 or channel == 6:
                 test_counter += 1
             else:
                 test.console.print(f"[red]channel {channel-19} FAILED!")
@@ -551,8 +550,6 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
-            elif channel == 5 or channel == 6:
-                test_counter += 1
             else:
                 test.console.print(f"[red]channel {channel+19} FAILED!")
         else:
@@ -563,8 +560,6 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
             if io_state == default_val:
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
-                test_counter += 1
-            elif channel == 5 or channel == 6:
                 test_counter += 1
             else:
                 test.console.print(f"[red]channel {channel+19} FAILED!")

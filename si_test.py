@@ -441,11 +441,11 @@ def process_io(test, uart, verbose):
 def process_io_plud(test, uart):
     p1_rt = False
     p2_rt = False
-    uart_data = uart.read_data(test)
-    uart_data = uart_data.decode()
     pulse_count = test.receive_packet(25)
     if pulse_count == 2:
         test.console.print(f"Running test {test.test_name}...")
+    # uart_data = uart.read_data(test)
+    # uart_data = uart_data.decode()
     # if "Start Test:" in uart_data:
     #     test.test_name = uart_data.strip().split(": ")[1]
     #     test.console.print(f"Running test {test.test_name}...")

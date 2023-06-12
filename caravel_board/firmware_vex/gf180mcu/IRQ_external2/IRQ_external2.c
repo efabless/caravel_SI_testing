@@ -56,7 +56,7 @@ void main()
     configure_mgmt_gpio();
 
     // setting bit 12 as input
-    configure_gpio(12, GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(12, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     gpio_config_load();
 //    count_down(PULSE_WIDTH * 50);
     irq_setmask(0);

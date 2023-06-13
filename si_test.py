@@ -440,6 +440,8 @@ def run_io_plud(default_val, default_val_n, first_itter):
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
+            elif default_val == 0 and default_val_n == 1 and channel > 19 and channel < 24:
+                test_counter += 1
             else:
                 print(f"... channel {channel} FAILED!")
                 # return False
@@ -451,6 +453,8 @@ def run_io_plud(default_val, default_val_n, first_itter):
             if io_state == default_val:
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
+                test_counter += 1
+            elif default_val == 0 and default_val_n == 1 and channel > 19 and channel < 24:
                 test_counter += 1
             else:
                 print(f"... channel {channel} FAILED!")

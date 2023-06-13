@@ -10,8 +10,6 @@ void main()
     bb_configure_all_gpios(GPIO_MODE_MGMT_STD_OUTPUT);
     set_gpio_h(0);
     set_gpio_l(0);
-    count_down(PULSE_WIDTH * 100);
-    count_down(PULSE_WIDTH * 100);
     send_packet(1); // configuration finished
 
     for (j = 0; j < 9; j++)

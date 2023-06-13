@@ -103,7 +103,7 @@ def process_data(test):
 def process_uart(test, uart):
     uart.open()
     rgRX = ""
-    timeout = time.time() + 50
+    timeout = time.time() + 100
     while test.receive_packet(250) != 2:
         pass
     print("start UART transmission")

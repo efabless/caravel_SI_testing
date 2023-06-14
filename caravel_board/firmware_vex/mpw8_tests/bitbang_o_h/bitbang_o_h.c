@@ -60,9 +60,9 @@ void main()
     int num_pulses = 4;
     int num_bits = 8;
     configure_mgmt_gpio();
-    bb_configure_all_gpios(GPIO_MODE_MGMT_STD_OUTPUT);
-    set_gpio_h(0);
-    set_gpio_l(0);
+    bb_configureAllGpios(GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_writeHigh(0);
+    GPIOs_writeLow(0);
 
 
     send_packet(1); // start sending on the higest gpios
@@ -73,9 +73,9 @@ void main()
         {
             for (i = 0; i < num_pulses; i++)
             {
-                set_gpio_h(0x1 << j - 32);
+                GPIOs_writeHigh(0x1 << j - 32);
                 count_down(PULSE_WIDTH);
-                set_gpio_h(0x0);
+                GPIOs_writeHigh(0x0);
                 count_down(PULSE_WIDTH);
             }
         }
@@ -83,9 +83,9 @@ void main()
         {
             for (i = 0; i < num_pulses; i++)
             {
-                set_gpio_l(0x1 << j);
+                GPIOs_writeLow(0x1 << j);
                 count_down(PULSE_WIDTH);
-                set_gpio_l(0x0);
+                GPIOs_writeLow(0x0);
                 count_down(PULSE_WIDTH);
             }
         }
@@ -96,9 +96,9 @@ void main()
         send_packet(28 - j + 2); // send 4 pulses at gpio[j]
         for (i = 0; i < num_pulses; i++)
         {
-            set_gpio_l(0x1 << j);
+            GPIOs_writeLow(0x1 << j);
             count_down(PULSE_WIDTH);
-            set_gpio_l(0x0);
+            GPIOs_writeLow(0x0);
             count_down(PULSE_WIDTH);
         }
     }

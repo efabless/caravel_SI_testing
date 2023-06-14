@@ -40,15 +40,15 @@ void uart_loopback()
 {
     int j;
     configure_mgmt_gpio();
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    gpio_config_load();
+    GPIOs_configure(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_configure(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_loadConfigs();
 
     // Start test
     send_packet(2); // Start of the test
 
-    uart_RX_enable(1);
-    enable_uart_TX(1);
+    UART_enableRX(1);
+    UART_enableTX(1);
     empty_buffer();
 
     print("M");
@@ -75,5 +75,5 @@ void uart_loopback()
     for (j = 0; j < 1000; j++)
         ;
     wait_for_char("o");
-    uart_RX_enable(0);
+    UART_enableRX(0);
 }

@@ -23,7 +23,7 @@ int wait_for_char()
     while (uart_rxempty_read() == 1);
     uart_temp = reg_uart_data;
    
-    uart_pop_char();
+    UART_popChar();
     return uart_temp;
 }
 
@@ -47,12 +47,12 @@ void main()
 {
     int j;
     configure_mgmt_gpio();
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    gpio_config_load();
+    GPIOs_configure(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_configure(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_loadConfigs();
 
-    uart_RX_enable(1);
-    enable_uart_TX(1);
+    UART_enableRX(1);
+    UART_enableTX(1);
 
     // Start test
     send_packet(2); // Start of the test

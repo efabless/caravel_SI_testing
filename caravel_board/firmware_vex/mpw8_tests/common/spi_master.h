@@ -17,7 +17,7 @@ char spi_done(){return reg_spimaster_status & 0x1;}
  * @param c byte to write range 0x0 to 0xFF
  * 
  */
-void spi_write(char c){
+void MSPI_write(char c){
     reg_spimaster_wdata = (unsigned long) c;
     #ifndef ARM
     reg_spimaster_control = 0x0801;
@@ -31,8 +31,8 @@ void spi_write(char c){
  * Read byte (8bits) through SPI master 
  * 
  */
-char spi_read(){
-    spi_write(0x00);
+char MSPI_read(){
+    MSPI_write(0x00);
     while (reg_spimaster_status != 1);
     return reg_spimaster_rdata;
 }
@@ -41,16 +41,16 @@ char spi_read(){
  *  
  * @param is_enable when 1 (true) master SPI is active, 0 (false) master SPI is disabled
  */
-void enable_spi(bool is_enable){
+void MSPI_enable(bool is_enable){
     if(is_enable){
         #ifndef ARM
-        reg_spi_enable = 1;
+        reg_MSPI_enable = 1;
         #else
         reg_wb_enable = reg_wb_enable | 0x20;
         #endif
     }else{
         #ifndef ARM
-        reg_spi_enable = 0;
+        reg_MSPI_enable = 0;
         #else
         reg_wb_enable = reg_wb_enable & 0xFFDF;
         #endif  
@@ -61,7 +61,7 @@ void enable_spi(bool is_enable){
  *  
  * @param is_enable when 1 (true) chip select is asserted, 0 (false) chip select is deasserted
  */
-void enable_CS(bool is_enable){
+void MSPI_enableCS(bool is_enable){
     if (is_enable){
         #ifndef ARM
         reg_spimaster_cs = 0x10001; // select chip 0

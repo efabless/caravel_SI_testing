@@ -36,13 +36,13 @@ void uart()
 {
     int i, j;
     configure_mgmt_gpio();
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_configure(6, GPIO_MODE_MGMT_STD_OUTPUT);
     // gpio_config_io();
-    gpio_config_load();
+    GPIOs_loadConfigs();
 
     // Start test
     send_packet(2); // start of transmitting
-    enable_uart_TX(1);
+    UART_enableTX(1);
 
     print("Monitor: Test UART passed\n");
 
@@ -51,5 +51,5 @@ void uart()
     for (j = 0; j < 1000; j++)
         ;
     send_packet(5); // end of transmitting
-    enable_uart_TX(0);
+    UART_enableTX(0);
 }

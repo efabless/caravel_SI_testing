@@ -28,7 +28,7 @@
  *	- Uses SPI master to talk to external SPI module
  */
 
- void spi_write(char c)
+ void MSPI_write(char c)
 {
     reg_spimaster_wdata = (unsigned long) c;
 //    reg_spimaster_wdata = c;
@@ -37,16 +37,16 @@
 //    reg_spimaster_control = 0x0800;
     reg_spimaster_control = 0x0801;
 }
- char spi_read()
+ char MSPI_read()
 {
 //    reg_spimaster_wdata = c;
 //    spi_master_control_length_write(8);
 //    spi_master_control_start_write(1);
 //    reg_spimaster_control = 0x0800;
-//    spi_write(0x00);
+//    MSPI_write(0x00);
 //    reg_spimaster_rdata = 0x00;
 //    reg_spimaster_control = 0x0801;
-    spi_write(0x00);
+    MSPI_write(0x00);
     while (reg_spimaster_status != 1);
     return reg_spimaster_rdata;
 }
@@ -105,16 +105,16 @@ void main()
 
 
     // reg_spimaster_clk_divider = 0x4E20;
-    reg_spi_enable = 1;
+    reg_MSPI_enable = 1;
     send_packet(1); // enable the SPI
     reg_spimaster_cs = 0x10001;  // sel=0, manual CS
 
 
-    spi_write(0x08);        // Write 0x08
+    MSPI_write(0x08);        // Write 0x08
     // for(int i = 0; i < 10000; i++);
-    spi_write(0x05);        // Write 0x05
+    MSPI_write(0x05);        // Write 0x05
     // for(int i = 0; i < 20000; i++);
-    value = spi_read(); // 0xD
+    value = MSPI_read(); // 0xD
     
     if (value == 0xD)
        send_packet(5); // read correct value 

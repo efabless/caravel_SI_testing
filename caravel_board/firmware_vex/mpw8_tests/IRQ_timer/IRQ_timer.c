@@ -41,17 +41,17 @@ wait for interrupt
 bool IRQ_timer()
 {
 
-    clear_flag();
-    enable_timer0_irq(1);
+    IRQ_clearFlag();
+    IRQ_enableTimer(1);
     timer0_ev_pending_write(1);
-    timer0_oneshot_configure(10000);
+    timer0_configureOneShot(10000);
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;
     int timeout = 500000;
 
     for (int i = 0; i < timeout; i++){
-        if (get_flag() == 1)
+        if (IRQ_getFlag() == 1)
         {
             is_pass = true;
             return true;

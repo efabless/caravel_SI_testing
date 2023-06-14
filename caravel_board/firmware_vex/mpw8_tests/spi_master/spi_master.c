@@ -51,35 +51,35 @@ void main()
     configure_mgmt_gpio();
     // For SPI operation, GPIO 1 should be an input, and GPIOs 2 to 4
     // should be outputs.
-    configure_gpio(34,GPIO_MODE_MGMT_STD_INPUT_NOPULL); // SDI
-    configure_gpio(35,GPIO_MODE_MGMT_STD_OUTPUT);       // SDO
-    configure_gpio(33,GPIO_MODE_MGMT_STD_OUTPUT);       // CSB
-    configure_gpio(32,GPIO_MODE_MGMT_STD_OUTPUT);       // SCK
-    gpio_config_load();
+    GPIOs_configure(34,GPIO_MODE_MGMT_STD_INPUT_NOPULL); // SDI
+    GPIOs_configure(35,GPIO_MODE_MGMT_STD_OUTPUT);       // SDO
+    GPIOs_configure(33,GPIO_MODE_MGMT_STD_OUTPUT);       // CSB
+    GPIOs_configure(32,GPIO_MODE_MGMT_STD_OUTPUT);       // SCK
+    GPIOs_loadConfigs();
 
     reg_spimaster_clk_divider = 0x4;
-    enable_spi(1);
-    enable_CS(1);  // sel=0, manual CS
+    MSPI_enable(1);
+    MSPI_enableCS(1);  // sel=0, manual CS
     send_packet(2);
     count_down(PULSE_WIDTH * 5);
 
-    value = spi_write_reg(); //
+    value = MSPI_write_reg(); //
 
-    //    spi_write(0x40); // Caravel Stream Write
+    //    MSPI_write(0x40); // Caravel Stream Write
     // for(int i = 0; i < 10000; i++);
 
-    //    spi_write(0x01); // Write register for mfg code
+    //    MSPI_write(0x01); // Write register for mfg code
     // for(int i = 0; i < 20000; i++);
 
-    //    value = spi_read(); // 0xD
+    //    value = MSPI_read(); // 0xD
 
     if (value == 0x04)
         send_packet(5); // read correct value
     else
         send_packet(9); // read wrong value
 
-    enable_CS(0);  // release CS
-    enable_CS(1);  // sel=0, manual CS
+    MSPI_enableCS(0);  // release CS
+    MSPI_enableCS(1);  // sel=0, manual CS
 
     // End test
     send_packet(3);

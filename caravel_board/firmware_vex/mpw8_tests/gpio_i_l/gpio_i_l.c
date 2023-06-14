@@ -2,25 +2,25 @@
 
 void set_registers()
 {
-    configure_gpio(0, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(1, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(2, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(3, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(4, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(6, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(7, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(8, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(9, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(10, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(11, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(12, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(13, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(14, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(15, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(16, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(17, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(18, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(0, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(1, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(2, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(3, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(4, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(6, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(7, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(8, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(9, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(10, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(11, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(12, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(13, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(14, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(15, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(16, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(17, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(18, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
 }
 /*
 @ send on the next io (start from 0 to 18)
@@ -45,11 +45,11 @@ void main()
     int timeout = 15000;
     long int timeout_count = 0;
     set_registers();
-    set_gpio_h(0);
-    set_gpio_l(0);
+    GPIOs_writeHigh(0);
+    GPIOs_writeLow(0);
     configure_mgmt_gpio();
     //    gpio_config_io();
-    gpio_config_load();
+    GPIOs_loadConfigs();
     count_down(PULSE_WIDTH * 20);
 
     // send_packet(2); // configuration finished start test
@@ -59,10 +59,10 @@ void main()
         send_packet(1); // send on the next io
         io_number++;
         mask = 0x1 << io_number;
-        old_recieved = get_gpio_l() & mask;
+        old_recieved = GPIOs_readLow() & mask;
         while (true)
         {
-            recieved = get_gpio_l() & mask; // mask gpio bit
+            recieved = GPIOs_readLow() & mask; // mask gpio bit
             if (recieved != old_recieved)
             {
                 count++;

@@ -40,8 +40,8 @@ wait for interrupt
 bool IRQ_spi()
 {
 
-    clear_flag();
-    enable_hk_spi_irq(1);
+    IRQ_clearFlag();
+    IRQ_hkSpi(1);
     user_irq_0_ev_pending_write(1);
     reg_hkspi_irq = 1;
     // Loop, waiting for the interrupt to change reg_mprj_datah
@@ -50,7 +50,7 @@ bool IRQ_spi()
 
     for (int i = 0; i < timeout; i++)
     {
-        if (get_flag() == 1)
+        if (IRQ_getFlag() == 1)
         {
             is_pass = true;
             return true;

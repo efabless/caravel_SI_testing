@@ -44,17 +44,17 @@ bool timer0_oneshot()
     uint32_t old_value;
 
     /* Configure timer for a single-shot countdown */
-    timer0_oneshot_configure(0xF3000);
+    timer0_configureOneShot(0xF3000);
 
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     // test path if counter value stop updated after reach 0 and also the value is always decrementing
-    update_timer0_val();  // update reg_timer0_value with new counter value
-    old_value = get_timer0_val();
+    timer0_updateValue();  // update reg_timer0_value with new counter value
+    old_value = timer0_readValue();
     // value us decrementing until it reachs zero
     while (1) {
-        update_timer0_val();  // update reg_timer0_value with new counter value
-        value = get_timer0_val();
+        timer0_updateValue();  // update reg_timer0_value with new counter value
+        value = timer0_readValue();
         if (value < old_value || value == 0){
             //send_packet(5); //timer updated correctly
             if (value==0)
@@ -71,9 +71,9 @@ bool timer0_oneshot()
 
     // check after 10 iterations that value don't change from 0
 	for (int i = 0; i < 10; i++);
-        update_timer0_val(); // update reg_timer0_value with new counter value
+        timer0_updateValue(); // update reg_timer0_value with new counter value
 
-    if (get_timer0_val() == 0){
+    if (timer0_readValue() == 0){
         return true; // timer updated correctly
     }else{
         return false; // timer updated incorrectly

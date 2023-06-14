@@ -11,10 +11,10 @@
  * @param config is configuration of type gpio_mode
  * 
  * \note
- * These configurations will not be change the GPIOs modes until calling gpio_config_load()
+ * These configurations will not be change the GPIOs modes until calling GPIOs_loadConfigs()
  * 
  */
-void configure_all_gpios(enum gpio_mode config){
+void GPIOs_configureAll(enum gpio_mode config){
     #ifndef ARM
     reg_mprj_io_37 = config;
     reg_mprj_io_36 = config;
@@ -55,13 +55,13 @@ void configure_all_gpios(enum gpio_mode config){
     reg_mprj_io_2  = config;
     reg_mprj_io_1  = config;
     reg_mprj_io_0  = config;
-    // gpio_config_load();
+    // GPIOs_loadConfigs();
 }
 /**
  * Load the configurations changes to the GPIOs 
  *  
  */
-void gpio_config_load(){
+void GPIOs_loadConfigs(){
     reg_mprj_xfer = 1;
     while ((reg_mprj_xfer&0x1) == 1);
 
@@ -73,10 +73,10 @@ void gpio_config_load(){
  * @param gpio_num is GPIO number it can have values from 0 to 37
  * 
  * \note
- * These configurations will not be change the GPIOs modes until calling gpio_config_load()
+ * These configurations will not be change the GPIOs modes until calling GPIOs_loadConfigs()
  * 
  */
-void configure_gpio(int gpio_num,enum gpio_mode config){
+void GPIOs_configure(int gpio_num,enum gpio_mode config){
     switch(gpio_num){
         case 0 :
             reg_mprj_io_0   = config; break;
@@ -161,9 +161,9 @@ void configure_gpio(int gpio_num,enum gpio_mode config){
 
 void config_uart()
 {
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    gpio_config_load();
-    enable_uart_TX(1);
+    GPIOs_configure(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_loadConfigs();
+    UART_enableTX(1);
     count_down(PULSE_WIDTH * 10);
 }
 
@@ -175,10 +175,10 @@ void config_uart()
  * @param data is the data sent to the GPIOs 
  * 
  * Examples: 
- * \li \code set_gpio_l(0x1); // write 1 to GPIO [0] and write 0 in the remaining 31 GPIOs \endcode
- * \li \code set_gpio_l(0x5); // write 1 to GPIO [0] and GPIO [3] and write 0 in the remaining 30 GPIOs\endcode
+ * \li \code GPIOs_writeLow(0x1); // write 1 to GPIO [0] and write 0 in the remaining 31 GPIOs \endcode
+ * \li \code GPIOs_writeLow(0x5); // write 1 to GPIO [0] and GPIO [3] and write 0 in the remaining 30 GPIOs\endcode
  */
-void set_gpio_l(unsigned int data){reg_mprj_datal = data;}
+void GPIOs_writeLow(unsigned int data){reg_mprj_datal = data;}
 /**
  * Write to the highest 6 GPIOs GPIOS[37:32]
  * \note
@@ -187,10 +187,10 @@ void set_gpio_l(unsigned int data){reg_mprj_datal = data;}
  * @param data is the data sent to the GPIOs 
  * 
  * Examples: 
- * \li \code set_gpio_h(0x1); // write 1 to GPIO [32] and write 0 in the remaining 5 GPIOs\endcode
- * \li \code set_gpio_h(0x5); // write 1 to GPIO [32] and 34 and write 0 in the remaining 4 GPIOs\endcode
+ * \li \code GPIOs_writeHigh(0x1); // write 1 to GPIO [32] and write 0 in the remaining 5 GPIOs\endcode
+ * \li \code GPIOs_writeHigh(0x5); // write 1 to GPIO [32] and 34 and write 0 in the remaining 4 GPIOs\endcode
  */
-void set_gpio_h(unsigned int data){reg_mprj_datah = data;}
+void GPIOs_writeHigh(unsigned int data){reg_mprj_datah = data;}
 /**
  * Write to the 38 GPIOs GPIOS[37:0]
  * \note
@@ -199,13 +199,13 @@ void set_gpio_h(unsigned int data){reg_mprj_datah = data;}
  * @param data is the data sent to the GPIOs 
  * 
  * Examples: 
- * \li \code set_gpio(0x1); // write 1 to GPIO [0] and write 0 in the remaining 37 GPIOs \endcode
- * \li \code set_gpio(0x5); // write 1 to GPIO [0] and GPIO [3] and write 0 in the remaining 36 GPIOs\endcode
- * \li \code set_gpio(0x100000000); // write 1 to GPIO [32] and write 0 in the remaining 36 GPIOs\endcode
+ * \li \code GPIOs_writeLowHigh(0x1); // write 1 to GPIO [0] and write 0 in the remaining 37 GPIOs \endcode
+ * \li \code GPIOs_writeLowHigh(0x5); // write 1 to GPIO [0] and GPIO [3] and write 0 in the remaining 36 GPIOs\endcode
+ * \li \code GPIOs_writeLowHigh(0x100000000); // write 1 to GPIO [32] and write 0 in the remaining 36 GPIOs\endcode
  * 
  * \todo verify this function
  */
-void set_gpio(long data){
+void GPIOs_writeLowHigh(long data){
     reg_mprj_datal = data; 
     reg_mprj_datah = data <<32; 
 
@@ -216,7 +216,7 @@ void set_gpio(long data){
  * For Reading value from the GPIOs, the GPIO should be configured as management input. otherwise 0 would be read
  * 
  */
-unsigned int get_gpio_h(){
+unsigned int GPIOs_readHigh(){
     #ifdef ARM 
     return reg_mprj_datah & 0x7; // because with ARM the highest 3 GPIOsare not used by the design it is used by flashing
     #else 
@@ -229,7 +229,7 @@ unsigned int get_gpio_h(){
  * For Reading value from the GPIOs, the GPIO should be configured as management input. otherwise 0 would be read
  * 
  */
-unsigned int get_gpio_l(){return reg_mprj_datal;}
+unsigned int GPIOs_readLow(){return reg_mprj_datal;}
 /**
  * wait over the lowest 32 GPIOsto equal the data passed
  * \note
@@ -238,10 +238,10 @@ unsigned int get_gpio_l(){return reg_mprj_datal;}
  * @param data is the data that should wait until sent to the GPIOs 
  * 
  * Examples: 
- * \li \code wait_gpio_l(0x1); // function would return only when GPIO [0]==1 and rest of 31 GPIOs= 0  \endcode
- * \li \code wait_gpio_l(0x5); // function would return only when GPIO [0]==1 and GPIO [3]==1 and rest of 30 GPIOs = 0 \endcode
+ * \li \code GPIOs_waitLow(0x1); // function would return only when GPIO [0]==1 and rest of 31 GPIOs= 0  \endcode
+ * \li \code GPIOs_waitLow(0x5); // function would return only when GPIO [0]==1 and GPIO [3]==1 and rest of 30 GPIOs = 0 \endcode
  */
-void wait_gpio_l(unsigned int data){while (get_gpio_l()  != data);}
+void GPIOs_waitLow(unsigned int data){while (GPIOs_readLow()  != data);}
 /**
  * wait over the highest 6 GPIOs to equal the data passed
  * \note
@@ -250,14 +250,14 @@ void wait_gpio_l(unsigned int data){while (get_gpio_l()  != data);}
  * @param data is the data that should wait until sent to the GPIOs 
  * 
  * Examples: 
- * \li \code wait_gpio_h(0x1); // function would return only when GPIO [32]==1 and rest of 5 GPIOs = 0  \endcode
- * \li \code wait_gpio_h(0x5); // function would return only when GPIO [32]==1 and GPIO [34]==1 and rest of 4 GPIOs = 0 \endcode
+ * \li \code GPIOs_waitHigh(0x1); // function would return only when GPIO [32]==1 and rest of 5 GPIOs = 0  \endcode
+ * \li \code GPIOs_waitHigh(0x5); // function would return only when GPIO [32]==1 and GPIO [34]==1 and rest of 4 GPIOs = 0 \endcode
  */
-void wait_gpio_h(unsigned int data){
+void GPIOs_waitHigh(unsigned int data){
     #ifdef ARM 
     data = data&0x7; // because with ARM the highest 3 GPIOs are not used by the design it is used by flashing
     #endif
-    while (get_gpio_h() != data);    
+    while (GPIOs_readHigh() != data);    
 }
 /**
  * wait over the masked lowest 32 GPIOs to equal the data passed
@@ -268,10 +268,10 @@ void wait_gpio_h(unsigned int data){
  * @param mask mask over the each GPIO if the mask value is 0 the this GPIO  value are ignored
  * 
  * Examples: 
- * \li \code wait_gpio_l_masked(0x1,0xF); // function would return only when GPIO [0]==1 and GPIO [3:1]==0 and don't care about the rest of GPIOs  \endcode
- * \li \code wait_gpio_l_masked(0x5,0x7); // function would return only when GPIO [0]==1 and GPIO [3]==1 and GPIO [2]==0 and don't care about the rest of GPIOs \endcode
+ * \li \code GPIOs_waitLowWithMask(0x1,0xF); // function would return only when GPIO [0]==1 and GPIO [3:1]==0 and don't care about the rest of GPIOs  \endcode
+ * \li \code GPIOs_waitLowWithMask(0x5,0x7); // function would return only when GPIO [0]==1 and GPIO [3]==1 and GPIO [2]==0 and don't care about the rest of GPIOs \endcode
  */
-void wait_gpio_l_masked(unsigned int data,unsigned int mask){while (get_gpio_l()  & mask != data);}
+void GPIOs_waitLowWithMask(unsigned int data,unsigned int mask){while (GPIOs_readLow()  & mask != data);}
 /**
  * wait over the masked highest 6 GPIOs to equal the data passed
  * \note
@@ -281,14 +281,14 @@ void wait_gpio_l_masked(unsigned int data,unsigned int mask){while (get_gpio_l()
  * @param mask mask over the each GPIO if the mask value is 0 the this GPIO  value are ignored
  * 
  * Examples: 
- * \li \code wait_gpio_h_masked(0x1,0xF); // function would return only when GPIO [32]==1 and GPIO [35:33]==0 and don't care about the rest of GPIOs  \endcode
- * \li \code wait_gpio_h_masked(0x5,0x7); // function would return only when GPIO [32]==1 and GPIO [34]==1 and GPIO [33]==0 and don't care about the rest of GPIOs \endcode
+ * \li \code GPIOs_waitHighWithMask(0x1,0xF); // function would return only when GPIO [32]==1 and GPIO [35:33]==0 and don't care about the rest of GPIOs  \endcode
+ * \li \code GPIOs_waitHighWithMask(0x5,0x7); // function would return only when GPIO [32]==1 and GPIO [34]==1 and GPIO [33]==0 and don't care about the rest of GPIOs \endcode
  */
-void wait_gpio_h_masked(unsigned int data,unsigned int mask){
+void GPIOs_waitHighWithMask(unsigned int data,unsigned int mask){
     #ifdef ARM 
     data = data&0x7; // because with ARM the highest 3 GPIOs are not used by the design it is used by flashing
     #endif
-    while (get_gpio_h() != data);    
+    while (GPIOs_readHigh() != data);    
 }
 // 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

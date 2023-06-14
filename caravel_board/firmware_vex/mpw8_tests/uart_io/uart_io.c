@@ -13,11 +13,11 @@ void uart_io()
     int timeout = 15000;
     long int timeout_count = 0;
     configure_mgmt_gpio();
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    set_gpio_h(0);
-    set_gpio_l(0);
-    gpio_config_load();
+    GPIOs_configure(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_configure(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_writeHigh(0);
+    GPIOs_writeLow(0);
+    GPIOs_loadConfigs();
     // gpio_config_io();
     mask = 0x1 << 5;
     // count_down(PULSE_WIDTH * 100);
@@ -25,19 +25,19 @@ void uart_io()
     count_down(PULSE_WIDTH * 4);
     for (i = 0; i < num_pulses; i++)
     {
-        set_gpio_l(0x1 << 6);
+        GPIOs_writeLow(0x1 << 6);
         count_down(PULSE_WIDTH);
-        set_gpio_l(0x0);
+        GPIOs_writeLow(0x0);
         count_down(PULSE_WIDTH);
     }
 
     send_packet(3);
 
-    old_recieved = get_gpio_l() & mask;
+    old_recieved = GPIOs_readLow() & mask;
 
     while (true)
     {
-        recieved = get_gpio_l() & mask; // mask gpio bit
+        recieved = GPIOs_readLow() & mask; // mask gpio bit
         if (recieved != old_recieved)
         {
             count++;

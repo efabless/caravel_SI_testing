@@ -7,12 +7,12 @@ void main()
     int num_pulses = 4;
     int num_bits = 19;
     char *c;
-    configure_all_gpios(GPIO_MODE_MGMT_STD_OUTPUT);
-    set_gpio_h(0);
-    set_gpio_l(0);
-    gpio_config_load();
+    GPIOs_configureAll(GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_writeHigh(0);
+    GPIOs_writeLow(0);
+    GPIOs_loadConfigs();
     // config_uart();
-    enable_uart_TX(1);
+    UART_enableTX(1);
     print("Start Test: gpio_o\n");
 
     for (j = 0; j < 37; j++)
@@ -27,9 +27,9 @@ void main()
             {
                 for (i = 0; i < num_pulses; i++)
                 {
-                    set_gpio_h(0x1 << j - 32);
+                    GPIOs_writeHigh(0x1 << j - 32);
                     count_down(PULSE_WIDTH);
-                    set_gpio_h(0x0);
+                    GPIOs_writeHigh(0x0);
                     count_down(PULSE_WIDTH);
                 }
             }
@@ -37,9 +37,9 @@ void main()
             {
                 for (i = 0; i < num_pulses; i++)
                 {
-                    set_gpio_l(0x1 << j);
+                    GPIOs_writeLow(0x1 << j);
                     count_down(PULSE_WIDTH);
-                    set_gpio_l(0x0);
+                    GPIOs_writeLow(0x0);
                     count_down(PULSE_WIDTH);
                 }
             }

@@ -40,10 +40,10 @@ wait for interrupt
 bool IRQ_uart()
 {
 
-    clear_flag();
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    gpio_config_load();
-    enable_uart_tx_irq(1);
+    IRQ_clearFlag();
+    GPIOs_configure(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_loadConfigs();
+    IRQ_enableUartTx(1);
     uart_ev_pending_write(1);
     print("M");
 
@@ -53,7 +53,7 @@ bool IRQ_uart()
 
     for (int i = 0; i < timeout; i++)
     {
-        if (get_flag() == 1)
+        if (IRQ_getFlag() == 1)
         {
             is_pass = true;
             return true;

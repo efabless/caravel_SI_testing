@@ -9,7 +9,7 @@
  * Configure management GPIO as input  
  * 
  */
-void mgmt_gpio_i_enable(){
+void ManagmentGpio_inputEnable(){
     reg_gpio_mode1 = 1;
     reg_gpio_mode0 = 0; // for full swing
     #ifndef REG_GPIO_INVERTED 
@@ -19,13 +19,13 @@ void mgmt_gpio_i_enable(){
     reg_gpio_ien = 0; // because in gf the GPIO  enable regs are inverted
     reg_gpio_oe = 1;
     #endif
-    dummy_delay(1);
+    dummyDelay(1);
 }
 /**
  * Configure management GPIO as output  
  * 
  */
-void mgmt_gpio_o_enable(){
+void ManagmentGpio_outputEnable(){
     reg_gpio_mode1 = 1;
     reg_gpio_mode0 = 0; // for full swing
     #ifndef REG_GPIO_INVERTED 
@@ -35,13 +35,13 @@ void mgmt_gpio_o_enable(){
     reg_gpio_ien = 1; // because in gf the GPIO  enable regs are inverted
     reg_gpio_oe = 0;
     #endif
-    dummy_delay(1);
+    dummyDelay(1);
 }
 /**
  * Configure management GPIO as bi-direction  
  * 
  */
-void mgmt_gpio_io_enable(){
+void ManagmentGpio_ioEnable(){
     reg_gpio_mode1 = 1;
     reg_gpio_mode0 = 0; // for full swing
     #ifndef REG_GPIO_INVERTED 
@@ -57,7 +57,7 @@ void mgmt_gpio_io_enable(){
  * It's not connected as input or output   
  * 
  */
-void mgmt_gpio_io_disable(){
+void ManagmentGpio_disable(){
     reg_gpio_mode1 = 1;
     reg_gpio_mode0 = 0; // for full swing
     #ifndef REG_GPIO_INVERTED 
@@ -77,7 +77,7 @@ void mgmt_gpio_io_disable(){
  * This function works when management GPIO  configured as output
  * 
  */
-void mgmt_gpio_wr(bool data){reg_gpio_out = data;}
+void ManagmentGpio_write(bool data){reg_gpio_out = data;}
 /**
  * Read data in management GPIO
  * 
@@ -86,7 +86,7 @@ void mgmt_gpio_wr(bool data){reg_gpio_out = data;}
  * If management doesn't connect to anything the firmware would read "0"
  * 
  */
-int  mgmt_gpio_rd(){return reg_gpio_in;}
+int  ManagmentGpio_read(){return reg_gpio_in;}
 /**
  * Wait over management GPIO to equal data
  * 
@@ -96,7 +96,7 @@ int  mgmt_gpio_rd(){return reg_gpio_in;}
  * @param data data to wait over 
  * 
  */
-void wait_gpio_mgmt(bool data){while (reg_gpio_in == data);}
+void ManagmentGpio_wait(bool data){while (reg_gpio_in == data);}
 
 
 #endif // MGMT_GPIO_C_HEADER_FILE

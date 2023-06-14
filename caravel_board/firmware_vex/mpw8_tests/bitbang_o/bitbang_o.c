@@ -7,25 +7,25 @@ void main()
     int i, j;
     int num_pulses = 4;
     char *c;
-    bb_configure_all_gpios(GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    set_gpio_h(0);
-    set_gpio_l(0);
-    gpio_config_load();
+    bb_configureAllGpios(GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_configure(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_writeHigh(0);
+    GPIOs_writeLow(0);
+    GPIOs_loadConfigs();
     config_uart();
     print("Start Test: bitbang_o\n");
     while (true)
     {
-        c = uart_get_line();
+        c = UART_readLine();
         j = get_int_from_string(c);
         if (j >= 32)
         {
             for (i = 0; i < num_pulses; i++)
             {
-                set_gpio_h(0x1 << j - 32);
+                GPIOs_writeHigh(0x1 << j - 32);
                 print("u\n");
                 count_down(PULSE_WIDTH);
-                set_gpio_h(0x0);
+                GPIOs_writeHigh(0x0);
                 print("d\n");
                 count_down(PULSE_WIDTH);
             }
@@ -34,10 +34,10 @@ void main()
         {
             for (i = 0; i < num_pulses; i++)
             {
-                set_gpio_l(0x1 << j);
+                GPIOs_writeLow(0x1 << j);
                 print("u\n");
                 count_down(PULSE_WIDTH);
-                set_gpio_l(0x0);
+                GPIOs_writeLow(0x0);
                 print("d\n");
                 count_down(PULSE_WIDTH);
             }

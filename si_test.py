@@ -794,7 +794,6 @@ if __name__ == "__main__":
                     exec_test(
                         test,
                         start_time,
-                        writer,
                         t["hex_file_path"],
                         flash_flag,
                         clock=t["clock"],

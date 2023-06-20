@@ -208,7 +208,7 @@ def process_clock(test, device):
     fc = FreqCounter(device)
     pulse_count = test.receive_packet(250)
     if pulse_count == 2:
-        test.console.print("start test")
+        print("start test")
     fc.open()
     time.sleep(5)
     data, data_time = fc.record(1)
@@ -224,7 +224,7 @@ def process_clock(test, device):
         if counter == 2:
             freq = 1 / one_time
             frq_MHz_1 = freq / 1000000
-            test.console.print("Channel 14: Measured frequency: %.2f MHz" % (frq_MHz_1))
+            print("Channel 14: Measured frequency: %.2f MHz" % (frq_MHz_1))
             break
 
     data, data_time = fc.record(2)
@@ -240,7 +240,7 @@ def process_clock(test, device):
         if counter == 2:
             freq = 1 / one_time
             frq_MHz_2 = freq / 1000000
-            test.console.print("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz_2))
+            print("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz_2))
             break
     if frq_MHz_1 > 5 or frq_MHz_2 > 5:
         return "IO[14]:%.2f MHz, IO[15]:%.2f MHz" % (frq_MHz_1, frq_MHz_2)

@@ -214,6 +214,8 @@ def process_clock(test, device):
     data, data_time = fc.record(1)
     counter = 0
     state = 0
+    frq_MHz_1 = 0
+    frq_MHz_2 = 0
     for i in range(len(data)):
         if data[i] <= 0 and state == 1:
             state = 0
@@ -245,6 +247,7 @@ def process_clock(test, device):
     if frq_MHz_1 > 5 or frq_MHz_2 > 5:
         return "IO[14]:%.2f MHz, IO[15]:%.2f MHz" % (frq_MHz_1, frq_MHz_2)
     else:
+        print("clock_redirect test failed")
         return False
 
 

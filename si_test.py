@@ -9,6 +9,10 @@ import subprocess
 import signal
 from manifest import TestDict, device1_sn, device2_sn, device3_sn, device_ps_sn, voltage, analog
 
+# For determining frequency from scope data
+import numpy as np
+import numpy.fft as fft
+
 
 def init_ad_ios(device1_data, device2_data, device3_data):
     device1_dio_map = {
@@ -212,44 +216,47 @@ def process_clock(test, device):
     fc.open()
     time.sleep(5)
     data, data_time = fc.record(1)
-    counter = 0
-    state = 0
-    frq_MHz_1 = 0
-    frq_MHz_2 = 0
-    for i in range(len(data)):
-        if data[i] <= 0 and state == 1:
-            state = 0
-        if data[i] >= 2 and state == 0:
-            one_time = data_time[i]
-            state = 1
-            counter += 1
-        if counter == 2:
-            freq = 1 / one_time
-            frq_MHz_1 = freq / 1000000
-            print("Channel 14: Measured frequency: %.2f MHz" % (frq_MHz_1))
-            break
+
+    # Use numpy FFT to find the frequency of the recorded signal
+    fdata = np.array(data)
+    spectrum = fft.fft(fdata)
+    freq = fft.fftfreq(len(spectrum))
+    # Note: Thresholding is fragile.  Should find first peak that is not DC.
+    threshold = 0.33 * max(abs(spectrum))
+    mask = abs(spectrum) > threshold
+    peaks = freq[mask]
+    # Convert the FFT first non-DC peak value to a frequency in MHz
+    sampletime = data_time[1] - data_time[0]
+    fmult_MHz = (1.0 / sampletime) * 1E-6
+    frq_MHz_1 = peaks[1] * fmult_MHz
 
     data, data_time = fc.record(2)
-    counter = 0
-    state = 0
-    for i in range(len(data)):
-        if data[i] <= 0 and state == 1:
-            state = 0
-        if data[i] >= 2 and state == 0:
-            one_time = data_time[i]
-            state = 1
-            counter += 1
-        if counter == 2:
-            freq = 1 / one_time
-            frq_MHz_2 = freq / 1000000
-            print("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz_2))
-            break
-    if frq_MHz_1 > 5 or frq_MHz_2 > 5:
+
+    # Use numpy FFT to find the frequency of the recorded signal
+    fdata = np.array(data)
+    spectrum = fft.fft(fdata)
+    freq = fft.fftfreq(len(spectrum))
+    # Note: Thresholding is fragile.  Should find first peak that is not DC.
+    threshold = 0.33 * max(abs(spectrum))
+    mask = abs(spectrum) > threshold
+    peaks = freq[mask]
+    # Convert the FFT first non-DC peak value to a frequency in MHz
+    sampletime = data_time[1] - data_time[0]
+    fmult_MHz = (1.0 / sampletime) * 1E-6
+    frq_MHz_2 = peaks[1] * fmult_MHz
+
+    # For this test, both frequencies should read approximately 10MHz, which is the rate of the
+    # external clock.
+    if frq_MHz_1 > 9.95 and frq_MHz_1 < 10.05 and frq_MHz_2 > 9.95 and frq_MHz_2 < 10.05:
+        print("Test passed!")
         return "IO[14]:%.2f MHz, IO[15]:%.2f MHz" % (frq_MHz_1, frq_MHz_2)
     else:
+        if frq_MHz_1 < 9.95 or frq_MHz_1 > 10.05:
+            print("Channel 14 frequency out of bounds.")
+        if frq_MHz_2 < 9.95 or frq_MHz_2 > 10.05:
+            print("Channel 15 frequency out of bounds.")
         print("clock_redirect test failed")
         return False
-
 
 def hk_stop(close):
     global pid

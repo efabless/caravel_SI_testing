@@ -21,7 +21,7 @@ class PowerSupply:
         self.rm = pyvisa.ResourceManager('@py')
         if self.rm.list_resources():
             self.external_power_supply = True
-            self.inst = self.rm.open_resource(self.device_data.address)
+            self.inst = self.rm.open_resource('USB0::1155::30016::SPD3EFEX6R1193::0::INSTR')
             self.inst.query_delay = 0.1
         else:
             self.external_power_supply = False

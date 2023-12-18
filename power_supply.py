@@ -1,8 +1,6 @@
 from ctypes import *
 from WF_SDK import *  # import instruments
 from WF_SDK.dmm import *
-import pyvisa
-import time
 
 
 class PowerSupply:
@@ -18,13 +16,6 @@ class PowerSupply:
         self.negative_current = 0  # negative supply current
         self.current = 0  # digital/6V supply current
         self.device_data = device_data
-        self.rm = pyvisa.ResourceManager('@py')
-        if self.rm.list_resources():
-            self.external_power_supply = True
-            self.inst = self.rm.open_resource('USB0::1155::30016::SPD3EFEX6R1193::0::INSTR')
-            self.inst.query_delay = 0.1
-        else:
-            self.external_power_supply = False
 
     def switch(self):
         """
@@ -108,51 +99,25 @@ class PowerSupply:
         return
 
     def turn_on(self):
-        if self.external_power_supply:
-            self.inst.write('CH1:VOLT 1.8')
-            time.sleep(0.5)
-            self.inst.write('OUTP CH1, ON')
-            time.sleep(0.5)
-            self.inst.write('CH2:VOLT 3.3')
-            time.sleep(0.5)
-            self.inst.write('OUTP CH2, ON')
-            time.sleep(0.5)
-        else:
-            self.positive_voltage = 1.8
-            self.negative_voltage = 0
-            self.positive_state = True
-            self.negative_state = True
-            self.master_state = True
-            self.switch()
+        self.positive_voltage = 1.8
+        self.negative_voltage = 0
+        self.positive_state = True
+        self.negative_state = True
+        self.master_state = True
+        self.switch()
 
     def turn_off(self):
-        if self.external_power_supply:
-            self.inst.write('OUTP CH1, OFF')
-            time.sleep(0.5)
-            self.inst.write('OUTP CH2, OFF')
-            time.sleep(0.5)
-        else:
-            self.positive_voltage = 0
-            self.negative_voltage = 0
-            self.positive_state = False
-            self.negative_state = False
-            self.master_state = False
-            self.switch()
+        self.positive_voltage = 0
+        self.negative_voltage = 0
+        self.positive_state = False
+        self.negative_state = False
+        self.master_state = False
+        self.switch()
 
     def set_voltage(self, voltage):
-        if self.external_power_supply:
-            self.inst.write(f'CH1:VOLT {voltage}')
-            time.sleep(0.5)
-            self.inst.write('OUTP CH1, ON')
-            time.sleep(0.5)
-            self.inst.write('CH2:VOLT 3.3')
-            time.sleep(0.5)
-            self.inst.write('OUTP CH2, ON')
-            time.sleep(0.5)
-        else:
-            self.positive_voltage = voltage
-            self.negative_voltage = 0
-            self.positive_state = True
-            self.negative_state = True
-            self.master_state = True
-            self.switch()
+        self.positive_voltage = voltage
+        self.negative_voltage = 0
+        self.positive_state = True
+        self.negative_state = True
+        self.master_state = True
+        self.switch()

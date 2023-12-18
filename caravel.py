@@ -233,7 +233,7 @@ class Test:
         """
         rm = pyvisa.ResourceManager('@py')
         if rm.list_resources():
-            inst = self.rm.open_resource('USB0::1155::30016::SPD3EFEX6R1193::0::INSTR')
+            inst = rm.open_resource('USB0::1155::30016::SPD3EFEX6R1193::0::INSTR')
             inst.query_delay = 0.1
             inst.write('OUTP CH1, OFF')
             time.sleep(0.5)
@@ -301,7 +301,7 @@ class Test:
         """
         rm = pyvisa.ResourceManager('@py')
         if rm.list_resources():
-            inst = self.rm.open_resource('USB0::1155::30016::SPD3EFEX6R1193::0::INSTR')
+            inst = rm.open_resource('USB0::1155::30016::SPD3EFEX6R1193::0::INSTR')
             inst.query_delay = 0.1
             inst.write('OUTP CH1, OFF')
             time.sleep(0.5)
@@ -318,7 +318,7 @@ class Test:
         """
         rm = pyvisa.ResourceManager('@py')
         if rm.list_resources():
-            inst = self.rm.open_resource('USB0::1155::30016::SPD3EFEX6R1193::0::INSTR')
+            inst = rm.open_resource('USB0::1155::30016::SPD3EFEX6R1193::0::INSTR')
             inst.query_delay = 0.1
             inst.write('OUTP CH1, OFF')
             time.sleep(0.5)

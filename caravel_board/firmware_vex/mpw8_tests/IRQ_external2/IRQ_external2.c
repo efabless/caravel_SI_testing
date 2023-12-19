@@ -15,21 +15,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <csr.h>
-#include <soc.h>
-#include <irq_vex.h>
-#include <uart.h>
-
-#include "../defs.h"
-// #include "../gpio_config/gpio_config_io.c"
-#include "../common/send_packet.c"
+#include <common.h>
 
 /*
 Testing timer interrupts
-Enable interrupt for IRQ external pin mprj_io[7] -> should be drived to 1 by the environment
-**NOTE** housekeeping SPI should used to update register irq_1_inputsrc to 1 see verilog code
+Enable interrupt for IRQ external pin mprj_io[12] -> should be drived to 1 by the environment        
 
-    @wait for environment to make mprj[7] high
+    @wait for environment to make mprj[12] high
         send packet size = 1
 
     @received interrupt correctly  test pass
@@ -45,33 +37,18 @@ Enable interrupt for IRQ external pin mprj_io[7] -> should be drived to 1 by the
 
 */
 
-extern uint16_t flag;
 
 void main()
 {
-    uint16_t data;
-    int i;
 
-    flag = 0;
+    clear_flag();
     configure_mgmt_gpio();
 
-    // setting bit 7 as input
-    reg_mprj_io_12 = GPIO_MODE_MGMT_STD_INPUT_NOPULL;
-    // gpio_config_io();
-    reg_mprj_xfer = 1;
-    while (reg_mprj_xfer == 1)
-        ;
+    configure_gpio(12,GPIO_MODE_MGMT_STD_INPUT_NOPULL);
 
-    irq_setmask(0);
-    irq_setie(1);
-
-    // irq_setmask(irq_getmask() | (1 << TIMER0_INTERRUPT));
-
-    // irq_setmask(irq_getmask() | 0x3f);
-    irq_setmask(irq_getmask() | (1 << USER_IRQ_5_INTERRUPT));
-    // irq_setmask(irq_getmask() | ( 0x3f));
-    reg_user5_irq_en = 1;
-    reg_irq_source = 2;
+    gpio_config_load();
+    enable_external2_irq(1);
+    reg_irq_source = 2; // enable set housekeeping irq register 
     send_packet(1); // wait for environment to make mprj[7] high
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
@@ -81,7 +58,7 @@ void main()
 
     for (int i = 0; i < timeout; i++)
     {
-        if (flag == 1)
+        if (get_flag() == 1)
         {
             send_packet(5); // test pass irq sent
             is_pass = true;

@@ -9,7 +9,7 @@
 # ---- Test patterns for project raven ----
 
 .SUFFIXES:
-TESTNAME = IRQ_external2
+TESTNAME = hk_regs_wr_wb_cpu
 
 
 include ../common/Makefile.common

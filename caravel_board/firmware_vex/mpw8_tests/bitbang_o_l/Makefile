@@ -1,4 +1,3 @@
-
 #TOOLCHAIN_PATH=/opt/riscv32imc/bin/
 # TOOLCHAIN_PATH=/ef/apps/bin/
 
@@ -9,9 +8,10 @@
 # ---- Test patterns for project raven ----
 
 .SUFFIXES:
-TESTNAME = IRQ_external2
+TESTNAME = bitbang_o_l
 
 
 include ../common/Makefile.common
+
 
 

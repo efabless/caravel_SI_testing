@@ -9,7 +9,7 @@
 # ---- Test patterns for project raven ----
 
 .SUFFIXES:
-TESTNAME = IRQ_external2
+TESTNAME = bitbang_i_l
 
 
 include ../common/Makefile.common

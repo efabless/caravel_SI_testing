@@ -9,9 +9,7 @@
 # ---- Test patterns for project raven ----
 
 .SUFFIXES:
-TESTNAME = IRQ_external2
+TESTNAME = debug
 
 
 include ../common/Makefile.common
-
-

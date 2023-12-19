@@ -99,7 +99,7 @@ class PowerSupply:
         return
 
     def turn_on(self):
-        self.positive_voltage = 1.6
+        self.positive_voltage = 1.8
         self.negative_voltage = 0
         self.positive_state = True
         self.negative_state = True

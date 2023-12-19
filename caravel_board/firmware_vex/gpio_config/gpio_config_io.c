@@ -1,4 +1,4 @@
-#include "gpio_config_data.c"
+#include <gpio_config_data.c>
 
 void delay(const int d)
 {
@@ -54,9 +54,11 @@ void clear_registers()
 
 void gpio_config_io()
 {
-    int i = 0;
+    int i = 1; // start offset 1, first value is n_bits
+    int n_bits = config_stream[0];
 //    bb_mode();
     clear_registers();
+    //int n_bits = sizeof(config_stream);
     while (i < n_bits)
     {
         reg_mprj_xfer = config_stream[i];

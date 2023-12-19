@@ -16,7 +16,7 @@ SR_BP0 = 0b00000100  # bit protect #0
 SR_BP1 = 0b00001000  # bit protect #1
 SR_BP2 = 0b00010000  # bit protect #2
 SR_BP3 = 0b00100000  # bit protect #3
-SR_TBP = SR_BP3      # top-bottom protect bit
+SR_TBP = SR_BP3  # top-bottom protect bit
 SR_SP = 0b01000000
 SR_BPL = 0b10000000
 SR_PROTECT_NONE = 0  # BP[0..2] = 0
@@ -37,26 +37,36 @@ CMD_ERASE_SECTOR = 0xD8
 # CMD_ERASE_CHIP = 0xC7
 CMD_ERASE_CHIP = 0x60
 CMD_RESET_CHIP = 0x99
-CMD_JEDEC_DATA = 0x9f
+CMD_JEDEC_DATA = 0x9F
 
 CMD_READ_LO_SPEED = 0x03  # Read @ low speed
 CMD_READ_HI_SPEED = 0x0B  # Read @ high speed
 ADDRESS_WIDTH = 3
 
 JEDEC_ID = 0xEF
-DEVICES = {0x30: 'W25X', 0x40: 'W25Q'}
-SIZES = {0x11: 1 << 17, 0x12: 1 << 18, 0x13: 1 << 19, 0x14: 1 << 20,
-         0x15: 2 << 20, 0x16: 4 << 20, 0x17: 8 << 20, 0x18: 16 << 20}
+DEVICES = {0x30: "W25X", 0x40: "W25Q"}
+SIZES = {
+    0x11: 1 << 17,
+    0x12: 1 << 18,
+    0x13: 1 << 19,
+    0x14: 1 << 20,
+    0x15: 2 << 20,
+    0x16: 4 << 20,
+    0x17: 8 << 20,
+    0x18: 16 << 20,
+}
 SPI_FREQ_MAX = 104  # MHz
 CMD_READ_UID = 0x4B
 UID_LEN = 0x8  # 64 bits
 READ_UID_WIDTH = 4  # 4 dummy bytes
-TIMINGS = {'page': (0.0015, 0.003),  # 1.5/3 ms
-           'subsector': (0.200, 0.200),  # 200/200 ms
-           'sector': (1.0, 1.0),  # 1/1 s
-           'bulk': (32, 64),  # seconds
-           'lock': (0.05, 0.1),  # 50/100 ms
-           'chip': (4, 11)}
+TIMINGS = {
+    "page": (0.0015, 0.003),  # 1.5/3 ms
+    "subsector": (0.200, 0.200),  # 200/200 ms
+    "sector": (1.0, 1.0),  # 1/1 s
+    "bulk": (32, 64),  # seconds
+    "lock": (0.05, 0.1),  # 50/100 ms
+    "chip": (4, 11),
+}
 # FEATURES = (SerialFlash.FEAT_SECTERASE |
 #             SerialFlash.FEAT_SUBSECTERASE |
 #             SerialFlash.FEAT_CHIPERASE)
@@ -69,17 +79,19 @@ CARAVEL_REG_WRITE = 0x88
 
 
 def get_status(device):
-    return int.from_bytes(device.exchange([CARAVEL_PASSTHRU, CMD_READ_STATUS],1), byteorder='big')
+    return int.from_bytes(
+        device.exchange([CARAVEL_PASSTHRU, CMD_READ_STATUS], 1), byteorder="big"
+    )
 
 
 def report_status(jedec):
-    if jedec[0] == int('bf', 16):
+    if jedec[0] == int("bf", 16):
         print("changing cmd values...")
         print("status reg_1 = {}".format(hex(get_status(slave))))
     else:
         print("status reg_1 = {}".format(hex(get_status(slave))))
         status = slave.exchange([CARAVEL_PASSTHRU, 0x35], 1)
-        print("status reg_2 = {}".format(hex(int.from_bytes(status, byteorder='big'))))
+        print("status reg_2 = {}".format(hex(int.from_bytes(status, byteorder="big"))))
         # print("status = {}".format(hex(from_bytes(slave.exchange([CMD_READ_STATUS], 2)[1], byteorder='big'))))
 
 
@@ -93,44 +105,48 @@ Ftdi.show_devices(out=s)
 devlist = s.getvalue().splitlines()[1:-1]
 gooddevs = []
 for dev in devlist:
-    url = dev.split('(')[0].strip()
-    name = '(' + dev.split('(')[1]
-    if name == '(Single RS232-HS)':
+    url = dev.split("(")[0].strip()
+    name = "(" + dev.split("(")[1]
+    if name == "(Single RS232-HS)":
         gooddevs.append(url)
 if len(gooddevs) == 0:
-    print('Error:  No matching FTDI devices on USB bus!')
+    print("Error:  No matching FTDI devices on USB bus!")
     sys.exit(1)
 elif len(gooddevs) > 1:
-    print('Error:  Too many matching FTDI devices on USB bus!')
+    print("Error:  Too many matching FTDI devices on USB bus!")
     Ftdi.show_devices()
     sys.exit(1)
 else:
-    print('Success: Found one matching FTDI device at ' + gooddevs[0])
+    print("Success: Found one matching FTDI device at " + gooddevs[0])
 
 spi = SpiController(cs_count=2)
 # spi.configure('ftdi://::/1')
 spi.configure(gooddevs[0])
-#spi.configure('ftdi://ftdi:232h:1/1')
+# spi.configure('ftdi://ftdi:232h:1/1')
 slave = spi.get_port(cs=0)  # Chip select is 0 -- for mpw-2
 
 print("Caravel data:")
 mfg = slave.exchange([CARAVEL_STREAM_READ, 0x01], 2)
 # print("mfg = {}".format(binascii.hexlify(mfg)))
-print("   mfg        = {:04x}".format(int.from_bytes(mfg, byteorder='big')))
+print("   mfg        = {:04x}".format(int.from_bytes(mfg, byteorder="big")))
 
 product = slave.exchange([CARAVEL_REG_READ, 0x03], 1)
 # print("product = {}".format(binascii.hexlify(product)))
-print("   product    = {:02x}".format(int.from_bytes(product, byteorder='big')))
+print("   product    = {:02x}".format(int.from_bytes(product, byteorder="big")))
 
 data = slave.exchange([CARAVEL_STREAM_READ, 0x04], 4)
-print("   project ID = {:08x}".format(int('{0:32b}'.format(int.from_bytes(data, byteorder='big'))[::-1], 2)))
+print(
+    "   project ID = {:08x}".format(
+        int("{0:32b}".format(int.from_bytes(data, byteorder="big"))[::-1], 2)
+    )
+)
 
-if int.from_bytes(mfg, byteorder='big') != 0x0456:
+if int.from_bytes(mfg, byteorder="big") != 0x0456:
     exit(2)
 
-k = ''
+k = ""
 
-while (k != 'q'):
+while k != "q":
 
     print("\n-----------------------------------\n")
     print("Select option:")
@@ -154,80 +170,104 @@ while (k != 'q'):
 
     k = input()
 
-    if k == '1':
-        for reg in [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10, 0x11, 0x12]:
+    if k == "1":
+        for reg in [
+            0x00,
+            0x01,
+            0x02,
+            0x03,
+            0x04,
+            0x05,
+            0x06,
+            0x07,
+            0x08,
+            0x09,
+            0x0A,
+            0x0B,
+            0x0C,
+            0x0D,
+            0x0E,
+            0x0F,
+            0x10,
+            0x11,
+            0x12,
+        ]:
             data = slave.exchange([CARAVEL_REG_READ, reg], 1)
             print("reg {} = {}".format(hex(reg), binascii.hexlify(data)))
 
-    elif k == '2':
-            data = slave.exchange([CARAVEL_STREAM_READ, 0x04], 4)
-            print("Project ID = {:08x}".format(int('{0:32b}'.format(int.from_bytes(data, byteorder='big'))[::-1], 2)))
+    elif k == "2":
+        data = slave.exchange([CARAVEL_STREAM_READ, 0x04], 4)
+        print(
+            "Project ID = {:08x}".format(
+                int("{0:32b}".format(int.from_bytes(data, byteorder="big"))[::-1], 2)
+            )
+        )
 
-    elif k == '3':
+    elif k == "3":
         # reset CARAVEL
         print("Resetting CARAVEL...")
-        slave.write([CARAVEL_REG_WRITE, 0x0b, 0x01])
-        slave.write([CARAVEL_REG_WRITE, 0x0b, 0x00])
+        slave.write([CARAVEL_REG_WRITE, 0x0B, 0x01])
+        slave.write([CARAVEL_REG_WRITE, 0x0B, 0x00])
 
-    elif k == '4':
+    elif k == "4":
         # reset Flash
         print("Resetting Flash...")
         slave.write([CARAVEL_PASSTHRU, CMD_RESET_CHIP])
 
-    elif k == '5':
-        slave.write([CARAVEL_REG_WRITE, 0x0b, 0x01])
+    elif k == "5":
+        slave.write([CARAVEL_REG_WRITE, 0x0B, 0x01])
         jedec = slave.exchange([CARAVEL_PASSTHRU, CMD_JEDEC_DATA], 3)
         print("JEDEC = {}".format(binascii.hexlify(jedec)))
 
-    elif k == '6':
+    elif k == "6":
         # erase Flash
         print("Starting Flash erase...")
         slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
         slave.write([CARAVEL_PASSTHRU, CMD_ERASE_CHIP])
 
-    elif k == '7':
+    elif k == "7":
         if is_busy(slave):
             print("Flash is busy.")
         else:
             print("Flash is NOT busy.")
         print("status reg_1 = {}".format(hex(get_status(slave))))
         status = slave.exchange([CARAVEL_PASSTHRU, 0x35], 1)
-        print("status reg_2 = {}".format(hex(int.from_bytes(status, byteorder='big'))))
+        print("status reg_2 = {}".format(hex(int.from_bytes(status, byteorder="big"))))
 
-    elif k == '8':
+    elif k == "8":
         print("engaging DLL...")
         slave.write([CARAVEL_REG_WRITE, 0x08, 0x01])
         slave.write([CARAVEL_REG_WRITE, 0x09, 0x00])
 
-    elif k == '9':
-        pll_trim = slave.exchange([CARAVEL_STREAM_READ, 0x0d], 4)
+    elif k == "9":
+        pll_trim = slave.exchange([CARAVEL_STREAM_READ, 0x0D], 4)
         print("pll_trim = {}\n".format(binascii.hexlify(pll_trim)))
 
-    elif k == '10':
+    elif k == "10":
         print("disengaging DLL...")
         slave.write([CARAVEL_REG_WRITE, 0x09, 0x01])
         slave.write([CARAVEL_REG_WRITE, 0x08, 0x00])
 
-    elif k == '11':
+    elif k == "11":
         print("Clock DCO mode...")
         slave.write([CARAVEL_REG_WRITE, 0x08, 0x03])
         slave.write([CARAVEL_REG_WRITE, 0x09, 0x00])
 
-    elif k == '12':
+    elif k == "12":
         print("DCO mode full trim...")
-        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x0d, 0xff])
-        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x0e, 0xff])
-        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x0f, 0xff])
-        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x10, 0xff])
+        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x0D, 0xFF])
+        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x0E, 0xFF])
+        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x0F, 0xFF])
+        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x10, 0xFF])
 
-    elif k == '13':
+    elif k == "13":
         print("DCO mode zero trim...")
-        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x0d, 0x00])
-        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x0e, 0x00])
-        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x0f, 0x00])
+        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x0D, 0x00])
+        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x0E, 0x00])
+        pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x0F, 0x00])
         pll_trim = slave.exchange([CARAVEL_REG_WRITE, 0x10, 0x00])
 
-    elif k == '14':
+    elif k == "14":
         print("Register?")
         r = input()
         reg = int(r, 0)
@@ -236,11 +276,10 @@ while (k != 'q'):
         val = int(v, 0)
         pll_trim = slave.exchange([CARAVEL_STREAM_WRITE, reg, val], 0)
 
-    elif k == 'q':
+    elif k == "q":
         print("Exiting...")
 
     else:
-        print('Selection not recognized.\n')
+        print("Selection not recognized.\n")
 
 spi.terminate()
-

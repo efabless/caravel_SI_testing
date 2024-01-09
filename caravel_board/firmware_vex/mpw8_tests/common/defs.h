@@ -224,6 +224,7 @@ extern uint32_t flashio_worker_end;
 #define IRQ7_SOURCE 0x01
 #define IRQ8_SOURCE 0x02
 // Added IRQ bit enable
+#define reg_user_irq_enable (*(volatile uint32_t *)CSR_USER_IRQ_ENA_OUT_ADDR)
 #define reg_user0_irq_en   (*(volatile uint32_t*) CSR_USER_IRQ_0_EV_ENABLE_ADDR)
 #define reg_user1_irq_en   (*(volatile uint32_t*) CSR_USER_IRQ_1_EV_ENABLE_ADDR)
 #define reg_user2_irq_en   (*(volatile uint32_t*) CSR_USER_IRQ_2_EV_ENABLE_ADDR)

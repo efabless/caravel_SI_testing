@@ -35,7 +35,8 @@ class Test:
         deviced=None,
         test_name=None,
         passing_criteria=[],
-        voltage=1.6,
+        l_voltage=1.8,
+        h_voltage=3.3,
         sram=1,
     ):
         self.device1v8 = device1v8
@@ -44,7 +45,8 @@ class Test:
         self.rstb = self.device1v8.dio_map["rstb"]
         self.gpio_mgmt = self.device1v8.dio_map["gpio_mgmt"]
         self.test_name = test_name
-        self.voltage = voltage
+        self.l_voltage = l_voltage
+        self.h_voltage = h_voltage
         self.sram = sram
         self.passing_criteria = passing_criteria
         self.task = None
@@ -209,8 +211,8 @@ class Test:
             self.flash(f"silicon_tests/{self.test_name}/{self.test_name}_dff.hex")
         self.release_reset()
         self.powerup_sequence()
-        logging.info(f"   changing VCORE voltage to {self.voltage}v")
-        self.device1v8.supply.set_voltage(self.voltage)
+        logging.info(f"   changing VCORE voltage to {self.l_voltage}v")
+        self.device1v8.supply.set_voltage(self.l_voltage)
         self.reset()
 
     def powerup_sequence(self):
@@ -223,10 +225,10 @@ class Test:
         self.device3v3.supply.turn_off()
         time.sleep(5)
         # logging.info("   Turning on VIO with 3.3v")
-        self.device3v3.supply.set_voltage(3.3)
+        self.device3v3.supply.set_voltage(self.h_voltage)
         time.sleep(1)
         # logging.info(f"   Turning on VCORE with {self.voltage}v")
-        self.device1v8.supply.set_voltage(self.voltage)
+        self.device1v8.supply.set_voltage(self.l_voltage)
         time.sleep(1)
 
     def power_down(self):
@@ -255,10 +257,10 @@ class Test:
         # self.device3v3.supply.turn_off()
         # time.sleep(5)
         # logging.info("   Turning on VIO with 3.3v")
-        self.device3v3.supply.set_voltage(3.3)
+        self.device3v3.supply.set_voltage(self.h_voltage)
         time.sleep(1)
         # logging.info(f"   Turning on VCORE with {self.voltage}v")
-        self.device1v8.supply.set_voltage(self.voltage)
+        self.device1v8.supply.set_voltage(self.l_voltage)
         time.sleep(1)
 
     def power_up_1v8(self):

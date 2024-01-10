@@ -9,7 +9,7 @@ import subprocess
 import signal
 import sys
 from rich.table import Table
-from manifest import TestDict, device1_sn, device2_sn, device3_sn, voltage, analog
+from manifest import TestDict, device1_sn, device2_sn, device3_sn, l_voltage, h_voltage, analog
 
 
 def init_ad_ios(device1_data, device2_data, device3_data):
@@ -627,7 +627,8 @@ def flash_test(
         test.power_down()
         time.sleep(5)
     test.power_up()
-    test.device1v8.supply.set_voltage(test.voltage)
+    test.device1v8.supply.set_voltage(test.l_voltage)
+    test.device3v3.supply.set_voltage(test.h_voltage)
     test.reset()
 
     test.console.print("==============================================================================")
@@ -640,7 +641,7 @@ def flash_test(
         test.progress.update(
             test.task,
             advance=1,
-            description=f"Running {test.test_name} on {test.voltage}V",
+            description=f"Running {test.test_name} on low voltage {test.l_voltage}v and high voltage {test.h_voltage}v",
             visible=True,
         )
         if uart:
@@ -716,23 +717,23 @@ def exec_test(
 
     if type(results) == bool:
         if results:
-            arr.append([test.test_name, test.voltage, "passed", end_time])
+            arr.append([test.test_name, test.l_voltage, test.h_voltage, "passed", end_time])
         else:
-            arr.append([test.test_name, test.voltage, "failed", end_time])
+            arr.append([test.test_name, test.l_voltage, test.h_voltage, "failed", end_time])
     elif type(results) == tuple:
         if type(results[0]) == bool:
             if results[0]:
-                arr.append([test.test_name, test.voltage, "passed", end_time])
+                arr.append([test.test_name, test.l_voltage, test.h_voltage, "passed", end_time])
             else:
-                arr.append([test.test_name, test.voltage, f"failed, {results[1]}", end_time])
+                arr.append([test.test_name, test.l_voltage, test.h_voltage, f"failed, {results[1]}", end_time])
     elif type(results) == list:
         for result in results:
             if result[1]:
-                arr.append([result[0], test.voltage, "passed", end_time])
+                arr.append([result[0], test.l_voltage, test.h_voltage, "passed", end_time])
             else:
-                arr.append([result[0], test.voltage, "failed", end_time])
+                arr.append([result[0], test.l_voltage, test.h_voltage, "failed", end_time])
     elif type(results) == str:
-        arr.append([test.test_name, test.voltage, results, "%.2f" % (end_time)])
+        arr.append([test.test_name, test.l_voltage, test.h_voltage, results, "%.2f" % (end_time)])
 
     with open("results.csv", "a", encoding="UTF8") as f:
         writer = csv.writer(f)
@@ -801,7 +802,7 @@ if __name__ == "__main__":
             test.console.print("  Beginning Tests for digital project")
         test.console.print("==============================================================================")
 
-        csv_header = ["Test_name", "Voltage (v)", "Pass/Fail", "Time (s)"]
+        csv_header = ["Test_name", "Low Voltage (v)", "High Voltage (v)", "Pass/Fail", "Time (s)"]
         if os.path.exists("./results.csv"):
             os.remove("./results.csv")
         if os.path.exists("./flash.log"):
@@ -811,7 +812,7 @@ if __name__ == "__main__":
             writer = csv.writer(f)
             writer.writerow(csv_header)
         test_flag = False
-        test.task = test.progress.add_task("SI validation", total=(len(TestDict) * len(voltage)))
+        test.task = test.progress.add_task("SI validation", total=(len(TestDict) * len(l_voltage) * len(h_voltage)))
         test.progress.start()
         for t in TestDict:
             if not args.test or args.test == t["test_name"]:
@@ -820,72 +821,74 @@ if __name__ == "__main__":
                 flash_flag = True
                 counter = 0
                 test_flag = True
-                for v in voltage:
-                    start_time = time.time()
-                    test.voltage = v
-                    if counter > 0 or args.run_only:
-                        flash_flag = False
-                    if t["uart"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            t["hex_file_path"],
-                            flash_flag,
-                            uart=t["uart"],
-                            uart_data=uart_data,
-                            flash_only=args.flash_only,
-                            verbose=args.verbose,
-                        )
-                    elif t["mgmt_gpio"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            t["hex_file_path"],
-                            flash_flag,
-                            mgmt_gpio=t["mgmt_gpio"],
-                            flash_only=args.flash_only,
-                            verbose=args.verbose,
-                        )
-                    elif t["io"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            t["hex_file_path"],
-                            flash_flag,
-                            io=t["io"],
-                            flash_only=args.flash_only,
-                            uart_data=uart_data,
-                            verbose=args.verbose,
-                        )
-                    elif t["plud"]:
-                        exec_test(
-                            test,
-                            start_time,
-                            t["hex_file_path"],
-                            flash_flag,
-                            plud=t["plud"],
-                            flash_only=args.flash_only,
-                            uart_data=uart_data,
-                            verbose=args.verbose,
-                        )
-                    else:
-                        exec_test(
-                            test,
-                            start_time,
-                            t["hex_file_path"],
-                            flash_flag,
-                            flash_only=args.flash_only,
-                            uart_data=uart_data,
-                            verbose=args.verbose,
-                        )
-                    counter += 1
-                    test.close_devices()
-                    time.sleep(5)
+                for v in l_voltage:
+                    for h in h_voltage:
+                        start_time = time.time()
+                        test.l_voltage = v
+                        test.h_voltage = h
+                        if counter > 0 or args.run_only:
+                            flash_flag = False
+                        if t["uart"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                t["hex_file_path"],
+                                flash_flag,
+                                uart=t["uart"],
+                                uart_data=uart_data,
+                                flash_only=args.flash_only,
+                                verbose=args.verbose,
+                            )
+                        elif t["mgmt_gpio"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                t["hex_file_path"],
+                                flash_flag,
+                                mgmt_gpio=t["mgmt_gpio"],
+                                flash_only=args.flash_only,
+                                verbose=args.verbose,
+                            )
+                        elif t["io"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                t["hex_file_path"],
+                                flash_flag,
+                                io=t["io"],
+                                flash_only=args.flash_only,
+                                uart_data=uart_data,
+                                verbose=args.verbose,
+                            )
+                        elif t["plud"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                t["hex_file_path"],
+                                flash_flag,
+                                plud=t["plud"],
+                                flash_only=args.flash_only,
+                                uart_data=uart_data,
+                                verbose=args.verbose,
+                            )
+                        else:
+                            exec_test(
+                                test,
+                                start_time,
+                                t["hex_file_path"],
+                                flash_flag,
+                                flash_only=args.flash_only,
+                                uart_data=uart_data,
+                                verbose=args.verbose,
+                            )
+                        counter += 1
+                        test.close_devices()
+                        time.sleep(5)
 
-                    with open(os.devnull, 'a') as f:
-                        sys.stdout = f
-                        devices = device.open_devices()
-                        sys.stdout = sys.__stdout__
+                        with open(os.devnull, 'a') as f:
+                            sys.stdout = f
+                            devices = device.open_devices()
+                            sys.stdout = sys.__stdout__
 
             if not test_flag:
                 test.console.print(f"[red]ERROR : Coun't find test {args.test}")

@@ -164,6 +164,9 @@ def process_uart(test, uart, verbose):
                 test.console.print(f"Running test {test.test_name}...")
             uart_data = uart.read_data(test)
             uart_data = uart_data.decode()
+            if "UART Timeout!" in uart_data:
+                test.console.print("[red]UART Timeout!")
+                status.append((test.test_name, False))
             if "Monitor: Test UART passed" in uart_data:
                 test.console.print("[green]passed")
                 status.append((test.test_name, True))
@@ -258,6 +261,10 @@ def process_soc(test, uart):
     while True:
         uart_data = uart.read_data(test)
         uart_data = uart_data.decode()
+        if "UART Timeout!" in uart_data:
+            test.console.print("[red]UART Timeout!")
+            status.append((test.test_name, False))
+            break
         if "Start Test:" in uart_data:
             test.test_name = uart_data.strip().split(": ")[1]
             test.console.print(f"Running test {test.test_name}...")
@@ -278,6 +285,10 @@ def process_soc(test, uart):
             uart.write("I")
         uart_data = uart.read_data(test)
         uart_data = uart_data.decode()
+        if "UART Timeout!" in uart_data:
+            test.console.print("[red]UART Timeout!")
+            status.append((test.test_name, False))
+            break
         if "passed" in uart_data:
             test.console.print("[green]passed")
             status.append((test.test_name, True))
@@ -378,6 +389,9 @@ def process_io(test, uart, verbose):
     fail = []
     uart_data = uart.read_data(test)
     uart_data = uart_data.decode()
+    if "UART Timeout!" in uart_data:
+        test.console.print("[red]UART Timeout!")
+        return False, None
     if "Start Test:" in uart_data:
         test.test_name = uart_data.strip().split(": ")[1]
         test.console.print(f"Running test {test.test_name}...")
@@ -405,6 +419,10 @@ def process_io(test, uart, verbose):
                     timeout = time.time() + 5
                     while 1:
                         uart_data = uart.read_data(test)
+                        if b"UART Timeout!" in uart_data:
+                            test.console.print("[red]UART Timeout!")
+                            fail.append(channel)
+                            break
                         # uart_data = uart_data.decode()
                         if b"d" in uart_data:
                             if not io.get_value():
@@ -426,6 +444,9 @@ def process_io(test, uart, verbose):
                     test.console.print(f"IO[{channel}]")
                 test.send_pulse(4, channel, 1)
                 uart_data = uart.read_data(test)
+                if b"UART Timeout!" in uart_data:
+                    test.console.print("[red]UART Timeout!")
+                    fail.append(channel)
                 if b"p" in uart_data:
                     if verbose:
                         test.console.print(f"[green]IO[{channel}] Passed")

@@ -599,10 +599,10 @@ class UART:
                 if b'\n' in rgRX:
                     return rgRX
             if time.time() > timeout:
-                test.console.print("UART Timeout!")
-                test.progress.stop()
-                self.close()
-                os._exit(1)
+                return b'UART Timeout!\n\r'
+                # test.progress.stop()
+                # self.close()
+                # os._exit(1)
 
     def close(self):
         # dwf.FDwfDeviceClose(self.device_data.handle)

@@ -1,4 +1,6 @@
 from multiprocessing.sharedctypes import Value
+
+import pyvisa
 from WF_SDK import *  # import instruments
 from WF_SDK.dmm import *
 from power_supply import PowerSupply
@@ -237,15 +239,23 @@ class Test:
             turns off both devices
             turns on device and change voltage to the required one
         """
-        self.device1v8.supply.turn_off()
-        self.device3v3.supply.turn_off()
-        time.sleep(5)
-        # logging.info("   Turning on VIO with 3.3v")
-        # self.device3v3.supply.set_voltage(3.3)
-        # time.sleep(1)
-        # logging.info(f"   Turning on VCORE with {self.voltage}v")
-        # self.device1v8.supply.set_voltage(self.voltage)
-        # time.sleep(1)
+        rm = pyvisa.ResourceManager('@py')
+        usb_devices = [resource for resource in rm.list_resources() if 'SPD' in resource]
+
+        if usb_devices:
+            # Use the first USB device found with 'SPD' in its name
+            resource_name = usb_devices[0]
+            inst = rm.open_resource(resource_name)
+            inst.query_delay = 0.1
+            inst.write('OUTP CH1, OFF')
+            time.sleep(0.5)
+            inst.write('OUTP CH2, OFF')
+            time.sleep(0.5)
+            rm.close()
+        else:
+            self.device1v8.supply.turn_off()
+            self.device3v3.supply.turn_off()
+            time.sleep(5)
 
     def power_up(self):
         """
@@ -253,15 +263,29 @@ class Test:
             turns off both devices
             turns on device and change voltage to the required one
         """
-        # self.device1v8.supply.turn_off()
-        # self.device3v3.supply.turn_off()
-        # time.sleep(5)
-        # logging.info("   Turning on VIO with 3.3v")
-        self.device3v3.supply.set_voltage(self.h_voltage)
-        time.sleep(1)
-        # logging.info(f"   Turning on VCORE with {self.voltage}v")
-        self.device1v8.supply.set_voltage(self.l_voltage)
-        time.sleep(1)
+        rm = pyvisa.ResourceManager('@py')
+        usb_devices = [resource for resource in rm.list_resources() if 'SPD' in resource]
+
+        if usb_devices:
+            # Use the first USB device found with 'SPD' in its name
+            resource_name = usb_devices[0]
+            inst = rm.open_resource(resource_name)
+            inst.query_delay = 0.1
+            inst.write(f'CH1:VOLT {self.l_voltage}')
+            time.sleep(0.5)
+            inst.write('OUTP CH1, ON')
+            time.sleep(0.5)
+            inst.write(f'CH2:VOLT {self.h_voltage}')
+            time.sleep(0.5)
+            inst.write('OUTP CH2, ON')
+            time.sleep(5)
+            rm.close()
+        else:
+            self.device3v3.supply.set_voltage(self.h_voltage)
+            time.sleep(1)
+            self.device1v8.supply.set_voltage(self.l_voltage)
+            time.sleep(1)
+
 
     def power_up_1v8(self):
         """
@@ -269,34 +293,73 @@ class Test:
             turns off both devices
             turns on device and change voltage to the required one
         """
-        # self.device1v8.supply.turn_off()
-        # self.device3v3.supply.turn_off()
-        # time.sleep(5)
-        # logging.info("   Turning on VIO with 3.3v")
-        self.device3v3.supply.set_voltage(3.3)
-        time.sleep(1)
-        # logging.info(f"   Turning on VCORE with 1.8v")
-        self.device1v8.supply.set_voltage(1.8)
-        time.sleep(1)
+        rm = pyvisa.ResourceManager('@py')
+        usb_devices = [resource for resource in rm.list_resources() if 'SPD' in resource]
+
+        if usb_devices:
+            # Use the first USB device found with 'SPD' in its name
+            resource_name = usb_devices[0]
+            inst = rm.open_resource(resource_name)
+            inst.query_delay = 0.1
+            inst.write('CH1:VOLT 1.8')
+            time.sleep(0.5)
+            inst.write('OUTP CH1, ON')
+            time.sleep(0.5)
+            inst.write('CH2:VOLT 3.3')
+            time.sleep(0.5)
+            inst.write('OUTP CH2, ON')
+            time.sleep(5)
+            rm.close()
+        else:
+            self.device3v3.supply.set_voltage(3.3)
+            time.sleep(1)
+            self.device1v8.supply.set_voltage(1.8)
+            time.sleep(1)
 
     def turn_off_devices(self):
         """
         turns off all devices
         """
-        self.device1v8.supply.turn_off()
-        self.device3v3.supply.turn_off()
-        # self.deviced.supply.turn_off()
+        rm = pyvisa.ResourceManager('@py')
+        usb_devices = [resource for resource in rm.list_resources() if 'SPD' in resource]
+
+        if usb_devices:
+            # Use the first USB device found with 'SPD' in its name
+            resource_name = usb_devices[0]
+            inst = rm.open_resource(resource_name)
+            inst.query_delay = 0.1
+            inst.write('OUTP CH1, OFF')
+            time.sleep(0.5)
+            inst.write('OUTP CH2, OFF')
+            time.sleep(0.5)
+            rm.close()
+        else:
+            self.device1v8.supply.turn_off()
+            self.device3v3.supply.turn_off()
 
     def close_devices(self):
         """
         turns off devices and closes them
         """
-        self.device1v8.supply.turn_off()
-        self.device3v3.supply.turn_off()
-        # self.deviced.supply.turn_off()
+        rm = pyvisa.ResourceManager('@py')
+        usb_devices = [resource for resource in rm.list_resources() if 'SPD' in resource]
+
+        if usb_devices:
+            # Use the first USB device found with 'SPD' in its name
+            resource_name = usb_devices[0]
+            inst = rm.open_resource(resource_name)
+            inst.query_delay = 0.1
+            inst.write('OUTP CH1, OFF')
+            time.sleep(0.5)
+            inst.write('OUTP CH2, OFF')
+            time.sleep(0.5)
+            rm.close()
+        else:
+            self.device1v8.supply.turn_off()
+            self.device3v3.supply.turn_off()
         device.close(self.device1v8)
         device.close(self.device3v3)
-        # device.close(self.deviced)
+        device.close(self.deviced)
 
     def reset_devices(self):
         # dwf.FDwfDigitalOutReset(self.device1v8.handle)

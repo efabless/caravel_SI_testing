@@ -1173,6 +1173,45 @@ def flash_test(
         return True
 
 
+def reformat_csv():
+    # Read the original CSV file
+    with open('results.csv', 'r') as file:
+        reader = csv.reader(file)
+        data = list(reader)
+
+    ran_tests = []
+    for d in data:
+        if d[0] != 'Test_name' and d[0] not in ran_tests:
+            ran_tests.append(d[0])
+
+    voltage_combinations = []
+    for d in data:
+        if d[0] != 'Test_name':
+            if [d[1], d[2]] not in voltage_combinations:
+                voltage_combinations.append([d[1], d[2]])
+
+    # Create a new CSV file with the desired format
+    with open('formatted_results.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+
+        header_row = ['VCCD (v)']
+        for v in voltage_combinations:
+            header_row.append(v[0])
+        writer.writerow(header_row)
+
+        header_row = ['VDDIO (v)']
+        for v in voltage_combinations:
+            header_row.append(v[1])
+        writer.writerow(header_row)
+
+        for t in ran_tests:
+            header_row = [t]
+            for d in data:
+                if d[0] != 'Test_name' and d[0] == t:
+                    header_row.append(d[3])
+            writer.writerow(header_row)
+
+
 def exec_test(
     test,
     start_time,
@@ -1506,6 +1545,7 @@ if __name__ == "__main__":
 
             test.console.print(table)
 
+        reformat_csv()
         test.progress.stop()
         os._exit(0)
     except KeyboardInterrupt:

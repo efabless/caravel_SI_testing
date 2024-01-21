@@ -1,6 +1,6 @@
 import argparse
 import json
-from caravel import Dio, FreqCounter, Test, accurate_delay
+from caravel import Dio, FreqCounter, Test, accurate_delay, DATE_DIR
 from io_config import Device, device, connect_devices, UART, SPI
 import os
 import csv
@@ -19,12 +19,6 @@ from manifest import (
     h_voltage,
     analog,
 )
-
-
-RUNS_DIR = os.path.join(os.getcwd(), "runs")
-os.makedirs(RUNS_DIR, exist_ok=True)
-DATE_DIR = os.path.join(RUNS_DIR, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-os.makedirs(DATE_DIR, exist_ok=True)
 
 
 def init_ad_ios(device1_data, device2_data, device3_data):
@@ -1178,7 +1172,7 @@ def flash_test(
         return True
 
 
-def reformat_csv():
+def reformat_csv(temp=None):
     # Read the original CSV file
     with open(f'{DATE_DIR}/results.csv', 'r') as file:
         reader = csv.reader(file)
@@ -1198,6 +1192,12 @@ def reformat_csv():
     # Create a new CSV file with the desired format
     with open(f'{DATE_DIR}/formatted_results.csv', 'w', newline='') as file:
         writer = csv.writer(file)
+
+        if temp:
+            header_row = ['Temp (C)', temp]
+        else:
+            header_row = ['Temp (C)', "N/A"]
+        writer.writerow(header_row)
 
         header_row = ['VCCD (v)']
         for v in voltage_combinations:
@@ -1551,7 +1551,7 @@ if __name__ == "__main__":
 
             test.console.print(table)
 
-        reformat_csv()
+        reformat_csv(args.temperature)
         test.progress.stop()
         os._exit(0)
     except KeyboardInterrupt:

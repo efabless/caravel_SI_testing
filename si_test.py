@@ -21,6 +21,12 @@ from manifest import (
 )
 
 
+RUNS_DIR = os.path.join(os.getcwd(), "runs")
+os.makedirs(RUNS_DIR, exist_ok=True)
+DATE_DIR = os.path.join(RUNS_DIR, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+os.makedirs(DATE_DIR, exist_ok=True)
+
+
 def init_ad_ios(device1_data, device2_data, device3_data):
     device1_dio_map = {
         # "rstb": Dio(0, device1_data, True),
@@ -826,6 +832,7 @@ def fpga_counter_test(test, uart):
     if "Start Test:" in uart_data:
         test.test_name = uart_data.strip().split(": ")[1]
         test.console.print(f"Running test {test.test_name}...")
+    time.sleep(1)
     hk_stop(False)
     out_io = [3, 4, 5, 6, 7, 26, 28, 24]
     binary_array = load_bitstream("seconds_decoder_2")
@@ -883,6 +890,7 @@ def fpga_io_test(test, uart):
     if "Start Test:" in uart_data:
         test.test_name = uart_data.strip().split(": ")[1]
         test.console.print(f"Running test {test.test_name}...")
+    time.sleep(1)
     hk_stop(False)
     if test.test_name == "inv_1":
         out = [21, 20, 19, 18, 17, 16, 15, 13, 12, 8, 7, 6]
@@ -1172,7 +1180,7 @@ def flash_test(
 
 def reformat_csv():
     # Read the original CSV file
-    with open('results.csv', 'r') as file:
+    with open(f'{DATE_DIR}/results.csv', 'r') as file:
         reader = csv.reader(file)
         data = list(reader)
 
@@ -1188,7 +1196,7 @@ def reformat_csv():
                 voltage_combinations.append([d[1], d[2]])
 
     # Create a new CSV file with the desired format
-    with open('formatted_results.csv', 'w', newline='') as file:
+    with open(f'{DATE_DIR}/formatted_results.csv', 'w', newline='') as file:
         writer = csv.writer(file)
 
         header_row = ['VCCD (v)']
@@ -1294,7 +1302,7 @@ def exec_test(
             ]
         )
 
-    with open("results.csv", "a", encoding="UTF8") as f:
+    with open(f"{DATE_DIR}/results.csv", "a", encoding="UTF8") as f:
         writer = csv.writer(f)
         for test in arr:
             writer.writerow(test)
@@ -1328,6 +1336,11 @@ if __name__ == "__main__":
             "-t",
             "--test",
             help="Run Standalone test if in manifest",
+        )
+        parser.add_argument(
+            "-tmp",
+            "--temperature",
+            help="Temperature monitoring",
         )
         args = parser.parse_args()
         # open multiple devices
@@ -1372,12 +1385,8 @@ if __name__ == "__main__":
             "Pass/Fail",
             "Time (s)",
         ]
-        if os.path.exists("./results.csv"):
-            os.remove("./results.csv")
-        if os.path.exists("./flash.log"):
-            os.remove("./flash.log")
 
-        with open("results.csv", "a", encoding="UTF8") as f:
+        with open(f"{DATE_DIR}/results.csv", "a", encoding="UTF8") as f:
             writer = csv.writer(f)
             writer.writerow(csv_header)
         test_flag = False
@@ -1528,7 +1537,7 @@ if __name__ == "__main__":
         )
         test.close_devices()
         # Load CSV data
-        with open("results.csv") as f:
+        with open(f"{DATE_DIR}/results.csv") as f:
             reader = csv.reader(f)
             headers = next(reader)
 

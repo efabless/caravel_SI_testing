@@ -892,9 +892,6 @@ def fpga_io_test(test, uart):
         inp = [21, 20, 19, 18, 17, 16, 15, 13, 12, 8, 7, 6]
         out = [5, 4, 3, 2, 0, 33, 32, 31, 30, 28, 26, 24]
         binary_array = load_bitstream("inv_all_2")
-    pulse_count = test.receive_packet(250)
-    if pulse_count == 2:
-        test.console.print("start test")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
         test
     )

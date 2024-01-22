@@ -2,8 +2,8 @@
 
 void main()
 {
-    config_uart();
-    print("Start Test: inv_2\n");
+    // config_uart();
+    // print("Start Test: inv_2\n");
     configure_gpio(21, GPIO_MODE_USER_STD_INPUT_PULLDOWN); // 13 a[0] -> GPIO[21]
     configure_gpio(20, GPIO_MODE_USER_STD_INPUT_PULLDOWN); // 14 a[1] -> GPIO[20]
     configure_gpio(19, GPIO_MODE_USER_STD_INPUT_PULLDOWN); // 15 a[2] -> GPIO[19]

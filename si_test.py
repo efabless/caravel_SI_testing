@@ -818,21 +818,21 @@ def fpga_ALU_test(test, uart):
 
 
 def fpga_counter_test(test, uart):
-    uart_data = uart.read_data(test)
-    uart_data = uart_data.decode()
-    if "UART Timeout!" in uart_data:
-        test.console.print("[red]UART Timeout!")
-        return False
-    if "Start Test:" in uart_data:
-        test.test_name = uart_data.strip().split(": ")[1]
-        test.console.print(f"Running test {test.test_name}...")
-    time.sleep(1)
+    # uart_data = uart.read_data(test)
+    # uart_data = uart_data.decode()
+    # if "UART Timeout!" in uart_data:
+    #     test.console.print("[red]UART Timeout!")
+    #     return False
+    # if "Start Test:" in uart_data:
+    #     test.test_name = uart_data.strip().split(": ")[1]
+    #     test.console.print(f"Running test {test.test_name}...")
     hk_stop(False)
     out_io = [3, 4, 5, 6, 7, 26, 28, 24]
     binary_array = load_bitstream("seconds_decoder_2")
-    prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
-        test
-    )
+    # pulse_count = test.receive_packet(250)
+    # if pulse_count == 2:
+    #     test.console.print("start test")
+    prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(test)
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
@@ -846,44 +846,52 @@ def fpga_counter_test(test, uart):
 
     time.sleep(1)
     clk_sel.set_value(1)
-    time.sleep(20)
+    time.sleep(1)
     op_rst.set_value(1)
-    high_io = 0
     count = 0
+    io = []
     io_arr = []
+    timeout = time.time() + 50
     while True:
         for channel in out_io:
             if channel < 14:
-                io = test.device1v8.dio_map[channel].get_value()
+                io.append(test.device1v8.dio_map[channel].get_value())
             else:
-                io = test.device3v3.dio_map[channel].get_value()
-            if io and not channel == high_io:
-                # print(f"channel {channel} is high")
-                # current_time = datetime.datetime.now()
-                # formatted_time = current_time.strftime("%M:%S.%f")
-                # print(f"Time: {formatted_time}")
-                high_io = channel
-                io_arr.append(channel)
-        if io_arr != out_io:
-            test.console.print(f"[red]Error: io_arr = {io_arr}")
-            return False
-        else:
+                io.append(test.device3v3.dio_map[channel].get_value())
+        if io.count(True) > 1:
+            pass
+        elif io not in io_arr:
+            io_arr.append(io)
+
+        if len(io_arr) == len(out_io):
+            # Check that each sub-array has the True value shifted by 1 index
+            result = all(io_arr[i][j] for i, row in enumerate(io_arr) for j, val in enumerate(row) if (i - j) == 1 and val)
+
+            # Check that the total number of True values is equal to the length of the array
+            total_true = sum(row.count(True) for row in io_arr)
+            length = len(io_arr)
+            result = result and total_true == length
             io_arr = []
-            count += 1
+            if result:
+                count += 1
+        io = []
         if count > 5:
-            test.console.print("[green]Seconds Decoder test passed")
+            test.console.print(f"[green]{test.test_name} passed")
             return True
+        elif time.time() > timeout:
+            test.console.print(f"[red]Error: {test.test_name} failed")
+            return False
 
 
 def fpga_io_test(test, uart):
     uart_data = uart.read_data(test)
     uart_data = uart_data.decode()
-    if "UART Timeout!" in uart_data:
-        test.console.print("[red]UART Timeout!")
-        return False
-    if "Start Test:" in uart_data:
-        test.test_name = uart_data.strip().split(": ")[1]
-        test.console.print(f"Running test {test.test_name}...")
+    # if "UART Timeout!" in uart_data:
+    #     test.console.print("[red]UART Timeout!")
+    #     return False
+    # if "Start Test:" in uart_data:
+    #     test.test_name = uart_data.strip().split(": ")[1]
+    #     test.console.print(f"Running test {test.test_name}...")
     time.sleep(1)
     hk_stop(False)
     if test.test_name == "inv_1":

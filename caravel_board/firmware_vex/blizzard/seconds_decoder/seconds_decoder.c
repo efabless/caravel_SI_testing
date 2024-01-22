@@ -1,8 +1,9 @@
 #include <common.h>
 void main()
 {
-    config_uart();
-    print("Start Test: seconds_decoder\n");
+    // config_uart();
+    // print("Start Test: seconds_decoder\n");
+    // configure_mgmt_gpio();
     configure_gpio(1, GPIO_MODE_USER_STD_INPUT_NOPULL);
     configure_gpio(23, GPIO_MODE_USER_STD_OUTPUT);
     configure_gpio(29, GPIO_MODE_USER_STD_INPUT_NOPULL);
@@ -23,4 +24,6 @@ void main()
 
     // gpio_config_io();
     gpio_config_load();
+
+    // send_packet(2);
 }

@@ -29,4 +29,6 @@ void main()
     gpio_config_load();
     config_uart();
     print("Start Test: ALU_4bits\n");
+
+    HKGpio_config();
 }

@@ -21,6 +21,8 @@ void main()
 
     // gpio_config_io();
     gpio_config_load();
-    config_uart();
-    print("Start Test: seconds_decoder\n");
+    // config_uart();
+    // print("Start Test: seconds_decoder\n");
+
+    HKGpio_config();
 }

@@ -2,7 +2,6 @@
 
 void main()
 {
-    configure_gpio(0, GPIO_MODE_USER_STD_INPUT_PULLDOWN);
     configure_gpio(2, GPIO_MODE_USER_STD_INPUT_PULLDOWN);
     configure_gpio(3, GPIO_MODE_USER_STD_INPUT_PULLDOWN);
     configure_gpio(4, GPIO_MODE_USER_STD_INPUT_PULLDOWN);
@@ -15,8 +14,8 @@ void main()
     configure_gpio(13, GPIO_MODE_USER_STD_INPUT_PULLDOWN);
     configure_gpio(15, GPIO_MODE_USER_STD_INPUT_PULLDOWN);
     configure_gpio(16, GPIO_MODE_USER_STD_INPUT_PULLDOWN);
+    configure_gpio(17, GPIO_MODE_USER_STD_INPUT_PULLDOWN);
 
-    configure_gpio(17, GPIO_MODE_USER_STD_OUTPUT);
     configure_gpio(18, GPIO_MODE_USER_STD_OUTPUT);
     configure_gpio(19, GPIO_MODE_USER_STD_OUTPUT);
     configure_gpio(20, GPIO_MODE_USER_STD_OUTPUT);
@@ -30,11 +29,12 @@ void main()
     configure_gpio(31, GPIO_MODE_USER_STD_OUTPUT);
     configure_gpio(32, GPIO_MODE_USER_STD_OUTPUT);
     configure_gpio(33, GPIO_MODE_USER_STD_OUTPUT);
+    configure_gpio(0, GPIO_MODE_USER_STD_OUTPUT);
 
     // gpio_config_io();
     gpio_config_load();
     // config_uart();
-    // print("Start Test: inv_1\n");
+    // print("Start Test: inv_2\n");
 
     HKGpio_config();
 }

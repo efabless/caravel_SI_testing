@@ -1,3 +1,4 @@
+import datetime
 from multiprocessing.sharedctypes import Value
 
 import pyvisa
@@ -20,6 +21,11 @@ from rich.progress import (
 )
 
 # import flash
+
+RUNS_DIR = os.path.join(os.getcwd(), "runs")
+os.makedirs(RUNS_DIR, exist_ok=True)
+DATE_DIR = os.path.join(RUNS_DIR, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+os.makedirs(DATE_DIR, exist_ok=True)
 
 
 def accurate_delay(delay):
@@ -169,7 +175,7 @@ class Test:
         Args:
             hex_file (string): path to hex file
         """
-        with open("flash.log", "a") as f:
+        with open(f"{DATE_DIR}/flash.log", "a") as f:
             f.write("==============================================")
             f.write(f"   Flashed {self.test_name}")
             f.write(" ==============================================\n")

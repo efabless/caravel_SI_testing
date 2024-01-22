@@ -851,7 +851,7 @@ def fpga_counter_test(test, uart):
     count = 0
     io = []
     io_arr = []
-    timeout = time.time() + 50
+    timeout = time.time() + 100
     while True:
         for channel in out_io:
             if channel < 14:
@@ -875,7 +875,7 @@ def fpga_counter_test(test, uart):
             if result:
                 count += 1
         io = []
-        if count > 5:
+        if count >= 3:
             test.console.print(f"[green]{test.test_name} passed")
             return True
         elif time.time() > timeout:

@@ -884,8 +884,8 @@ def fpga_counter_test(test, uart):
 
 
 def fpga_io_test(test, uart):
-    uart_data = uart.read_data(test)
-    uart_data = uart_data.decode()
+    # uart_data = uart.read_data(test)
+    # uart_data = uart_data.decode()
     # if "UART Timeout!" in uart_data:
     #     test.console.print("[red]UART Timeout!")
     #     return False

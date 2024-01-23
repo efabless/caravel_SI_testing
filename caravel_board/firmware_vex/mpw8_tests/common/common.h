@@ -29,7 +29,7 @@
  * This necessary when reading or writing are needed between wishbone and user project 
  * if interface isn't enabled no ack would be receive  and the writing or reading command will be stuck
  */
-void enable_user_interface(){
+void enableUserIF(){
     #ifdef ARM // ARM use dirrent location 
     reg_wb_enable = reg_wb_enable | 0x8; // for enable writing to reg_debug_1 and reg_debug_2
     #else 
@@ -47,7 +47,7 @@ void enable_user_interface(){
  * 
  * @param is_enable when 1 (true) housekeeping is active, 0 (false) housekeeping is disabled
  */
-void enable_hk_spi(bool is_enable){reg_hkspi_disable = !is_enable;}
+void enableHkSpi(bool is_enable){reg_hkspi_disable = !is_enable;}
 
 // user project registers
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -106,7 +106,7 @@ void output_enable_all_gpio_user(char is_enable){
  * 
  * 
  */
-void dummy_delay(int num){
+void dummyDelay(int num){
     for (int i=0;i < num;i++){
         #ifdef ARM
         reg_wb_enable = reg_wb_enable;

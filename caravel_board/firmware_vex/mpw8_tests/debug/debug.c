@@ -29,7 +29,7 @@ void wait_for_char(char *c)
     {
         send_packet(9); // recieved incorrect correct character
     }
-    uart_pop_char();
+    UART_popChar();
 }
 
 /*
@@ -58,10 +58,10 @@ Connect the transimssion and the reciever of the uart
 void main(){
     int j;
     configure_mgmt_gpio();
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(0, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    gpio_config_load();
+    GPIOs_configure(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_configure(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(0, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_loadConfigs();
     (*(volatile uint32_t*) CSR_DEBUG_MODE_OUT_ADDR ) = 1; // enable debug mode
     count_down(PULSE_WIDTH * 50);
     send_packet(2); // Start of the test

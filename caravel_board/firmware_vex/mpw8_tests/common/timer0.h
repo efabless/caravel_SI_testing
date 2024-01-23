@@ -11,10 +11,10 @@
  * @param count start value in the counter > 0
  * 
  */
-void timer0_oneshot_configure(unsigned int count){
-	enable_timer0(0); // disable
+void timer0_configureOneShot(unsigned int count){
+	timer0_enable(0); // disable
 	reg_timer0_data = count;
-    enable_timer0(1); // enable
+    timer0_enable(1); // enable
 }
 /**
  * Start counter in periodic countdown mode start value is count
@@ -23,11 +23,11 @@ void timer0_oneshot_configure(unsigned int count){
  * @param count start value in the counter > 0
  * 
  */
-void timer0_periodic_configure(unsigned int count){
-	enable_timer0(0); // disable
+void timer0_configurePeriodic(unsigned int count){
+	timer0_enable(0); // disable
 	reg_timer0_data = 0;
     reg_timer0_data_periodic  = count;
-    enable_timer0(1); // enable
+    timer0_enable(1); // enable
 }
 /**
  * Enable or Disable timer0
@@ -35,7 +35,7 @@ void timer0_periodic_configure(unsigned int count){
  * @param is_enable when 1 (true) timer0 is enable (start counting), 0 (false) timer0 is disabled
  * 
  */
-void enable_timer0(bool is_enable){
+void timer0_enable(bool is_enable){
     if (is_enable)
         reg_timer0_config = 1;// enable
     else
@@ -43,7 +43,7 @@ void enable_timer0(bool is_enable){
 }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-void update_timer0_val(){
+void timer0_updateValue(){
     #ifdef ARM // arm update the register automatically 
     return;
     #else
@@ -55,11 +55,11 @@ void update_timer0_val(){
  * Get timer current value
  * 
  */
-unsigned int get_timer0_val(){
+unsigned int timer0_readValue(){
     #ifdef ARM 
     return reg_timer0_data;
     #else
-    update_timer0_val();
+    timer0_updateValue();
     return reg_timer0_value;
     #endif
 }

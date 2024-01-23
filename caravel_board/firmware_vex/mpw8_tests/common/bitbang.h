@@ -66,7 +66,7 @@ void bb_reset(){
 // 2	& 35
 // 1	& 36
 // 0	& 37
-void bb_configure_2_gpios(unsigned int configL,unsigned int configR){
+void bb_configure2Gpios(unsigned int configL,unsigned int configR){
     int num_bits,mask;
     int left,right;
     num_bits = get_gpio_num_bit();
@@ -90,7 +90,7 @@ void bb_configure_2_gpios(unsigned int configL,unsigned int configR){
     }   
 }
 
-void bb_configure_all_gpios(unsigned int config){
+void bb_configureAllGpios(unsigned int config){
     #ifndef ARM
     reg_mprj_io_37 = config;
     reg_mprj_io_36 = config;
@@ -133,25 +133,25 @@ void bb_configure_all_gpios(unsigned int config){
     reg_mprj_io_0  = config;
 
     bb_reset();
-    bb_configure_2_gpios(config,config);// 18	& 19
-    bb_configure_2_gpios(config,config);// 17	& 20
-    bb_configure_2_gpios(config,config);// 16	& 21
-    bb_configure_2_gpios(config,config);// 15	& 22
-    bb_configure_2_gpios(config,config);// 14	& 23
-    bb_configure_2_gpios(config,config);// 13	& 24
-    bb_configure_2_gpios(config,config);// 12	& 25
-    bb_configure_2_gpios(config,config);// 11	& 26
-    bb_configure_2_gpios(config,config);// 10	& 27
-    bb_configure_2_gpios(config,config);// 9	& 28
-    bb_configure_2_gpios(config,config);// 8	& 29
-    bb_configure_2_gpios(config,config);// 7	& 30
-    bb_configure_2_gpios(config,config);// 6	& 31
-    bb_configure_2_gpios(config,config);// 5	& 32
-    bb_configure_2_gpios(config,config);// 4	& 33
-    bb_configure_2_gpios(config,config);// 3	& 34
-    bb_configure_2_gpios(config,config);// 2	& 35
-    bb_configure_2_gpios(config,config);// 1	& 36
-    bb_configure_2_gpios(config,config);// 0	& 37
+    bb_configure2Gpios(config,config);// 18	& 19
+    bb_configure2Gpios(config,config);// 17	& 20
+    bb_configure2Gpios(config,config);// 16	& 21
+    bb_configure2Gpios(config,config);// 15	& 22
+    bb_configure2Gpios(config,config);// 14	& 23
+    bb_configure2Gpios(config,config);// 13	& 24
+    bb_configure2Gpios(config,config);// 12	& 25
+    bb_configure2Gpios(config,config);// 11	& 26
+    bb_configure2Gpios(config,config);// 10	& 27
+    bb_configure2Gpios(config,config);// 9	& 28
+    bb_configure2Gpios(config,config);// 8	& 29
+    bb_configure2Gpios(config,config);// 7	& 30
+    bb_configure2Gpios(config,config);// 6	& 31
+    bb_configure2Gpios(config,config);// 5	& 32
+    bb_configure2Gpios(config,config);// 4	& 33
+    bb_configure2Gpios(config,config);// 3	& 34
+    bb_configure2Gpios(config,config);// 2	& 35
+    bb_configure2Gpios(config,config);// 1	& 36
+    bb_configure2Gpios(config,config);// 0	& 37
     bb_load();
 }
 

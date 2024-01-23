@@ -29,38 +29,38 @@ void main()
     int timeout = 10000;
     long int timeout_count = 0;
     char *c;
-    bb_configure_all_gpios(GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    set_gpio_h(0);
-    set_gpio_l(0);
-    gpio_config_load();
+    bb_configureAllGpios(GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_writeHigh(0);
+    GPIOs_writeLow(0);
+    GPIOs_loadConfigs();
     config_uart();
     print("Start Test: bitbang_i\n");
 
     while (true)
     {
-        c = uart_get_line();
+        c = UART_readLine();
         io_number = get_int_from_string(c);
         if (io_number >= 32)
         {
             temp_io = io_number - 32;
             mask = 0x1 << temp_io;
-            old_recieved = get_gpio_h() & mask;
+            old_recieved = GPIOs_readHigh() & mask;
         }
         else
         {
             mask = 0x1 << io_number;
-            old_recieved = get_gpio_l() & mask;
+            old_recieved = GPIOs_readLow() & mask;
         }
         while (true)
         {
             if (io_number >= 32)
             {
-                recieved = get_gpio_h() & mask; // mask gpio bit
+                recieved = GPIOs_readHigh() & mask; // mask gpio bit
             }
             else
             {
-                recieved = get_gpio_l() & mask; // mask gpio bit
+                recieved = GPIOs_readLow() & mask; // mask gpio bit
             }
             if (recieved != old_recieved)
             {

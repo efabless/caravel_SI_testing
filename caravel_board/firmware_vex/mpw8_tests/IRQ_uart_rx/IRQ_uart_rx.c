@@ -40,12 +40,12 @@ wait for interrupt
 bool IRQ_uart_rx()
 {
 
-    clear_flag();
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    gpio_config_load();
-    uart_RX_enable(1);
-    enable_uart_rx_irq(1);
+    IRQ_clearFlag();
+    GPIOs_configure(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_configure(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_loadConfigs();
+    UART_enableRX(1);
+    IRQ_enableUartRx(1);
     uart_ev_pending_write(1);
     config_uart();
     send_packet(2);
@@ -55,7 +55,7 @@ bool IRQ_uart_rx()
 
     for (int i = 0; i < timeout; i++)
     {
-        if (get_flag() == 1)
+        if (IRQ_getFlag() == 1)
         {
             is_pass = true;
             send_packet(5);
@@ -67,7 +67,7 @@ bool IRQ_uart_rx()
         send_packet(9); // timeout
     }
     empty_buffer();
-    uart_RX_enable(0);
-    enable_uart_rx_irq(0);
+    UART_enableRX(0);
+    IRQ_enableUartRx(0);
     uart_ev_pending_write(0);
 }

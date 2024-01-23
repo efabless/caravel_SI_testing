@@ -20,19 +20,19 @@ void receive_packet_test()
     send_packet(2);
     bool is_recieved;
     configure_mgmt_gpio_input();
-    configure_all_gpios(GPIO_MODE_MGMT_STD_OUTPUT);
-    set_gpio_h(0);
-    set_gpio_l(0);
+    GPIOs_configureAll(GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_writeHigh(0);
+    GPIOs_writeLow(0);
     // gpio_config_io();
-    gpio_config_load();
-    // enable_uart_TX(1);
+    GPIOs_loadConfigs();
+    // UART_enableTX(1);
     // print("ready");
     for (int i = 5; i < 8; i++)
     {
         configure_mgmt_gpio_input();
-        set_gpio_l(0x1 << 0);
+        GPIOs_writeLow(0x1 << 0);
         is_recieved = recieved_pulse_num(i);
-        set_gpio_l(0x0);
+        GPIOs_writeLow(0x0);
         configure_mgmt_gpio();
         count_down(PULSE_WIDTH);
         if (is_recieved)

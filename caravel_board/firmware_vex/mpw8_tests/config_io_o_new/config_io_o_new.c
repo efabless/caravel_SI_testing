@@ -73,10 +73,10 @@ void main()
     int num_pulses = 4;
     int num_bits = 19;
     configure_mgmt_gpio();
-    configure_all_gpios(GPIO_MODE_MGMT_STD_OUTPUT);
-    gpio_config_load();
-    set_gpio_h(0);
-    set_gpio_l(0);
+    GPIOs_configureAll(GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_loadConfigs();
+    GPIOs_writeHigh(0);
+    GPIOs_writeLow(0);
     // gpio_config_io();
     send_packet(1); // configuration finished
     while (1)
@@ -84,11 +84,11 @@ void main()
         send_packet(3); // send 4 pulses at all gpios
         for (i = 0; i < 4; i++)
         {
-            set_gpio_l(0xFFFFFFFF);
-            set_gpio_h(0x3F);
+            GPIOs_writeLow(0xFFFFFFFF);
+            GPIOs_writeHigh(0x3F);
             count_down(PULSE_WIDTH);  
-            set_gpio_h(0x0);
-            set_gpio_l(0x0);  
+            GPIOs_writeHigh(0x0);
+            GPIOs_writeLow(0x0);  
             count_down(PULSE_WIDTH); 
         }
     }

@@ -40,12 +40,12 @@ Enable interrupt for IRQ external pin mprj_io[12] -> should be drived to 1 by th
 bool IRQ_external2()
 {
 
-    clear_flag();
+    IRQ_clearFlag();
 
-    configure_gpio(12,GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_configure(12,GPIO_MODE_MGMT_STD_INPUT_NOPULL);
 
-    gpio_config_load();
-    enable_external2_irq(1);
+    GPIOs_loadConfigs();
+    IRQ_enableExternal2(1);
     reg_irq_source = 2; // enable set housekeeping irq register
     config_uart();
     print("Start Test: IRQ_external2\n");
@@ -57,7 +57,7 @@ bool IRQ_external2()
 
     for (int i = 0; i < timeout; i++)
     {
-        if (get_flag() == 1)
+        if (IRQ_getFlag() == 1)
         {
             is_pass = true;
             return true;

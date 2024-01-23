@@ -24,11 +24,11 @@ void main()
     configure_mgmt_gpio();
     // For SPI operation, GPIO 1 should be an input, and GPIOs 2 to 4
     // should be outputs.
-    configure_gpio(34, GPIO_MODE_MGMT_STD_INPUT_NOPULL); // SDI
-    configure_gpio(35, GPIO_MODE_MGMT_STD_OUTPUT);       // SDO
-    configure_gpio(33, GPIO_MODE_MGMT_STD_OUTPUT);       // CSB
-    configure_gpio(32, GPIO_MODE_MGMT_STD_OUTPUT);       // SCK
-    gpio_config_load();
-    enable_spi(1);
+    GPIOs_configure(34, GPIO_MODE_MGMT_STD_INPUT_NOPULL); // SDI
+    GPIOs_configure(35, GPIO_MODE_MGMT_STD_OUTPUT);       // SDO
+    GPIOs_configure(33, GPIO_MODE_MGMT_STD_OUTPUT);       // CSB
+    GPIOs_configure(32, GPIO_MODE_MGMT_STD_OUTPUT);       // SCK
+    GPIOs_loadConfigs();
+    MSPI_enable(1);
     send_packet(2);
 }

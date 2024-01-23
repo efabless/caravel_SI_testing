@@ -162,7 +162,7 @@ bool check_all_gpio_ctrl_regs(unsigned int data_in)
 
 bool hk_regs_wr_wb_cpu()
 {
-    enable_hk_spi(0);
+    enableHkSpi(0);
     int old_reg_hkspi_status = reg_hkspi_status;
     int old_reg_hkspi_chip_id = reg_hkspi_chip_id;
     int old_reg_hkspi_user_id = reg_hkspi_user_id;

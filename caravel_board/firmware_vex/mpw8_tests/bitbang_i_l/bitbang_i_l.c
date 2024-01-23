@@ -22,11 +22,11 @@ void main()
     int old_recieved;
     int timeout = 15000;
     long int timeout_count = 0;
-    set_gpio_h(0);
-    set_gpio_l(0);
+    GPIOs_writeHigh(0);
+    GPIOs_writeLow(0);
     configure_mgmt_gpio();
     //    gpio_config_io();
-    bb_configure_all_gpios(GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    bb_configureAllGpios(GPIO_MODE_MGMT_STD_INPUT_NOPULL);
     count_down(PULSE_WIDTH * 20);
 
     // send_packet(2); // configuration finished start test
@@ -36,10 +36,10 @@ void main()
         send_packet(1); // send on the next io
         io_number++;
         mask = 0x1 << io_number;
-        old_recieved = get_gpio_l() & mask;
+        old_recieved = GPIOs_readLow() & mask;
         while (true)
         {
-            recieved = get_gpio_l() & mask; // mask gpio bit
+            recieved = GPIOs_readLow() & mask; // mask gpio bit
             if (recieved != old_recieved)
             {
                 count++;

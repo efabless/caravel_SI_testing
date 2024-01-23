@@ -6,11 +6,11 @@ void set_registers()
     {
         if (i >= 19)
         {
-            configure_gpio(i, GPIO_MODE_MGMT_STD_INPUT_PULLUP);
+            GPIOs_configure(i, GPIO_MODE_MGMT_STD_INPUT_PULLUP);
         }
         else
         {
-            configure_gpio(i, GPIO_MODE_MGMT_STD_OUTPUT);
+            GPIOs_configure(i, GPIO_MODE_MGMT_STD_OUTPUT);
         }
     }
 }
@@ -25,9 +25,9 @@ input value send to gpio[19:37] suppose to be received as output at GPIO[0:18]
 void main()
 {
     set_registers();
-    set_gpio_h(0);
-    set_gpio_l(0);
-    gpio_config_load();
+    GPIOs_writeHigh(0);
+    GPIOs_writeLow(0);
+    GPIOs_loadConfigs();
     int mask = 0xFFF80000;
     int mask_h = 0x7E000;
     int i_val = 0;
@@ -41,10 +41,10 @@ void main()
     send_packet(2);
     while (true)
     {
-        i_val = get_gpio_l() & mask;
-        o_val_h = get_gpio_h() << 13;
+        i_val = GPIOs_readLow() & mask;
+        o_val_h = GPIOs_readHigh() << 13;
         o_val_l = i_val >> 19;
         o_val = o_val_l | o_val_h;
-        set_gpio_l(o_val);
+        GPIOs_writeLow(o_val);
     }
 }

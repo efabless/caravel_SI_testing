@@ -37,7 +37,7 @@ enum la_reg_number {
  * @param is_enable 32 bits each bit indicate if the corresponding probe enabled as input 
  *  
  */
-void set_la_ien(enum la_reg_number reg_num , unsigned int is_enable){
+void LogicAnalyzer_inputEnable(enum la_reg_number reg_num , unsigned int is_enable){
     switch(reg_num){
         #if LA_SIZE >= 64
         case 0 : reg_la0_iena = is_enable; break;
@@ -64,7 +64,7 @@ void set_la_ien(enum la_reg_number reg_num , unsigned int is_enable){
  * @param is_enable 32 bits each bit indicate if the corresponding probe enabled as output 
  *  
  */
-void set_la_oen(enum la_reg_number reg_num , unsigned int is_enable){
+void LogicAnalyzer_outputEnable(enum la_reg_number reg_num , unsigned int is_enable){
     switch(reg_num){
         #if LA_SIZE >= 64
         case 0 : reg_la0_oenb = ~is_enable; break;
@@ -91,7 +91,7 @@ void set_la_oen(enum la_reg_number reg_num , unsigned int is_enable){
  * @param data data to write through logic analyzers 
  *  
  */
-void set_la_reg(enum la_reg_number reg_num , unsigned int data){
+void LogicAnalyzer_write(enum la_reg_number reg_num , unsigned int data){
     switch(reg_num){
         #if LA_SIZE >= 64
         case 0 : reg_la0_data = data; break;
@@ -117,7 +117,7 @@ void set_la_reg(enum la_reg_number reg_num , unsigned int data){
  * 
  *  
  */
-unsigned int get_la_reg(enum la_reg_number reg_num){
+unsigned int LogicAnalyzer_read(enum la_reg_number reg_num){
     switch(reg_num){
         #if LA_SIZE >= 64
         case 0 : return reg_la0_data_in;

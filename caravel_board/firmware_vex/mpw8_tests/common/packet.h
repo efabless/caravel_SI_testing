@@ -14,23 +14,23 @@
 void count_down(const int d)
 {
     /* Configure timer for a single-shot countdown */
-    timer0_oneshot_configure(d);
+    timer0_configureOneShot(d);
 
     // Loop, waiting for value to reach zero
-    update_timer0_val(); // latch current value
-    int old_val = get_timer0_val();
+    timer0_updateValue(); // latch current value
+    int old_val = timer0_readValue();
     while (old_val > 0)
     {
-        update_timer0_val();
-        old_val = get_timer0_val();
+        timer0_updateValue();
+        old_val = timer0_readValue();
     }
 }
 
 void send_pulse()
 {
-    mgmt_gpio_wr(0);
+    ManagmentGpio_write(0);
     count_down(PULSE_WIDTH);
-    mgmt_gpio_wr(1);
+    ManagmentGpio_write(1);
     count_down(PULSE_WIDTH);
 }
 

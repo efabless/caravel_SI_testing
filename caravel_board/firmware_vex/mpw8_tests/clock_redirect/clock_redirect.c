@@ -27,10 +27,10 @@ checking user clock and caravel clock  at gpio 15 and gpio 14
 void main(){
 
     configure_mgmt_gpio();
-    configure_gpio(14,GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(15,GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_configure(14,GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_configure(15,GPIO_MODE_MGMT_STD_OUTPUT);
     /* Apply configuration */
-    gpio_config_load();
+    GPIOs_loadConfigs();
     reg_clk_out_dest = 0x6;
     send_packet(2); // 
     

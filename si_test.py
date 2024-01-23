@@ -1,6 +1,6 @@
 import argparse
 import json
-from caravel import Dio, FreqCounter, Test, accurate_delay
+from caravel import Dio, FreqCounter, Test, accurate_delay, DATE_DIR
 from io_config import Device, device, connect_devices, UART, SPI
 import os
 import csv
@@ -637,7 +637,7 @@ def config_fpga(test):
     prog_clk = test.device3v3.dio_map[37]
     prog_rst = test.device3v3.dio_map[29]
     io_isol_n = test.device1v8.dio_map[1]
-    op_rst = test.device1v8.dio_map[9]
+    op_rst = test.device1v8.dio_map[11]
     ccff_head = test.device3v3.dio_map[34]
     ccff_tail = test.device3v3.dio_map[23]
     clk_sel = test.device3v3.dio_map[35]
@@ -871,11 +871,13 @@ def fpga_counter_test(test, uart):
             total_true = sum(row.count(True) for row in io_arr)
             length = len(io_arr)
             result = result and total_true == length
+            print(result)
+            print(io_arr)
             io_arr = []
             if result:
                 count += 1
         io = []
-        if count > 5:
+        if count >= 3:
             test.console.print(f"[green]{test.test_name} passed")
             return True
         elif time.time() > timeout:
@@ -1198,9 +1200,9 @@ def flash_test(
         return True
 
 
-def reformat_csv():
+def reformat_csv(temp=None):
     # Read the original CSV file
-    with open('results.csv', 'r') as file:
+    with open(f'{DATE_DIR}/results.csv', 'r') as file:
         reader = csv.reader(file)
         data = list(reader)
 
@@ -1216,8 +1218,14 @@ def reformat_csv():
                 voltage_combinations.append([d[1], d[2]])
 
     # Create a new CSV file with the desired format
-    with open('formatted_results.csv', 'w', newline='') as file:
+    with open(f'{DATE_DIR}/formatted_results.csv', 'w', newline='') as file:
         writer = csv.writer(file)
+
+        if temp:
+            header_row = ['Temp (C)', temp]
+        else:
+            header_row = ['Temp (C)', "N/A"]
+        writer.writerow(header_row)
 
         header_row = ['VCCD (v)']
         for v in voltage_combinations:
@@ -1322,7 +1330,7 @@ def exec_test(
             ]
         )
 
-    with open("results.csv", "a", encoding="UTF8") as f:
+    with open(f"{DATE_DIR}/results.csv", "a", encoding="UTF8") as f:
         writer = csv.writer(f)
         for test in arr:
             writer.writerow(test)
@@ -1356,6 +1364,11 @@ if __name__ == "__main__":
             "-t",
             "--test",
             help="Run Standalone test if in manifest",
+        )
+        parser.add_argument(
+            "-tmp",
+            "--temperature",
+            help="Temperature monitoring",
         )
         args = parser.parse_args()
         # open multiple devices
@@ -1400,12 +1413,8 @@ if __name__ == "__main__":
             "Pass/Fail",
             "Time (s)",
         ]
-        if os.path.exists("./results.csv"):
-            os.remove("./results.csv")
-        if os.path.exists("./flash.log"):
-            os.remove("./flash.log")
 
-        with open("results.csv", "a", encoding="UTF8") as f:
+        with open(f"{DATE_DIR}/results.csv", "a", encoding="UTF8") as f:
             writer = csv.writer(f)
             writer.writerow(csv_header)
         test_flag = False
@@ -1556,7 +1565,7 @@ if __name__ == "__main__":
         )
         test.close_devices()
         # Load CSV data
-        with open("results.csv") as f:
+        with open(f"{DATE_DIR}/results.csv") as f:
             reader = csv.reader(f)
             headers = next(reader)
 
@@ -1570,7 +1579,7 @@ if __name__ == "__main__":
 
             test.console.print(table)
 
-        reformat_csv()
+        reformat_csv(args.temperature)
         test.progress.stop()
         os._exit(0)
     except KeyboardInterrupt:

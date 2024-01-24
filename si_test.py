@@ -1058,6 +1058,138 @@ def and_test(test, uart):
     return True
 
 
+def ram_write_data(test, data, addr, wdata_io, addr_io, we_io):
+    if we_io > 16:
+        io = test.device3v3.dio_map[we_io]
+    else:
+        io = test.device1v8.dio_map[we_io]
+    io.set_state(True)
+    io.set_value(0)
+    time.sleep(2)
+    for channel_idx in range(len(data)):
+        if wdata_io[channel_idx] > 13 and wdata_io[channel_idx] < 22:
+            io = test.deviced.dio_map[wdata_io[channel_idx]]
+        elif wdata_io[channel_idx] > 21:
+            io = test.device3v3.dio_map[wdata_io[channel_idx]]
+        else:
+            io = test.device1v8.dio_map[wdata_io[channel_idx]]
+        io.set_state(True)
+        io.set_value(data[channel_idx])
+    for channel_idx in range(len(addr)):
+        if addr_io[channel_idx] > 13 and addr_io[channel_idx] < 22:
+            io = test.deviced.dio_map[addr_io[channel_idx]]
+        elif addr_io[channel_idx] > 21:
+            io = test.device3v3.dio_map[addr_io[channel_idx]]
+        else:
+            io = test.device1v8.dio_map[addr_io[channel_idx]]
+        io.set_state(True)
+        io.set_value(addr[channel_idx])
+    time.sleep(2)
+    if we_io > 16:
+        io = test.device3v3.dio_map[we_io]
+    else:
+        io = test.device1v8.dio_map[we_io]
+    io.set_state(True)
+    io.set_value(1)
+    time.sleep(2)
+
+
+def ram_read_data(test, wdata_io, addr_io, we_io, rdata_io, addr):
+    if we_io > 16:
+        io = test.device3v3.dio_map[we_io]
+    else:
+        io = test.device1v8.dio_map[we_io]
+    io.set_state(True)
+    io.set_value(0)
+    rdata = []
+    for channel_idx in range(len(wdata_io)):
+        if wdata_io[channel_idx] > 13 and wdata_io[channel_idx] < 22:
+            io = test.deviced.dio_map[wdata_io[channel_idx]]
+        elif wdata_io[channel_idx] > 21:
+            io = test.device3v3.dio_map[wdata_io[channel_idx]]
+        else:
+            io = test.device1v8.dio_map[wdata_io[channel_idx]]
+        io.set_state(True)
+        io.set_value(0)
+    for channel_idx in range(len(addr_io)):
+        if addr_io[channel_idx] > 13 and addr_io[channel_idx] < 22:
+            io = test.deviced.dio_map[addr_io[channel_idx]]
+        elif addr_io[channel_idx] > 21:
+            io = test.device3v3.dio_map[addr_io[channel_idx]]
+        else:
+            io = test.device1v8.dio_map[addr_io[channel_idx]]
+        io.set_state(True)
+        io.set_value(addr[channel_idx])
+    time.sleep(2)
+    for channel_idx in range(len(rdata_io)):
+        if rdata_io[channel_idx] > 16:
+            io = test.device3v3.dio_map[rdata_io[channel_idx]]
+        else:
+            io = test.device1v8.dio_map[rdata_io[channel_idx]]
+        io.set_state(False)
+        rdata.append(io.get_value())
+
+    rdata_bool = [int(boolean) for boolean in rdata]
+
+    return rdata_bool
+
+
+def fpga_ram_test(test):
+    hk_stop(False)
+    if test.test_name == "fpga_ram8x20":
+        we_io = 32
+        wdata_io = [20, 19, 18, 17, 16, 15, 13, 12]
+        addr_io = [31, 30, 28, 26, 24]
+        rdata_io = [8, 7, 6, 5, 4, 3, 2, 0]
+        reg_size = 20
+        binary_array = load_bitstream("fpga_ram8x20")
+    elif test.test_name == "fpga_ram6x26":
+        we_io = 7
+        wdata_io = [18, 17, 16, 15, 13, 12]
+        addr_io = [31, 30, 28, 26, 24]
+        rdata_io = [6, 5, 4, 3, 2, 0]
+        reg_size = 26
+        binary_array = load_bitstream("fpga_ram6x26")
+
+    time.sleep(5)
+    prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(test)
+    program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
+    io_isol_n.set_value(1)
+    ccff_head.set_value(0)
+    time.sleep(1)
+    clk_sel.set_value(1)
+    time.sleep(1)
+    op_rst.set_value(1)
+    time.sleep(1)
+    flag = True
+    for j in range(0, reg_size):
+        wdata_word = bin(j)[2:].zfill(len(wdata_io))
+        wdata_bits = [int(bit) for bit in wdata_word]
+        addr_word = bin(j)[2:].zfill(len(addr_io))
+        addr_bits = [int(bit) for bit in addr_word]
+        ram_write_data(test, wdata_bits, addr_bits, wdata_io, addr_io, we_io)
+    # time.sleep(2)
+    # for j in range(0, reg_size):
+    #     wdata_word = bin(j)[2:].zfill(len(wdata_io))
+    #     wdata_bits = [int(bit) for bit in wdata_word]
+        addr_word = bin(j)[2:].zfill(len(addr_io))
+        addr_bits = [int(bit) for bit in addr_word]
+        rdata = ram_read_data(test, wdata_io, addr_io, we_io, rdata_io, addr_bits)
+
+        if rdata != wdata_bits:
+            test.console.print(f"[red]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}")
+            flag = False
+        else:
+            test.console.print(f"[green]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}")
+
+    if flag:
+        hk_stop(True)
+        return True
+    else:
+        hk_stop(True)
+        return False
+
+
 def flash_test(
     test,
     hex_file,
@@ -1074,6 +1206,7 @@ def flash_test(
     fpga_io,
     alu,
     sec_count,
+    fpga_ram,
 ):
     if flash_only:
         run_only = False
@@ -1146,6 +1279,8 @@ def flash_test(
             results = fpga_ALU_test(test, uart_data)
         elif sec_count:
             results = fpga_counter_test(test, uart_data)
+        elif fpga_ram:
+            results = fpga_ram_test(test)
         else:
             results = process_soc(test, uart_data)
         # if uart:
@@ -1242,6 +1377,7 @@ def exec_test(
     fpga_io=False,
     alu=False,
     sec_count=False,
+    fpga_ram=False,
 ):
     results = False
     results = flash_test(
@@ -1260,6 +1396,7 @@ def exec_test(
         fpga_io,
         alu,
         sec_count,
+        fpga_ram,
     )
     end_time = time.time() - start_time
     arr = []
@@ -1513,6 +1650,17 @@ if __name__ == "__main__":
                                 flash_only=args.flash_only,
                                 uart_data=uart_data,
                                 sec_count=t["sec_count"],
+                            )
+                        elif t["fpga_ram"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                t["hex_file_path"],
+                                flash_flag,
+                                plud=t["plud"],
+                                flash_only=args.flash_only,
+                                uart_data=uart_data,
+                                fpga_ram=t["fpga_ram"],
                             )
                         else:
                             exec_test(

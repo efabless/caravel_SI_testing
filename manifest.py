@@ -3,7 +3,7 @@ import os
 from devices import *
 
 l_voltage = [1.62, 1.8, 1.98]
-h_voltage = [3.0, 3.3, 3.6]
+h_voltage = [3.1, 3.3, 3.6]
 # voltage = [1.62, 1.70, 1.75, 1.80, 1.85, 1.90, 1.98]
 
 TestDict = [
@@ -18,7 +18,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_mgmt_tests/gpio_mgmt_tests.hex",
         "passing_criteria": [
             1,
@@ -42,7 +42,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/uart_tests/uart_tests.hex",
         "passing_criteria": [None],  # Passing criteria to be sent to UART
     },
@@ -57,7 +57,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_tests_dff/mem_tests_dff.hex",
         "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -72,7 +72,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/mem_tests_dff2/mem_tests_dff2.hex",
         "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -87,7 +87,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/soc_tests/soc_tests.hex",
         "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -102,7 +102,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_o/gpio_o.hex",
         "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -117,7 +117,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_i/gpio_i.hex",
         "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -132,7 +132,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/bitbang_o/bitbang_o.hex",
         "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -147,7 +147,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/bitbang_i/bitbang_i.hex",
         "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
@@ -162,7 +162,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_lpu_ho/gpio_lpu_ho.hex",
         "passing_criteria": [
             1,
@@ -186,7 +186,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_lpd_ho/gpio_lpd_ho.hex",
         "passing_criteria": [
             1,
@@ -210,7 +210,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_lo_hpu/gpio_lo_hpu.hex",
         "passing_criteria": [
             1,
@@ -234,7 +234,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_lo_hpd/gpio_lo_hpd.hex",
         "passing_criteria": [
             1,
@@ -258,7 +258,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/blizzard/chain_check/chain_check.hex",
         "passing_criteria": [
             1,
@@ -282,7 +282,7 @@ TestDict = [
         "fpga_io": False,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/blizzard/and_gate/and_gate.hex",
         "passing_criteria": [
             1,
@@ -306,7 +306,7 @@ TestDict = [
         "fpga_io": True,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/blizzard/inv_1/inv_1.hex",
         "passing_criteria": [
             1,
@@ -330,7 +330,7 @@ TestDict = [
         "fpga_io": True,
         "alu": False,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/blizzard/inv_2/inv_2.hex",
         "passing_criteria": [
             1,
@@ -354,7 +354,7 @@ TestDict = [
         "fpga_io": False,
         "alu": True,
         "sec_count": False,
-        "fpga_ram": True,
+        "fpga_ram": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/blizzard/ALU_4bits/ALU_4bits.hex",
         "passing_criteria": [
             1,

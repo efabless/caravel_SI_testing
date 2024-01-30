@@ -427,6 +427,7 @@ def process_io(test, uart, verbose):
                     if verbose:
                         test.console.print(f"IO[{channel}]")
                     timeout = time.time() + 5
+                    state = "LOW"
                     while 1:
                         uart_data = uart.read_data(test)
                         if b"UART Timeout!" in uart_data:
@@ -434,11 +435,13 @@ def process_io(test, uart, verbose):
                             fail.append(channel)
                             break
                         # uart_data = uart_data.decode()
-                        if b"d" in uart_data:
+                        if b"d" in uart_data and state == "HI":
                             if not io.get_value():
+                                state = "LOW"
                                 io_pulse += 1
-                        if b"u" in uart_data:
-                            if not io.get_value():
+                        if b"u" in uart_data and state == "LOW":
+                            if io.get_value():
+                                state = "HI"
                                 io_pulse += 1
                         if io_pulse == 4:
                             io_pulse = 0
@@ -832,7 +835,9 @@ def fpga_counter_test(test, uart):
     # pulse_count = test.receive_packet(250)
     # if pulse_count == 2:
     #     test.console.print("start test")
-    prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(test)
+    prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
+        test
+    )
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
@@ -865,7 +870,12 @@ def fpga_counter_test(test, uart):
 
         if len(io_arr) == len(out_io):
             # Check that each sub-array has the True value shifted by 1 index
-            result = all(io_arr[i][j] for i, row in enumerate(io_arr) for j, val in enumerate(row) if (i - j) == 1 and val)
+            result = all(
+                io_arr[i][j]
+                for i, row in enumerate(io_arr)
+                for j, val in enumerate(row)
+                if (i - j) == 1 and val
+            )
 
             # Check that the total number of True values is equal to the length of the array
             total_true = sum(row.count(True) for row in io_arr)
@@ -1152,7 +1162,9 @@ def fpga_ram_test(test):
         binary_array = load_bitstream("fpga_ram6x26")
 
     time.sleep(5)
-    prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(test)
+    prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
+        test
+    )
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
@@ -1168,19 +1180,23 @@ def fpga_ram_test(test):
         addr_word = bin(j)[2:].zfill(len(addr_io))
         addr_bits = [int(bit) for bit in addr_word]
         ram_write_data(test, wdata_bits, addr_bits, wdata_io, addr_io, we_io)
-    # time.sleep(2)
-    # for j in range(0, reg_size):
-    #     wdata_word = bin(j)[2:].zfill(len(wdata_io))
-    #     wdata_bits = [int(bit) for bit in wdata_word]
+        # time.sleep(2)
+        # for j in range(0, reg_size):
+        #     wdata_word = bin(j)[2:].zfill(len(wdata_io))
+        #     wdata_bits = [int(bit) for bit in wdata_word]
         addr_word = bin(j)[2:].zfill(len(addr_io))
         addr_bits = [int(bit) for bit in addr_word]
         rdata = ram_read_data(test, wdata_io, addr_io, we_io, rdata_io, addr_bits)
 
         if rdata != wdata_bits:
-            test.console.print(f"[red]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}")
+            test.console.print(
+                f"[red]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}"
+            )
             flag = False
         else:
-            test.console.print(f"[green]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}")
+            test.console.print(
+                f"[green]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}"
+            )
 
     if flag:
         hk_stop(True)
@@ -1317,37 +1333,37 @@ def flash_test(
 
 def reformat_csv(temp=None):
     # Read the original CSV file
-    with open(f'{DATE_DIR}/results.csv', 'r') as file:
+    with open(f"{DATE_DIR}/results.csv", "r") as file:
         reader = csv.reader(file)
         data = list(reader)
 
     ran_tests = []
     for d in data:
-        if d[0] != 'Test_name' and d[0] not in ran_tests:
+        if d[0] != "Test_name" and d[0] not in ran_tests:
             ran_tests.append(d[0])
 
     voltage_combinations = []
     for d in data:
-        if d[0] != 'Test_name':
+        if d[0] != "Test_name":
             if [d[1], d[2]] not in voltage_combinations:
                 voltage_combinations.append([d[1], d[2]])
 
     # Create a new CSV file with the desired format
-    with open(f'{DATE_DIR}/formatted_results.csv', 'w', newline='') as file:
+    with open(f"{DATE_DIR}/formatted_results.csv", "w", newline="") as file:
         writer = csv.writer(file)
 
         if temp:
-            header_row = ['Temp (C)', temp]
+            header_row = ["Temp (C)", temp]
         else:
-            header_row = ['Temp (C)', "N/A"]
+            header_row = ["Temp (C)", "N/A"]
         writer.writerow(header_row)
 
-        header_row = ['VCCD (v)']
+        header_row = ["VCCD (v)"]
         for v in voltage_combinations:
             header_row.append(v[0])
         writer.writerow(header_row)
 
-        header_row = ['VDDIO (v)']
+        header_row = ["VDDIO (v)"]
         for v in voltage_combinations:
             header_row.append(v[1])
         writer.writerow(header_row)
@@ -1355,7 +1371,7 @@ def reformat_csv(temp=None):
         for t in ran_tests:
             header_row = [t]
             for d in data:
-                if d[0] != 'Test_name' and d[0] == t:
+                if d[0] != "Test_name" and d[0] == t:
                     header_row.append(d[3])
             writer.writerow(header_row)
 

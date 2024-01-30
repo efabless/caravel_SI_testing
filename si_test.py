@@ -417,6 +417,7 @@ def process_io(test, uart, verbose):
                     if verbose:
                         test.console.print(f"IO[{channel}]")
                     timeout = time.time() + 5
+                    state = "LOW"
                     while 1:
                         uart_data = uart.read_data(test)
                         if b"UART Timeout!" in uart_data:
@@ -424,11 +425,13 @@ def process_io(test, uart, verbose):
                             fail.append(channel)
                             break
                         # uart_data = uart_data.decode()
-                        if b"d" in uart_data:
+                        if b"d" in uart_data and state == "HI":
                             if not io.get_value():
+                                state = "LOW"
                                 io_pulse += 1
-                        if b"u" in uart_data:
-                            if not io.get_value():
+                        if b"u" in uart_data and state == "LOW":
+                            if io.get_value():
+                                state = "HI"
                                 io_pulse += 1
                         if io_pulse == 4:
                             io_pulse = 0
@@ -436,7 +439,9 @@ def process_io(test, uart, verbose):
                                 test.console.print(f"[green]IO[{channel}] Passed")
                             break
                         if time.time() > timeout:
-                            test.console.print(f"[red]Timeout failure on IO[{channel}]!")
+                            test.console.print(
+                                f"[red]Timeout failure on IO[{channel}]!"
+                            )
                             fail.append(channel)
                             break
             elif test.test_name == "gpio_i" or test.test_name == "bitbang_i":

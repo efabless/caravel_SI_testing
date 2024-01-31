@@ -397,6 +397,10 @@ def hk_stop(close):
 def process_io(test, uart, verbose):
     hk_stop(False)
     fail = []
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(1)
+    time.sleep(5)
+    test.reset()
     uart_data = uart.read_data(test)
     uart_data = uart_data.decode()
     if "UART Timeout!" in uart_data:
@@ -427,6 +431,7 @@ def process_io(test, uart, verbose):
                     if verbose:
                         test.console.print(f"IO[{channel}]")
                     timeout = time.time() + 5
+                    state = "LOW"
                     while 1:
                         uart_data = uart.read_data(test)
                         if b"UART Timeout!" in uart_data:
@@ -434,11 +439,13 @@ def process_io(test, uart, verbose):
                             fail.append(channel)
                             break
                         # uart_data = uart_data.decode()
-                        if b"d" in uart_data:
+                        if b"d" in uart_data and state == "HI":
                             if not io.get_value():
+                                state = "LOW"
                                 io_pulse += 1
-                        if b"u" in uart_data:
-                            if not io.get_value():
+                        if b"u" in uart_data and state == "LOW":
+                            if io.get_value():
+                                state = "HI"
                                 io_pulse += 1
                         if io_pulse == 4:
                             io_pulse = 0
@@ -832,7 +839,9 @@ def fpga_counter_test(test, uart):
     # pulse_count = test.receive_packet(250)
     # if pulse_count == 2:
     #     test.console.print("start test")
-    prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(test)
+    prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
+        test
+    )
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
@@ -865,7 +874,12 @@ def fpga_counter_test(test, uart):
 
         if len(io_arr) == len(out_io):
             # Check that each sub-array has the True value shifted by 1 index
-            result = all(io_arr[i][j] for i, row in enumerate(io_arr) for j, val in enumerate(row) if (i - j) == 1 and val)
+            result = all(
+                io_arr[i][j]
+                for i, row in enumerate(io_arr)
+                for j, val in enumerate(row)
+                if (i - j) == 1 and val
+            )
 
             # Check that the total number of True values is equal to the length of the array
             total_true = sum(row.count(True) for row in io_arr)
@@ -885,7 +899,7 @@ def fpga_counter_test(test, uart):
             return False
 
 
-def fpga_io_test(test, uart):
+def fpga_io_test(test, uart, verbose):
     # uart_data = uart.read_data(test)
     # uart_data = uart_data.decode()
     # if "UART Timeout!" in uart_data:
@@ -921,7 +935,8 @@ def fpga_io_test(test, uart):
     fail = False
     count = 0
     for inp_ut in inp:
-        test.console.print(f"now testing {inp_ut} only {out[count]} should toggle")
+        if verbose:
+            test.console.print(f"now testing {inp_ut} only {out[count]} should toggle")
         for channel in inp:
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
@@ -958,7 +973,8 @@ def fpga_io_test(test, uart):
                 test.console.print(f"[red]ERROR: io {channel} = {io_val}")
                 fail = True
             else:
-                test.console.print(f"[green]io {channel} = {io_val}")
+                if verbose:
+                    test.console.print(f"[green]io {channel} = {io_val}")
 
         time.sleep(5)
         for channel in inp:
@@ -991,7 +1007,8 @@ def fpga_io_test(test, uart):
                 test.console.print(f"[red]ERROR: io {channel} = {io_val}")
                 fail = True
             else:
-                test.console.print(f"[green]io {channel} = {io_val}")
+                if verbose:
+                    test.console.print(f"[green]io {channel} = {io_val}")
         count += 1
 
     if fail:
@@ -1109,6 +1126,7 @@ def flash_test(
         test.flash(hex_file)
         test.gpio_mgmt.set_state(True)
         test.gpio_mgmt.set_value(1)
+        time.sleep(5)
         # test.power_down()
         # test.release_reset()
     else:
@@ -1148,24 +1166,14 @@ def flash_test(
             results = process_io_plud(test, uart_data)
         elif and_flag:
             results = and_test(test, uart_data)
-            test.gpio_mgmt.set_state(True)
-            test.gpio_mgmt.set_value(0)
         elif chain:
             results = chain_test(test, uart_data)
-            test.gpio_mgmt.set_state(True)
-            test.gpio_mgmt.set_value(0)
         elif fpga_io:
-            results = fpga_io_test(test, uart_data)
-            test.gpio_mgmt.set_state(True)
-            test.gpio_mgmt.set_value(0)
+            results = fpga_io_test(test, uart_data, verbose)
         elif alu:
             results = fpga_ALU_test(test, uart_data)
-            test.gpio_mgmt.set_state(True)
-            test.gpio_mgmt.set_value(0)
         elif sec_count:
             results = fpga_counter_test(test, uart_data)
-            test.gpio_mgmt.set_state(True)
-            test.gpio_mgmt.set_value(0)
         else:
             results = process_soc(test, uart_data)
         # if uart:
@@ -1194,7 +1202,6 @@ def flash_test(
         # test.console.print("==============================================================================")
         # test.console.print(f"  Completed:  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
         # test.console.print("==============================================================================")
-
         return results
     else:
         return True
@@ -1202,37 +1209,37 @@ def flash_test(
 
 def reformat_csv(temp=None):
     # Read the original CSV file
-    with open(f'{DATE_DIR}/results.csv', 'r') as file:
+    with open(f"{DATE_DIR}/results.csv", "r") as file:
         reader = csv.reader(file)
         data = list(reader)
 
     ran_tests = []
     for d in data:
-        if d[0] != 'Test_name' and d[0] not in ran_tests:
+        if d[0] != "Test_name" and d[0] not in ran_tests:
             ran_tests.append(d[0])
 
     voltage_combinations = []
     for d in data:
-        if d[0] != 'Test_name':
+        if d[0] != "Test_name":
             if [d[1], d[2]] not in voltage_combinations:
                 voltage_combinations.append([d[1], d[2]])
 
     # Create a new CSV file with the desired format
-    with open(f'{DATE_DIR}/formatted_results.csv', 'w', newline='') as file:
+    with open(f"{DATE_DIR}/formatted_results.csv", "w", newline="") as file:
         writer = csv.writer(file)
 
         if temp:
-            header_row = ['Temp (C)', temp]
+            header_row = ["Temp (C)", temp]
         else:
-            header_row = ['Temp (C)', "N/A"]
+            header_row = ["Temp (C)", "N/A"]
         writer.writerow(header_row)
 
-        header_row = ['VCCD (v)']
+        header_row = ["VCCD (v)"]
         for v in voltage_combinations:
             header_row.append(v[0])
         writer.writerow(header_row)
 
-        header_row = ['VDDIO (v)']
+        header_row = ["VDDIO (v)"]
         for v in voltage_combinations:
             header_row.append(v[1])
         writer.writerow(header_row)
@@ -1240,7 +1247,7 @@ def reformat_csv(temp=None):
         for t in ran_tests:
             header_row = [t]
             for d in data:
-                if d[0] != 'Test_name' and d[0] == t:
+                if d[0] != "Test_name" and d[0] == t:
                     header_row.append(d[3])
             writer.writerow(header_row)
 
@@ -1281,6 +1288,8 @@ def exec_test(
         alu,
         sec_count,
     )
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     end_time = time.time() - start_time
     arr = []
 
@@ -1511,6 +1520,7 @@ if __name__ == "__main__":
                                 flash_only=args.flash_only,
                                 uart_data=uart_data,
                                 fpga_io=t["fpga_io"],
+                                verbose=args.verbose,
                             )
                         elif t["alu"]:
                             exec_test(

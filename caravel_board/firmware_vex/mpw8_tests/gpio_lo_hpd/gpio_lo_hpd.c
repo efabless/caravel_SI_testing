@@ -38,7 +38,8 @@ void main()
     // print("Start Test: gpio_lo_hpd\n");
     configure_mgmt_gpio();
     send_packet(2);
-    while (true)
+    configure_mgmt_gpio_input();
+    while (reg_gpio_in == 1)
     {
         i_val = get_gpio_l() & mask;
         o_val_h = get_gpio_h() << 13;
@@ -46,4 +47,19 @@ void main()
         o_val = o_val_l | o_val_h;
         set_gpio_l(o_val);
     }
+    // HKGpio_config();
+
+    configure_gpio(0, GPIO_MODE_MGMT_STD_BIDIRECTIONAL);
+    configure_gpio(1, GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(2, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(3, GPIO_MODE_MGMT_STD_INPUT_PULLUP);
+    configure_gpio(4, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(7, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(32, GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(33, GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(34, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(35, GPIO_MODE_MGMT_STD_OUTPUT);
+    gpio_config_load();
 }

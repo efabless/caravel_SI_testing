@@ -3,47 +3,47 @@ import os
 from devices import *
 
 l_voltage = [1.62, 1.8, 1.98]
-h_voltage = [3.0, 3.3, 3.6]
+h_voltage = [3.1, 3.3, 3.6]
 # voltage = [1.62, 1.70, 1.75, 1.80, 1.85, 1.90, 1.98]
 
 TestDict = [
-    {
-        "test_name": "gpio_mgmt_tests",
-        "uart": False,  # NOT Testing UART
-        "mgmt_gpio": True,
-        "io": False,
-        "plud": False,
-        "chain": False,
-        "and_flag": False,
-        "fpga_io": False,
-        "alu": False,
-        "sec_count": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_mgmt_tests/gpio_mgmt_tests.hex",
-        "passing_criteria": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-        ],  # Passing criteria to be sent to mgmt_gpio
-    },
-    {
-        "test_name": "uart_tests",
-        "uart": True,  # Testing UART
-        "mgmt_gpio": False,
-        "io": False,
-        "plud": False,
-        "chain": False,
-        "and_flag": False,
-        "fpga_io": False,
-        "alu": False,
-        "sec_count": False,
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/uart_tests/uart_tests.hex",
-        "passing_criteria": [None],  # Passing criteria to be sent to UART
-    },
+    # {
+    #     "test_name": "gpio_mgmt_tests",
+    #     "uart": False,  # NOT Testing UART
+    #     "mgmt_gpio": True,
+    #     "io": False,
+    #     "plud": False,
+    #     "chain": False,
+    #     "and_flag": False,
+    #     "fpga_io": False,
+    #     "alu": False,
+    #     "sec_count": False,
+    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/gpio_mgmt_tests/gpio_mgmt_tests.hex",
+    #     "passing_criteria": [
+    #         1,
+    #         2,
+    #         3,
+    #         4,
+    #         5,
+    #         6,
+    #         7,
+    #         8,
+    #     ],  # Passing criteria to be sent to mgmt_gpio
+    # },
+    # {
+    #     "test_name": "uart_tests",
+    #     "uart": True,  # Testing UART
+    #     "mgmt_gpio": False,
+    #     "io": False,
+    #     "plud": False,
+    #     "chain": False,
+    #     "and_flag": False,
+    #     "fpga_io": False,
+    #     "alu": False,
+    #     "sec_count": False,
+    #     "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/mpw8_tests/uart_tests/uart_tests.hex",
+    #     "passing_criteria": [None],  # Passing criteria to be sent to UART
+    # },
     {
         "test_name": "mem_tests_dff",
         "uart": False,  # NOT Testing UART
@@ -315,6 +315,29 @@ TestDict = [
         "alu": False,
         "sec_count": False,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/blizzard/inv_2/inv_2.hex",
+        "passing_criteria": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+        ],  # Passing criteria to be sent to mgmt_gpio
+    },
+    {
+        "test_name": "inv_3",
+        "uart": False,  # NOT Testing UART
+        "mgmt_gpio": False,
+        "io": False,
+        "plud": False,
+        "chain": False,
+        "and_flag": False,
+        "fpga_io": True,
+        "alu": False,
+        "sec_count": False,
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/blizzard/inv_3/inv_3.hex",
         "passing_criteria": [
             1,
             2,

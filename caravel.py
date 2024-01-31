@@ -666,7 +666,7 @@ class UART:
 
     def read_data(self, test):
         self.open()
-        timeout = time.time() + 50
+        timeout = time.time() + 10
         rgRX = b""
         while True:
             uart_data, count = self.read_uart()
@@ -1177,7 +1177,7 @@ class LogicAnalyzer:
         buffer = result[channel]
         nSamples = len(buffer)
         fFrequency = 0
-        pass_c = 2 ** channel
+        pass_c = 2**channel
         for i in range(1, nSamples):
             if buffer[i] == 0 and buffer[i - 1] == pass_c:
                 fFrequency = self.sampling_frequency / (i * 2)
@@ -1366,7 +1366,7 @@ class LogicAnalyzer:
         buffer = result[channel]
         nSamples = len(buffer)
         fFrequency = 0
-        pass_c = 2 ** channel
+        pass_c = 2**channel
         for i in range(1, nSamples):
             if buffer[i] == 0 and buffer[i - 1] == pass_c:
                 fFrequency = self.sampling_frequency / (i * 2)

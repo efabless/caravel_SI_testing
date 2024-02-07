@@ -1385,18 +1385,18 @@ def adc_test(test, uart, verbose):
             offset_error = offset * 1000
             gain_error = 100 * abs((slope * 4 / alsb) - 1)
 
-            print('Absolute INL:')
-            print('Maximum INL (in lsb) =', max_inl_abs)
-            print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
+            test.console.print('Absolute INL:')
+            test.console.print('Maximum INL (in lsb) =', max_inl_abs)
+            test.console.print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
 
-            print('INL corrected for gain and offset:')
-            print('Maximum INL (in lsb) =', max_inl_cor)
-            print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
+            test.console.print('INL corrected for gain and offset:')
+            test.console.print('Maximum INL (in lsb) =', max_inl_cor)
+            test.console.print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
 
-            print('Maximum DNL (in lsb) =', max_dnl)
+            test.console.print('Maximum DNL (in lsb) =', max_dnl)
 
-            print('Offset error = {:.3f}mV'.format(offset_error))
-            print('Gain error = {:.3f}%'.format(gain_error))
+            test.console.print('Offset error = {:.3f}mV'.format(offset_error))
+            test.console.print('Gain error = {:.3f}%'.format(gain_error))
 
             data = [[test.h_voltage, test.l_voltage, clk_freq[clkdiv], clk_div, max_inl_abs, max_inl_abs_0_to_2_6V, max_inl_cor, max_inl_cor_0_to_2_6V, max_dnl, offset_error, gain_error]]
 
@@ -1549,18 +1549,18 @@ def adc_test(test, uart, verbose):
         gain_error = 100 * abs(slope - 1)
 
         # Print calculated values
-        print('Absolute INL:')
-        print('Maximum INL (in lsb) =', max_inl_abs)
-        print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
+        test.console.print('Absolute INL:')
+        test.console.print('Maximum INL (in lsb) =', max_inl_abs)
+        test.console.print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
 
-        print('INL corrected for gain and offset:')
-        print('Maximum INL (in lsb) =', max_inl_cor)
-        print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
+        test.console.print('INL corrected for gain and offset:')
+        test.console.print('Maximum INL (in lsb) =', max_inl_cor)
+        test.console.print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
 
-        print('Maximum DNL (in lsb) =', max_dnl)
+        test.console.print('Maximum DNL (in lsb) =', max_dnl)
 
-        print('Offset error = {:.3f}mV'.format(offset_error))
-        print('Gain error = {:.3f}%'.format(gain_error))
+        test.console.print('Offset error = {:.3f}mV'.format(offset_error))
+        test.console.print('Gain error = {:.3f}%'.format(gain_error))
         data = [
             ['VDDIO (v)', 'VCCD (v)', 'Absolute max INL', 'Abs max INL from 0 to 2.6v', 'Corrected max INL', 'Corrected max INL from 0 to 2.6v', 'Max DNL', 'Offset error', 'Gain error'],
             [test.h_voltage, test.l_voltage, max_inl_abs, max_inl_abs_0_to_2_6V, max_inl_cor, max_inl_cor_0_to_2_6V, max_dnl, gain_error]
@@ -1572,6 +1572,33 @@ def adc_test(test, uart, verbose):
             writer = csv.writer(csvfile)
             writer.writerows(data)
         return True
+
+
+def concat_csv(root_directory, file_name):
+    # Initialize a flag to track whether the header has been written
+    header_written = False
+
+    # Open the output file in write mode
+    with open(f'{root_directory}/concatenated_{file_name}.csv', 'w', newline='') as outfile:
+        writer = csv.writer(outfile)
+
+        # Traverse the directory tree
+        for dirpath, dirnames, filenames in os.walk(root_directory):
+            # Loop through each file
+            for filename in filenames:
+                if filename == f"{file_name}.csv":
+                    filepath = os.path.join(dirpath, filename)
+                    with open(filepath, 'r', newline='') as infile:
+                        reader = csv.reader(infile)
+                        
+                        # Skip header except for the first file
+                        if not header_written:
+                            header_written = True
+                        else:
+                            next(reader)  # Skip the header
+
+                        # Write rows to the output file
+                        writer.writerows(reader)
 
 
 def flash_test(
@@ -1668,6 +1695,10 @@ def flash_test(
             results = fpga_ram_test(test)
         elif ana:
             results = adc_test(test, uart_data, verbose)
+            if "adc" in test.test_name:
+                concat_csv(DATE_DIR, "adc_data")
+            else:
+                concat_csv(DATE_DIR, "dac_data")
         else:
             results = process_soc(test, uart_data)
         # if uart:

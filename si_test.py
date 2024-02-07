@@ -1245,7 +1245,9 @@ def adc_test(test, uart, verbose):
         clk_freq = ["2.5", "1.67", "1", "0.813", "0.714", "0.385"]
 
         # Write data to a CSV file
-        csv_filename = f'{volt_dir}/adc_data.csv'
+        adc_dir = os.path.join(volt_dir, "ADC")
+        os.makedirs(adc_dir, exist_ok=True)
+        csv_filename = f'{adc_dir}/adc_data.csv'
         with open(csv_filename, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerows(data)
@@ -1326,17 +1328,17 @@ def adc_test(test, uart, verbose):
             plt.tight_layout()
 
             # Save the plot as a PNG file
-            plt.savefig(f'{volt_dir}/average_and_noise_{clk_freq[clkdiv]}.png')
+            plt.savefig(f'{adc_dir}/average_and_noise_{clk_freq[clkdiv]}.png')
 
             # Show the plot
             # plt.show()
 
             # print(averages)
 
-            with open(f'{volt_dir}/adc_results_{clk_freq[clkdiv]}.dat', 'w') as ofile:
+            with open(f'{adc_dir}/adc_results_{clk_freq[clkdiv]}.dat', 'w') as ofile:
                 print(' '.join(map(str, invals)), file=ofile)
                 print(' '.join(map(str, averages)), file=ofile)
-            with open(f'{volt_dir}/adc_noise_{clk_freq[clkdiv]}.dat', 'w') as ofile:
+            with open(f'{adc_dir}/adc_noise_{clk_freq[clkdiv]}.dat', 'w') as ofile:
                 print(' '.join(map(str, invals)), file=ofile)
                 print(' '.join(map(str, noises)), file=ofile)
 
@@ -1399,7 +1401,7 @@ def adc_test(test, uart, verbose):
             data = [[test.h_voltage, test.l_voltage, clk_freq[clkdiv], clk_div, max_inl_abs, max_inl_abs_0_to_2_6V, max_inl_cor, max_inl_cor_0_to_2_6V, max_dnl, offset_error, gain_error]]
 
             # Write data to a CSV file
-            csv_filename = f'{volt_dir}/adc_data.csv'
+            csv_filename = f'{adc_dir}/adc_data.csv'
             with open(csv_filename, 'a', newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerows(data)
@@ -1503,10 +1505,12 @@ def adc_test(test, uart, verbose):
         ax2.set_title('Difference between Captured Voltage and Expected Voltage')
         # Adjust spacing between subplots
         plt.tight_layout()
-        plt.savefig(f'{volt_dir}/DAC_captured_vs_expected.png')
+        dac_dir = os.path.join(volt_dir, "DAC")
+        os.makedirs(dac_dir, exist_ok=True)
+        plt.savefig(f'{dac_dir}/DAC_captured_vs_expected.png')
         plt.close(fig)
 
-        with open(f'{volt_dir}/dac_results.dat', 'w') as ofile:
+        with open(f'{dac_dir}/dac_results.dat', 'w') as ofile:
             print(' '.join(digvals), file=ofile)
             print(' '.join(invals), file=ofile)
             print(' '.join(outvals), file=ofile)
@@ -1563,7 +1567,7 @@ def adc_test(test, uart, verbose):
             ]
 
         # Write data to a CSV file
-        csv_filename = f'{volt_dir}/dac_data.csv'
+        csv_filename = f'{dac_dir}/dac_data.csv'
         with open(csv_filename, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerows(data)

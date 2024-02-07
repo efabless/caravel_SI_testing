@@ -1210,6 +1210,8 @@ def fpga_ram_test(test):
 
 
 def adc_test(test, uart, verbose):
+    volt_dir = os.path.join(DATE_DIR, f"{test.l_voltage}_{test.h_voltage}")
+    os.makedirs(volt_dir, exist_ok=True)
     if test.test_name == "adc_test":
         test.device3v3.dio_map[22].set_state(True)
         test.device3v3.dio_map[22].set_value(1)
@@ -1237,10 +1239,8 @@ def adc_test(test, uart, verbose):
 
         numvals = 1024
         uart_data = ""
-        volt_dir = os.path.join(DATE_DIR, f"{test.l_voltage}_{test.h_voltage}")
-        os.makedirs(volt_dir, exist_ok=True)
 
-        data = [['clk freq (MHz)', 'clk div', 'ABS Max INL (lsb)', 'ABS Max INL (lsb 0 to 2.6V)', 'Corrected Max INL (lsb)', 'Corrected Max INL (lsb 0 to 2.6V)', 'Max DNL (lsb)', 'Offset error (mV)', 'Gain error (%)']]
+        data = [['VDDIO (v)', 'VCCD (v)', 'clk freq (MHz)', 'clk div', 'ABS Max INL (lsb)', 'ABS Max INL (lsb 0 to 2.6V)', 'Corrected Max INL (lsb)', 'Corrected Max INL (lsb 0 to 2.6V)', 'Max DNL (lsb)', 'Offset error (mV)', 'Gain error (%)']]
 
         clk_freq = ["2.5", "1.67", "1", "0.813", "0.714", "0.385"]
 
@@ -1396,7 +1396,7 @@ def adc_test(test, uart, verbose):
             print('Offset error = {:.3f}mV'.format(offset_error))
             print('Gain error = {:.3f}%'.format(gain_error))
 
-            data = [[clk_freq[clkdiv], clk_div, max_inl_abs, max_inl_abs_0_to_2_6V, max_inl_cor, max_inl_cor_0_to_2_6V, max_dnl, offset_error, gain_error]]
+            data = [[test.h_voltage, test.l_voltage, clk_freq[clkdiv], clk_div, max_inl_abs, max_inl_abs_0_to_2_6V, max_inl_cor, max_inl_cor_0_to_2_6V, max_dnl, offset_error, gain_error]]
 
             # Write data to a CSV file
             csv_filename = f'{volt_dir}/adc_data.csv'
@@ -1407,6 +1407,14 @@ def adc_test(test, uart, verbose):
         return True
 
     elif test.test_name == "dac_test":
+        uart_data = uart.read_data(test)
+        uart_data = uart_data.decode()
+        if "UART Timeout!" in uart_data:
+            test.console.print("[red]UART Timeout!")
+            return False
+        if "Start Test:" in uart_data:
+            test.test_name = uart_data.strip().split(": ")[1]
+            test.console.print(f"Running test {test.test_name}...")
         # Prepare the Digilent I/O for static function
         for k in range(2, 10):
             # Enable channel for digital output (output=True is output)
@@ -1458,7 +1466,8 @@ def adc_test(test, uart, verbose):
                 value += scope.measure(test.device3v3.ad_device, 1)
             value /= float(samples)
 
-            print('Output value = ' + str(v) + ';  expected voltage = ' + str(volt) + ';  captured voltage = ' + str(value))
+            if verbose:
+                print('Output value = ' + str(v) + ';  expected voltage = ' + str(volt) + ';  captured voltage = ' + str(value))
             digvals.append(str(v))
             invals.append(str(volt))
             outvals.append(str(value))
@@ -1494,13 +1503,71 @@ def adc_test(test, uart, verbose):
         ax2.set_title('Difference between Captured Voltage and Expected Voltage')
         # Adjust spacing between subplots
         plt.tight_layout()
-        plt.savefig('DAC_captured_vs_expected.png')
+        plt.savefig(f'{volt_dir}/DAC_captured_vs_expected.png')
         plt.close(fig)
 
-        with open('dac_results.dat', 'w') as ofile:
+        with open(f'{volt_dir}/dac_results.dat', 'w') as ofile:
             print(' '.join(digvals), file=ofile)
             print(' '.join(invals), file=ofile)
             print(' '.join(outvals), file=ofile)
+        
+        # Full Scale Range (FSR) and Least Significant Bit (LSB)
+        fsr = 3.3 - 0.0
+        alsb = fsr / 256.0
+
+        # Calculate INL for this result
+        vin = np.arange(256) * (3.3 / 256)
+        vout = np.array(captured_voltage)
+        inl = (vout - vin) / alsb
+
+        max_inl_abs = np.max(np.abs(inl))
+        max_inl_abs_0_to_2_6V = np.max(np.abs(inl[:202]))
+
+        # Curve fit to vout(1:215) to get offset and gain
+        p = np.polyfit(vin[:215], vout[:215], 1)
+
+        # Calculate INL for this result (accounting for gain and offset)
+        voutcor = (vout - p[1]) / p[0]
+        inlcor = (voutcor - vin) / alsb
+
+        max_inl_cor = np.max(np.abs(inlcor))
+        max_inl_cor_0_to_2_6V = np.max(np.abs(inlcor[:202]))
+
+        # Calculate DNL for this result
+        dnl = ((vout[1:] - vout[:-1]) / alsb) - 1
+        max_dnl = np.max(np.abs(dnl))
+
+        # Report gain and offset error
+        slope = p[0]
+        offset = p[1]
+
+        offset_error = offset * 1000
+        gain_error = 100 * abs(slope - 1)
+
+        # Print calculated values
+        print('Absolute INL:')
+        print('Maximum INL (in lsb) =', max_inl_abs)
+        print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
+
+        print('INL corrected for gain and offset:')
+        print('Maximum INL (in lsb) =', max_inl_cor)
+        print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
+
+        print('Maximum DNL (in lsb) =', max_dnl)
+
+        print('Offset error = {:.3f}mV'.format(offset_error))
+        print('Gain error = {:.3f}%'.format(gain_error))
+        data = [
+            ['VDDIO (v)', 'VCCD (v)', 'Absolute max INL', 'Abs max INL from 0 to 2.6v', 'Corrected max INL', 'Corrected max INL from 0 to 2.6v', 'Max DNL', 'Offset error', 'Gain error'],
+            [test.h_voltage, test.l_voltage, max_inl_abs, max_inl_abs_0_to_2_6V, max_inl_cor, max_inl_cor_0_to_2_6V, max_dnl, gain_error]
+            ]
+
+        # Write data to a CSV file
+        csv_filename = f'{volt_dir}/dac_data.csv'
+        with open(csv_filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(data)
+        return True
 
 
 def flash_test(

@@ -19,6 +19,9 @@ from manifest import (
     h_voltage,
     analog,
 )
+from WF_SDK import logic, wavegen, static, scope
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def init_ad_ios(device1_data, device2_data, device3_data):
@@ -1206,6 +1209,300 @@ def fpga_ram_test(test):
         return False
 
 
+def adc_test(test, uart, verbose):
+    if test.test_name == "adc_test":
+        test.device3v3.dio_map[22].set_state(True)
+        test.device3v3.dio_map[22].set_value(1)
+        # Prepare the Digilent logic analyzer
+        # open(device_data, sampling_frequency=100e06, buffer_size=0)
+        logic.open(test.device3v3.ad_device, 1e5, 1)
+
+        # trigger(device_data, enable, channel, position=0, timeout=0,
+        #      rising_edge=True, length_min=0, length_max=20, count=0)
+        # logic.trigger(devdata, False, 0)
+        #
+        # Better:  Define a trigger channel and trigger on pulse
+        # from Caravel to be defined whenever it runs a new ADC conversion
+        # logic.trigger(test.device3v3.ad_device, True, 10)
+
+        uart_data = uart.read_data(test)
+        uart_data = uart_data.decode()
+        if "UART Timeout!" in uart_data:
+            test.console.print("[red]UART Timeout!")
+            return False
+        if "Start Test:" in uart_data:
+            test.test_name = uart_data.strip().split(": ")[1]
+            test.console.print(f"Running test {test.test_name}...")
+        # test.reset()
+
+        numvals = 1024
+        uart_data = ""
+        volt_dir = os.path.join(DATE_DIR, f"{test.l_voltage}_{test.h_voltage}")
+        os.makedirs(volt_dir, exist_ok=True)
+
+        data = [['clk freq (MHz)', 'clk div', 'ABS Max INL (lsb)', 'ABS Max INL (lsb 0 to 2.6V)', 'Corrected Max INL (lsb)', 'Corrected Max INL (lsb 0 to 2.6V)', 'Max DNL (lsb)', 'Offset error (mV)', 'Gain error (%)']]
+
+        clk_freq = ["2.5", "1.67", "1", "0.813", "0.714", "0.385"]
+
+        # Write data to a CSV file
+        csv_filename = f'{volt_dir}/adc_data.csv'
+        with open(csv_filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(data)
+        for clkdiv in range(0, 6):
+            invals = []
+            outvals = []
+            mult_outvals = []
+            uart_data = uart.read_data(test)
+            uart_data = uart_data.decode()
+            if "UART Timeout!" in uart_data:
+                test.console.print("[red]UART Timeout!")
+                return False
+            if "clkdiv:" in uart_data:
+                clk_div = uart_data.strip().split(": ")[1]
+            test.console.print("clk_div value:", clk_div)
+            test.console.print("clk freq (MHz):", clk_freq[clkdiv])
+            test.device3v3.dio_map[22].set_value(0)
+            for i in range(0, 40):
+                invals = []
+                outvals = []
+                for v in range(0, numvals):
+                    volt = 3.3 * (float(v) / float(numvals))
+                    # Set value on W1:  Test DC value at 1.5V (set by offset, not amplitude)
+                    # generate(device_data, channel, function, offset, frequency=1e03,
+                    #      amplitude=1, symmetry=50, wait=0, run_time=0, repeat=0, data=[])
+                    wavegen.generate(test.device3v3.ad_device, 1, wavegen.function.dc, volt, 1e3, 0, 50, 0, 0, 0)
+                    logic.trigger(test.device3v3.ad_device, True, 10)
+                    # time.sleep(0.05)
+                    # print("triggered!")
+
+                    # Read ADC value back from GPIO 24-31, connected to Digilent 2-9.
+                    # Use "recordall" (function added to existing SDK)
+
+                    value = 0
+                    buffer = logic.recordall(test.device3v3.ad_device)
+                    for i in range(2, 10):
+                        value += buffer[i][0]
+                    
+                    if verbose:
+                        print('Input voltage = ' + str(volt) + ';  captured value = ' + str(value))
+                    invals.append(volt)
+                    outvals.append(value)
+                
+                mult_outvals.append(outvals)
+            
+
+            # Transpose the array to get columns as rows
+            transposed_a1 = list(map(list, zip(*mult_outvals)))
+
+            # Calculate the average for each column
+            averages = [sum(column) / len(column) for column in transposed_a1]
+
+            # Calculate the noise for each column
+            noises = [max(column) - min(column) for column in transposed_a1]
+
+            # Create a figure with two subplots
+            fig = plt.figure()
+
+            # Plot the average against the input values
+            ax1 = fig.add_subplot(2, 1, 1)
+            ax1.plot(invals, averages, 'b', label='Average')
+            ax1.set_ylabel('Average')
+
+            # Plot the noise against the input values
+            ax2 = fig.add_subplot(2, 1, 2, sharex=ax1)
+            ax2.plot(invals, noises, 'r', label='Noise')
+            ax2.set_xlabel('Input Values')
+            ax2.set_ylabel('Noise')
+
+            # Add legend to the plots
+            ax1.legend()
+            ax2.legend()
+
+            # Set title
+            fig.suptitle(f'Average and Noise Plot for {clk_freq[clkdiv]}MHz clock Freqency')
+
+            # Adjust layout
+            plt.tight_layout()
+
+            # Save the plot as a PNG file
+            plt.savefig(f'{volt_dir}/average_and_noise_{clk_freq[clkdiv]}.png')
+
+            # Show the plot
+            # plt.show()
+
+            # print(averages)
+
+            with open(f'{volt_dir}/adc_results_{clk_freq[clkdiv]}.dat', 'w') as ofile:
+                print(' '.join(map(str, invals)), file=ofile)
+                print(' '.join(map(str, averages)), file=ofile)
+            with open(f'{volt_dir}/adc_noise_{clk_freq[clkdiv]}.dat', 'w') as ofile:
+                print(' '.join(map(str, invals)), file=ofile)
+                print(' '.join(map(str, noises)), file=ofile)
+
+            vhighval = 3.3
+            vlowval = 0.0
+            fsr = vhighval - vlowval
+            alsb = fsr / 256.0
+
+            x0 = np.arange(1024)
+            y = np.floor(x0 / 4)
+
+            # Curve fit to get gain and offset values
+            p = np.polyfit(y, averages, 1)
+            slope = p[0]
+            offset = p[1]
+
+            # Calculate INL for this result (absolute)
+            vin = np.arange(1024) * (3.3 / 1024)
+            iout = np.array(averages)
+            vout = iout * alsb
+            inl = (vout - vin) / alsb
+
+            max_inl_abs = np.max(np.abs(inl))
+            max_inl_abs_0_to_2_6V = np.max(np.abs(inl[2:807]))
+
+            # Curve fit to vout(1:800) to get offset and gain
+            p = np.polyfit(np.arange(2, 801), vout[1:800], 1)
+
+            # Calculate INL for this result (accounting for gain and offset)
+            ioutcor = (vout - p[1]) / p[0]
+            voutcor = (ioutcor / 4) * alsb
+            inlcor = (voutcor - vin) / alsb
+
+            max_inl_cor = np.max(np.abs(inlcor))
+            max_inl_cor_0_to_2_6V = np.max(np.abs(inlcor[2:807]))
+
+            # Calculate DNL for this result
+            dnl = ((vout[6:1023:4] - vout[2:1019:4]) / alsb) - 1
+            max_dnl = np.max(np.abs(dnl))
+
+            # Report offset and gain error
+            slope = p[0]
+            offset = p[1]
+            offset_error = offset * 1000
+            gain_error = 100 * abs((slope * 4 / alsb) - 1)
+
+            print('Absolute INL:')
+            print('Maximum INL (in lsb) =', max_inl_abs)
+            print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
+
+            print('INL corrected for gain and offset:')
+            print('Maximum INL (in lsb) =', max_inl_cor)
+            print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
+
+            print('Maximum DNL (in lsb) =', max_dnl)
+
+            print('Offset error = {:.3f}mV'.format(offset_error))
+            print('Gain error = {:.3f}%'.format(gain_error))
+
+            data = [[clk_freq[clkdiv], clk_div, max_inl_abs, max_inl_abs_0_to_2_6V, max_inl_cor, max_inl_cor_0_to_2_6V, max_dnl, offset_error, gain_error]]
+
+            # Write data to a CSV file
+            csv_filename = f'{volt_dir}/adc_data.csv'
+            with open(csv_filename, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerows(data)
+            test.device3v3.dio_map[22].set_value(1)
+        return True
+
+    elif test.test_name == "dac_test":
+        # Prepare the Digilent I/O for static function
+        for k in range(2, 10):
+            # Enable channel for digital output (output=True is output)
+            # set_mode(device_data, channel, output)
+            static.set_mode(test.device3v3.ad_device, k, True)
+
+        # Prepare the Digilent scope for signal capture
+        # open(device_data, sampling_frequency=20e06, buffer_size=0,
+        #	offset=0, amplitude_range=5)
+        #
+        scope.open(test.device3v3.ad_device, 20e6, 1, 0, 10)
+
+        # Set up the scope to trigger on T1, and connect T1 to GPIO 33.
+        # The "blizzard_dac_test.c" outputs on that pin.
+        # trigger(device_data, enable, source=trigger_source.none, channel=1,
+        #	timeout=0, edge_rising=True, level=0)
+        # scope.trigger(test.device3v3.ad_device, True, scope.trigger_source.external[1], 1, 0, True, 1.65)
+
+        digvals = []
+        invals = []
+        outvals = []
+        captured_voltage = []
+        expected_voltage = []
+        digital_values = []
+        diff_arr = []
+        numvals = 256
+        for v in range(0, numvals):
+            volt = 3.3 * (float(v) / float(numvals))
+
+            scope.trigger(test.device3v3.ad_device, True, scope.trigger_source.external[1], 1, 0, True, 1.65)
+
+            # Apply binary value as pattern to GPIO 24-31
+            for k in range(0, 8):
+                test.device3v3.dio_map[k+24].set_state(True)
+                # print(f"v: {v}, k: {k}, value: {(v >> k) & 1}")
+                # print((v >> k) & 1)
+                test.device3v3.dio_map[k+24].set_value((v >> k) & 1)
+                # static.set_allstates(test.device3v3.ad_device, v)
+
+            time.sleep(0.05)
+            # pulse_count = test.receive_packet(250)
+            # test.console.print("clk_div value:", pulse_count)
+
+            # Read DAC value back from GPIO 15
+            samples = 64
+            value = 0
+            for i in range(0, samples):
+                # scope.trigger(test.device3v3.ad_device, True, scope.trigger_source.external[1], 1, 0, True, 1.65)
+                value += scope.measure(test.device3v3.ad_device, 1)
+            value /= float(samples)
+
+            print('Output value = ' + str(v) + ';  expected voltage = ' + str(volt) + ';  captured voltage = ' + str(value))
+            digvals.append(str(v))
+            invals.append(str(volt))
+            outvals.append(str(value))
+
+            # Calculate the difference between the captured voltage and expected voltage
+            diff = volt - value
+
+            # Append the values to the corresponding lists
+            digital_values.append(v)
+            captured_voltage.append(value)
+            expected_voltage.append(volt)
+            diff_arr.append(diff)
+
+        # Create a single figure with two subplots
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 10))
+
+        # Plot captured voltage and expected voltage against digital values
+        # plt.figure()
+        ax1.plot(digital_values, captured_voltage, 'b', label='Captured Voltage')
+        ax1.plot(digital_values, expected_voltage, 'r', label='Expected Voltage')
+        ax1.set_xlabel('Digital Values')
+        ax1.set_ylabel('Voltage')
+        ax1.legend()
+        ax1.set_title('Captured Voltage and Expected Voltage')
+        # ax1.savefig('DAC_captured_vs_expected.png')
+
+        # Create the plot for the difference between captured voltage and expected voltage against digital values
+        # plt.figure()
+        ax2.plot(digital_values, diff_arr, 'g', label='Difference')
+        ax2.set_xlabel('Digital Values')
+        ax2.set_ylabel('Voltage Difference')
+        ax2.legend()
+        ax2.set_title('Difference between Captured Voltage and Expected Voltage')
+        # Adjust spacing between subplots
+        plt.tight_layout()
+        plt.savefig('DAC_captured_vs_expected.png')
+        plt.close(fig)
+
+        with open('dac_results.dat', 'w') as ofile:
+            print(' '.join(digvals), file=ofile)
+            print(' '.join(invals), file=ofile)
+            print(' '.join(outvals), file=ofile)
+
+
 def flash_test(
     test,
     hex_file,
@@ -1223,6 +1520,7 @@ def flash_test(
     alu,
     sec_count,
     fpga_ram,
+    ana,
 ):
     if flash_only:
         run_only = False
@@ -1297,6 +1595,8 @@ def flash_test(
             results = fpga_counter_test(test, uart_data)
         elif fpga_ram:
             results = fpga_ram_test(test)
+        elif ana:
+            results = adc_test(test, uart_data, verbose)
         else:
             results = process_soc(test, uart_data)
         # if uart:
@@ -1394,6 +1694,7 @@ def exec_test(
     alu=False,
     sec_count=False,
     fpga_ram=False,
+    ana=False,
 ):
     results = False
     results = flash_test(
@@ -1413,6 +1714,7 @@ def exec_test(
         alu,
         sec_count,
         fpga_ram,
+        ana,
     )
     end_time = time.time() - start_time
     arr = []
@@ -1499,7 +1801,7 @@ if __name__ == "__main__":
             help="Run Standalone test if in manifest",
         )
         parser.add_argument(
-            "-tmp",
+            "-temp",
             "--temperature",
             help="Temperature monitoring",
         )
@@ -1678,6 +1980,17 @@ if __name__ == "__main__":
                                 uart_data=uart_data,
                                 fpga_ram=t["fpga_ram"],
                             )
+                        elif t["ana"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                t["hex_file_path"],
+                                flash_flag,
+                                plud=t["plud"],
+                                flash_only=args.flash_only,
+                                uart_data=uart_data,
+                                ana=t["ana"],
+                            )
                         else:
                             exec_test(
                                 test,
@@ -1697,8 +2010,8 @@ if __name__ == "__main__":
                             devices = device.open_devices()
                             sys.stdout = sys.__stdout__
 
-            if not test_flag:
-                test.console.print(f"[red]ERROR : Coun't find test {args.test}")
+        if not test_flag:
+            test.console.print(f"[red]ERROR : couldn't find test {args.test}")
 
         test.console.print(
             "=============================================================================="

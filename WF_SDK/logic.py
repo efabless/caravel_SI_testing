@@ -165,6 +165,43 @@ def record(device_data, channel):
 
 """-----------------------------------------------------------------------"""
 
+
+def recordall(device_data):
+    """
+        initialize the logic analyzer
+
+        parameters: - device data
+
+        returns:    - buffer - a list with the recorded logic values for all channels
+    """
+    # set up the instrument
+    dwf.FDwfDigitalInConfigure(device_data.handle, ctypes.c_bool(False), ctypes.c_bool(True))
+    
+    # read data to an internal buffer
+    while True:
+        status = ctypes.c_byte()    # variable to store buffer status
+        dwf.FDwfDigitalInStatus(device_data.handle, ctypes.c_bool(True), ctypes.byref(status))
+    
+        if status.value == constants.stsDone.value:
+            # exit loop when finished
+            break
+    
+    # get samples
+    buffer = (ctypes.c_uint16 * data.buffer_size)()
+    dwf.FDwfDigitalInStatusData(device_data.handle, buffer, ctypes.c_int(2 * data.buffer_size))
+    
+    # convert buffer to list of lists of integers
+    buffer = [int(element) for element in buffer]
+    result = [[] for _ in range(16)]
+    for point in buffer:
+        for index in range(16):
+            result[index].append(point & (1 << index))
+    
+    # get channel specific data
+    return result
+
+"""-----------------------------------------------------------------------"""
+
 def close(device_data):
     """
         reset the instrument

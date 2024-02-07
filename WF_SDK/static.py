@@ -116,6 +116,39 @@ def set_state(device_data, channel, value):
 
 """-----------------------------------------------------------------------"""
 
+def set_allstates(device_data, value):
+    """
+        set all 16 DIO lines as High, or Low
+
+        parameters: - device data
+                    - 16-bit integer value
+    """
+    # load current state of the output state buffer
+    mask = ctypes.c_uint16()
+    dwf.FDwfDigitalIOOutputGet(device_data.handle, ctypes.byref(mask))
+    mask = mask.value
+
+    tf = []
+    for channel in range(0, 16):
+        bitset = __rotate_left__(1, channel)
+        # set bit in mask
+        if value & bitset:
+            mask |= bitset
+            tf.append(True)
+        else:
+            mask &= ~bitset
+            tf.append(False)
+
+    # set the pin state
+    dwf.FDwfDigitalIOOutputSet(device_data.handle, ctypes.c_int(mask))
+
+    # set internal record to match pin state
+    for channel in range(0, 16):
+        state.state[channel] = tf[channel]
+    return
+
+"""-----------------------------------------------------------------------"""
+
 def set_current(device_data, current):
     """
         limit the output current of the DIO lines

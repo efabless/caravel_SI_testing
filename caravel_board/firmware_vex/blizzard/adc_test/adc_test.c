@@ -152,14 +152,20 @@ void main()
     // adc_clkdiv_reg = 6; /* core clock / 14 = 714kHz */
     // adc_clkdiv_reg = 12;     /* core clock / 26 = 385kHz */
     int clkdiv_arr[6] = {1, 2, 4, 5, 6, 12};
+    const char *clkdiv_arr_str[6] = {"1", "2", "4", "5", "6", "12"};
 
     int io22 = (reg_mprj_datal >> 22) & 1;
     count_down(PULSE_WIDTH * 10);
+    config_uart();
+    print("Start Test: adc_test\n");
 
     for (int i = 0; i < 6; i++)
     {
         adc_clkdiv_reg = clkdiv_arr[i];
-        send_packet(adc_clkdiv_reg);
+        config_uart();
+        print("clkdiv: ");
+        print(clkdiv_arr_str[i]);
+        print("\n");
         while (io22 == 1)
         {
             io22 = (reg_mprj_datal >> 22) & 1;

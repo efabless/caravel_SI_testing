@@ -181,7 +181,11 @@ data = slave.exchange([CARAVEL_STREAM_READ, 0x04], 4)
 #         int("{0:32b}".format(int.from_bytes(data, byteorder="big"))[::-1], 2)
 # )
 # )
-print("   project ID = {:08x}".format(int('{0:032b}'.format(int.from_bytes(data, byteorder='big'))[::-1], 2)))
+print(
+    "   project ID = {:08x}".format(
+        int("{0:032b}".format(int.from_bytes(data, byteorder="big"))[::-1], 2)
+    )
+)
 
 if int.from_bytes(mfg, byteorder="big") != 0x0456:
     exit(2)
@@ -202,8 +206,11 @@ print("JEDEC = {}".format(binascii.hexlify(jedec)))
 
 if jedec[0:1] != bytes.fromhex("ef"):
     # if jedec[0:1] != bytes.fromhex('e6'):
-    print("Winbond SRAM not found")
-    sys.exit(1)
+    jedec = slave.exchange([CARAVEL_PASSTHRU, CMD_JEDEC_DATA], 3)
+    print("JEDEC = {}".format(binascii.hexlify(jedec)))
+    if jedec[0:1] != bytes.fromhex("ef"):
+        print("Winbond SRAM not found")
+        sys.exit(1)
 
 print("Erasing chip...")
 slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
@@ -337,7 +344,6 @@ with open(file_path, mode="r") as f:
         x = f.readline()
 
         if nbytes >= 256 or (x != "" and x[0] == "@" and nbytes > 0):
-
             total_bytes += nbytes
             # print('\n----------------------\n')
             # print(binascii.hexlify(buf))

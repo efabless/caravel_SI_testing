@@ -638,12 +638,17 @@ def flash_test(
             test.task,
             description=f"Flashing {test.test_name}",
         )
-        test.power_down()
-        test.apply_reset()
-        test.power_up_1v8()
+        # test.power_down()
+        # test.apply_reset()
+        # test.power_up_1v8()
+        test.gpio_mgmt.set_state(True)
+        test.gpio_mgmt.set_value(0)
+        time.sleep(5)
         test.flash(hex_file)
-        test.power_down()
-        test.release_reset()
+        test.gpio_mgmt.set_state(True)
+        test.gpio_mgmt.set_value(1)
+        # test.power_down()
+        # test.release_reset()
     else:
         test.power_down()
         time.sleep(5)

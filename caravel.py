@@ -515,7 +515,7 @@ class UART:
         # self.tx = 5
         self.tx = 7
 
-    def open(self, baud_rate=9600, parity=None, data_bits=8, stop_bits=1):
+    def open(self, baud_rate=10400, parity=None, data_bits=8, stop_bits=1):
         """
         initializes UART communication
 

@@ -11,6 +11,7 @@ import sys
 from ctypes import *
 import logging
 import os
+import math
 from rich.console import Console
 from rich.progress import (
     Progress,
@@ -21,11 +22,6 @@ from rich.progress import (
 )
 
 # import flash
-
-RUNS_DIR = os.path.join(os.getcwd(), "runs")
-os.makedirs(RUNS_DIR, exist_ok=True)
-DATE_DIR = os.path.join(RUNS_DIR, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-os.makedirs(DATE_DIR, exist_ok=True)
 
 
 def accurate_delay(delay):
@@ -67,6 +63,12 @@ class Test:
             TimeElapsedColumn(),
             console=self.console,
         )
+        self.runs_dir = os.path.join(os.getcwd(), "runs")
+        self.date_dir = os.path.join(self.runs_dir, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+
+    def make_runs_dirs(self):
+        os.makedirs(self.runs_dir, exist_ok=True)
+        os.makedirs(self.date_dir, exist_ok=True)
 
     def receive_packet(self, pulse_width=25):
         """recieves packet using the wire protocol, uses the gpio_mgmt I/O
@@ -175,7 +177,7 @@ class Test:
         Args:
             hex_file (string): path to hex file
         """
-        with open(f"{DATE_DIR}/flash.log", "a") as f:
+        with open(f"{self.date_dir}/flash.log", "a") as f:
             f.write("==============================================")
             f.write(f"   Flashed {self.test_name}")
             f.write(" ==============================================\n")
@@ -288,6 +290,16 @@ class Test:
             time.sleep(0.5)
             inst.write("OUTP CH2, ON")
             time.sleep(5)
+            l_volt = float(inst.query('MEAsure:VOLTage? CH1'))
+            h_volt = float(inst.query('MEAsure:VOLTage? CH2'))
+            l_volt_expected = self.l_voltage
+            h_volt_expected = self.h_voltage
+            error_tolerance = 0.1
+
+            if not math.isclose(l_volt, l_volt_expected, abs_tol=error_tolerance) or not math.isclose(h_volt, h_volt_expected, abs_tol=error_tolerance):
+                Console.print(f"[red]Error: {resource_name} not within 0.1V of expected voltages")
+                self.turn_off_devices()
+                exit()
             rm.close()
         else:
             self.device3v3.supply.set_voltage(self.h_voltage)
@@ -319,6 +331,16 @@ class Test:
             time.sleep(0.5)
             inst.write("OUTP CH2, ON")
             time.sleep(5)
+            l_volt = float(inst.query('MEAsure:VOLTage? CH1'))
+            h_volt = float(inst.query('MEAsure:VOLTage? CH2'))
+            l_volt_expected = 1.8
+            h_volt_expected = 3.3
+            error_tolerance = 0.1
+
+            if not math.isclose(l_volt, l_volt_expected, abs_tol=error_tolerance) or not math.isclose(h_volt, h_volt_expected, abs_tol=error_tolerance):
+                Console.print(f"[red]Error: {resource_name} not within 0.1V of expected voltages")
+                self.turn_off_devices()
+                exit()
             rm.close()
         else:
             self.device3v3.supply.set_voltage(3.3)

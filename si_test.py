@@ -1,6 +1,6 @@
 import argparse
 import json
-from caravel import Dio, FreqCounter, Test, accurate_delay, DATE_DIR
+from caravel import Dio, FreqCounter, Test, accurate_delay
 from io_config import Device, device, connect_devices, UART, SPI
 import os
 import csv
@@ -1210,7 +1210,7 @@ def fpga_ram_test(test):
 
 
 def adc_test(test, uart, verbose):
-    volt_dir = os.path.join(DATE_DIR, f"{test.l_voltage}_{test.h_voltage}")
+    volt_dir = os.path.join(test.date_dir, f"{test.l_voltage}_{test.h_voltage}")
     os.makedirs(volt_dir, exist_ok=True)
     if test.test_name == "adc_test":
         test.device3v3.dio_map[22].set_state(True)
@@ -1696,9 +1696,9 @@ def flash_test(
         elif ana:
             results = adc_test(test, uart_data, verbose)
             if "adc" in test.test_name:
-                concat_csv(DATE_DIR, "adc_data")
+                concat_csv(test.date_dir, "adc_data")
             else:
-                concat_csv(DATE_DIR, "dac_data")
+                concat_csv(test.date_dir, "dac_data")
         else:
             results = process_soc(test, uart_data)
         # if uart:
@@ -1733,9 +1733,9 @@ def flash_test(
         return True
 
 
-def reformat_csv(temp=None):
+def reformat_csv(test, temp=None):
     # Read the original CSV file
-    with open(f"{DATE_DIR}/results.csv", "r") as file:
+    with open(f"{test.date_dir}/results.csv", "r") as file:
         reader = csv.reader(file)
         data = list(reader)
 
@@ -1751,7 +1751,7 @@ def reformat_csv(temp=None):
                 voltage_combinations.append([d[1], d[2]])
 
     # Create a new CSV file with the desired format
-    with open(f"{DATE_DIR}/formatted_results.csv", "w", newline="") as file:
+    with open(f"{test.date_dir}/formatted_results.csv", "w", newline="") as file:
         writer = csv.writer(file)
 
         if temp:
@@ -1867,10 +1867,29 @@ def exec_test(
             ]
         )
 
-    with open(f"{DATE_DIR}/results.csv", "a", encoding="UTF8") as f:
+    with open(f"{test.date_dir}/results.csv", "a", encoding="UTF8") as f:
         writer = csv.writer(f)
         for test in arr:
             writer.writerow(test)
+
+
+def get_last_test_name(test):
+    # Get the last test.date_dir
+    date_dirs = sorted([d for d in os.listdir(test.runs_dir) if os.path.isdir(os.path.join(test.runs_dir, d))])
+    last_date_dir = date_dirs[-1]
+
+    # Read the results.csv file in the last test.date_dir
+    with open(os.path.join(test.runs_dir, last_date_dir, "flash.log"), "r") as file:
+        lines = file.readlines()
+
+    # Search for the last occurrence of the "Flashed <test_name>" pattern
+    last_flashed_test = None
+    for line in reversed(lines):
+        if "Flashed" in line:
+            last_flashed_test = line.split("Flashed ")[1].split(" ")[0]
+            break
+
+    return last_flashed_test, last_date_dir
 
 
 if __name__ == "__main__":
@@ -1906,6 +1925,13 @@ if __name__ == "__main__":
             "-temp",
             "--temperature",
             help="Temperature monitoring",
+        )
+        parser.add_argument(
+            "-l",
+            "--last_test",
+            action="store_true",
+            default=False,
+            help="Start the regression from the last test in the runs directory",
         )
         args = parser.parse_args()
         # open multiple devices
@@ -1943,6 +1969,18 @@ if __name__ == "__main__":
             "=============================================================================="
         )
 
+        if args.last_test:
+            last_test_name, last_date_dir = get_last_test_name(test)
+            # Find the index of the test to start from
+            start_index = next((i for i, test in enumerate(TestDict) if test["test_name"] == last_test_name), None)
+
+            if start_index is not None:
+                # Create a new TestDict list starting from the specified test
+                TestDict = TestDict[start_index:]
+            test.date_dir = f"{test.runs_dir}/{last_date_dir}"
+        else:
+            test.make_runs_dirs()
+
         csv_header = [
             "Test_name",
             "Low Voltage (v)",
@@ -1951,10 +1989,11 @@ if __name__ == "__main__":
             "Time (s)",
         ]
 
-        with open(f"{DATE_DIR}/results.csv", "a", encoding="UTF8") as f:
+        with open(f"{test.date_dir}/results.csv", "a", encoding="UTF8") as f:
             writer = csv.writer(f)
             writer.writerow(csv_header)
         test_flag = False
+
         test.task = test.progress.add_task(
             "SI validation", total=(len(TestDict) * len(l_voltage) * len(h_voltage))
         )
@@ -2124,7 +2163,7 @@ if __name__ == "__main__":
         )
         test.close_devices()
         # Load CSV data
-        with open(f"{DATE_DIR}/results.csv") as f:
+        with open(f"{test.date_dir}/results.csv") as f:
             reader = csv.reader(f)
             headers = next(reader)
 
@@ -2138,7 +2177,7 @@ if __name__ == "__main__":
 
             test.console.print(table)
 
-        reformat_csv(args.temperature)
+        reformat_csv(test, args.temperature)
         test.progress.stop()
         os._exit(0)
     except KeyboardInterrupt:

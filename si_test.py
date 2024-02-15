@@ -1850,11 +1850,11 @@ def exec_test(
         for result in results:
             if result[1]:
                 arr.append(
-                    [result[0], test.l_voltage, test.h_voltage, "passed", end_time]
+                    [result[0], test.l_voltage, test.h_voltage, "passed", end_time / len(results)]
                 )
             else:
                 arr.append(
-                    [result[0], test.l_voltage, test.h_voltage, "failed", end_time]
+                    [result[0], test.l_voltage, test.h_voltage, "failed", end_time / len(results)]
                 )
     elif type(results) == str:
         arr.append(
@@ -1969,6 +1969,14 @@ if __name__ == "__main__":
             "=============================================================================="
         )
 
+        csv_header = [
+            "Test_name",
+            "Low Voltage (v)",
+            "High Voltage (v)",
+            "Pass/Fail",
+            "Time (s)",
+        ]
+
         if args.last_test:
             last_test_name, last_date_dir = get_last_test_name(test)
             # Find the index of the test to start from
@@ -1980,18 +1988,10 @@ if __name__ == "__main__":
             test.date_dir = f"{test.runs_dir}/{last_date_dir}"
         else:
             test.make_runs_dirs()
+            with open(f"{test.date_dir}/results.csv", "a", encoding="UTF8") as f:
+                writer = csv.writer(f)
+                writer.writerow(csv_header)
 
-        csv_header = [
-            "Test_name",
-            "Low Voltage (v)",
-            "High Voltage (v)",
-            "Pass/Fail",
-            "Time (s)",
-        ]
-
-        with open(f"{test.date_dir}/results.csv", "a", encoding="UTF8") as f:
-            writer = csv.writer(f)
-            writer.writerow(csv_header)
         test_flag = False
 
         test.task = test.progress.add_task(

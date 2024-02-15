@@ -88,7 +88,7 @@ def process_mgmt_gpio(test, verbose):
             io = test.device1v8.dio_map[0]
             pulse_count = test.receive_packet(250)
             if pulse_count == 2:
-                test.console.print(f"Running test {test.test_name}...")
+                test.print_and_log(f"Running test {test.test_name}...")
             for i in range(5, 8):
                 while not io.get_value():
                     pass
@@ -99,56 +99,56 @@ def process_mgmt_gpio(test, verbose):
                 if pulse_count == i:
                     counter += 1
                 else:
-                    test.console.print("[red]failed")
+                    test.print_and_log("[red]failed")
                     status.append((test.test_name, False))
             if counter == 3:
-                test.console.print("[green]passed")
+                test.print_and_log("[green]passed")
                 status.append((test.test_name, True))
             else:
-                test.console.print("[red]failed")
+                test.print_and_log("[red]failed")
                 status.append((test.test_name, False))
 
         elif name == "uart_io":
             pulse_count = test.receive_packet(250)
             if pulse_count == 2:
-                test.console.print(f"Running test {test.test_name}...")
+                test.print_and_log(f"Running test {test.test_name}...")
                 received = test.io_receive(4, 6)
                 if not received:
-                    test.console.print("[red]failed")
+                    test.print_and_log("[red]failed")
                     status.append((test.test_name, False))
                 else:
                     if verbose:
-                        test.console.print("IO[6] Passed")
+                        test.print_and_log("IO[6] Passed")
                     pulse_count = test.receive_packet(250)
                     if pulse_count == 3:
                         if verbose:
-                            test.console.print("Send 4 packets to IO[5]")
+                            test.print_and_log("Send 4 packets to IO[5]")
                         time.sleep(5)
                         test.send_pulse(4, 5, 5)
                         ack_pulse = test.receive_packet(250)
                         if ack_pulse == 9:
-                            test.console.print("[red]failed")
+                            test.print_and_log("[red]failed")
                             status.append((test.test_name, False))
                         elif ack_pulse == 4:
-                            test.console.print("[green]passed")
+                            test.print_and_log("[green]passed")
                             status.append((test.test_name, True))
 
         else:
             phase = 0
-            test.console.print(f"Running test {test.test_name}...")
+            test.print_and_log(f"Running test {test.test_name}...")
             for passing in test.passing_criteria:
                 pulse_count = test.receive_packet(25)
                 if pulse_count == passing:
                     if verbose:
-                        test.console.print(f"pass phase {phase}")
+                        test.print_and_log(f"pass phase {phase}")
                     phase = phase + 1
 
                 if pulse_count == 9:
-                    test.console.print("[red]failed")
+                    test.print_and_log("[red]failed")
                     status.append((test.test_name, False))
 
             if len(test.passing_criteria) == phase:
-                test.console.print("[green]passed")
+                test.print_and_log("[green]passed")
                 status.append((test.test_name, True))
     return status
 
@@ -168,33 +168,33 @@ def process_uart(test, uart, verbose):
         pulse_count = test.receive_packet(250)
         if pulse_count == 1:
             if verbose:
-                test.console.print(f"Start test: {name}")
+                test.print_and_log(f"Start test: {name}")
 
         if test.test_name == "uart":
             pulse_count = test.receive_packet(250)
             if pulse_count == 2:
-                test.console.print(f"Running test {test.test_name}...")
+                test.print_and_log(f"Running test {test.test_name}...")
             uart_data = uart.read_data(test)
             uart_data = uart_data.decode()
             if "UART Timeout!" in uart_data:
-                test.console.print("[red]UART Timeout!")
+                test.print_and_log("[red]UART Timeout!")
                 status.append((test.test_name, False))
             if "Monitor: Test UART passed" in uart_data:
-                test.console.print("[green]passed")
+                test.print_and_log("[green]passed")
                 status.append((test.test_name, True))
             else:
-                test.console.print("[red]failed")
+                test.print_and_log("[red]failed")
                 status.append((test.test_name, False))
             pulse_count = test.receive_packet(250)
             if pulse_count == 5:
                 if verbose:
-                    test.console.print("end UART transmission")
+                    test.print_and_log("end UART transmission")
 
         elif test.test_name == "uart_reception":
             passed = True
             pulse_count = test.receive_packet(250)
             if pulse_count == 2:
-                test.console.print(f"Running test {test.test_name}...")
+                test.print_and_log(f"Running test {test.test_name}...")
             uart.open()
             timeout = time.time() + 50
             for i in ["M", "B", "A"]:
@@ -205,28 +205,28 @@ def process_uart(test, uart, verbose):
                 if pulse_count == 6:
                     passed = True
                     if verbose:
-                        test.console.print(f"Received {i} successfully")
+                        test.print_and_log(f"Received {i} successfully")
                 if pulse_count == 9:
-                    test.console.print("[red]failed")
+                    test.print_and_log("[red]failed")
                     uart.close()
                     passed = False
                     status.append((test.test_name, False))
                     break
                 if time.time() > timeout:
-                    test.console.print("[red]UART Timeout!")
+                    test.print_and_log("[red]UART Timeout!")
                     uart.close()
                     passed = False
                     status.append((test.test_name, False))
                     break
             if passed:
-                test.console.print("[green]passed")
+                test.print_and_log("[green]passed")
                 status.append((test.test_name, True))
 
         elif test.test_name == "uart_loopback":
             passed = True
             uart.open()
             timeout = time.time() + 50
-            test.console.print(f"Running test {test.test_name}...")
+            test.print_and_log(f"Running test {test.test_name}...")
             for i in range(0, 5):
                 while time.time() < timeout:
                     uart_data, count = uart.read_uart()
@@ -239,30 +239,30 @@ def process_uart(test, uart, verbose):
                         if pulse_count == 6:
                             passed = True
                             if verbose:
-                                test.console.print(f"sent {dat} successfully")
+                                test.print_and_log(f"sent {dat} successfully")
                             break
                         if pulse_count == 9:
-                            test.console.print("[red]failed")
+                            test.print_and_log("[red]failed")
                             uart.close()
                             status.append((test.test_name, False))
                             break
             if passed:
-                test.console.print("[green]passed")
+                test.print_and_log("[green]passed")
                 status.append((test.test_name, True))
 
         elif test.test_name == "IRQ_uart_rx":
             pulse_count = test.receive_packet(25)
             if pulse_count == 2:
-                test.console.print(f"Running test {test.test_name}...")
+                test.print_and_log(f"Running test {test.test_name}...")
             uart.open()
             uart.write("I")
             pulse_count = test.receive_packet(25)
             if pulse_count == 5:
-                test.console.print("[green]passed")
+                test.print_and_log("[green]passed")
                 status.append((test.test_name, True))
                 break
             if pulse_count == 9:
-                test.console.print("[red]failed")
+                test.print_and_log("[red]failed")
                 uart.close()
                 status.append((test.test_name, False))
 
@@ -275,14 +275,14 @@ def process_soc(test, uart):
         uart_data = uart.read_data(test)
         uart_data = uart_data.decode()
         if "UART Timeout!" in uart_data:
-            test.console.print("[red]UART Timeout!")
+            test.print_and_log("[red]UART Timeout!")
             status.append((test.test_name, False))
             break
         if "Start Test:" in uart_data:
             test.test_name = uart_data.strip().split(": ")[1]
-            test.console.print(f"Running test {test.test_name}...")
+            test.print_and_log(f"Running test {test.test_name}...")
         elif "End Test" in uart_data:
-            test.console.print("End Test")
+            test.print_and_log("End Test")
             break
 
         if test.test_name == "IRQ_external" or test.test_name == "IRQ_external2":
@@ -299,14 +299,14 @@ def process_soc(test, uart):
         uart_data = uart.read_data(test)
         uart_data = uart_data.decode()
         if "UART Timeout!" in uart_data:
-            test.console.print("[red]UART Timeout!")
+            test.print_and_log("[red]UART Timeout!")
             status.append((test.test_name, False))
             break
         if "passed" in uart_data:
-            test.console.print("[green]passed")
+            test.print_and_log("[green]passed")
             status.append((test.test_name, True))
         elif "failed" in uart_data:
-            test.console.print("[red]failed")
+            test.print_and_log("[red]failed")
             status.append((test.test_name, False))
     return status
 
@@ -315,7 +315,7 @@ def process_soc(test, uart):
 #     fc = FreqCounter(device)
 #     pulse_count = test.receive_packet(25)
 #     if pulse_count == 2:
-#         test.console.print("start test")
+#         test.print_and_log("start test")
 #     fc.open()
 #     time.sleep(5)
 #     data, data_time = fc.record(1)
@@ -331,7 +331,7 @@ def process_soc(test, uart):
 #         if counter == 2:
 #             freq = 1 / one_time
 #             frq_MHz_1 = freq / 1000000
-#             test.console.print("Channel 14: Measured frequency: %.2f MHz" % (frq_MHz_1))
+#             test.print_and_log("Channel 14: Measured frequency: %.2f MHz" % (frq_MHz_1))
 #             break
 
 #     data, data_time = fc.record(2)
@@ -347,7 +347,7 @@ def process_soc(test, uart):
 #         if counter == 2:
 #             freq = 1 / one_time
 #             frq_MHz_2 = freq / 1000000
-#             test.console.print("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz_2))
+#             test.print_and_log("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz_2))
 #             break
 #     if frq_MHz_1 > 5 or frq_MHz_2 > 5:
 #         return "IO[14]:%.2f MHz, IO[15]:%.2f MHz" % (frq_MHz_1, frq_MHz_2)
@@ -361,20 +361,20 @@ def process_soc(test, uart):
 #     while True:
 #         pulse_count = test.receive_packet(25)
 #         if pulse_count == 1:
-#             test.console.print("start test")
+#             test.print_and_log("start test")
 #         if pulse_count == 5:
-#             test.console.print(f"passed mem size {mem_size}")
+#             test.print_and_log(f"passed mem size {mem_size}")
 #             mem_size = mem_size + 1
 #         if pulse_count == 3:
 #             if phase > 1:
-#                 test.console.print("Test finished")
+#                 test.print_and_log("Test finished")
 #                 return True
 #             else:
 #                 phase = phase + 1
-#                 test.console.print("end test")
+#                 test.print_and_log("end test")
 
 #         if pulse_count == 9:
-#             test.console.print(
+#             test.print_and_log(
 #                 f"[red]{test.test_name} test failed with {test.voltage}v supply, mem size {mem_size}"
 #             )
 #             return mem_size
@@ -383,16 +383,16 @@ def process_soc(test, uart):
 def hk_stop(close):
     global pid
     if not close:
-        # test.console.print("running caravel_hkstop.py...")
+        # test.print_and_log("running caravel_hkstop.py...")
         p = subprocess.Popen(
             ["python3", "caravel_board/firmware_vex/util/caravel_hkstop.py"],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
         pid = p.pid
-        # test.console.print("subprocess pid:", pid)
+        # test.print_and_log("subprocess pid:", pid)
     elif pid:
-        # test.console.print("stopping caravel_hkstop.py...")
+        # test.print_and_log("stopping caravel_hkstop.py...")
         os.kill(pid, signal.SIGTERM)
         pid = None
 
@@ -403,11 +403,11 @@ def process_io(test, uart, verbose):
     uart_data = uart.read_data(test)
     uart_data = uart_data.decode()
     if "UART Timeout!" in uart_data:
-        test.console.print("[red]UART Timeout!")
+        test.print_and_log("[red]UART Timeout!")
         return False, None
     if "Start Test:" in uart_data:
         test.test_name = uart_data.strip().split(": ")[1]
-        test.console.print(f"Running test {test.test_name}...")
+        test.print_and_log(f"Running test {test.test_name}...")
     for i in range(38):
         if i == 5 or i == 6:
             pass
@@ -428,13 +428,13 @@ def process_io(test, uart, verbose):
                     pass
                 else:
                     if verbose:
-                        test.console.print(f"IO[{channel}]")
+                        test.print_and_log(f"IO[{channel}]")
                     timeout = time.time() + 5
                     state = "LOW"
                     while 1:
                         uart_data = uart.read_data(test)
                         if b"UART Timeout!" in uart_data:
-                            test.console.print("[red]UART Timeout!")
+                            test.print_and_log("[red]UART Timeout!")
                             fail.append(channel)
                             break
                         # uart_data = uart_data.decode()
@@ -449,34 +449,34 @@ def process_io(test, uart, verbose):
                         if io_pulse == 4:
                             io_pulse = 0
                             if verbose:
-                                test.console.print(f"[green]IO[{channel}] Passed")
+                                test.print_and_log(f"[green]IO[{channel}] Passed")
                             break
                         if time.time() > timeout:
-                            test.console.print(
+                            test.print_and_log(
                                 f"[red]Timeout failure on IO[{channel}]!"
                             )
                             fail.append(channel)
                             break
             elif test.test_name == "gpio_i" or test.test_name == "bitbang_i":
                 if verbose:
-                    test.console.print(f"IO[{channel}]")
+                    test.print_and_log(f"IO[{channel}]")
                 test.send_pulse(4, channel, 1)
                 uart_data = uart.read_data(test)
                 if b"UART Timeout!" in uart_data:
-                    test.console.print("[red]UART Timeout!")
+                    test.print_and_log("[red]UART Timeout!")
                     fail.append(channel)
                 if b"p" in uart_data:
                     if verbose:
-                        test.console.print(f"[green]IO[{channel}] Passed")
+                        test.print_and_log(f"[green]IO[{channel}] Passed")
                 elif b"f" in uart_data:
-                    test.console.print(f"[red]IO[{channel}] Failed")
+                    test.print_and_log(f"[red]IO[{channel}] Failed")
                     fail.append(channel)
 
     if len(fail) == 0:
-        test.console.print("[green]passed")
+        test.print_and_log("[green]passed")
         return True, None
     else:
-        test.console.print("[red]failed")
+        test.print_and_log("[red]failed")
         return False, fail
 
 
@@ -485,12 +485,12 @@ def process_io_plud(test, uart):
     p2_rt = False
     pulse_count = test.receive_packet(25)
     if pulse_count == 2:
-        test.console.print(f"Running test {test.test_name}...")
+        test.print_and_log(f"Running test {test.test_name}...")
     # uart_data = uart.read_data(test)
     # uart_data = uart_data.decode()
     # if "Start Test:" in uart_data:
     #     test.test_name = uart_data.strip().split(": ")[1]
-    #     test.console.print(f"Running test {test.test_name}...")
+    #     test.print_and_log(f"Running test {test.test_name}...")
     if test.test_name == "gpio_lpu_ho":
         default_val = 1
         default_val_n = 0
@@ -512,10 +512,10 @@ def process_io_plud(test, uart):
         p1_rt = run_io_plud_h(default_val, default_val_n, False)
         p2_rt = run_io_plud_h(default_val, default_val_n, True)
     if p1_rt and p2_rt:
-        test.console.print("[green]passed")
+        test.print_and_log("[green]passed")
         return True
     else:
-        test.console.print("[red]failed")
+        test.print_and_log("[red]failed")
         return False
 
 
@@ -545,7 +545,7 @@ def run_io_plud(default_val, default_val_n, first_itter):
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
-                test.console.print(f"[red]channel {channel-19} FAILED!")
+                test.print_and_log(f"[red]channel {channel-19} FAILED!")
         else:
             if not flag:
                 time.sleep(10)
@@ -556,10 +556,10 @@ def run_io_plud(default_val, default_val_n, first_itter):
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
-                test.console.print(f"[red]channel {channel-19} FAILED!")
+                test.print_and_log(f"[red]channel {channel-19} FAILED!")
     hk_stop(True)
     if test_counter == 19:
-        # test.console.print(
+        # test.print_and_log(
         #     f"[green]{test.test_name} test passed"
         # )
         return True
@@ -593,7 +593,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
-                test.console.print(f"[red]channel {channel+19} FAILED!")
+                test.print_and_log(f"[red]channel {channel+19} FAILED!")
         else:
             if not flag:
                 time.sleep(10)
@@ -604,10 +604,10 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
             else:
-                test.console.print(f"[red]channel {channel+19} FAILED!")
+                test.print_and_log(f"[red]channel {channel+19} FAILED!")
     hk_stop(True)
     if test_counter == 19:
-        # test.console.print(
+        # test.print_and_log(
         #     f"[green]{test.test_name} test Passed"
         # )
         return True
@@ -624,18 +624,18 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
 #     for passing in test.passing_criteria:
 #         pulse_count = test.receive_packet(25)
 #         if pulse_count == passing:
-#             test.console.print(f"pass phase {phase}")
+#             test.print_and_log(f"pass phase {phase}")
 #             if phase == 0:
 #                 channel = test.device1v8.dio_map[channel]
 #                 channel.set_state(True)
 #                 channel.set_value(1)
 #             phase = phase + 1
 #         if pulse_count == 9:
-#             test.console.print(f"[red]{test.test_name} test failed with {test.voltage}v supply!")
+#             test.print_and_log(f"[red]{test.test_name} test failed with {test.voltage}v supply!")
 #             return False
 
 #     if len(test.passing_criteria) == phase:
-#         test.console.print(f"[green]{test.test_name} test Passed with {test.voltage}v supply!")
+#         test.print_and_log(f"[green]{test.test_name} test Passed with {test.voltage}v supply!")
 #         return True
 
 
@@ -664,7 +664,7 @@ def config_fpga(test):
 
 
 def program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array):
-    test.console.print("Programming FPGA...")
+    test.print_and_log("Programming FPGA...")
     prog_rst.set_value(1)
     time.sleep(1)
     for i in binary_array:
@@ -695,18 +695,18 @@ def chain_test(test, uart):
     uart_data = uart.read_data(test)
     uart_data = uart_data.decode()
     if "UART Timeout!" in uart_data:
-        test.console.print("[red]UART Timeout!")
+        test.print_and_log("[red]UART Timeout!")
         return False
     if "Start Test:" in uart_data:
         test.test_name = uart_data.strip().split(": ")[1]
-        test.console.print(f"Running test {test.test_name}...")
+        test.print_and_log(f"Running test {test.test_name}...")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
         test
     )
     binary_array = load_bitstream("and_3")
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     tail_value = []
-    test.console.print("Reading data from chain tail")
+    test.print_and_log("Reading data from chain tail")
     time.sleep(1)
     for i in binary_array:
         chain_value = ccff_tail.get_value()
@@ -721,7 +721,7 @@ def chain_test(test, uart):
         accurate_delay(0.5)
 
     if tail_value == binary_array:
-        test.console.print("[green]Chain test passed")
+        test.print_and_log("[green]Chain test passed")
         return True
     else:
         with open(f"bin_arr_and3.json", "w") as file:
@@ -730,7 +730,7 @@ def chain_test(test, uart):
         with open(f"tail_arr_and3.json", "w") as file:
             # Dump the array into the file using json.dump
             json.dump(tail_value, file)
-        test.console.print("[red]Chain test failed")
+        test.print_and_log("[red]Chain test failed")
         return False
 
 
@@ -769,11 +769,11 @@ def fpga_ALU_test(test, uart):
     uart_data = uart.read_data(test)
     uart_data = uart_data.decode()
     if "UART Timeout!" in uart_data:
-        test.console.print("[red]UART Timeout!")
+        test.print_and_log("[red]UART Timeout!")
         return False
     if "Start Test:" in uart_data:
         test.test_name = uart_data.strip().split(": ")[1]
-        test.console.print(f"Running test {test.test_name}...")
+        test.print_and_log(f"Running test {test.test_name}...")
     hk_stop(False)
     binary_array = load_bitstream("ALU_4bits")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
@@ -814,12 +814,12 @@ def fpga_ALU_test(test, uart):
 
     hk_stop(True)
     if alu_res == result_bits:
-        test.console.print("[green]ALU test passed")
+        test.print_and_log("[green]ALU test passed")
         return True
     else:
-        test.console.print("[red]ALU test failed")
-        test.console.print(f"alu_res = {alu_res}")
-        test.console.print(f"result_bits = {result_bits}")
+        test.print_and_log("[red]ALU test failed")
+        test.print_and_log(f"alu_res = {alu_res}")
+        test.print_and_log(f"result_bits = {result_bits}")
         return False
 
 
@@ -827,17 +827,17 @@ def fpga_counter_test(test, uart):
     # uart_data = uart.read_data(test)
     # uart_data = uart_data.decode()
     # if "UART Timeout!" in uart_data:
-    #     test.console.print("[red]UART Timeout!")
+    #     test.print_and_log("[red]UART Timeout!")
     #     return False
     # if "Start Test:" in uart_data:
     #     test.test_name = uart_data.strip().split(": ")[1]
-    #     test.console.print(f"Running test {test.test_name}...")
+    #     test.print_and_log(f"Running test {test.test_name}...")
     hk_stop(False)
     out_io = [3, 4, 5, 6, 7, 26, 28, 24]
     binary_array = load_bitstream("seconds_decoder_2")
     # pulse_count = test.receive_packet(250)
     # if pulse_count == 2:
-    #     test.console.print("start test")
+    #     test.print_and_log("start test")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
         test
     )
@@ -889,10 +889,10 @@ def fpga_counter_test(test, uart):
                 count += 1
         io = []
         if count >= 3:
-            test.console.print(f"[green]{test.test_name} passed")
+            test.print_and_log(f"[green]{test.test_name} passed")
             return True
         elif time.time() > timeout:
-            test.console.print(f"[red]Error: {test.test_name} failed")
+            test.print_and_log(f"[red]Error: {test.test_name} failed")
             return False
 
 
@@ -900,11 +900,11 @@ def fpga_io_test(test, uart):
     # uart_data = uart.read_data(test)
     # uart_data = uart_data.decode()
     # if "UART Timeout!" in uart_data:
-    #     test.console.print("[red]UART Timeout!")
+    #     test.print_and_log("[red]UART Timeout!")
     #     return False
     # if "Start Test:" in uart_data:
     #     test.test_name = uart_data.strip().split(": ")[1]
-    #     test.console.print(f"Running test {test.test_name}...")
+    #     test.print_and_log(f"Running test {test.test_name}...")
     time.sleep(1)
     hk_stop(False)
     if test.test_name == "inv_1":
@@ -929,7 +929,7 @@ def fpga_io_test(test, uart):
     fail = False
     count = 0
     for inp_ut in inp:
-        test.console.print(f"now testing {inp_ut} only {out[count]} should toggle")
+        test.print_and_log(f"now testing {inp_ut} only {out[count]} should toggle")
         for channel in inp:
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
@@ -960,13 +960,13 @@ def fpga_io_test(test, uart):
             # time.sleep(1)
             io_val = io.get_value()
             if not io_val and not out[count] == channel:
-                test.console.print(f"[red]ERROR: io {channel} = {io_val}")
+                test.print_and_log(f"[red]ERROR: io {channel} = {io_val}")
                 fail = True
             elif io_val and out[count] == channel:
-                test.console.print(f"[red]ERROR: io {channel} = {io_val}")
+                test.print_and_log(f"[red]ERROR: io {channel} = {io_val}")
                 fail = True
             else:
-                test.console.print(f"[green]io {channel} = {io_val}")
+                test.print_and_log(f"[green]io {channel} = {io_val}")
 
         time.sleep(5)
         for channel in inp:
@@ -993,13 +993,13 @@ def fpga_io_test(test, uart):
             # time.sleep(1)
             io_val = io.get_value()
             if io_val and not out[count] == channel:
-                test.console.print(f"[red]ERROR: io {channel} = {io_val}")
+                test.print_and_log(f"[red]ERROR: io {channel} = {io_val}")
                 fail = True
             elif not io_val and out[count] == channel:
-                test.console.print(f"[red]ERROR: io {channel} = {io_val}")
+                test.print_and_log(f"[red]ERROR: io {channel} = {io_val}")
                 fail = True
             else:
-                test.console.print(f"[green]io {channel} = {io_val}")
+                test.print_and_log(f"[green]io {channel} = {io_val}")
         count += 1
 
     if fail:
@@ -1014,11 +1014,11 @@ def and_test(test, uart):
     uart_data = uart.read_data(test)
     uart_data = uart_data.decode()
     if "UART Timeout!" in uart_data:
-        test.console.print("[red]UART Timeout!")
+        test.print_and_log("[red]UART Timeout!")
         return False
     if "Start Test:" in uart_data:
         test.test_name = uart_data.strip().split(": ")[1]
-        test.console.print(f"Running test {test.test_name}...")
+        test.print_and_log(f"Running test {test.test_name}...")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
         test
     )
@@ -1044,30 +1044,30 @@ def and_test(test, uart):
     time.sleep(10)
     c_val = c.get_value()
     if c_val:
-        test.console.print(f"[red] a = 0, b = 0, c = {c_val}")
+        test.print_and_log(f"[red] a = 0, b = 0, c = {c_val}")
         return False
     a.set_value(0)
     b.set_value(1)
     time.sleep(10)
     c_val = c.get_value()
     if c_val:
-        test.console.print(f"[red] a = 0, b = 1, c = {c_val}")
+        test.print_and_log(f"[red] a = 0, b = 1, c = {c_val}")
         return False
     a.set_value(1)
     b.set_value(0)
     time.sleep(10)
     c_val = c.get_value()
     if c_val:
-        test.console.print(f"[red] a = 1, b = 0, c = {c_val}")
+        test.print_and_log(f"[red] a = 1, b = 0, c = {c_val}")
         return False
     a.set_value(1)
     b.set_value(1)
     time.sleep(10)
     c_val = c.get_value()
     if not c_val:
-        test.console.print(f"[red] a = 1, b = 1, c = {c_val}")
+        test.print_and_log(f"[red] a = 1, b = 1, c = {c_val}")
         return False
-    test.console.print("[green]fpga AND test passed")
+    test.print_and_log("[green]fpga AND test passed")
     return True
 
 
@@ -1192,12 +1192,12 @@ def fpga_ram_test(test):
         rdata = ram_read_data(test, wdata_io, addr_io, we_io, rdata_io, addr_bits)
 
         if rdata != wdata_bits:
-            test.console.print(
+            test.print_and_log(
                 f"[red]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}"
             )
             flag = False
         else:
-            test.console.print(
+            test.print_and_log(
                 f"[green]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}"
             )
 
@@ -1230,11 +1230,11 @@ def adc_test(test, uart, verbose):
         uart_data = uart.read_data(test)
         uart_data = uart_data.decode()
         if "UART Timeout!" in uart_data:
-            test.console.print("[red]UART Timeout!")
+            test.print_and_log("[red]UART Timeout!")
             return False
         if "Start Test:" in uart_data:
             test.test_name = uart_data.strip().split(": ")[1]
-            test.console.print(f"Running test {test.test_name}...")
+            test.print_and_log(f"Running test {test.test_name}...")
         # test.reset()
 
         numvals = 1024
@@ -1258,12 +1258,12 @@ def adc_test(test, uart, verbose):
             uart_data = uart.read_data(test)
             uart_data = uart_data.decode()
             if "UART Timeout!" in uart_data:
-                test.console.print("[red]UART Timeout!")
+                test.print_and_log("[red]UART Timeout!")
                 return False
             if "clkdiv:" in uart_data:
                 clk_div = uart_data.strip().split(": ")[1]
-            test.console.print("clk_div value:", clk_div)
-            test.console.print("clk freq (MHz):", clk_freq[clkdiv])
+            test.print_and_log("clk_div value:", clk_div)
+            test.print_and_log("clk freq (MHz):", clk_freq[clkdiv])
             test.device3v3.dio_map[22].set_value(0)
             for i in range(0, 40):
                 invals = []
@@ -1385,18 +1385,18 @@ def adc_test(test, uart, verbose):
             offset_error = offset * 1000
             gain_error = 100 * abs((slope * 4 / alsb) - 1)
 
-            test.console.print('Absolute INL:')
-            test.console.print('Maximum INL (in lsb) =', max_inl_abs)
-            test.console.print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
+            test.print_and_log('Absolute INL:')
+            test.print_and_log('Maximum INL (in lsb) =', max_inl_abs)
+            test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
 
-            test.console.print('INL corrected for gain and offset:')
-            test.console.print('Maximum INL (in lsb) =', max_inl_cor)
-            test.console.print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
+            test.print_and_log('INL corrected for gain and offset:')
+            test.print_and_log('Maximum INL (in lsb) =', max_inl_cor)
+            test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
 
-            test.console.print('Maximum DNL (in lsb) =', max_dnl)
+            test.print_and_log('Maximum DNL (in lsb) =', max_dnl)
 
-            test.console.print('Offset error = {:.3f}mV'.format(offset_error))
-            test.console.print('Gain error = {:.3f}%'.format(gain_error))
+            test.print_and_log('Offset error = {:.3f}mV'.format(offset_error))
+            test.print_and_log('Gain error = {:.3f}%'.format(gain_error))
 
             data = [[test.h_voltage, test.l_voltage, clk_freq[clkdiv], clk_div, max_inl_abs, max_inl_abs_0_to_2_6V, max_inl_cor, max_inl_cor_0_to_2_6V, max_dnl, offset_error, gain_error]]
 
@@ -1412,11 +1412,11 @@ def adc_test(test, uart, verbose):
         uart_data = uart.read_data(test)
         uart_data = uart_data.decode()
         if "UART Timeout!" in uart_data:
-            test.console.print("[red]UART Timeout!")
+            test.print_and_log("[red]UART Timeout!")
             return False
         if "Start Test:" in uart_data:
             test.test_name = uart_data.strip().split(": ")[1]
-            test.console.print(f"Running test {test.test_name}...")
+            test.print_and_log(f"Running test {test.test_name}...")
         # Prepare the Digilent I/O for static function
         for k in range(2, 10):
             # Enable channel for digital output (output=True is output)
@@ -1458,7 +1458,7 @@ def adc_test(test, uart, verbose):
 
             time.sleep(0.05)
             # pulse_count = test.receive_packet(250)
-            # test.console.print("clk_div value:", pulse_count)
+            # test.print_and_log("clk_div value:", pulse_count)
 
             # Read DAC value back from GPIO 15
             samples = 64
@@ -1549,18 +1549,18 @@ def adc_test(test, uart, verbose):
         gain_error = 100 * abs(slope - 1)
 
         # Print calculated values
-        test.console.print('Absolute INL:')
-        test.console.print('Maximum INL (in lsb) =', max_inl_abs)
-        test.console.print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
+        test.print_and_log('Absolute INL:')
+        test.print_and_log('Maximum INL (in lsb) =', max_inl_abs)
+        test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
 
-        test.console.print('INL corrected for gain and offset:')
-        test.console.print('Maximum INL (in lsb) =', max_inl_cor)
-        test.console.print('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
+        test.print_and_log('INL corrected for gain and offset:')
+        test.print_and_log('Maximum INL (in lsb) =', max_inl_cor)
+        test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
 
-        test.console.print('Maximum DNL (in lsb) =', max_dnl)
+        test.print_and_log('Maximum DNL (in lsb) =', max_dnl)
 
-        test.console.print('Offset error = {:.3f}mV'.format(offset_error))
-        test.console.print('Gain error = {:.3f}%'.format(gain_error))
+        test.print_and_log('Offset error = {:.3f}mV'.format(offset_error))
+        test.print_and_log('Gain error = {:.3f}%'.format(gain_error))
         data = [
             ['VDDIO (v)', 'VCCD (v)', 'Absolute max INL', 'Abs max INL from 0 to 2.6v', 'Corrected max INL', 'Corrected max INL from 0 to 2.6v', 'Max DNL', 'Offset error', 'Gain error'],
             [test.h_voltage, test.l_voltage, max_inl_abs, max_inl_abs_0_to_2_6V, max_inl_cor, max_inl_cor_0_to_2_6V, max_dnl, gain_error]
@@ -1626,13 +1626,13 @@ def flash_test(
         run_only = True
     test.reset_devices()
     if flash_flag or flash_only:
-        test.console.print(
+        test.print_and_log(
             "=============================================================================="
         )
-        test.console.print(
+        test.print_and_log(
             f"  Flashing :  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}"
         )
-        test.console.print(
+        test.print_and_log(
             "=============================================================================="
         )
 
@@ -1654,13 +1654,13 @@ def flash_test(
     test.device3v3.supply.set_voltage(test.h_voltage)
     test.reset()
 
-    test.console.print(
+    test.print_and_log(
         "=============================================================================="
     )
-    test.console.print(
+    test.print_and_log(
         f"  Running  :  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}"
     )
-    test.console.print(
+    test.print_and_log(
         "=============================================================================="
     )
 
@@ -1713,7 +1713,7 @@ def flash_test(
         #     elif mode == "plud":
         #         results = process_io_plud(test)
         #     else:
-        #         test.console.print(f"ERROR : No {mode} mode")
+        #         test.print_and_log(f"ERROR : No {mode} mode")
         #         exit(1)
         # elif spi_flag:
         #     results = process_spi(test, spi)
@@ -1724,9 +1724,9 @@ def flash_test(
         # else:
         #     results = process_data(test)
 
-        # test.console.print("==============================================================================")
-        # test.console.print(f"  Completed:  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
-        # test.console.print("==============================================================================")
+        # test.print_and_log("==============================================================================")
+        # test.print_and_log(f"  Completed:  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
+        # test.print_and_log("==============================================================================")
 
         return results
     else:
@@ -1958,17 +1958,6 @@ if __name__ == "__main__":
         uart_data = UART(device1_data)
         spi = SPI(device1_data)
 
-        test.console.print(
-            "=============================================================================="
-        )
-        if analog:
-            test.console.print("  Beginning Tests for analog project")
-        else:
-            test.console.print("  Beginning Tests for digital project")
-        test.console.print(
-            "=============================================================================="
-        )
-
         csv_header = [
             "Test_name",
             "Low Voltage (v)",
@@ -1991,6 +1980,17 @@ if __name__ == "__main__":
             with open(f"{test.date_dir}/results.csv", "a", encoding="UTF8") as f:
                 writer = csv.writer(f)
                 writer.writerow(csv_header)
+
+        test.print_and_log(
+            "=============================================================================="
+        )
+        if analog:
+            test.print_and_log("  Beginning Tests for analog project")
+        else:
+            test.print_and_log("  Beginning Tests for digital project")
+        test.print_and_log(
+            "=============================================================================="
+        )
 
         test_flag = False
 
@@ -2152,13 +2152,13 @@ if __name__ == "__main__":
                             sys.stdout = sys.__stdout__
 
         if not test_flag:
-            test.console.print(f"[red]ERROR : couldn't find test {args.test}")
+            test.print_and_log(f"[red]ERROR : couldn't find test {args.test}")
 
-        test.console.print(
+        test.print_and_log(
             "=============================================================================="
         )
-        test.console.print("  All Tests Complete")
-        test.console.print(
+        test.print_and_log("  All Tests Complete")
+        test.print_and_log(
             "=============================================================================="
         )
         test.close_devices()
@@ -2175,13 +2175,13 @@ if __name__ == "__main__":
             for row in reader:
                 table.add_row(*row)
 
-            test.console.print(table)
+            test.print_and_log(table)
 
         reformat_csv(test, args.temperature)
         test.progress.stop()
         os._exit(0)
     except KeyboardInterrupt:
-        test.console.print("Interrupted")
+        test.print_and_log("Interrupted")
         test.progress.stop()
         try:
             test.close_devices()

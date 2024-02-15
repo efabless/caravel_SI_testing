@@ -65,6 +65,16 @@ class Test:
         )
         self.runs_dir = os.path.join(os.getcwd(), "runs")
         self.date_dir = os.path.join(self.runs_dir, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+        self.log_file = f"{self.date_dir}/terminal_output.log"
+
+    def log_to_file(self, message):
+        if self.log_file:
+            logging.basicConfig(filename=self.log_file, level=logging.INFO, format='%(asctime)s - %(message)s')
+            logging.info(message)
+
+    def print_and_log(self, message):
+        self.console.print(message)
+        self.log_to_file(message)
 
     def make_runs_dirs(self):
         os.makedirs(self.runs_dir, exist_ok=True)
@@ -191,9 +201,9 @@ class Test:
             )
         ret_code = sp.returncode
         if ret_code != 0:
-            self.console.error("Can't flash!")
+            self.console.print("[red]Can't flash!")
             self.close_devices()
-            os._exit(1)
+            sys.exit(1)
 
         # flash.erase()
         # if flash.flash(hex_file):
@@ -1438,7 +1448,7 @@ def connect_devices(devices, dev1_sn, dev2_sn, dev3_sn):
                 device3_data = device_info
     else:
         console = Console()
-        console.error(" No connected devices")
+        console.print("[red]No connected devices")
         sys.exit()
     return device1_data, device2_data, device3_data
 

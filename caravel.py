@@ -69,6 +69,7 @@ class Test:
 
     def log_to_file(self, message):
         if self.log_file:
+            self.log_file = f"{self.date_dir}/terminal_output.log"
             logging.basicConfig(filename=self.log_file, level=logging.INFO, format='%(asctime)s - %(message)s')
             logging.info(message)
 

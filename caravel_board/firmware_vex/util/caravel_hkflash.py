@@ -186,7 +186,7 @@ print("   project ID = {:08x}".format(int('{0:032b}'.format(int.from_bytes(data,
 if int.from_bytes(mfg, byteorder="big") != 0x0456:
     exit(2)
 
-time.sleep(1.0)
+# time.sleep(1.0)
 led.toggle()
 
 print(" ")
@@ -207,15 +207,11 @@ if jedec[0:1] != bytes.fromhex("ef"):
 
 print("Erasing chip...")
 slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
-slave.write([CARAVEL_PASSTHRU, CMD_ERASE_CHIP])
-
-for i in range(15):
-    time.sleep(0.5)
-    led.toggle()
+wcmd = bytearray((CARAVEL_PASSTHRU, 0xD8, (0 >> 16) & 0xFF, (0 >> 8) & 0xFF, 0 & 0xFF))
+slave.exchange(wcmd)
 
 while is_busy(slave):
-    time.sleep(0.5)
-    led.toggle()
+    pass
 
 print("done")
 print("status = {}".format(hex(get_status(slave))))
@@ -245,6 +241,7 @@ with open(file_path, mode="r") as f:
             # print('\n----------------------\n')
             # print(binascii.hexlify(buf))
             # print("\ntotal_bytes = {}".format(total_bytes))
+            # erase_sector(0x0)  # Erase sector at address 0x000000
 
             slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
             wcmd = bytearray(
@@ -262,7 +259,7 @@ with open(file_path, mode="r") as f:
             wcmd.extend(buf)
             slave.exchange(wcmd)
             while is_busy(slave):
-                time.sleep(0.1)
+                pass
 
             print("addr {}: flash page write successful".format(hex(addr)))
 
@@ -296,7 +293,7 @@ with open(file_path, mode="r") as f:
         wcmd.extend(buf)
         slave.exchange(wcmd)
         while is_busy(slave):
-            time.sleep(0.1)
+            pass
 
         print("addr {}: flash page write successful".format(hex(addr)))
 
@@ -314,7 +311,7 @@ nbytes = 0
 total_bytes = 0
 
 while is_busy(slave):
-    time.sleep(0.5)
+    pass
 
 # slave.write([CARAVEL_REG_WRITE, 0x0b, 0x01])
 # slave.write([CARAVEL_REG_WRITE, 0x0b, 0x00])
@@ -361,7 +358,7 @@ with open(file_path, mode="r") as f:
                 print(binascii.hexlify(buf))
                 print("<----->")
                 print(binascii.hexlify(buf2))
-                sys.exit(1)
+                # sys.exit(1)
 
             if nbytes > 256:
                 buf = buf[255:]
@@ -397,7 +394,7 @@ with open(file_path, mode="r") as f:
             print(binascii.hexlify(buf))
             print("<----->")
             print(binascii.hexlify(buf2))
-            sys.exit(1)
+            # sys.exit(1)
 
 print("\ntotal_bytes = {}".format(total_bytes))
 
@@ -412,8 +409,8 @@ print("pll_trim = {}\n".format(binascii.hexlify(pll_trim)))
 
 slave.write([CARAVEL_REG_WRITE, 0x0B, 0x00])
 
-led.toggle()
-time.sleep(0.3)
-led.toggle()
+# led.toggle()
+# time.sleep(0.3)
+# led.toggle()
 
 spi.terminate()

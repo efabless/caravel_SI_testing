@@ -128,4 +128,5 @@ void main()
     // }
     config_uart();
     print("End Test\n");
+    HKGpio_config();
 }

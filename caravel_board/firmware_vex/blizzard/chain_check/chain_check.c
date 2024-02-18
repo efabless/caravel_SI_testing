@@ -14,4 +14,6 @@ void main()
     gpio_config_load();
     config_uart();
     print("Start Test: chain_check\n");
+
+    HKGpio_config();
 }

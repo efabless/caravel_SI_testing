@@ -18,4 +18,6 @@ void main()
     gpio_config_load();
     config_uart();
     print("Start Test: and_gate\n");
+
+    HKGpio_config();
 }

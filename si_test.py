@@ -434,7 +434,9 @@ def process_io(test, uart, verbose):
                     while 1:
                         uart_data = uart.read_data(test)
                         if b"UART Timeout!" in uart_data:
-                            test.print_and_log("[red]UART Timeout!")
+                            test.print_and_log(
+                                f"[red]Timeout failure on IO[{channel}]!"
+                            )
                             fail.append(channel)
                             break
                         # uart_data = uart_data.decode()
@@ -1640,15 +1642,21 @@ def flash_test(
             test.task,
             description=f"Flashing {test.test_name}",
         )
-        test.power_down()
-        test.apply_reset()
-        test.power_up_1v8()
+        # test.power_down()
+        # test.apply_reset()
+        # test.power_up_1v8()
+        test.gpio_mgmt.set_state(True)
+        test.gpio_mgmt.set_value(0)
+        time.sleep(0.1)
         test.flash(hex_file)
-        test.power_down()
-        test.release_reset()
+        test.gpio_mgmt.set_state(True)
+        test.gpio_mgmt.set_value(1)
+        time.sleep(0.1)
+        # test.power_down()
+        # test.release_reset()
     else:
         test.power_down()
-        time.sleep(5)
+        time.sleep(0.1)
     test.power_up()
     test.device1v8.supply.set_voltage(test.l_voltage)
     test.device3v3.supply.set_voltage(test.h_voltage)
@@ -1998,18 +2006,18 @@ if __name__ == "__main__":
             "SI validation", total=(len(TestDict) * len(l_voltage) * len(h_voltage))
         )
         test.progress.start()
-        for t in TestDict:
-            if not args.test or args.test == t["test_name"]:
-                test.test_name = t["test_name"]
-                test.passing_criteria = t["passing_criteria"]
-                flash_flag = True
-                counter = 0
-                test_flag = True
-                for v in l_voltage:
-                    for h in h_voltage:
+        for v in l_voltage:
+            for h in h_voltage:
+                test.l_voltage = v
+                test.h_voltage = h
+                for t in TestDict:
+                    if not args.test or args.test == t["test_name"]:
+                        test.test_name = t["test_name"]
+                        test.passing_criteria = t["passing_criteria"]
+                        flash_flag = True
+                        counter = 0
+                        test_flag = True
                         start_time = time.time()
-                        test.l_voltage = v
-                        test.h_voltage = h
                         if counter > 0 or args.run_only:
                             flash_flag = False
                         if t["uart"]:

@@ -69,6 +69,7 @@ class Test:
 
     def log_to_file(self, message):
         if self.log_file:
+            self.log_file = f"{self.date_dir}/terminal_output.log"
             logging.basicConfig(filename=self.log_file, level=logging.INFO, format='%(asctime)s - %(message)s')
             logging.info(message)
 
@@ -299,7 +300,7 @@ class Test:
             inst.write(f"CH2:VOLT {self.h_voltage}")
             time.sleep(0.5)
             inst.write("OUTP CH2, ON")
-            time.sleep(5)
+            time.sleep(1)
             l_volt = float(inst.query('MEAsure:VOLTage? CH1'))
             h_volt = float(inst.query('MEAsure:VOLTage? CH2'))
             l_volt_expected = self.l_voltage
@@ -313,9 +314,9 @@ class Test:
             rm.close()
         else:
             self.device3v3.supply.set_voltage(self.h_voltage)
-            time.sleep(1)
+            time.sleep(0.1)
             self.device1v8.supply.set_voltage(self.l_voltage)
-            time.sleep(1)
+            time.sleep(0.1)
 
     def power_up_1v8(self):
         """
@@ -698,7 +699,7 @@ class UART:
 
     def read_data(self, test):
         self.open()
-        timeout = time.time() + 50
+        timeout = time.time() + 10
         rgRX = b""
         while True:
             uart_data, count = self.read_uart()

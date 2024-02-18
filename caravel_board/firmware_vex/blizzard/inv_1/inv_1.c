@@ -32,4 +32,5 @@ void main()
 
     // gpio_config_io();
     gpio_config_load();
+    HKGpio_config();
 }

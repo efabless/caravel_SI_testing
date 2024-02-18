@@ -140,6 +140,8 @@ void main()
     dac_ena_reg = 1;
 
     // adc_ctrl_reg = ADC_CTRL_EN;
+    config_uart();
+    print("Start Test: dac_test\n");
 
     while (1)
     {

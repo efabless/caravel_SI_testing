@@ -119,7 +119,7 @@ file_path = sys.argv[1]
 
 if not os.path.isfile(file_path):
     print("File not found.")
-    sys.exit()
+    sys.exit(1)
 
 # This is roundabout but works. . .
 s = StringIO()
@@ -358,7 +358,7 @@ with open(file_path, mode="r") as f:
                 print(binascii.hexlify(buf))
                 print("<----->")
                 print(binascii.hexlify(buf2))
-                # sys.exit(1)
+                sys.exit(1)
 
             if nbytes > 256:
                 buf = buf[255:]
@@ -394,7 +394,7 @@ with open(file_path, mode="r") as f:
             print(binascii.hexlify(buf))
             print("<----->")
             print(binascii.hexlify(buf2))
-            # sys.exit(1)
+            sys.exit(1)
 
 print("\ntotal_bytes = {}".format(total_bytes))
 

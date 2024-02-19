@@ -670,9 +670,7 @@ def program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array):
     for i in binary_array:
         ccff_head.set_value(i)
         prog_clk.set_value(1)
-        accurate_delay(0.1)
         prog_clk.set_value(0)
-        accurate_delay(0.1)
     prog_clk.set_value(0)
 
 
@@ -716,9 +714,7 @@ def chain_test(test, uart):
             chain_value = 0
         tail_value.append(chain_value)
         prog_clk.set_value(1)
-        accurate_delay(0.5)
         prog_clk.set_value(0)
-        accurate_delay(0.5)
 
     if tail_value == binary_array:
         test.print_and_log("[green]Chain test passed")

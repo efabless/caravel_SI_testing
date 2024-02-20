@@ -271,6 +271,8 @@ def process_uart(test, uart, verbose):
 
 def process_soc(test, uart):
     status = []
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     while True:
         uart_data = uart.read_data(test)
         uart_data = uart_data.decode()
@@ -398,6 +400,8 @@ def hk_stop(close):
 
 
 def process_io(test, uart, verbose):
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     hk_stop(False)
     fail = []
     uart_data = uart.read_data(test)
@@ -473,6 +477,10 @@ def process_io(test, uart, verbose):
                 elif b"f" in uart_data:
                     test.print_and_log(f"[red]IO[{channel}] Failed")
                     fail.append(channel)
+    hk_stop(True)
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(1)
+    time.sleep(1)
 
     if len(fail) == 0:
         test.print_and_log("[green]passed")
@@ -483,10 +491,17 @@ def process_io(test, uart, verbose):
 
 
 def process_io_plud(test, uart):
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     p1_rt = False
     p2_rt = False
-    pulse_count = test.receive_packet(25)
-    if pulse_count == 2:
+    uart_data = uart.read_data(test)
+    uart_data = uart_data.decode()
+    if "UART Timeout!" in uart_data:
+        test.print_and_log("[red]UART Timeout!")
+        return False, None
+    if "Start Test:" in uart_data:
+        test.test_name = uart_data.strip().split(": ")[1]
         test.print_and_log(f"Running test {test.test_name}...")
     # uart_data = uart.read_data(test)
     # uart_data = uart_data.decode()
@@ -513,6 +528,8 @@ def process_io_plud(test, uart):
         default_val_n = 1
         p1_rt = run_io_plud_h(default_val, default_val_n, False)
         p2_rt = run_io_plud_h(default_val, default_val_n, True)
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(1)
     if p1_rt and p2_rt:
         test.print_and_log("[green]passed")
         return True
@@ -539,7 +556,7 @@ def run_io_plud(default_val, default_val_n, first_itter):
             io.set_state(False)
         elif first_itter:
             if not flag:
-                time.sleep(10)
+                time.sleep(1)
                 flag = True
             io_state = io.get_value()
             if io_state == default_val_n:
@@ -550,7 +567,7 @@ def run_io_plud(default_val, default_val_n, first_itter):
                 test.print_and_log(f"[red]channel {channel-19} FAILED!")
         else:
             if not flag:
-                time.sleep(10)
+                time.sleep(1)
                 flag = True
             io_state = io.get_value()
             if io_state == default_val:
@@ -587,7 +604,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
             io.set_state(False)
         elif first_itter:
             if not flag:
-                time.sleep(10)
+                time.sleep(1)
                 flag = True
             io_state = io.get_value()
             if io_state == default_val_n:
@@ -598,7 +615,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
                 test.print_and_log(f"[red]channel {channel+19} FAILED!")
         else:
             if not flag:
-                time.sleep(10)
+                time.sleep(1)
                 flag = True
             io_state = io.get_value()
             if io_state == default_val:
@@ -672,9 +689,9 @@ def program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array):
     for i in binary_array:
         ccff_head.set_value(i)
         prog_clk.set_value(1)
-        accurate_delay(0.1)
+        # accurate_delay(0.1)
         prog_clk.set_value(0)
-        accurate_delay(0.1)
+        # accurate_delay(0.1)
     prog_clk.set_value(0)
 
 
@@ -718,9 +735,9 @@ def chain_test(test, uart):
             chain_value = 0
         tail_value.append(chain_value)
         prog_clk.set_value(1)
-        accurate_delay(0.5)
+        # accurate_delay(0.5)
         prog_clk.set_value(0)
-        accurate_delay(0.5)
+        # accurate_delay(0.5)
 
     if tail_value == binary_array:
         test.print_and_log("[green]Chain test passed")
@@ -1626,6 +1643,7 @@ def flash_test(
         run_only = False
     else:
         run_only = True
+    test.reset()
     test.reset_devices()
     if flash_flag or flash_only:
         test.print_and_log(
@@ -1646,21 +1664,18 @@ def flash_test(
         # test.apply_reset()
         # test.power_up_1v8()
         test.gpio_mgmt.set_state(True)
-        test.gpio_mgmt.set_value(0)
-        time.sleep(0.1)
-        test.flash(hex_file)
-        test.gpio_mgmt.set_state(True)
         test.gpio_mgmt.set_value(1)
         time.sleep(0.1)
+        test.flash(hex_file)
         # test.power_down()
         # test.release_reset()
-    else:
-        test.power_down()
-        time.sleep(0.1)
-    test.power_up()
-    test.device1v8.supply.set_voltage(test.l_voltage)
-    test.device3v3.supply.set_voltage(test.h_voltage)
-    test.reset()
+    # else:
+    #     test.power_down()
+    #     time.sleep(0.1)
+    # test.power_up()
+    # test.device1v8.supply.set_voltage(test.l_voltage)
+    # test.device3v3.supply.set_voltage(test.h_voltage)
+    # test.reset()
 
     test.print_and_log(
         "=============================================================================="
@@ -2006,10 +2021,22 @@ if __name__ == "__main__":
             "SI validation", total=(len(TestDict) * len(l_voltage) * len(h_voltage))
         )
         test.progress.start()
+        # if not args.run_only:
+        #     test.power_down()
+        #     test.apply_reset()
+        #     test.power_up_1v8()
+        #     test.flash(f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/blizzard/setup/setup.hex")
+        #     test.power_down()
+        #     test.release_reset()
         for v in l_voltage:
             for h in h_voltage:
                 test.l_voltage = v
                 test.h_voltage = h
+                test.power_down()
+                test.device1v8.supply.set_voltage(test.l_voltage)
+                test.device3v3.supply.set_voltage(test.h_voltage)
+                test.power_up()
+                # test.reset()
                 for t in TestDict:
                     if not args.test or args.test == t["test_name"]:
                         test.test_name = t["test_name"]
@@ -2150,14 +2177,14 @@ if __name__ == "__main__":
                                 uart_data=uart_data,
                                 verbose=args.verbose,
                             )
-                        counter += 1
-                        test.close_devices()
-                        time.sleep(5)
+        counter += 1
+        test.close_devices()
+        time.sleep(1)
 
-                        with open(os.devnull, "a") as f:
-                            sys.stdout = f
-                            devices = device.open_devices()
-                            sys.stdout = sys.__stdout__
+        with open(os.devnull, "a") as f:
+            sys.stdout = f
+            devices = device.open_devices()
+            sys.stdout = sys.__stdout__
 
         if not test_flag:
             test.print_and_log(f"[red]ERROR : couldn't find test {args.test}")
@@ -2189,6 +2216,10 @@ if __name__ == "__main__":
         test.progress.stop()
         os._exit(0)
     except KeyboardInterrupt:
+        test.gpio_mgmt.set_state(True)
+        test.gpio_mgmt.set_value(1)
+        hk_stop(True)
+        time.sleep(0.1)
         test.print_and_log("Interrupted")
         test.progress.stop()
         try:

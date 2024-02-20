@@ -169,10 +169,6 @@ void config_uart()
 
 void HKGpio_config()
 {
-    configure_mgmt_gpio_input();
-    while (reg_gpio_in == 1)
-    {
-    };
     configure_gpio(0, GPIO_MODE_MGMT_STD_BIDIRECTIONAL);
     configure_gpio(1, GPIO_MODE_MGMT_STD_OUTPUT);
     configure_gpio(2, GPIO_MODE_MGMT_STD_INPUT_NOPULL);

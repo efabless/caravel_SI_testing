@@ -119,7 +119,7 @@ file_path = sys.argv[1]
 
 if not os.path.isfile(file_path):
     print("File not found.")
-    sys.exit()
+    sys.exit(1)
 
 # This is roundabout but works. . .
 s = StringIO()
@@ -207,7 +207,7 @@ if jedec[0:1] != bytes.fromhex("ef"):
 
 print("Erasing chip...")
 slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
-wcmd = bytearray((CARAVEL_PASSTHRU, 0xD8, (0 >> 16) & 0xFF, (0 >> 8) & 0xFF, 0 & 0xFF))
+wcmd = bytearray((CARAVEL_PASSTHRU, CMD_ERASE_SECTOR, (0x0 >> 16) & 0xFF, (0x0 >> 8) & 0xFF, 0x0 & 0xFF))
 slave.exchange(wcmd)
 
 while is_busy(slave):
@@ -358,7 +358,7 @@ with open(file_path, mode="r") as f:
                 print(binascii.hexlify(buf))
                 print("<----->")
                 print(binascii.hexlify(buf2))
-                # sys.exit(1)
+                sys.exit(1)
 
             if nbytes > 256:
                 buf = buf[255:]
@@ -394,7 +394,7 @@ with open(file_path, mode="r") as f:
             print(binascii.hexlify(buf))
             print("<----->")
             print(binascii.hexlify(buf2))
-            # sys.exit(1)
+            sys.exit(1)
 
 print("\ntotal_bytes = {}".format(total_bytes))
 

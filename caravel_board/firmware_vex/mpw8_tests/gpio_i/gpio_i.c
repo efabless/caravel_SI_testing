@@ -19,84 +19,77 @@
 // }
 void main()
 {
-    int io_number;
-    int count = 0;
-    int mask;
-    int recieved;
-    int old_recieved;
-    int temp_io = 0;
-    int timeout = 10000;
-    long int timeout_count = 0;
-    char *c;
-    configure_mgmt_gpio_input();
-    configure_all_gpios(GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    set_gpio_h(0);
-    set_gpio_l(0);
-    gpio_config_load();
-    config_uart();
-    print("Start Test: gpio_i\n");
+    HKGpio_config();
+    while (1){
+        HKGpio_config();
+        configure_mgmt_gpio_input();
+        if (reg_gpio_in == 0){
+            int io_number;
+            int count = 0;
+            int mask;
+            int recieved;
+            int old_recieved;
+            int temp_io = 0;
+            int timeout = 10000;
+            long int timeout_count = 0;
+            char *c;
+            configure_mgmt_gpio_input();
+            configure_all_gpios(GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+            configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+            set_gpio_h(0);
+            set_gpio_l(0);
+            gpio_config_load();
+            config_uart();
+            print("Start Test: gpio_i\n");
 
-    while (reg_gpio_in == 1)
-    {
-        c = uart_get_line();
-        io_number = get_int_from_string(c);
-        if (io_number >= 32)
-        {
-            temp_io = io_number - 32;
-            mask = 0x1 << temp_io;
-            old_recieved = get_gpio_h() & mask;
-        }
-        else
-        {
-            mask = 0x1 << io_number;
-            old_recieved = get_gpio_l() & mask;
-        }
-        while (reg_gpio_in == 1)
-        {
-            if (io_number >= 32)
+            while (reg_gpio_in == 0)
             {
-                recieved = get_gpio_h() & mask; // mask gpio bit
-            }
-            else
-            {
-                recieved = get_gpio_l() & mask; // mask gpio bit
-            }
-            if (recieved != old_recieved)
-            {
-                count++;
-                old_recieved = recieved;
-                timeout_count = 0;
-            }
-            else
-            {
-                timeout_count++;
-            }
-            if (count == 10)
-                break;
-            if (timeout_count > timeout)
-            {
+                c = uart_get_line();
+                io_number = get_int_from_string(c);
+                if (io_number >= 32)
+                {
+                    temp_io = io_number - 32;
+                    mask = 0x1 << temp_io;
+                    old_recieved = get_gpio_h() & mask;
+                }
+                else
+                {
+                    mask = 0x1 << io_number;
+                    old_recieved = get_gpio_l() & mask;
+                }
+                while (reg_gpio_in == 0)
+                {
+                    if (io_number >= 32)
+                    {
+                        recieved = get_gpio_h() & mask; // mask gpio bit
+                    }
+                    else
+                    {
+                        recieved = get_gpio_l() & mask; // mask gpio bit
+                    }
+                    if (recieved != old_recieved)
+                    {
+                        count++;
+                        old_recieved = recieved;
+                        timeout_count = 0;
+                    }
+                    else
+                    {
+                        timeout_count++;
+                    }
+                    if (count == 10)
+                        break;
+                    if (timeout_count > timeout)
+                    {
+                        count_down(PULSE_WIDTH);
+                        print("f\n");
+                    }
+                }
                 count_down(PULSE_WIDTH);
-                print("f\n");
+                print("p\n");
+                count = 0;
             }
         }
-        count_down(PULSE_WIDTH);
-        print("p\n");
-        count = 0;
-    }
-    // HKGpio_config();
-
-    configure_gpio(0, GPIO_MODE_MGMT_STD_BIDIRECTIONAL);
-    configure_gpio(1, GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(2, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(3, GPIO_MODE_MGMT_STD_INPUT_PULLUP);
-    configure_gpio(4, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(7, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(32, GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(33, GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(34, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(35, GPIO_MODE_MGMT_STD_OUTPUT);
-    gpio_config_load();
+        HKGpio_config();
+    };
 }

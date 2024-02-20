@@ -42,32 +42,35 @@ bool timer0_periodic()
 {
     uint32_t value;
     uint32_t old_value;
+    // enable_hk_spi(0);
 
     /* Configure timer for a single-shot countdown */
-	reg_timer0_config = 0; // disable
-	reg_timer0_data = 0;
-    reg_timer0_data_periodic  = 0x3000;
-    reg_timer0_config = 1; // enable
+    timer0_periodic_configure(0x3000);
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     // test path if counter value stop updated after reach 0 and also the value is always decrementing
-    reg_timer0_update = 1; // update reg_timer0_value with new counter value
-    old_value = reg_timer0_value;
+    update_timer0_val();  // update reg_timer0_value with new counter value
+    old_value = get_timer0_val();
     // value us decrementing until it reachs zero
-    bool is_pass = false;
-    int timeout = 400000; 
+    int rollover = 0;
+    int timeout = 400; 
     for (int i = 0; i < timeout; i++){
-        reg_timer0_update = 1; // update reg_timer0_value with new counter value
-        value = reg_timer0_value;
-        if (value > old_value)
-        {
-            is_pass = true;
-            return true;
+        update_timer0_val();  // update reg_timer0_value with new counter value
+        value = get_timer0_val();
+        if (value > old_value){
+            rollover++;
+            if (rollover==3){
+                break;
+            }
         }
-        old_value = value;
+        // if (value < old_value){
+        //     set_debug_reg1(0x4B); // value decreases
+        // }
+	    old_value = value;
     }
 
-    if (!is_pass){
-        return false; // timer hasn't rollover
+    if (rollover ==0){
+        return false;
     }
+    return true;
 }

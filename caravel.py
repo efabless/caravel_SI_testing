@@ -146,7 +146,7 @@ class Test:
             channel.set_value(1)
             accurate_delay(pulse_width)
 
-    def reset(self, duration=1):
+    def reset(self, duration=0.1):
         """applies reset to the caravel board
 
         Args:
@@ -300,7 +300,7 @@ class Test:
             inst.write(f"CH2:VOLT {self.h_voltage}")
             time.sleep(0.5)
             inst.write("OUTP CH2, ON")
-            time.sleep(1)
+            time.sleep(5)
             l_volt = float(inst.query('MEAsure:VOLTage? CH1'))
             h_volt = float(inst.query('MEAsure:VOLTage? CH2'))
             l_volt_expected = self.l_voltage
@@ -450,6 +450,21 @@ class Test:
                 return True
             if time.time() > timeout:
                 return False
+    
+    def setup_clock(self, clk_io, data_io):
+        dwf.FDwfDigitalOutEnableSet(self.device3v3.handle, c_int(self.device3v3.dio_map[clk_io].channel), c_int(1)) # enable DIO 0 as output (clock)
+        dwf.FDwfDigitalOutEnableSet(self.device3v3.handle, c_int(self.device3v3.dio_map[data_io].channel), c_int(1)) # enable DIO 1 as output (output)
+
+        dwf.FDwfDigitalOutDividerSet(self.device3v3.handle, c_int(1)) # set divider to 1 (fastest clock)
+        dwf.FDwfDigitalOutCounterInitSet(self.device3v3.handle, c_int(0), c_int(1)) # set counter to 1 (fastest clock)
+
+    def run_clock(self, data, clk_io, data_io):
+        self.setup_clock(clk_io, data_io)
+
+        for bit in data:
+            dwf.FDwfDigitalOutCounterSet(self.device3v3.handle, c_int(self.device3v3.dio_map[clk_io].channel), c_int(1), c_int(1)) # set output on positive edge of DIO 0
+            dwf.FDwfDigitalOutDataSet(self.device3v3.handle, c_int(self.device3v3.dio_map[data_io].channel << bit)) # set output data on DIO 1
+            time.sleep(0.001) # adjust sleep time as needed
 
 
 class Device:
@@ -697,9 +712,9 @@ class UART:
         )
         return
 
-    def read_data(self, test):
+    def read_data(self, test, timeout=50):
         self.open()
-        timeout = time.time() + 10
+        timeout = time.time() + timeout
         rgRX = b""
         while True:
             uart_data, count = self.read_uart()

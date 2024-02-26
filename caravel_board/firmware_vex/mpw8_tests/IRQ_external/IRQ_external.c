@@ -48,7 +48,7 @@ bool IRQ_external()
     enable_external1_irq(1);
     reg_irq_source = 1;
     config_uart();
-    print("Start Test: IRQ_external\n");
+    print("ST: IRQ_external\n");
 
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;

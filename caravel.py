@@ -193,16 +193,15 @@ class Test:
             f.write(f"   Flashed {self.test_name}")
             f.write(" ==============================================\n")
             sp = subprocess.run(
-                f"python3 caravel_hkflash.py {hex_file}",
+                ['python3', 'caravel_hkflash.py', hex_file],
                 cwd="./caravel_board/firmware_vex/util/",
-                shell=True,
                 stdout=f,
                 stderr=subprocess.PIPE,
                 universal_newlines=True,
             )
         ret_code = sp.returncode
         if ret_code != 0:
-            self.console.print("[red]Can't flash!")
+            self.console.print("[red]Can't flash! (" + str(ret_code) + ")")
             self.close_devices()
             sys.exit(1)
 
@@ -336,10 +335,14 @@ class Test:
             inst.query_delay = 0.1
             inst.write("CH1:VOLT 1.8")
             time.sleep(0.5)
+            # NOTE: OUTP syntax differs between models.  Use both
+            # and one of them will be ignored.
+            inst.write("OUTP CH1,ON")
             inst.write("OUTP CH1, ON")
             time.sleep(0.5)
             inst.write("CH2:VOLT 3.3")
             time.sleep(0.5)
+            inst.write("OUTP CH2,ON")
             inst.write("OUTP CH2, ON")
             time.sleep(5)
             l_volt = float(inst.query('MEAsure:VOLTage? CH1'))
@@ -349,6 +352,11 @@ class Test:
             error_tolerance = 0.1
 
             if not math.isclose(l_volt, l_volt_expected, abs_tol=error_tolerance) or not math.isclose(h_volt, h_volt_expected, abs_tol=error_tolerance):
+                print('low voltage = ' + str(l_volt))
+                print('low voltage expected = ' + str(l_volt_expected))
+                print('high voltage = ' + str(h_volt))
+                print('high voltage expected = ' + str(h_volt_expected))
+                sys.stdout.flush()
                 Console.print(f"[red]Error: {resource_name} not within 0.1V of expected voltages")
                 self.turn_off_devices()
                 exit()

@@ -1258,10 +1258,11 @@ def adc_test(test, uart, verbose):
                 return False
             if "clkdiv:" in uart_data:
                 clk_div = uart_data.strip().split(": ")[1]
-            test.print_and_log("clk_div value:", clk_div)
-            test.print_and_log("clk freq (MHz):", clk_freq[clkdiv])
+            test.print_and_log("clk_div value:" + str(clk_div))
+            test.print_and_log("clk freq (MHz):" + str(clk_freq[clkdiv]))
             test.device3v3.dio_map[22].set_value(0)
-            for i in range(0, 40):
+            # NOTE:  Removed multiple runs, not useful for ADC
+            for i in range(0, 1):
                 invals = []
                 outvals = []
                 for v in range(0, numvals):
@@ -1382,14 +1383,14 @@ def adc_test(test, uart, verbose):
             gain_error = 100 * abs((slope * 4 / alsb) - 1)
 
             test.print_and_log('Absolute INL:')
-            test.print_and_log('Maximum INL (in lsb) =', max_inl_abs)
-            test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
+            test.print_and_log('Maximum INL (in lsb) =' + str(max_inl_abs))
+            test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =' + str(max_inl_abs_0_to_2_6V))
 
             test.print_and_log('INL corrected for gain and offset:')
-            test.print_and_log('Maximum INL (in lsb) =', max_inl_cor)
-            test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
+            test.print_and_log('Maximum INL (in lsb) =' + str(max_inl_cor))
+            test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =' + str(max_inl_cor_0_to_2_6V))
 
-            test.print_and_log('Maximum DNL (in lsb) =', max_dnl)
+            test.print_and_log('Maximum DNL (in lsb) =' + str(max_dnl))
 
             test.print_and_log('Offset error = {:.3f}mV'.format(offset_error))
             test.print_and_log('Gain error = {:.3f}%'.format(gain_error))
@@ -1457,7 +1458,7 @@ def adc_test(test, uart, verbose):
             # test.print_and_log("clk_div value:", pulse_count)
 
             # Read DAC value back from GPIO 15
-            samples = 64
+            samples = 16
             value = 0
             for i in range(0, samples):
                 # scope.trigger(test.device3v3.ad_device, True, scope.trigger_source.external[1], 1, 0, True, 1.65)
@@ -1510,7 +1511,7 @@ def adc_test(test, uart, verbose):
             print(' '.join(digvals), file=ofile)
             print(' '.join(invals), file=ofile)
             print(' '.join(outvals), file=ofile)
-        
+
         # Full Scale Range (FSR) and Least Significant Bit (LSB)
         fsr = 3.3 - 0.0
         alsb = fsr / 256.0
@@ -1546,14 +1547,14 @@ def adc_test(test, uart, verbose):
 
         # Print calculated values
         test.print_and_log('Absolute INL:')
-        test.print_and_log('Maximum INL (in lsb) =', max_inl_abs)
-        test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
+        test.print_and_log('Maximum INL (in lsb) =' + str(max_inl_abs))
+        test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =' + str(max_inl_abs_0_to_2_6V))
 
         test.print_and_log('INL corrected for gain and offset:')
-        test.print_and_log('Maximum INL (in lsb) =', max_inl_cor)
-        test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
+        test.print_and_log('Maximum INL (in lsb) =' + str(max_inl_cor))
+        test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =' + str(max_inl_cor_0_to_2_6V))
 
-        test.print_and_log('Maximum DNL (in lsb) =', max_dnl)
+        test.print_and_log('Maximum DNL (in lsb) =' + str(max_dnl))
 
         test.print_and_log('Offset error = {:.3f}mV'.format(offset_error))
         test.print_and_log('Gain error = {:.3f}%'.format(gain_error))
@@ -1569,6 +1570,201 @@ def adc_test(test, uart, verbose):
             writer.writerows(data)
         return True
 
+def adc_char(test, uart, verbose):
+    volt_dir = os.path.join(test.date_dir, f"{test.l_voltage}_{test.h_voltage}")
+    os.makedirs(volt_dir, exist_ok=True)
+    if test.test_name == "adc_char":
+        test.device3v3.dio_map[22].set_state(True)
+        test.device3v3.dio_map[22].set_value(1)
+        # Prepare the Digilent logic analyzer
+        # open(device_data, sampling_frequency=100e06, buffer_size=0)
+        logic.open(test.device3v3.ad_device, 1e5, 1)
+
+        # trigger(device_data, enable, channel, position=0, timeout=0,
+        #      rising_edge=True, length_min=0, length_max=20, count=0)
+        # logic.trigger(devdata, False, 0)
+        #
+        # Better:  Define a trigger channel and trigger on pulse
+        # from Caravel to be defined whenever it runs a new ADC conversion
+        # logic.trigger(test.device3v3.ad_device, True, 10)
+
+        uart_data = uart.read_data(test)
+        uart_data = uart_data.decode()
+        if "UART Timeout!" in uart_data:
+            test.print_and_log("[red]UART Timeout!")
+            return False
+        if "Start Test:" in uart_data:
+            # test.test_name = uart_data.strip().split(": ")[1]
+            test.print_and_log(f"Running test {test.test_name}...")
+        # test.reset()
+
+        numvals = 1024
+        uart_data = ""
+
+        data = [['VDDIO (v)', 'VCCD (v)', 'clk freq (MHz)', 'clk div', 'ABS Max INL (lsb)', 'ABS Max INL (lsb 0 to 2.6V)', 'Corrected Max INL (lsb)', 'Corrected Max INL (lsb 0 to 2.6V)', 'Max DNL (lsb)', 'Offset error (mV)', 'Gain error (%)']]
+
+        clk_freq = ["2.5", "1.67", "1", "0.813", "0.714", "0.385"]
+
+        # Write data to a CSV file
+        adc_dir = os.path.join(volt_dir, "ADC")
+        os.makedirs(adc_dir, exist_ok=True)
+        csv_filename = f'{adc_dir}/adc_data.csv'
+        with open(csv_filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(data)
+        for clkdiv in range(0, 6):
+            invals = []
+            outvals = []
+            mult_outvals = []
+            uart_data = uart.read_data(test)
+            uart_data = uart_data.decode()
+            if "UART Timeout!" in uart_data:
+                test.print_and_log("[red]UART Timeout!")
+                return False
+            if "clkdiv:" in uart_data:
+                clk_div = uart_data.strip().split(": ")[1]
+            test.print_and_log("clk_div value:" + str(clk_div))
+            test.print_and_log("clk freq (MHz):" + str(clk_freq[clkdiv]))
+            test.device3v3.dio_map[22].set_value(0)
+            # WARNING:  Running 128 samples takes hours!
+            for i in range(0, 128):
+                invals = []
+                outvals = []
+                for v in range(0, numvals):
+                    volt = 3.3 * (float(v) / float(numvals))
+                    # Set value on W1:  Test DC value at 1.5V (set by offset, not amplitude)
+                    # generate(device_data, channel, function, offset, frequency=1e03,
+                    #      amplitude=1, symmetry=50, wait=0, run_time=0, repeat=0, data=[])
+                    wavegen.generate(test.device3v3.ad_device, 1, wavegen.function.dc, volt, 1e3, 0, 50, 0, 0, 0)
+                    logic.trigger(test.device3v3.ad_device, True, 10)
+                    # time.sleep(0.05)
+                    # print("triggered!")
+
+                    # Read ADC value back from GPIO 24-31, connected to Digilent 2-9.
+                    # Use "recordall" (function added to existing SDK)
+
+                    value = 0
+                    buffer = logic.recordall(test.device3v3.ad_device)
+                    for i in range(2, 10):
+                        value += buffer[i][0]
+                    
+                    if verbose:
+                        print('Input voltage = ' + str(volt) + ';  captured value = ' + str(value))
+                    invals.append(volt)
+                    outvals.append(value)
+                
+                mult_outvals.append(outvals)
+            
+
+            # Transpose the array to get columns as rows
+            transposed_a1 = list(map(list, zip(*mult_outvals)))
+
+            # Calculate the average for each column
+            averages = [sum(column) / len(column) for column in transposed_a1]
+
+
+            with open(f'{adc_dir}/adc_results_{clk_freq[clkdiv]}.dat', 'w') as ofile:
+                print(' '.join(map(str, invals)), file=ofile)
+                print(' '.join(map(str, averages)), file=ofile)
+
+            with open(f'{adc_dir}/adc_raw_{clk_freq[clkdiv]}.dat', 'w') as ofile:
+                print(' '.join(map(str, invals)), file=ofile)
+                print(' '.join(map(str, transposed_a1)), file=ofile)
+
+            test.device3v3.dio_map[22].set_value(1)
+        return True
+
+    elif test.test_name == "dac_char":
+        uart_data = uart.read_data(test)
+        uart_data = uart_data.decode()
+        if "UART Timeout!" in uart_data:
+            test.print_and_log("[red]UART Timeout!")
+            return False
+        if "Start Test:" in uart_data:
+            # test.test_name = uart_data.strip().split(": ")[1]
+            test.print_and_log(f"Running test {test.test_name}...")
+        # Prepare the Digilent I/O for static function
+        for k in range(2, 10):
+            # Enable channel for digital output (output=True is output)
+            # set_mode(device_data, channel, output)
+            static.set_mode(test.device3v3.ad_device, k, True)
+
+        # Prepare the Digilent scope for signal capture
+        # open(device_data, sampling_frequency=20e06, buffer_size=0,
+        #	offset=0, amplitude_range=5)
+        #
+        scope.open(test.device3v3.ad_device, 20e6, 1, 0, 10)
+
+        # Set up the scope to trigger on T1, and connect T1 to GPIO 33.
+        # The "blizzard_dac_test.c" outputs on that pin.
+        # trigger(device_data, enable, source=trigger_source.none, channel=1,
+        #	timeout=0, edge_rising=True, level=0)
+        # scope.trigger(test.device3v3.ad_device, True, scope.trigger_source.external[1], 1, 0, True, 1.65)
+
+        digvals = []
+        invals = []
+        outvals = []
+        rawvals = []
+        captured_voltage = []
+        expected_voltage = []
+        digital_values = []
+        diff_arr = []
+        numvals = 256
+        for v in range(0, numvals):
+            volt = 3.3 * (float(v) / float(numvals))
+
+            scope.trigger(test.device3v3.ad_device, True, scope.trigger_source.external[1], 1, 0, True, 1.65)
+
+            # Apply binary value as pattern to GPIO 24-31
+            for k in range(0, 8):
+                test.device3v3.dio_map[k+24].set_state(True)
+                # print(f"v: {v}, k: {k}, value: {(v >> k) & 1}")
+                # print((v >> k) & 1)
+                test.device3v3.dio_map[k+24].set_value((v >> k) & 1)
+                # static.set_allstates(test.device3v3.ad_device, v)
+
+            time.sleep(0.05)
+            # pulse_count = test.receive_packet(250)
+            # test.print_and_log("clk_div value:", pulse_count)
+
+            # Read DAC value back from GPIO 15
+            samples = 128
+            value = 0
+            for i in range(0, samples):
+                # scope.trigger(test.device3v3.ad_device, True, scope.trigger_source.external[1], 1, 0, True, 1.65)
+                rawvalue = scope.measure(test.device3v3.ad_device, 1)
+                rawvals.append(str(rawvalue))
+                value += rawvalue
+            value /= float(samples)
+
+            if verbose:
+                print('Output value = ' + str(v) + ';  expected voltage = ' + str(volt) + ';  captured voltage = ' + str(value))
+            digvals.append(str(v))
+            invals.append(str(volt))
+            outvals.append(str(value))
+
+            # Calculate the difference between the captured voltage and expected voltage
+            diff = volt - value
+
+            # Append the values to the corresponding lists
+            digital_values.append(v)
+            captured_voltage.append(value)
+            expected_voltage.append(volt)
+            diff_arr.append(diff)
+
+        dac_dir = os.path.join(volt_dir, "DAC")
+        os.makedirs(dac_dir, exist_ok=True)
+
+        with open(f'{dac_dir}/dac_results.dat', 'w') as ofile:
+            print(' '.join(digvals), file=ofile)
+            print(' '.join(invals), file=ofile)
+            print(' '.join(outvals), file=ofile)
+
+        # Keep the non-averaged values for noise analysis
+        with open(f'{dac_dir}/dac_raw_results.dat', 'w') as ofile:
+            print(' '.join(rawvals), file=ofile)
+        
+        return True
 
 def concat_csv(root_directory, file_name):
     # Initialize a flag to track whether the header has been written
@@ -1615,6 +1811,7 @@ def flash_test(
     sec_count,
     fpga_ram,
     ana,
+    char,
 ):
     if flash_only:
         run_only = False
@@ -1695,6 +1892,8 @@ def flash_test(
                 concat_csv(test.date_dir, "adc_data")
             else:
                 concat_csv(test.date_dir, "dac_data")
+        elif char:
+            results = adc_char(test, uart_data, verbose)
         else:
             results = process_soc(test, uart_data)
         # if uart:
@@ -1793,6 +1992,7 @@ def exec_test(
     sec_count=False,
     fpga_ram=False,
     ana=False,
+    char=False,
 ):
     results = False
     results = flash_test(
@@ -1813,6 +2013,7 @@ def exec_test(
         sec_count,
         fpga_ram,
         ana,
+        char,
     )
     end_time = time.time() - start_time
     arr = []
@@ -2127,6 +2328,17 @@ if __name__ == "__main__":
                                 flash_only=args.flash_only,
                                 uart_data=uart_data,
                                 ana=t["ana"],
+                            )
+                        elif t["char"]:
+                            exec_test(
+                                test,
+                                start_time,
+                                t["hex_file_path"],
+                                flash_flag,
+                                plud=t["plud"],
+                                flash_only=args.flash_only,
+                                uart_data=uart_data,
+                                char=t["char"],
                             )
                         else:
                             exec_test(

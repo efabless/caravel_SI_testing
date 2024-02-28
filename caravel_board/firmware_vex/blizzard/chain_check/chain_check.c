@@ -16,6 +16,7 @@ void main()
         configure_gpio(36, GPIO_MODE_USER_STD_INPUT_PULLDOWN);
         // gpio_config_io();
         gpio_config_load();
+        config_uart_ios();
         config_uart();
         print("ST: chain_check\n");
     }

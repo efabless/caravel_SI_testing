@@ -726,7 +726,7 @@ def chain_test(test, uart):
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     tail_value = []
     test.print_and_log("Reading data from chain tail")
-    time.sleep(0.1)
+    # time.sleep(0.1)
     for i in binary_array:
         chain_value = ccff_tail.get_value()
         if chain_value:
@@ -755,10 +755,10 @@ def ALU_4bits(operand_A_bits, operand_B_bits, operation_bits, operand_a, operand
     for i in range(4):
         bit_A = operand_A_bits[i]
         test.device1v8.dio_map[operand_a[i]].set_value(bit_A)
-        time.sleep(0.1)
+        # time.sleep(0.1)
         bit_B = operand_B_bits[i]
         test.device1v8.dio_map[operand_b[i]].set_value(bit_B)
-        time.sleep(0.1)
+        # time.sleep(0.1)
 
 
 def config_alu(test, arr, dir):
@@ -785,14 +785,15 @@ def fpga_ALU_test(test, uart):
     operand_b_bits = [[0, 1, 0, 0]]  # Example operand B values
     operations = [[0, 0], [0, 1], [1, 0], [1, 1]]  # Example operations
     result_bits = [[1, 0, 1, 1], [0, 0, 1, 1], [0, 1, 0, 0], [0, 1, 1, 1]]
-    uart_data = uart.read_data(test)
-    uart_data = uart_data.decode('utf-8', 'ignore')
-    if "UART Timeout!" in uart_data:
-        test.print_and_log("[red]UART Timeout!")
-        return False
-    if "ST:" in uart_data:
-        test.test_name = uart_data.strip().split(": ")[1]
-        test.print_and_log(f"Running test {test.test_name}...")
+    # uart_data = uart.read_data(test)
+    # uart_data = uart_data.decode('utf-8', 'ignore')
+    # if "UART Timeout!" in uart_data:
+    #     test.print_and_log("[red]UART Timeout!")
+    #     return False
+    # if "ST:" in uart_data:
+    #     test.test_name = uart_data.strip().split(": ")[1]
+    #     test.print_and_log(f"Running test {test.test_name}...")
+    time.sleep(0.1)
     hk_stop(False)
     binary_array = load_bitstream("ALU_4bits")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
@@ -801,27 +802,27 @@ def fpga_ALU_test(test, uart):
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
-    time.sleep(0.1)
+    # time.sleep(0.1)
     clk_sel.set_value(1)
-    time.sleep(0.1)
+    # time.sleep(0.1)
     op_rst.set_value(1)
-    time.sleep(0.1)
+    # time.sleep(0.1)
     config_alu(test, operand_a, True)
     config_alu(test, operand_b, True)
     config_alu(test, operator, True)
     config_alu(test, result, False)
-    time.sleep(0.1)
+    # time.sleep(0.1)
     alu_res = []
 
     for operation in operations:
         for i in range(len(operand_a_bits)):
             for j in range(len(operation)):
                 test.device1v8.dio_map[operator[j]].set_value(operation[j])
-            time.sleep(0.1)
+            # time.sleep(0.1)
             ALU_4bits(
                 operand_a_bits[i], operand_b_bits[i], operation, operand_a, operand_b
             )
-            time.sleep(0.1)
+            # time.sleep(0.1)
             out_res = []
             for result_io in result:
                 val = test.device3v3.dio_map[result_io].get_value()
@@ -856,15 +857,18 @@ def fpga_counter_test(test, uart):
     hk_stop(False)
     out_io = [3, 4, 5, 6, 7, 26, 28, 24]
     binary_array = load_bitstream("seconds_decoder_2")
-    # pulse_count = test.receive_packet(250)
-    # if pulse_count == 2:
-    #     test.print_and_log("sT")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
         test
     )
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
+    
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
+    # time.sleep(0.1)
+    clk_sel.set_value(1)
+    # time.sleep(0.1)
+    op_rst.set_value(1)
+    # time.sleep(0.1)
     for channel in out_io:
         if channel < 14:
             io = test.device1v8.dio_map[channel]
@@ -872,15 +876,10 @@ def fpga_counter_test(test, uart):
         else:
             io = test.device3v3.dio_map[channel]
             io.set_state(False)
-
-    time.sleep(0.1)
-    clk_sel.set_value(1)
-    time.sleep(0.1)
-    op_rst.set_value(1)
     count = 0
     io = []
     io_arr = []
-    timeout = time.time() + 100
+    timeout = time.time() + 50
     while True:
         for channel in out_io:
             if channel < 14:
@@ -945,11 +944,11 @@ def fpga_io_test(test, uart):
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
-    time.sleep(0.1)
+    # time.sleep(1)
     clk_sel.set_value(1)
-    time.sleep(0.1)
+    # time.sleep(20)
     op_rst.set_value(1)
-    time.sleep(0.1)
+    # time.sleep(20)
     fail = False
     count = 0
     for inp_ut in inp:
@@ -972,7 +971,7 @@ def fpga_io_test(test, uart):
             io_ut = test.device1v8.dio_map[inp_ut]
         io_ut.set_state(True)
         io_ut.set_value(1)
-        time.sleep(0.1)
+        # time.sleep(5)
         for channel in out:
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
@@ -981,7 +980,7 @@ def fpga_io_test(test, uart):
             else:
                 io = test.device1v8.dio_map[channel]
             io.set_state(False)
-            # time.sleep(0.1)
+            # time.sleep(1)
             io_val = io.get_value()
             if not io_val and not out[count] == channel:
                 test.print_and_log(f"[red]ERROR: io {channel} = {io_val}")
@@ -992,7 +991,7 @@ def fpga_io_test(test, uart):
             # else:
             #     test.print_and_log(f"[green]io {channel} = {io_val}")
 
-        time.sleep(0.1)
+        # time.sleep(5)
         for channel in inp:
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
@@ -1005,7 +1004,7 @@ def fpga_io_test(test, uart):
 
         io_ut.set_value(0)
 
-        time.sleep(0.1)
+        # time.sleep(5)
         for channel in out:
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
@@ -1014,7 +1013,7 @@ def fpga_io_test(test, uart):
             else:
                 io = test.device1v8.dio_map[channel]
             io.set_state(False)
-            # time.sleep(0.1)
+            # time.sleep(1)
             io_val = io.get_value()
             if io_val and not out[count] == channel:
                 test.print_and_log(f"[red]ERROR: io {channel} = {io_val}")
@@ -1030,6 +1029,7 @@ def fpga_io_test(test, uart):
     if fail:
         return False
     else:
+        test.print_and_log("[green]Test Passed!")
         return True
 
 
@@ -1198,11 +1198,11 @@ def fpga_ram_test(test):
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
-    time.sleep(0.1)
+    # time.sleep(0.1)
     clk_sel.set_value(1)
-    time.sleep(0.1)
+    # time.sleep(0.1)
     op_rst.set_value(1)
-    time.sleep(0.1)
+    # time.sleep(0.1)
     flag = True
     for j in range(0, reg_size):
         wdata_word = bin(j)[2:].zfill(len(wdata_io))
@@ -1230,8 +1230,14 @@ def fpga_ram_test(test):
 
     hk_stop(True)
     if flag:
+        test.print_and_log(
+            "[green]Test passed"
+        )
         return True
     else:
+        test.print_and_log(
+            "[green]Test failed"
+        )
         return False
 
 
@@ -1650,8 +1656,8 @@ def flash_test(
         run_only = False
     else:
         run_only = True
-    test.reset()
     test.reset_devices()
+    test.reset()
     if flash_flag or flash_only:
         test.print_and_log(
             "=============================================================================="
@@ -1672,7 +1678,8 @@ def flash_test(
         # test.power_up_1v8()
         test.gpio_mgmt.set_state(True)
         test.gpio_mgmt.set_value(1)
-        time.sleep(0.1)
+        # time.sleep(1)
+        test.reset()
         test.flash(hex_file)
         # test.power_down()
         # test.release_reset()

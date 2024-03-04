@@ -113,12 +113,15 @@ void dummyDelay(int num)
     }
 }
 
-void config_uart()
+void config_uart_ios()
 {
     GPIOs_configure(6, GPIO_MODE_MGMT_STD_OUTPUT);
     GPIOs_loadConfigs();
+}
+
+void config_uart(){
     UART_enableTX(1);
-    count_down(PULSE_WIDTH * 10);
+    count_down(PULSE_WIDTH * 2);
 }
 
 // debug

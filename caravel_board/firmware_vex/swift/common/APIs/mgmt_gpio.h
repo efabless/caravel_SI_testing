@@ -79,14 +79,15 @@ void ManagmentGpio_outputEnable()
 {
     reg_gpio_mode1 = 1;
     reg_gpio_mode0 = 0; // for full swing
-#ifndef REG_GPIO_INVERTED
-    reg_gpio_ien = 0;
-    reg_gpio_oe = 1;
-#else
-    reg_gpio_ien = 1; // because in gf the GPIO  enable regs are inverted
+    #ifndef REG_GPIO_INVERTED 
+    reg_gpio_ien = 1;
     reg_gpio_oe = 0;
-#endif
+    #else
+    reg_gpio_ien = 0; // because in gf the GPIO  enable regs are inverted
+    reg_gpio_oe = 1;
+    #endif
     dummyDelay(1);
+
 }
 /**
  * Configure management GPIO as bi-direction

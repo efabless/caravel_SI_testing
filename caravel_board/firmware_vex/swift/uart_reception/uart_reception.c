@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <common.h>
+#include <firmware_apis.h>
 
 /*
 Connect the transimssion and the reciever of the uart
@@ -43,12 +43,12 @@ Connect the transimssion and the reciever of the uart
 void uart_reception()
 {
     int j;
-    configure_mgmt_gpio();
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    gpio_config_load();
+    ManagmentGpio_outputEnable();
+    GPIOs_configure(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    GPIOs_configure(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    GPIOs_loadConfigs();
 
-    uart_RX_enable(1);
+    UART_enableRX(1);
     empty_buffer();
 
     // Start test
@@ -62,5 +62,5 @@ void uart_reception()
 
     send_packet(4);     // wait for new character
     wait_for_char("A"); // 0
-    uart_RX_enable(0);
+    UART_enableRX(0);
 }

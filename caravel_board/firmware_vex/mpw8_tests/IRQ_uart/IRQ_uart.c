@@ -45,6 +45,7 @@ bool IRQ_uart()
     gpio_config_load();
     enable_uart_tx_irq(1);
     uart_ev_pending_write(1);
+    count_down(PULSE_WIDTH * 2);
     print("M");
 
     // Loop, waiting for the interrupt to change reg_mprj_datah

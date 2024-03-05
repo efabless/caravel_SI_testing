@@ -2,8 +2,20 @@
 
 void main()
 {
-    // config_uart();
-    // print("Start Test: inv_2\n");
+    // HKGpio_config();
+    configure_mgmt_gpio_input();
+    // while (1)
+    // {
+    // if (reg_gpio_in == 0) {
+    // FPGA IOs
+    configure_gpio(1, GPIO_MODE_USER_STD_INPUT_NOPULL);
+    configure_gpio(11, GPIO_MODE_USER_STD_INPUT_NOPULL);
+    configure_gpio(23, GPIO_MODE_USER_STD_OUTPUT);
+    configure_gpio(29, GPIO_MODE_USER_STD_INPUT_NOPULL);
+    configure_gpio(34, GPIO_MODE_USER_STD_INPUT_NOPULL);
+    configure_gpio(35, GPIO_MODE_USER_STD_INPUT_NOPULL);
+    configure_gpio(37, GPIO_MODE_USER_STD_INPUT_NOPULL);
+
     configure_gpio(21, GPIO_MODE_USER_STD_INPUT_PULLDOWN); // 13 a[0] -> GPIO[21]
     configure_gpio(20, GPIO_MODE_USER_STD_INPUT_PULLDOWN); // 14 a[1] -> GPIO[20]
     configure_gpio(19, GPIO_MODE_USER_STD_INPUT_PULLDOWN); // 15 a[2] -> GPIO[19]
@@ -32,4 +44,12 @@ void main()
 
     // gpio_config_io();
     gpio_config_load();
+
+    while (reg_gpio_in == 0)
+        ;
+    HKGpio_config();
+//     }
+// // };
+//     else
+//         HKGpio_config();
 }

@@ -207,7 +207,7 @@ if jedec[0:1] != bytes.fromhex("ef"):
 
 print("Erasing chip...")
 slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
-wcmd = bytearray((CARAVEL_PASSTHRU, 0xD8, (0 >> 16) & 0xFF, (0 >> 8) & 0xFF, 0 & 0xFF))
+wcmd = bytearray((CARAVEL_PASSTHRU, CMD_ERASE_SECTOR, (0x0 >> 16) & 0xFF, (0x0 >> 8) & 0xFF, 0x0 & 0xFF))
 slave.exchange(wcmd)
 
 while is_busy(slave):

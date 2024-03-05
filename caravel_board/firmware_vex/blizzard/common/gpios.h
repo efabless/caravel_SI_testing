@@ -159,13 +159,13 @@ void configure_gpio(int gpio_num,enum gpio_mode config){
     }
 }
 
-void config_uart()
-{
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    gpio_config_load();
-    enable_uart_TX(1);
-    count_down(PULSE_WIDTH * 10);
-}
+// void config_uart()
+// {
+//     configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+//     gpio_config_load();
+//     enable_uart_TX(1);
+//     count_down(PULSE_WIDTH * 10);
+// }
 
 /**
  * Write to the low 32 GPIOs GPIOS[31:0]
@@ -258,6 +258,34 @@ void wait_gpio_h(unsigned int data){
     data = data&0x7; // because with ARM the highest 3 GPIOs are not used by the design it is used by flashing
     #endif
     while (get_gpio_h() != data);    
+}
+
+void config_uart_ios()
+{
+    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    gpio_config_load();
+}
+
+void config_uart(){
+    enable_uart_TX(1);
+    count_down(PULSE_WIDTH * 2);
+}
+
+void HKGpio_config()
+{
+    // configure_gpio(0, GPIO_MODE_MGMT_STD_BIDIRECTIONAL);
+    configure_gpio(1, GPIO_MODE_MGMT_STD_OUTPUT);
+    configure_gpio(2, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    configure_gpio(3, GPIO_MODE_MGMT_STD_INPUT_PULLUP);
+    configure_gpio(4, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    // configure_gpio(5, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    // configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+    // configure_gpio(7, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    // configure_gpio(32, GPIO_MODE_MGMT_STD_OUTPUT);
+    // configure_gpio(33, GPIO_MODE_MGMT_STD_OUTPUT);
+    // configure_gpio(34, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    // configure_gpio(35, GPIO_MODE_MGMT_STD_OUTPUT);
+    gpio_config_load();
 }
 /**
  * wait over the masked lowest 32 GPIOs to equal the data passed

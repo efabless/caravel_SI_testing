@@ -1,5 +1,5 @@
 #include <common.h>
-#define PULSE_WIDTH 100000
+#define PULSE_WIDTH 50000
 
 /*
 @ send on the next io (start from 0 to 18)
@@ -19,68 +19,79 @@
 // }
 void main()
 {
-    int io_number;
-    int count = 0;
-    int mask;
-    int recieved;
-    int old_recieved;
-    int temp_io = 0;
-    int timeout = 10000;
-    long int timeout_count = 0;
-    char *c;
-    configure_all_gpios(GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    set_gpio_h(0);
-    set_gpio_l(0);
-    gpio_config_load();
-    config_uart();
-    print("Start Test: gpio_i\n");
+    // HKGpio_config();
+    // while (1){
+    //     HKGpio_config();
+    configure_mgmt_gpio_input();
+    if (reg_gpio_in == 0){
+        int io_number;
+        int count = 0;
+        int mask;
+        int recieved;
+        int old_recieved;
+        int temp_io = 0;
+        int timeout = 10000;
+        long int timeout_count = 0;
+        char *c;
+        configure_mgmt_gpio_input();
+        configure_all_gpios(GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+        gpio_config_load();
+        configure_all_gpios(GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+        configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+        set_gpio_h(0);
+        set_gpio_l(0);
+        gpio_config_load();
+        config_uart();
+        print("ST: gpio_i\n");
 
-    while (true)
-    {
-        c = uart_get_line();
-        io_number = get_int_from_string(c);
-        if (io_number >= 32)
+        while (reg_gpio_in == 0)
         {
-            temp_io = io_number - 32;
-            mask = 0x1 << temp_io;
-            old_recieved = get_gpio_h() & mask;
-        }
-        else
-        {
-            mask = 0x1 << io_number;
-            old_recieved = get_gpio_l() & mask;
-        }
-        while (true)
-        {
+            c = uart_get_line();
+            io_number = get_int_from_string(c);
             if (io_number >= 32)
             {
-                recieved = get_gpio_h() & mask; // mask gpio bit
+                temp_io = io_number - 32;
+                mask = 0x1 << temp_io;
+                old_recieved = get_gpio_h() & mask;
             }
             else
             {
-                recieved = get_gpio_l() & mask; // mask gpio bit
+                mask = 0x1 << io_number;
+                old_recieved = get_gpio_l() & mask;
             }
-            if (recieved != old_recieved)
+            while (reg_gpio_in == 0)
             {
-                count++;
-                old_recieved = recieved;
-                timeout_count = 0;
+                if (io_number >= 32)
+                {
+                    recieved = get_gpio_h() & mask; // mask gpio bit
+                }
+                else
+                {
+                    recieved = get_gpio_l() & mask; // mask gpio bit
+                }
+                if (recieved != old_recieved)
+                {
+                    count++;
+                    old_recieved = recieved;
+                    timeout_count = 0;
+                }
+                else
+                {
+                    timeout_count++;
+                }
+                if (count == 10)
+                    break;
+                if (timeout_count > timeout)
+                {
+                    count_down(PULSE_WIDTH);
+                    print("f\n");
+                }
             }
-            else
-            {
-                timeout_count++;
-            }
-            if (count == 10)
-                break;
-            if (timeout_count > timeout)
-            {
-                count_down(PULSE_WIDTH);
-                print("f\n");
-            }
+            count_down(PULSE_WIDTH);
+            print("p\n");
+            count = 0;
         }
-        count_down(PULSE_WIDTH);
-        print("p\n");
-        count = 0;
     }
+    HKGpio_config();
+    // };
 }

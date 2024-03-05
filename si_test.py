@@ -168,14 +168,14 @@ def process_uart(test, uart, verbose):
         pulse_count = test.receive_packet(250)
         if pulse_count == 1:
             if verbose:
-                test.print_and_log(f"Start test: {name}")
+                test.print_and_log(f"ST: {name}")
 
         if test.test_name == "uart":
             pulse_count = test.receive_packet(250)
             if pulse_count == 2:
                 test.print_and_log(f"Running test {test.test_name}...")
             uart_data = uart.read_data(test)
-            uart_data = uart_data.decode()
+            uart_data = uart_data.decode('utf-8', 'ignore')
             if "UART Timeout!" in uart_data:
                 test.print_and_log("[red]UART Timeout!")
                 status.append((test.test_name, False))
@@ -232,7 +232,7 @@ def process_uart(test, uart, verbose):
                     uart_data, count = uart.read_uart()
                     if uart_data:
                         uart_data[count.value] = 0
-                        dat = uart_data.value.decode()
+                        dat = uart_data.value.decode('utf-8', 'ignore')
                         # if dat in test.passing_criteria:
                         uart.write(dat)
                         pulse_count = test.receive_packet(250)
@@ -271,14 +271,16 @@ def process_uart(test, uart, verbose):
 
 def process_soc(test, uart):
     status = []
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     while True:
         uart_data = uart.read_data(test)
-        uart_data = uart_data.decode()
+        uart_data = uart_data.decode('utf-8', 'ignore')
         if "UART Timeout!" in uart_data:
             test.print_and_log("[red]UART Timeout!")
             status.append((test.test_name, False))
             break
-        if "Start Test:" in uart_data:
+        if "ST:" in uart_data:
             test.test_name = uart_data.strip().split(": ")[1]
             test.print_and_log(f"Running test {test.test_name}...")
         elif "End Test" in uart_data:
@@ -297,7 +299,7 @@ def process_soc(test, uart):
             uart.open()
             uart.write("I")
         uart_data = uart.read_data(test)
-        uart_data = uart_data.decode()
+        uart_data = uart_data.decode('utf-8', 'ignore')
         if "UART Timeout!" in uart_data:
             test.print_and_log("[red]UART Timeout!")
             status.append((test.test_name, False))
@@ -315,7 +317,7 @@ def process_soc(test, uart):
 #     fc = FreqCounter(device)
 #     pulse_count = test.receive_packet(25)
 #     if pulse_count == 2:
-#         test.print_and_log("start test")
+#         test.print_and_log("sT")
 #     fc.open()
 #     time.sleep(5)
 #     data, data_time = fc.record(1)
@@ -361,7 +363,7 @@ def process_soc(test, uart):
 #     while True:
 #         pulse_count = test.receive_packet(25)
 #         if pulse_count == 1:
-#             test.print_and_log("start test")
+#             test.print_and_log("sT")
 #         if pulse_count == 5:
 #             test.print_and_log(f"passed mem size {mem_size}")
 #             mem_size = mem_size + 1
@@ -398,14 +400,16 @@ def hk_stop(close):
 
 
 def process_io(test, uart, verbose):
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     hk_stop(False)
     fail = []
     uart_data = uart.read_data(test)
-    uart_data = uart_data.decode()
+    uart_data = uart_data.decode('utf-8', 'ignore')
     if "UART Timeout!" in uart_data:
         test.print_and_log("[red]UART Timeout!")
         return False, None
-    if "Start Test:" in uart_data:
+    if "ST:" in uart_data:
         test.test_name = uart_data.strip().split(": ")[1]
         test.print_and_log(f"Running test {test.test_name}...")
     for i in range(38):
@@ -432,12 +436,14 @@ def process_io(test, uart, verbose):
                     timeout = time.time() + 5
                     state = "LOW"
                     while 1:
-                        uart_data = uart.read_data(test)
+                        uart_data = uart.read_data(test, 5)
                         if b"UART Timeout!" in uart_data:
-                            test.print_and_log("[red]UART Timeout!")
+                            test.print_and_log(
+                                f"[red]Timeout failure on IO[{channel}]!"
+                            )
                             fail.append(channel)
                             break
-                        # uart_data = uart_data.decode()
+                        # uart_data = uart_data.decode('utf-8', 'ignore')
                         if b"d" in uart_data and state == "HI":
                             if not io.get_value():
                                 state = "LOW"
@@ -461,7 +467,7 @@ def process_io(test, uart, verbose):
                 if verbose:
                     test.print_and_log(f"IO[{channel}]")
                 test.send_pulse(4, channel, 1)
-                uart_data = uart.read_data(test)
+                uart_data = uart.read_data(test, 5)
                 if b"UART Timeout!" in uart_data:
                     test.print_and_log("[red]UART Timeout!")
                     fail.append(channel)
@@ -471,6 +477,10 @@ def process_io(test, uart, verbose):
                 elif b"f" in uart_data:
                     test.print_and_log(f"[red]IO[{channel}] Failed")
                     fail.append(channel)
+    hk_stop(True)
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(1)
+    time.sleep(1)
 
     if len(fail) == 0:
         test.print_and_log("[green]passed")
@@ -481,14 +491,21 @@ def process_io(test, uart, verbose):
 
 
 def process_io_plud(test, uart):
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     p1_rt = False
     p2_rt = False
-    pulse_count = test.receive_packet(25)
-    if pulse_count == 2:
+    uart_data = uart.read_data(test)
+    uart_data = uart_data.decode('utf-8', 'ignore')
+    if "UART Timeout!" in uart_data:
+        test.print_and_log("[red]UART Timeout!")
+        return False, None
+    if "ST:" in uart_data:
+        test.test_name = uart_data.strip().split(": ")[1]
         test.print_and_log(f"Running test {test.test_name}...")
     # uart_data = uart.read_data(test)
-    # uart_data = uart_data.decode()
-    # if "Start Test:" in uart_data:
+    # uart_data = uart_data.decode('utf-8', 'ignore')
+    # if "ST:" in uart_data:
     #     test.test_name = uart_data.strip().split(": ")[1]
     #     test.print_and_log(f"Running test {test.test_name}...")
     if test.test_name == "gpio_lpu_ho":
@@ -511,6 +528,8 @@ def process_io_plud(test, uart):
         default_val_n = 1
         p1_rt = run_io_plud_h(default_val, default_val_n, False)
         p2_rt = run_io_plud_h(default_val, default_val_n, True)
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(1)
     if p1_rt and p2_rt:
         test.print_and_log("[green]passed")
         return True
@@ -537,7 +556,7 @@ def run_io_plud(default_val, default_val_n, first_itter):
             io.set_state(False)
         elif first_itter:
             if not flag:
-                time.sleep(10)
+                time.sleep(1)
                 flag = True
             io_state = io.get_value()
             if io_state == default_val_n:
@@ -548,7 +567,7 @@ def run_io_plud(default_val, default_val_n, first_itter):
                 test.print_and_log(f"[red]channel {channel-19} FAILED!")
         else:
             if not flag:
-                time.sleep(10)
+                time.sleep(1)
                 flag = True
             io_state = io.get_value()
             if io_state == default_val:
@@ -585,7 +604,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
             io.set_state(False)
         elif first_itter:
             if not flag:
-                time.sleep(10)
+                time.sleep(1)
                 flag = True
             io_state = io.get_value()
             if io_state == default_val_n:
@@ -596,7 +615,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
                 test.print_and_log(f"[red]channel {channel+19} FAILED!")
         else:
             if not flag:
-                time.sleep(10)
+                time.sleep(1)
                 flag = True
             io_state = io.get_value()
             if io_state == default_val:
@@ -666,7 +685,7 @@ def config_fpga(test):
 def program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array):
     test.print_and_log("Programming FPGA...")
     prog_rst.set_value(1)
-    time.sleep(1)
+    time.sleep(0.1)
     for i in binary_array:
         ccff_head.set_value(i)
         prog_clk.set_value(1)
@@ -690,12 +709,14 @@ def load_bitstream(bitstream):
 
 
 def chain_test(test, uart):
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     uart_data = uart.read_data(test)
-    uart_data = uart_data.decode()
+    uart_data = uart_data.decode('utf-8', 'ignore')
     if "UART Timeout!" in uart_data:
         test.print_and_log("[red]UART Timeout!")
         return False
-    if "Start Test:" in uart_data:
+    if "ST:" in uart_data:
         test.test_name = uart_data.strip().split(": ")[1]
         test.print_and_log(f"Running test {test.test_name}...")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
@@ -705,7 +726,7 @@ def chain_test(test, uart):
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     tail_value = []
     test.print_and_log("Reading data from chain tail")
-    time.sleep(1)
+    # time.sleep(0.1)
     for i in binary_array:
         chain_value = ccff_tail.get_value()
         if chain_value:
@@ -734,10 +755,10 @@ def ALU_4bits(operand_A_bits, operand_B_bits, operation_bits, operand_a, operand
     for i in range(4):
         bit_A = operand_A_bits[i]
         test.device1v8.dio_map[operand_a[i]].set_value(bit_A)
-        time.sleep(1)
+        # time.sleep(0.1)
         bit_B = operand_B_bits[i]
         test.device1v8.dio_map[operand_b[i]].set_value(bit_B)
-        time.sleep(1)
+        # time.sleep(0.1)
 
 
 def config_alu(test, arr, dir):
@@ -754,6 +775,8 @@ def config_alu(test, arr, dir):
 
 
 def fpga_ALU_test(test, uart):
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     operand_a = [4, 3, 2, 0]
     operand_b = [8, 7, 6, 5]
     result = [30, 28, 26, 24]
@@ -762,14 +785,15 @@ def fpga_ALU_test(test, uart):
     operand_b_bits = [[0, 1, 0, 0]]  # Example operand B values
     operations = [[0, 0], [0, 1], [1, 0], [1, 1]]  # Example operations
     result_bits = [[1, 0, 1, 1], [0, 0, 1, 1], [0, 1, 0, 0], [0, 1, 1, 1]]
-    uart_data = uart.read_data(test)
-    uart_data = uart_data.decode()
-    if "UART Timeout!" in uart_data:
-        test.print_and_log("[red]UART Timeout!")
-        return False
-    if "Start Test:" in uart_data:
-        test.test_name = uart_data.strip().split(": ")[1]
-        test.print_and_log(f"Running test {test.test_name}...")
+    # uart_data = uart.read_data(test)
+    # uart_data = uart_data.decode('utf-8', 'ignore')
+    # if "UART Timeout!" in uart_data:
+    #     test.print_and_log("[red]UART Timeout!")
+    #     return False
+    # if "ST:" in uart_data:
+    #     test.test_name = uart_data.strip().split(": ")[1]
+    #     test.print_and_log(f"Running test {test.test_name}...")
+    time.sleep(0.1)
     hk_stop(False)
     binary_array = load_bitstream("ALU_4bits")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
@@ -778,27 +802,27 @@ def fpga_ALU_test(test, uart):
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
-    time.sleep(1)
+    # time.sleep(0.1)
     clk_sel.set_value(1)
-    time.sleep(20)
+    # time.sleep(0.1)
     op_rst.set_value(1)
-    time.sleep(20)
+    # time.sleep(0.1)
     config_alu(test, operand_a, True)
     config_alu(test, operand_b, True)
     config_alu(test, operator, True)
     config_alu(test, result, False)
-    time.sleep(1)
+    # time.sleep(0.1)
     alu_res = []
 
     for operation in operations:
         for i in range(len(operand_a_bits)):
             for j in range(len(operation)):
                 test.device1v8.dio_map[operator[j]].set_value(operation[j])
-            time.sleep(1)
+            # time.sleep(0.1)
             ALU_4bits(
                 operand_a_bits[i], operand_b_bits[i], operation, operand_a, operand_b
             )
-            time.sleep(1)
+            # time.sleep(0.1)
             out_res = []
             for result_io in result:
                 val = test.device3v3.dio_map[result_io].get_value()
@@ -820,26 +844,31 @@ def fpga_ALU_test(test, uart):
 
 
 def fpga_counter_test(test, uart):
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     # uart_data = uart.read_data(test)
-    # uart_data = uart_data.decode()
+    # uart_data = uart_data.decode('utf-8', 'ignore')
     # if "UART Timeout!" in uart_data:
     #     test.print_and_log("[red]UART Timeout!")
     #     return False
-    # if "Start Test:" in uart_data:
+    # if "ST:" in uart_data:
     #     test.test_name = uart_data.strip().split(": ")[1]
     #     test.print_and_log(f"Running test {test.test_name}...")
     hk_stop(False)
     out_io = [3, 4, 5, 6, 7, 26, 28, 24]
     binary_array = load_bitstream("seconds_decoder_2")
-    # pulse_count = test.receive_packet(250)
-    # if pulse_count == 2:
-    #     test.print_and_log("start test")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
         test
     )
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
+    
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
+    # time.sleep(0.1)
+    clk_sel.set_value(1)
+    # time.sleep(0.1)
+    op_rst.set_value(1)
+    # time.sleep(0.1)
     for channel in out_io:
         if channel < 14:
             io = test.device1v8.dio_map[channel]
@@ -847,15 +876,10 @@ def fpga_counter_test(test, uart):
         else:
             io = test.device3v3.dio_map[channel]
             io.set_state(False)
-
-    time.sleep(1)
-    clk_sel.set_value(1)
-    time.sleep(1)
-    op_rst.set_value(1)
     count = 0
     io = []
     io_arr = []
-    timeout = time.time() + 100
+    timeout = time.time() + 50
     while True:
         for channel in out_io:
             if channel < 14:
@@ -884,6 +908,7 @@ def fpga_counter_test(test, uart):
             if result:
                 count += 1
         io = []
+        hk_stop(True)
         if count >= 3:
             test.print_and_log(f"[green]{test.test_name} passed")
             return True
@@ -893,15 +918,17 @@ def fpga_counter_test(test, uart):
 
 
 def fpga_io_test(test, uart):
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     # uart_data = uart.read_data(test)
-    # uart_data = uart_data.decode()
+    # uart_data = uart_data.decode('utf-8', 'ignore')
     # if "UART Timeout!" in uart_data:
     #     test.print_and_log("[red]UART Timeout!")
     #     return False
-    # if "Start Test:" in uart_data:
+    # if "ST:" in uart_data:
     #     test.test_name = uart_data.strip().split(": ")[1]
     #     test.print_and_log(f"Running test {test.test_name}...")
-    time.sleep(1)
+    time.sleep(0.1)
     hk_stop(False)
     if test.test_name == "inv_1":
         out = [21, 20, 19, 18, 17, 16, 15, 13, 12, 8, 7, 6]
@@ -917,15 +944,15 @@ def fpga_io_test(test, uart):
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
-    time.sleep(1)
+    # time.sleep(1)
     clk_sel.set_value(1)
-    time.sleep(20)
+    # time.sleep(20)
     op_rst.set_value(1)
-    time.sleep(20)
+    # time.sleep(20)
     fail = False
     count = 0
     for inp_ut in inp:
-        test.print_and_log(f"now testing {inp_ut} only {out[count]} should toggle")
+        # test.print_and_log(f"now testing {inp_ut} only {out[count]} should toggle")
         for channel in inp:
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
@@ -944,7 +971,7 @@ def fpga_io_test(test, uart):
             io_ut = test.device1v8.dio_map[inp_ut]
         io_ut.set_state(True)
         io_ut.set_value(1)
-        time.sleep(5)
+        # time.sleep(5)
         for channel in out:
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
@@ -961,10 +988,10 @@ def fpga_io_test(test, uart):
             elif io_val and out[count] == channel:
                 test.print_and_log(f"[red]ERROR: io {channel} = {io_val}")
                 fail = True
-            else:
-                test.print_and_log(f"[green]io {channel} = {io_val}")
+            # else:
+            #     test.print_and_log(f"[green]io {channel} = {io_val}")
 
-        time.sleep(5)
+        # time.sleep(5)
         for channel in inp:
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
@@ -977,7 +1004,7 @@ def fpga_io_test(test, uart):
 
         io_ut.set_value(0)
 
-        time.sleep(5)
+        # time.sleep(5)
         for channel in out:
             if channel > 13 and channel < 22:
                 io = test.deviced.dio_map[channel]
@@ -994,25 +1021,27 @@ def fpga_io_test(test, uart):
             elif not io_val and out[count] == channel:
                 test.print_and_log(f"[red]ERROR: io {channel} = {io_val}")
                 fail = True
-            else:
-                test.print_and_log(f"[green]io {channel} = {io_val}")
+            # else:
+            #     test.print_and_log(f"[green]io {channel} = {io_val}")
         count += 1
 
+    hk_stop(True)
     if fail:
-        hk_stop(True)
         return False
     else:
-        hk_stop(True)
+        test.print_and_log("[green]Test Passed!")
         return True
 
 
 def and_test(test, uart):
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     uart_data = uart.read_data(test)
-    uart_data = uart_data.decode()
+    uart_data = uart_data.decode('utf-8', 'ignore')
     if "UART Timeout!" in uart_data:
         test.print_and_log("[red]UART Timeout!")
         return False
-    if "Start Test:" in uart_data:
+    if "ST:" in uart_data:
         test.test_name = uart_data.strip().split(": ")[1]
         test.print_and_log(f"Running test {test.test_name}...")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
@@ -1030,35 +1059,35 @@ def and_test(test, uart):
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
-    time.sleep(1)
+    # time.sleep(0.1)
     clk_sel.set_value(1)
-    time.sleep(20)
+    # time.sleep(0.1)
     op_rst.set_value(1)
-    time.sleep(20)
+    # time.sleep(0.1)
     a.set_value(0)
     b.set_value(0)
-    time.sleep(10)
+    time.sleep(0.1)
     c_val = c.get_value()
     if c_val:
         test.print_and_log(f"[red] a = 0, b = 0, c = {c_val}")
         return False
     a.set_value(0)
     b.set_value(1)
-    time.sleep(10)
+    time.sleep(0.1)
     c_val = c.get_value()
     if c_val:
         test.print_and_log(f"[red] a = 0, b = 1, c = {c_val}")
         return False
     a.set_value(1)
     b.set_value(0)
-    time.sleep(10)
+    time.sleep(0.1)
     c_val = c.get_value()
     if c_val:
         test.print_and_log(f"[red] a = 1, b = 0, c = {c_val}")
         return False
     a.set_value(1)
     b.set_value(1)
-    time.sleep(10)
+    time.sleep(0.1)
     c_val = c.get_value()
     if not c_val:
         test.print_and_log(f"[red] a = 1, b = 1, c = {c_val}")
@@ -1074,7 +1103,7 @@ def ram_write_data(test, data, addr, wdata_io, addr_io, we_io):
         io = test.device1v8.dio_map[we_io]
     io.set_state(True)
     io.set_value(0)
-    time.sleep(2)
+    time.sleep(0.1)
     for channel_idx in range(len(data)):
         if wdata_io[channel_idx] > 13 and wdata_io[channel_idx] < 22:
             io = test.deviced.dio_map[wdata_io[channel_idx]]
@@ -1093,14 +1122,14 @@ def ram_write_data(test, data, addr, wdata_io, addr_io, we_io):
             io = test.device1v8.dio_map[addr_io[channel_idx]]
         io.set_state(True)
         io.set_value(addr[channel_idx])
-    time.sleep(2)
+    time.sleep(0.1)
     if we_io > 16:
         io = test.device3v3.dio_map[we_io]
     else:
         io = test.device1v8.dio_map[we_io]
     io.set_state(True)
     io.set_value(1)
-    time.sleep(2)
+    time.sleep(0.1)
 
 
 def ram_read_data(test, wdata_io, addr_io, we_io, rdata_io, addr):
@@ -1129,7 +1158,7 @@ def ram_read_data(test, wdata_io, addr_io, we_io, rdata_io, addr):
             io = test.device1v8.dio_map[addr_io[channel_idx]]
         io.set_state(True)
         io.set_value(addr[channel_idx])
-    time.sleep(2)
+    time.sleep(0.1)
     for channel_idx in range(len(rdata_io)):
         if rdata_io[channel_idx] > 16:
             io = test.device3v3.dio_map[rdata_io[channel_idx]]
@@ -1144,6 +1173,8 @@ def ram_read_data(test, wdata_io, addr_io, we_io, rdata_io, addr):
 
 
 def fpga_ram_test(test):
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     hk_stop(False)
     if test.test_name == "fpga_ram8x20":
         we_io = 32
@@ -1160,18 +1191,18 @@ def fpga_ram_test(test):
         reg_size = 26
         binary_array = load_bitstream("fpga_ram6x26")
 
-    time.sleep(5)
+    time.sleep(0.1)
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
         test
     )
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
-    time.sleep(1)
+    # time.sleep(0.1)
     clk_sel.set_value(1)
-    time.sleep(1)
+    # time.sleep(0.1)
     op_rst.set_value(1)
-    time.sleep(1)
+    # time.sleep(0.1)
     flag = True
     for j in range(0, reg_size):
         wdata_word = bin(j)[2:].zfill(len(wdata_io))
@@ -1188,20 +1219,25 @@ def fpga_ram_test(test):
         rdata = ram_read_data(test, wdata_io, addr_io, we_io, rdata_io, addr_bits)
 
         if rdata != wdata_bits:
-            test.print_and_log(
-                f"[red]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}"
-            )
+            # test.print_and_log(
+            #     f"[red]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}"
+            # )
             flag = False
-        else:
-            test.print_and_log(
-                f"[green]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}"
-            )
+        # else:
+            # test.print_and_log(
+            #     f"[green]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}"
+            # )
 
+    hk_stop(True)
     if flag:
-        hk_stop(True)
+        test.print_and_log(
+            "[green]Test passed"
+        )
         return True
     else:
-        hk_stop(True)
+        test.print_and_log(
+            "[green]Test failed"
+        )
         return False
 
 
@@ -1224,11 +1260,11 @@ def adc_test(test, uart, verbose):
         # logic.trigger(test.device3v3.ad_device, True, 10)
 
         uart_data = uart.read_data(test)
-        uart_data = uart_data.decode()
+        uart_data = uart_data.decode('utf-8', 'ignore')
         if "UART Timeout!" in uart_data:
             test.print_and_log("[red]UART Timeout!")
             return False
-        if "Start Test:" in uart_data:
+        if "ST:" in uart_data:
             test.test_name = uart_data.strip().split(": ")[1]
             test.print_and_log(f"Running test {test.test_name}...")
         # test.reset()
@@ -1252,7 +1288,7 @@ def adc_test(test, uart, verbose):
             outvals = []
             mult_outvals = []
             uart_data = uart.read_data(test)
-            uart_data = uart_data.decode()
+            uart_data = uart_data.decode('utf-8', 'ignore')
             if "UART Timeout!" in uart_data:
                 test.print_and_log("[red]UART Timeout!")
                 return False
@@ -1406,11 +1442,11 @@ def adc_test(test, uart, verbose):
 
     elif test.test_name == "dac_test":
         uart_data = uart.read_data(test)
-        uart_data = uart_data.decode()
+        uart_data = uart_data.decode('utf-8', 'ignore')
         if "UART Timeout!" in uart_data:
             test.print_and_log("[red]UART Timeout!")
             return False
-        if "Start Test:" in uart_data:
+        if "ST:" in uart_data:
             test.test_name = uart_data.strip().split(": ")[1]
             test.print_and_log(f"Running test {test.test_name}...")
         # Prepare the Digilent I/O for static function
@@ -1621,6 +1657,7 @@ def flash_test(
     else:
         run_only = True
     test.reset_devices()
+    test.reset()
     if flash_flag or flash_only:
         test.print_and_log(
             "=============================================================================="
@@ -1636,19 +1673,23 @@ def flash_test(
             test.task,
             description=f"Flashing {test.test_name}",
         )
-        test.power_down()
-        test.apply_reset()
-        test.power_up_1v8()
+        # test.power_down()
+        # test.apply_reset()
+        # test.power_up_1v8()
+        test.gpio_mgmt.set_state(True)
+        test.gpio_mgmt.set_value(1)
+        # time.sleep(1)
+        test.reset()
         test.flash(hex_file)
-        test.power_down()
-        test.release_reset()
-    else:
-        test.power_down()
-        time.sleep(5)
-    test.power_up()
-    test.device1v8.supply.set_voltage(test.l_voltage)
-    test.device3v3.supply.set_voltage(test.h_voltage)
-    test.reset()
+        # test.power_down()
+        # test.release_reset()
+    # else:
+    #     test.power_down()
+    #     time.sleep(0.1)
+    # test.power_up()
+    # test.device1v8.supply.set_voltage(test.l_voltage)
+    # test.device3v3.supply.set_voltage(test.h_voltage)
+    # test.reset()
 
     test.print_and_log(
         "=============================================================================="
@@ -1994,18 +2035,30 @@ if __name__ == "__main__":
             "SI validation", total=(len(TestDict) * len(l_voltage) * len(h_voltage))
         )
         test.progress.start()
-        for t in TestDict:
-            if not args.test or args.test == t["test_name"]:
-                test.test_name = t["test_name"]
-                test.passing_criteria = t["passing_criteria"]
-                flash_flag = True
-                counter = 0
-                test_flag = True
-                for v in l_voltage:
-                    for h in h_voltage:
+        # if not args.run_only:
+        #     test.power_down()
+        #     test.apply_reset()
+        #     test.power_up_1v8()
+        #     test.flash(f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/blizzard/setup/setup.hex")
+        #     test.power_down()
+        #     test.release_reset()
+        for v in l_voltage:
+            for h in h_voltage:
+                test.l_voltage = v
+                test.h_voltage = h
+                test.power_down()
+                test.device1v8.supply.set_voltage(test.l_voltage)
+                test.device3v3.supply.set_voltage(test.h_voltage)
+                test.power_up()
+                # test.reset()
+                for t in TestDict:
+                    if not args.test or args.test == t["test_name"]:
+                        test.test_name = t["test_name"]
+                        test.passing_criteria = t["passing_criteria"]
+                        flash_flag = True
+                        counter = 0
+                        test_flag = True
                         start_time = time.time()
-                        test.l_voltage = v
-                        test.h_voltage = h
                         if counter > 0 or args.run_only:
                             flash_flag = False
                         if t["uart"]:
@@ -2138,14 +2191,14 @@ if __name__ == "__main__":
                                 uart_data=uart_data,
                                 verbose=args.verbose,
                             )
-                        counter += 1
-                        test.close_devices()
-                        time.sleep(5)
+        counter += 1
+        test.close_devices()
+        time.sleep(1)
 
-                        with open(os.devnull, "a") as f:
-                            sys.stdout = f
-                            devices = device.open_devices()
-                            sys.stdout = sys.__stdout__
+        with open(os.devnull, "a") as f:
+            sys.stdout = f
+            devices = device.open_devices()
+            sys.stdout = sys.__stdout__
 
         if not test_flag:
             test.print_and_log(f"[red]ERROR : couldn't find test {args.test}")
@@ -2177,6 +2230,10 @@ if __name__ == "__main__":
         test.progress.stop()
         os._exit(0)
     except KeyboardInterrupt:
+        test.gpio_mgmt.set_state(True)
+        test.gpio_mgmt.set_value(1)
+        hk_stop(True)
+        time.sleep(0.1)
         test.print_and_log("Interrupted")
         test.progress.stop()
         try:

@@ -1,0 +1,10 @@
+.vscode/
+__pycache__/
+*.hexe
+*.lst
+*.elf
+*.csv
+./devices.py
+devices.py
+flash.log
+runs/

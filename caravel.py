@@ -20,6 +20,7 @@ from rich.progress import (
     MofNCompleteColumn,
     TimeElapsedColumn,
 )
+import pyvisa
 
 # import flash
 

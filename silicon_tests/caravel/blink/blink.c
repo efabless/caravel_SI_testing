@@ -1,4 +1,4 @@
-#include "../defs.h"
+#include <defs.h>
 //#include "../local_defs.h"
 //#include "../stub.c"
 

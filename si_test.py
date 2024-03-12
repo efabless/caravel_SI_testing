@@ -25,6 +25,17 @@ import numpy as np
 
 
 def init_ad_ios(device1_data, device2_data, device3_data):
+    """
+    Initialize the DIO maps for three devices and return them as a tuple.
+    
+    Args:
+        device1_data: Data for device 1
+        device2_data: Data for device 2
+        device3_data: Data for device 3
+    
+    Returns:
+        Tuple: Three DIO maps for device 1, device 2, and device 3
+    """
     device1_dio_map = {
         # "rstb": Dio(0, device1_data, True),
         "rstb": Dio(0, device1_data),
@@ -79,6 +90,14 @@ def init_ad_ios(device1_data, device2_data, device3_data):
 
 
 def process_mgmt_gpio(test, verbose):
+    """
+    Process the management of GPIO, running various tests and returning the status of each test.
+    Args:
+        test: The test object used to run the tests.
+        verbose: A boolean indicating whether to print detailed logs.
+    Returns:
+        A list of tuples containing the test name and a boolean indicating the test status.
+    """
     test_names = ["send_packet", "receive_packet", "uart_io"]
     status = []
     counter = 0
@@ -270,6 +289,15 @@ def process_uart(test, uart, verbose):
 
 
 def process_soc(test, uart):
+    """
+    Process SOC function to control GPIO and UART, read UART data, and handle different test cases.
+    This is the default test function.
+    Parameters:
+    - test: An object representing the test environment
+    - uart: An object representing the UART communication
+    Returns:
+    - status: A list of tuples containing the test name and its corresponding status (True or False)
+    """
     status = []
     test.gpio_mgmt.set_state(True)
     test.gpio_mgmt.set_value(0)
@@ -313,76 +341,10 @@ def process_soc(test, uart):
     return status
 
 
-# def process_clock(test, device):
-#     fc = FreqCounter(device)
-#     pulse_count = test.receive_packet(25)
-#     if pulse_count == 2:
-#         test.print_and_log("sT")
-#     fc.open()
-#     time.sleep(5)
-#     data, data_time = fc.record(1)
-#     counter = 0
-#     state = 0
-#     for i in range(len(data)):
-#         if data[i] <= 0 and state == 1:
-#             state = 0
-#         if data[i] >= 2 and state == 0:
-#             one_time = data_time[i]
-#             state = 1
-#             counter += 1
-#         if counter == 2:
-#             freq = 1 / one_time
-#             frq_MHz_1 = freq / 1000000
-#             test.print_and_log("Channel 14: Measured frequency: %.2f MHz" % (frq_MHz_1))
-#             break
-
-#     data, data_time = fc.record(2)
-#     counter = 0
-#     state = 0
-#     for i in range(len(data)):
-#         if data[i] <= 0 and state == 1:
-#             state = 0
-#         if data[i] >= 2 and state == 0:
-#             one_time = data_time[i]
-#             state = 1
-#             counter += 1
-#         if counter == 2:
-#             freq = 1 / one_time
-#             frq_MHz_2 = freq / 1000000
-#             test.print_and_log("Channel 15: Measured frequency: %.2f MHz" % (frq_MHz_2))
-#             break
-#     if frq_MHz_1 > 5 or frq_MHz_2 > 5:
-#         return "IO[14]:%.2f MHz, IO[15]:%.2f MHz" % (frq_MHz_1, frq_MHz_2)
-#     else:
-#         return False
-
-
-# def process_mem(test):
-#     phase = 0
-#     mem_size = 0
-#     while True:
-#         pulse_count = test.receive_packet(25)
-#         if pulse_count == 1:
-#             test.print_and_log("sT")
-#         if pulse_count == 5:
-#             test.print_and_log(f"passed mem size {mem_size}")
-#             mem_size = mem_size + 1
-#         if pulse_count == 3:
-#             if phase > 1:
-#                 test.print_and_log("Test finished")
-#                 return True
-#             else:
-#                 phase = phase + 1
-#                 test.print_and_log("end test")
-
-#         if pulse_count == 9:
-#             test.print_and_log(
-#                 f"[red]{test.test_name} test failed with {test.voltage}v supply, mem size {mem_size}"
-#             )
-#             return mem_size
-
-
 def hk_stop(close):
+    """
+    A function stops the housekeeping from interrupting the test.
+    """
     global pid
     if not close:
         # test.print_and_log("running caravel_hkstop.py...")
@@ -400,6 +362,17 @@ def hk_stop(close):
 
 
 def process_io(test, uart, verbose):
+    """
+    Function that tests the GPIO Input and Output.
+    
+    Args:
+        test: The test object for GPIO management.
+        uart: The UART object for communication.
+        verbose: A boolean indicating whether to print verbose output.
+        
+    Returns:
+        A tuple containing a boolean indicating success or failure, and a list of failed channels if any.
+    """
     test.gpio_mgmt.set_state(True)
     test.gpio_mgmt.set_value(0)
     hk_stop(False)
@@ -491,6 +464,16 @@ def process_io(test, uart, verbose):
 
 
 def process_io_plud(test, uart):
+    """
+    Process IO polarity test function to handle IO operations and test results.
+    
+    Args:
+        test: The test object containing GPIO management and test information.
+        uart: The UART object for reading data.
+
+    Returns:
+        bool: True if the test passed, False if it failed.
+    """
     test.gpio_mgmt.set_state(True)
     test.gpio_mgmt.set_value(0)
     p1_rt = False
@@ -539,6 +522,17 @@ def process_io_plud(test, uart):
 
 
 def run_io_plud(default_val, default_val_n, first_itter):
+    """
+    A function to run the IO_PLUD test.
+    
+    Args:
+    - default_val: the default value
+    - default_val_n: the default value for N
+    - first_itter: a flag indicating if it's the first iteration
+    
+    Returns:
+    - True if the test passes, False otherwise
+    """
     test_counter = 0
     flag = False
     hk_stop(False)
@@ -587,6 +581,17 @@ def run_io_plud(default_val, default_val_n, first_itter):
 
 
 def run_io_plud_h(default_val, default_val_n, first_itter):
+    """
+    Function to run a series of IO operations based on specified conditions.
+    
+    Parameters:
+    - default_val: the default value for IO operations
+    - default_val_n: the default value for IO operations when first_itter is true
+    - first_itter: a boolean flag indicating if it's the first iteration
+    
+    Returns:
+    - True if the test passed, False if it failed
+    """
     test_counter = 0
     flag = False
     hk_stop(False)
@@ -634,30 +639,17 @@ def run_io_plud_h(default_val, default_val_n, first_itter):
         return False
 
 
-# def process_external(test):
-#     if test.test_name == "IRQ_external":
-#         channel = 7
-#     elif test.test_name == "IRQ_external2":
-#         channel = 12
-#     phase = 0
-#     for passing in test.passing_criteria:
-#         pulse_count = test.receive_packet(25)
-#         if pulse_count == passing:
-#             test.print_and_log(f"pass phase {phase}")
-#             if phase == 0:
-#                 channel = test.device1v8.dio_map[channel]
-#                 channel.set_state(True)
-#                 channel.set_value(1)
-#             phase = phase + 1
-#         if pulse_count == 9:
-#             test.print_and_log(f"[red]{test.test_name} test failed with {test.voltage}v supply!")
-#             return False
-
-#     if len(test.passing_criteria) == phase:
-#         test.print_and_log(f"[green]{test.test_name} test Passed with {test.voltage}v supply!")
-#         return True
-
 def concat_csv(root_directory, file_name):
+    """
+    Concatenates CSV files from a specified run directory into a single output file.
+
+    Args:
+        root_directory (str): The run directory containing the CSV files to be concatenated.
+        file_name (str): The name of the CSV file to be concatenated.
+
+    Returns:
+        None
+    """
     # Initialize a flag to track whether the header has been written
     header_written = False
 
@@ -696,6 +688,24 @@ def flash_test(
     flash_only,
     verbose,
 ):
+    """
+    A function to perform flash testing with various parameters and return the results.
+    
+    Args:
+        test: The test object
+        hex_file: The hex file to be flashed
+        flash_flag: Flag to indicate if flashing is required
+        uart: Flag to indicate if UART is required
+        uart_data: Data for UART
+        mgmt_gpio: Flag to indicate if management GPIO is required
+        io: Flag to indicate if IO is required
+        plud: Flag to indicate if PLUD is required
+        flash_only: Flag to indicate if only flash is required
+        verbose: Flag to indicate if verbose output is required
+    
+    Returns:
+        The results of the flash test or a boolean value
+    """
     if flash_only:
         run_only = False
     else:
@@ -762,39 +772,18 @@ def flash_test(
             results = process_io_plud(test, uart_data)
         else:
             results = process_soc(test, uart_data)
-        # if uart:
-        #     results = process_uart(test, uart_data)
-        # elif mem:
-        #     results = process_mem(test)
-        # elif io:
-        #     if mode == "output":
-        #         results = process_io(test, io)
-        #     elif mode == "input":
-        #         results = process_input_io(test, io)
-        #     elif mode == "plud":
-        #         results = process_io_plud(test)
-        #     else:
-        #         test.print_and_log(f"ERROR : No {mode} mode")
-        #         exit(1)
-        # elif spi_flag:
-        #     results = process_spi(test, spi)
-        # elif external:
-        #     results = process_external(test)
-        # elif clock:
-        #     results = process_clock(test, la_device)
-        # else:
-        #     results = process_data(test)
-
-        # test.print_and_log("==============================================================================")
-        # test.print_and_log(f"  Completed:  {test.test_name} : {datetime.datetime.now()} | Analog : {analog}")
-        # test.print_and_log("==============================================================================")
-
         return results
     else:
         return True
 
 
 def reformat_csv(test, temp=None):
+    """
+    Read the original CSV file, create a new CSV file with the desired format, and write the reformatted data to the new CSV file.
+    Parameters:
+        test: The test object containing the date directory.
+        temp: The temperature value (optional).
+    """
     # Read the original CSV file
     with open(f"{test.date_dir}/results.csv", "r") as file:
         reader = csv.reader(file)
@@ -852,6 +841,25 @@ def exec_test(
     flash_only=False,
     verbose=False,
 ):
+    """
+    Executes a test and writes the results to a CSV file. 
+
+    Args:
+        test: The test to be executed.
+        start_time: The start time of the test.
+        hex_file: The hex file to be used for the test.
+        flash_flag: A boolean indicating whether flashing is required (default is True).
+        uart: A boolean indicating whether UART is required (default is False).
+        uart_data: Data for UART, if UART is required (default is None).
+        mgmt_gpio: A boolean indicating whether management GPIO is required (default is False).
+        io: A boolean indicating whether IO is required (default is False).
+        plud: A boolean indicating whether PLUD is required (default is False).
+        flash_only: A boolean indicating whether only flashing is required (default is False).
+        verbose: A boolean indicating whether verbose output is required (default is False).
+
+    Returns:
+        None
+    """
     results = False
     results = flash_test(
         test,
@@ -921,6 +929,15 @@ def exec_test(
 
 
 def get_last_test_name(test):
+    """
+    Get the last test name and its date directory.
+
+    Parameters:
+    test (object): The test object containing the runs directory.
+
+    Returns:
+    tuple: A tuple containing the last flashed test name and its date directory.
+    """
     # Get the last test.date_dir
     date_dirs = sorted([d for d in os.listdir(test.runs_dir) if os.path.isdir(os.path.join(test.runs_dir, d))])
     last_date_dir = date_dirs[-1]

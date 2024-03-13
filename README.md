@@ -39,4 +39,3 @@ python3 si_test.py [--option]
                         
   -l, --last_test       Start the regression from the last test in the runs directory
 ```
-**Find discription of all tests [here](/caravel_board/hex_files/README.md)**

@@ -586,7 +586,7 @@ class UART:
                     - rx (DIO line used to receive data)
                     - tx (DIO line used to send data)
                     - baud_rate (communication speed, default is 9600 bits/s)
-                    - parity possible: None (default), True means even, False means odd
+                    - parity possible: None (default), True means odd, False means even
                     - data_bits (default is 8)
                     - stop_bits (default is 1)
         """

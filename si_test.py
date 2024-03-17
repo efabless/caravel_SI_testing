@@ -466,8 +466,6 @@ def process_io_plud(test, uart, analog):
     Returns:
         bool: True if the test passed, False if it failed.
     """
-    test.gpio_mgmt.set_state(True)
-    test.gpio_mgmt.set_value(0)
     p1_rt = False
     p2_rt = False
     uart_data = uart.read_data(test)

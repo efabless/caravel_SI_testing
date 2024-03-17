@@ -33,10 +33,10 @@ void main()
     int i_val = 0;
     int o_val_l;
     int o_val_h;
-    // config_uart();
-    // print("Start Test: gpio_lpu_ho\n");
-    configure_mgmt_gpio();
-    send_packet(2);
+    config_uart();
+    print("Start Test: gpio_lpu_ho\n");
+    // configure_mgmt_gpio();
+    // send_packet(2);
     while (true)
     {
         i_val = get_gpio_l() & mask;

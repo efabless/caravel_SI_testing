@@ -341,7 +341,7 @@ def hk_stop(close):
     if not close:
         # test.print_and_log("running caravel_hkstop.py...")
         p = subprocess.Popen(
-            ["python3", "caravel_board/firmware_vex/util/caravel_hkstop.py"],
+            ["python3", "silicon_tests/util/caravel_hkstop.py"],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )

@@ -19,22 +19,22 @@
 // }
 void main()
 {
-    int io_number;
-    int count = 0;
-    int mask;
-    int recieved;
-    int old_recieved;
-    int temp_io = 0;
-    int timeout = 10000;
-    long int timeout_count = 0;
-    char *c;
-    configure_all_gpios(GPIO_MODE_MGMT_STD_INPUT_NOPULL);
-    configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
-    set_gpio_h(0);
-    set_gpio_l(0);
-    gpio_config_load();
-    config_uart();
-    print("Start Test: gpio_i\n");
+        int io_number;
+        int count = 0;
+        int mask;
+        int recieved;
+        int old_recieved;
+        int temp_io = 0;
+        int timeout = 10000;
+        long int timeout_count = 0;
+        char *c;
+        configure_all_gpios(GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+        configure_gpio(6, GPIO_MODE_MGMT_STD_OUTPUT);
+        set_gpio_h(0);
+        set_gpio_l(0);
+        gpio_config_load();
+        config_uart();
+        print("Start Test: gpio_i\n");
 
     while (true)
     {

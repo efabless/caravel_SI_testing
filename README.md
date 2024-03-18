@@ -38,4 +38,5 @@ python3 si_test.py [--option]
                         Temperature monitoring
                         
   -l, --last_test       Start the regression from the last test in the runs directory
+  --manifest MANIFEST   Path to the manifest file (default is manifest.py)
 ```

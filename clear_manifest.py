@@ -9,7 +9,7 @@ from manifest import (
     analog,
 )
 
-TestDict.append([
+clear_test_dict = [
     {
         "test_name": "chain_check",
         "chain": True,
@@ -53,4 +53,6 @@ TestDict.append([
         "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
 ]
-)
+
+for test in clear_test_dict:
+    TestDict.append(test)

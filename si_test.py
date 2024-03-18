@@ -682,6 +682,13 @@ def flash_test(
     flash_only,
     verbose,
     analog,
+    and_flag,
+    chain,
+    fpga_io,
+    alu,
+    sec_count,
+    fpga_ram,
+    ana,
 ):
     """
     A function to perform flash testing with various parameters and return the results.
@@ -730,7 +737,6 @@ def flash_test(
         test.release_reset()
     else:
         test.power_down()
-        time.sleep(0.1)
     test.device1v8.supply.set_voltage(test.l_voltage)
     test.device3v3.supply.set_voltage(test.h_voltage)
     test.power_up()
@@ -763,6 +769,24 @@ def flash_test(
             results = process_io(test, uart_data, verbose, analog)
         elif plud:
             results = process_io_plud(test, uart_data, analog)
+        elif and_flag:
+            results = and_test(test, uart_data)
+        elif chain:
+            results = chain_test(test, uart_data)
+        elif fpga_io:
+            results = fpga_io_test(test, uart_data)
+        elif alu:
+            results = fpga_ALU_test(test, uart_data)
+        elif sec_count:
+            results = fpga_counter_test(test, uart_data)
+        elif fpga_ram:
+            results = fpga_ram_test(test)
+        elif ana:
+            results = adc_test(test, uart_data, verbose)
+            if "adc" in test.test_name:
+                concat_csv(test.date_dir, "adc_data")
+            else:
+                concat_csv(test.date_dir, "dac_data")
         else:
             results = process_soc(test, uart_data)
         return results
@@ -1874,6 +1898,13 @@ def exec_test(
     flash_only=False,
     verbose=False,
     analog=False,
+    and_flag=False,
+    chain=False,
+    fpga_io=False,
+    alu=False,
+    sec_count=False,
+    fpga_ram=False,
+    ana=False,
 ):
     """
     Executes a test and writes the results to a CSV file. 
@@ -1907,6 +1938,13 @@ def exec_test(
         flash_only,
         verbose,
         analog,
+        and_flag,
+        chain,
+        fpga_io,
+        alu,
+        sec_count,
+        fpga_ram,
+        ana,
     )
     end_time = time.time() - start_time
     arr = []

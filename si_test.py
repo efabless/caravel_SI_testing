@@ -19,12 +19,12 @@ import numpy as np
 def init_ad_ios(device1_data, device2_data, device3_data):
     """
     Initialize the DIO maps for three devices and return them as a tuple.
-    
+
     Args:
         device1_data: Data for device 1
         device2_data: Data for device 2
         device3_data: Data for device 3
-    
+
     Returns:
         Tuple: Three DIO maps for device 1, device 2, and device 3
     """
@@ -186,7 +186,7 @@ def process_uart(test, uart, verbose):
             if pulse_count == 2:
                 test.print_and_log(f"Running test {test.test_name}...")
             uart_data = uart.read_data(test)
-            uart_data = uart_data.decode('utf-8', 'ignore')
+            uart_data = uart_data.decode("utf-8", "ignore")
             if "UART Timeout!" in uart_data:
                 test.print_and_log("[red]UART Timeout!")
                 status.append((test.test_name, False))
@@ -243,7 +243,7 @@ def process_uart(test, uart, verbose):
                     uart_data, count = uart.read_uart()
                     if uart_data:
                         uart_data[count.value] = 0
-                        dat = uart_data.value.decode('utf-8', 'ignore')
+                        dat = uart_data.value.decode("utf-8", "ignore")
                         # if dat in test.passing_criteria:
                         uart.write(dat)
                         pulse_count = test.receive_packet(250)
@@ -295,7 +295,7 @@ def process_soc(test, uart):
     test.gpio_mgmt.set_value(0)
     while True:
         uart_data = uart.read_data(test)
-        uart_data = uart_data.decode('utf-8', 'ignore')
+        uart_data = uart_data.decode("utf-8", "ignore")
         if "UART Timeout!" in uart_data:
             test.print_and_log("[red]UART Timeout!")
             status.append((test.test_name, False))
@@ -319,7 +319,7 @@ def process_soc(test, uart):
             uart.open()
             uart.write("I")
         uart_data = uart.read_data(test)
-        uart_data = uart_data.decode('utf-8', 'ignore')
+        uart_data = uart_data.decode("utf-8", "ignore")
         if "UART Timeout!" in uart_data:
             test.print_and_log("[red]UART Timeout!")
             status.append((test.test_name, False))
@@ -356,12 +356,12 @@ def hk_stop(close):
 def process_io(test, uart, verbose, analog):
     """
     Function that tests the GPIO Input and Output.
-    
+
     Args:
         test: The test object for GPIO management.
         uart: The UART object for communication.
         verbose: A boolean indicating whether to print verbose output.
-        
+
     Returns:
         A tuple containing a boolean indicating success or failure, and a list of failed channels if any.
     """
@@ -370,7 +370,7 @@ def process_io(test, uart, verbose, analog):
     hk_stop(False)
     fail = []
     uart_data = uart.read_data(test)
-    uart_data = uart_data.decode('utf-8', 'ignore')
+    uart_data = uart_data.decode("utf-8", "ignore")
     if "UART Timeout!" in uart_data:
         test.print_and_log("[red]UART Timeout!")
         return False, None
@@ -458,7 +458,7 @@ def process_io(test, uart, verbose, analog):
 def process_io_plud(test, uart, analog):
     """
     Process IO polarity test function to handle IO operations and test results.
-    
+
     Args:
         test: The test object containing GPIO management and test information.
         uart: The UART object for reading data.
@@ -469,7 +469,7 @@ def process_io_plud(test, uart, analog):
     p1_rt = False
     p2_rt = False
     uart_data = uart.read_data(test)
-    uart_data = uart_data.decode('utf-8', 'ignore')
+    uart_data = uart_data.decode("utf-8", "ignore")
     if "UART Timeout!" in uart_data:
         test.print_and_log("[red]UART Timeout!")
         return False, None
@@ -514,12 +514,12 @@ def process_io_plud(test, uart, analog):
 def run_io_plud(default_val, default_val_n, first_itter, analog):
     """
     A function to run the IO_PLUD test.
-    
+
     Args:
     - default_val: the default value
     - default_val_n: the default value for N
     - first_itter: a flag indicating if it's the first iteration
-    
+
     Returns:
     - True if the test passes, False otherwise
     """
@@ -575,12 +575,12 @@ def run_io_plud(default_val, default_val_n, first_itter, analog):
 def run_io_plud_h(default_val, default_val_n, first_itter, analog):
     """
     Function to run a series of IO operations based on specified conditions.
-    
+
     Parameters:
     - default_val: the default value for IO operations
     - default_val_n: the default value for IO operations when first_itter is true
     - first_itter: a boolean flag indicating if it's the first iteration
-    
+
     Returns:
     - True if the test passed, False if it failed
     """
@@ -648,7 +648,9 @@ def concat_csv(root_directory, file_name):
     header_written = False
 
     # Open the output file in write mode
-    with open(f'{root_directory}/concatenated_{file_name}.csv', 'w', newline='') as outfile:
+    with open(
+        f"{root_directory}/concatenated_{file_name}.csv", "w", newline=""
+    ) as outfile:
         writer = csv.writer(outfile)
 
         # Traverse the directory tree
@@ -657,9 +659,9 @@ def concat_csv(root_directory, file_name):
             for filename in filenames:
                 if filename == f"{file_name}.csv":
                     filepath = os.path.join(dirpath, filename)
-                    with open(filepath, 'r', newline='') as infile:
+                    with open(filepath, "r", newline="") as infile:
                         reader = csv.reader(infile)
-                        
+
                         # Skip header except for the first file
                         if not header_written:
                             header_written = True
@@ -692,7 +694,7 @@ def flash_test(
 ):
     """
     A function to perform flash testing with various parameters and return the results.
-    
+
     Args:
         test: The test object
         hex_file: The hex file to be flashed
@@ -704,7 +706,7 @@ def flash_test(
         plud: Flag to indicate if PLUD is required
         flash_only: Flag to indicate if only flash is required
         verbose: Flag to indicate if verbose output is required
-    
+
     Returns:
         The results of the flash test or a boolean value
     """
@@ -844,6 +846,7 @@ def reformat_csv(test, temp=None):
                     header_row.append(d[3])
             writer.writerow(header_row)
 
+
 def config_fpga(test):
     """
     Configures the FPGA by setting the state and value of various pins. Returns the states and values of the configured pins.
@@ -912,18 +915,18 @@ def load_bitstream(bitstream):
 def chain_test(test, uart):
     """
     Function to perform chain test using UART communication and FPGA programming.
-    
+
     Args:
     - test: Test object containing GPIO management and UART communication methods.
     - uart: UART object for reading data from the test.
-    
+
     Returns:
     - bool: True if the chain test passed, False otherwise.
     """
     test.gpio_mgmt.set_state(True)
     test.gpio_mgmt.set_value(0)
     uart_data = uart.read_data(test)
-    uart_data = uart_data.decode('utf-8', 'ignore')
+    uart_data = uart_data.decode("utf-8", "ignore")
     if "UART Timeout!" in uart_data:
         test.print_and_log("[red]UART Timeout!")
         return False
@@ -1099,7 +1102,7 @@ def fpga_counter_test(test, uart):
         test
     )
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
-    
+
     io_isol_n.set_value(1)
     ccff_head.set_value(0)
     # time.sleep(0.1)
@@ -1281,7 +1284,7 @@ def and_test(test, uart):
     test.gpio_mgmt.set_state(True)
     test.gpio_mgmt.set_value(0)
     uart_data = uart.read_data(test)
-    uart_data = uart_data.decode('utf-8', 'ignore')
+    uart_data = uart_data.decode("utf-8", "ignore")
     if "UART Timeout!" in uart_data:
         test.print_and_log("[red]UART Timeout!")
         return False
@@ -1388,7 +1391,7 @@ def ram_write_data(test, data, addr, wdata_io, addr_io, we_io):
 
 def ram_read_data(test, wdata_io, addr_io, we_io, rdata_io, addr):
     """
-    Reads data from the RAM and performs corresponding I/O operations based on the given parameters. 
+    Reads data from the RAM and performs corresponding I/O operations based on the given parameters.
 
     Args:
         test: The test object.
@@ -1495,26 +1498,22 @@ def fpga_ram_test(test):
             # )
             flag = False
         # else:
-            # test.print_and_log(
-            #     f"[green]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}"
-            # )
+        # test.print_and_log(
+        #     f"[green]wdata = {wdata_bits}, addr = {addr_bits}, rdata = {rdata}"
+        # )
 
     hk_stop(True)
     if flag:
-        test.print_and_log(
-            "[green]Test passed"
-        )
+        test.print_and_log("[green]Test passed")
         return True
     else:
-        test.print_and_log(
-            "[green]Test failed"
-        )
+        test.print_and_log("[green]Test failed")
         return False
 
 
 def adc_test(test, uart, verbose):
     """
-    Function to perform ADC test and return True if successful, False otherwise. 
+    Function to perform ADC test and return True if successful, False otherwise.
     Parameters:
     - test: object representing test parameters
     - uart: object for UART communication
@@ -1539,7 +1538,7 @@ def adc_test(test, uart, verbose):
         # logic.trigger(test.device3v3.ad_device, True, 10)
 
         uart_data = uart.read_data(test)
-        uart_data = uart_data.decode('utf-8', 'ignore')
+        uart_data = uart_data.decode("utf-8", "ignore")
         if "UART Timeout!" in uart_data:
             test.print_and_log("[red]UART Timeout!")
             return False
@@ -1551,15 +1550,29 @@ def adc_test(test, uart, verbose):
         numvals = 1024
         uart_data = ""
 
-        data = [['VDDIO (v)', 'VCCD (v)', 'clk freq (MHz)', 'clk div', 'ABS Max INL (lsb)', 'ABS Max INL (lsb 0 to 2.6V)', 'Corrected Max INL (lsb)', 'Corrected Max INL (lsb 0 to 2.6V)', 'Max DNL (lsb)', 'Offset error (mV)', 'Gain error (%)']]
+        data = [
+            [
+                "VDDIO (v)",
+                "VCCD (v)",
+                "clk freq (MHz)",
+                "clk div",
+                "ABS Max INL (lsb)",
+                "ABS Max INL (lsb 0 to 2.6V)",
+                "Corrected Max INL (lsb)",
+                "Corrected Max INL (lsb 0 to 2.6V)",
+                "Max DNL (lsb)",
+                "Offset error (mV)",
+                "Gain error (%)",
+            ]
+        ]
 
         clk_freq = ["2.5", "1.67", "1", "0.813", "0.714", "0.385"]
 
         # Write data to a CSV file
         adc_dir = os.path.join(volt_dir, "ADC")
         os.makedirs(adc_dir, exist_ok=True)
-        csv_filename = f'{adc_dir}/adc_data.csv'
-        with open(csv_filename, 'w', newline='') as csvfile:
+        csv_filename = f"{adc_dir}/adc_data.csv"
+        with open(csv_filename, "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerows(data)
         for clkdiv in range(0, 6):
@@ -1567,14 +1580,14 @@ def adc_test(test, uart, verbose):
             outvals = []
             mult_outvals = []
             uart_data = uart.read_data(test)
-            uart_data = uart_data.decode('utf-8', 'ignore')
+            uart_data = uart_data.decode("utf-8", "ignore")
             if "UART Timeout!" in uart_data:
                 test.print_and_log("[red]UART Timeout!")
                 return False
             if "clkdiv:" in uart_data:
                 clk_div = uart_data.strip().split(": ")[1]
-            test.print_and_log("clk_div value:", clk_div)
-            test.print_and_log("clk freq (MHz):", clk_freq[clkdiv])
+            test.print_and_log(f"clk_div value: {clk_div}")
+            test.print_and_log(f"clk freq (MHz): {clk_freq[clkdiv]}")
             test.device3v3.dio_map[22].set_value(0)
             for i in range(0, 40):
                 invals = []
@@ -1584,7 +1597,18 @@ def adc_test(test, uart, verbose):
                     # Set value on W1:  Test DC value at 1.5V (set by offset, not amplitude)
                     # generate(device_data, channel, function, offset, frequency=1e03,
                     #      amplitude=1, symmetry=50, wait=0, run_time=0, repeat=0, data=[])
-                    wavegen.generate(test.device3v3.ad_device, 1, wavegen.function.dc, volt, 1e3, 0, 50, 0, 0, 0)
+                    wavegen.generate(
+                        test.device3v3.ad_device,
+                        1,
+                        wavegen.function.dc,
+                        volt,
+                        1e3,
+                        0,
+                        50,
+                        0,
+                        0,
+                        0,
+                    )
                     logic.trigger(test.device3v3.ad_device, True, 10)
                     # time.sleep(0.05)
                     # print("triggered!")
@@ -1596,14 +1620,18 @@ def adc_test(test, uart, verbose):
                     buffer = logic.recordall(test.device3v3.ad_device)
                     for i in range(2, 10):
                         value += buffer[i][0]
-                    
+
                     if verbose:
-                        print('Input voltage = ' + str(volt) + ';  captured value = ' + str(value))
+                        test.print_and_log(
+                            "Input voltage = "
+                            + str(volt)
+                            + ";  captured value = "
+                            + str(value)
+                        )
                     invals.append(volt)
                     outvals.append(value)
-                
+
                 mult_outvals.append(outvals)
-            
 
             # Transpose the array to get columns as rows
             transposed_a1 = list(map(list, zip(*mult_outvals)))
@@ -1619,39 +1647,41 @@ def adc_test(test, uart, verbose):
 
             # Plot the average against the input values
             ax1 = fig.add_subplot(2, 1, 1)
-            ax1.plot(invals, averages, 'b', label='Average')
-            ax1.set_ylabel('Average')
+            ax1.plot(invals, averages, "b", label="Average")
+            ax1.set_ylabel("Average")
 
             # Plot the noise against the input values
             ax2 = fig.add_subplot(2, 1, 2, sharex=ax1)
-            ax2.plot(invals, noises, 'r', label='Noise')
-            ax2.set_xlabel('Input Values')
-            ax2.set_ylabel('Noise')
+            ax2.plot(invals, noises, "r", label="Noise")
+            ax2.set_xlabel("Input Values")
+            ax2.set_ylabel("Noise")
 
             # Add legend to the plots
             ax1.legend()
             ax2.legend()
 
             # Set title
-            fig.suptitle(f'Average and Noise Plot for {clk_freq[clkdiv]}MHz clock Freqency')
+            fig.suptitle(
+                f"Average and Noise Plot for {clk_freq[clkdiv]}MHz clock Freqency"
+            )
 
             # Adjust layout
             plt.tight_layout()
 
             # Save the plot as a PNG file
-            plt.savefig(f'{adc_dir}/average_and_noise_{clk_freq[clkdiv]}.png')
+            plt.savefig(f"{adc_dir}/average_and_noise_{clk_freq[clkdiv]}.png")
 
             # Show the plot
             # plt.show()
 
             # print(averages)
 
-            with open(f'{adc_dir}/adc_results_{clk_freq[clkdiv]}.dat', 'w') as ofile:
-                print(' '.join(map(str, invals)), file=ofile)
-                print(' '.join(map(str, averages)), file=ofile)
-            with open(f'{adc_dir}/adc_noise_{clk_freq[clkdiv]}.dat', 'w') as ofile:
-                print(' '.join(map(str, invals)), file=ofile)
-                print(' '.join(map(str, noises)), file=ofile)
+            with open(f"{adc_dir}/adc_results_{clk_freq[clkdiv]}.dat", "w") as ofile:
+                print(" ".join(map(str, invals)), file=ofile)
+                print(" ".join(map(str, averages)), file=ofile)
+            with open(f"{adc_dir}/adc_noise_{clk_freq[clkdiv]}.dat", "w") as ofile:
+                print(" ".join(map(str, invals)), file=ofile)
+                print(" ".join(map(str, noises)), file=ofile)
 
             vhighval = 3.3
             vlowval = 0.0
@@ -1696,24 +1726,42 @@ def adc_test(test, uart, verbose):
             offset_error = offset * 1000
             gain_error = 100 * abs((slope * 4 / alsb) - 1)
 
-            test.print_and_log('Absolute INL:')
-            test.print_and_log('Maximum INL (in lsb) =', max_inl_abs)
-            test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
+            test.print_and_log("Absolute INL:")
+            test.print_and_log(f"Maximum INL (in lsb) = {max_inl_abs}")
+            test.print_and_log(
+                f"Maximum INL (in lsb) from 0 to 2.6V = {max_inl_abs_0_to_2_6V}"
+            )
 
-            test.print_and_log('INL corrected for gain and offset:')
-            test.print_and_log('Maximum INL (in lsb) =', max_inl_cor)
-            test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
+            test.print_and_log("INL corrected for gain and offset:")
+            test.print_and_log(f"Maximum INL (in lsb) = {max_inl_cor}")
+            test.print_and_log(
+                f"Maximum INL (in lsb) from 0 to 2.6V = {max_inl_cor_0_to_2_6V}"
+            )
 
-            test.print_and_log('Maximum DNL (in lsb) =', max_dnl)
+            test.print_and_log(f"Maximum DNL (in lsb) = {max_dnl}")
 
-            test.print_and_log('Offset error = {:.3f}mV'.format(offset_error))
-            test.print_and_log('Gain error = {:.3f}%'.format(gain_error))
+            test.print_and_log("Offset error = {:.3f}mV".format(offset_error))
+            test.print_and_log("Gain error = {:.3f}%".format(gain_error))
 
-            data = [[test.h_voltage, test.l_voltage, clk_freq[clkdiv], clk_div, max_inl_abs, max_inl_abs_0_to_2_6V, max_inl_cor, max_inl_cor_0_to_2_6V, max_dnl, offset_error, gain_error]]
+            data = [
+                [
+                    test.h_voltage,
+                    test.l_voltage,
+                    clk_freq[clkdiv],
+                    clk_div,
+                    max_inl_abs,
+                    max_inl_abs_0_to_2_6V,
+                    max_inl_cor,
+                    max_inl_cor_0_to_2_6V,
+                    max_dnl,
+                    offset_error,
+                    gain_error,
+                ]
+            ]
 
             # Write data to a CSV file
-            csv_filename = f'{adc_dir}/adc_data.csv'
-            with open(csv_filename, 'a', newline='') as csvfile:
+            csv_filename = f"{adc_dir}/adc_data.csv"
+            with open(csv_filename, "a", newline="") as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerows(data)
             test.device3v3.dio_map[22].set_value(1)
@@ -1721,7 +1769,7 @@ def adc_test(test, uart, verbose):
 
     elif test.test_name == "dac_test":
         uart_data = uart.read_data(test)
-        uart_data = uart_data.decode('utf-8', 'ignore')
+        uart_data = uart_data.decode("utf-8", "ignore")
         if "UART Timeout!" in uart_data:
             test.print_and_log("[red]UART Timeout!")
             return False
@@ -1736,14 +1784,14 @@ def adc_test(test, uart, verbose):
 
         # Prepare the Digilent scope for signal capture
         # open(device_data, sampling_frequency=20e06, buffer_size=0,
-        #	offset=0, amplitude_range=5)
+        # 	offset=0, amplitude_range=5)
         #
         scope.open(test.device3v3.ad_device, 20e6, 1, 0, 10)
 
         # Set up the scope to trigger on T1, and connect T1 to GPIO 33.
         # The "blizzard_dac_test.c" outputs on that pin.
         # trigger(device_data, enable, source=trigger_source.none, channel=1,
-        #	timeout=0, edge_rising=True, level=0)
+        # 	timeout=0, edge_rising=True, level=0)
         # scope.trigger(test.device3v3.ad_device, True, scope.trigger_source.external[1], 1, 0, True, 1.65)
 
         digvals = []
@@ -1757,14 +1805,22 @@ def adc_test(test, uart, verbose):
         for v in range(0, numvals):
             volt = 3.3 * (float(v) / float(numvals))
 
-            scope.trigger(test.device3v3.ad_device, True, scope.trigger_source.external[1], 1, 0, True, 1.65)
+            scope.trigger(
+                test.device3v3.ad_device,
+                True,
+                scope.trigger_source.external[1],
+                1,
+                0,
+                True,
+                1.65,
+            )
 
             # Apply binary value as pattern to GPIO 24-31
             for k in range(0, 8):
-                test.device3v3.dio_map[k+24].set_state(True)
+                test.device3v3.dio_map[k + 24].set_state(True)
                 # print(f"v: {v}, k: {k}, value: {(v >> k) & 1}")
                 # print((v >> k) & 1)
-                test.device3v3.dio_map[k+24].set_value((v >> k) & 1)
+                test.device3v3.dio_map[k + 24].set_value((v >> k) & 1)
                 # static.set_allstates(test.device3v3.ad_device, v)
 
             time.sleep(0.05)
@@ -1780,7 +1836,14 @@ def adc_test(test, uart, verbose):
             value /= float(samples)
 
             if verbose:
-                print('Output value = ' + str(v) + ';  expected voltage = ' + str(volt) + ';  captured voltage = ' + str(value))
+                test.print_and_log(
+                    "Output value = "
+                    + str(v)
+                    + ";  expected voltage = "
+                    + str(volt)
+                    + ";  captured voltage = "
+                    + str(value)
+                )
             digvals.append(str(v))
             invals.append(str(volt))
             outvals.append(str(value))
@@ -1799,33 +1862,33 @@ def adc_test(test, uart, verbose):
 
         # Plot captured voltage and expected voltage against digital values
         # plt.figure()
-        ax1.plot(digital_values, captured_voltage, 'b', label='Captured Voltage')
-        ax1.plot(digital_values, expected_voltage, 'r', label='Expected Voltage')
-        ax1.set_xlabel('Digital Values')
-        ax1.set_ylabel('Voltage')
+        ax1.plot(digital_values, captured_voltage, "b", label="Captured Voltage")
+        ax1.plot(digital_values, expected_voltage, "r", label="Expected Voltage")
+        ax1.set_xlabel("Digital Values")
+        ax1.set_ylabel("Voltage")
         ax1.legend()
-        ax1.set_title('Captured Voltage and Expected Voltage')
+        ax1.set_title("Captured Voltage and Expected Voltage")
         # ax1.savefig('DAC_captured_vs_expected.png')
 
         # Create the plot for the difference between captured voltage and expected voltage against digital values
         # plt.figure()
-        ax2.plot(digital_values, diff_arr, 'g', label='Difference')
-        ax2.set_xlabel('Digital Values')
-        ax2.set_ylabel('Voltage Difference')
+        ax2.plot(digital_values, diff_arr, "g", label="Difference")
+        ax2.set_xlabel("Digital Values")
+        ax2.set_ylabel("Voltage Difference")
         ax2.legend()
-        ax2.set_title('Difference between Captured Voltage and Expected Voltage')
+        ax2.set_title("Difference between Captured Voltage and Expected Voltage")
         # Adjust spacing between subplots
         plt.tight_layout()
         dac_dir = os.path.join(volt_dir, "DAC")
         os.makedirs(dac_dir, exist_ok=True)
-        plt.savefig(f'{dac_dir}/DAC_captured_vs_expected.png')
+        plt.savefig(f"{dac_dir}/DAC_captured_vs_expected.png")
         plt.close(fig)
 
-        with open(f'{dac_dir}/dac_results.dat', 'w') as ofile:
-            print(' '.join(digvals), file=ofile)
-            print(' '.join(invals), file=ofile)
-            print(' '.join(outvals), file=ofile)
-        
+        with open(f"{dac_dir}/dac_results.dat", "w") as ofile:
+            print(" ".join(digvals), file=ofile)
+            print(" ".join(invals), file=ofile)
+            print(" ".join(outvals), file=ofile)
+
         # Full Scale Range (FSR) and Least Significant Bit (LSB)
         fsr = 3.3 - 0.0
         alsb = fsr / 256.0
@@ -1860,26 +1923,49 @@ def adc_test(test, uart, verbose):
         gain_error = 100 * abs(slope - 1)
 
         # Print calculated values
-        test.print_and_log('Absolute INL:')
-        test.print_and_log('Maximum INL (in lsb) =', max_inl_abs)
-        test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_abs_0_to_2_6V)
+        test.print_and_log("Absolute INL:")
+        test.print_and_log(f"Maximum INL (in lsb) = {max_inl_abs}")
+        test.print_and_log(
+            f"Maximum INL (in lsb) from 0 to 2.6V = {max_inl_abs_0_to_2_6V}"
+        )
 
-        test.print_and_log('INL corrected for gain and offset:')
-        test.print_and_log('Maximum INL (in lsb) =', max_inl_cor)
-        test.print_and_log('Maximum INL (in lsb) from 0 to 2.6V =', max_inl_cor_0_to_2_6V)
+        test.print_and_log("INL corrected for gain and offset:")
+        test.print_and_log(f"Maximum INL (in lsb) = {max_inl_cor}")
+        test.print_and_log(
+            f"Maximum INL (in lsb) from 0 to 2.6V = {max_inl_cor_0_to_2_6V}"
+        )
 
-        test.print_and_log('Maximum DNL (in lsb) =', max_dnl)
+        test.print_and_log(f"Maximum DNL (in lsb) = {max_dnl}")
 
-        test.print_and_log('Offset error = {:.3f}mV'.format(offset_error))
-        test.print_and_log('Gain error = {:.3f}%'.format(gain_error))
+        test.print_and_log("Offset error = {:.3f}mV".format(offset_error))
+        test.print_and_log("Gain error = {:.3f}%".format(gain_error))
         data = [
-            ['VDDIO (v)', 'VCCD (v)', 'Absolute max INL', 'Abs max INL from 0 to 2.6v', 'Corrected max INL', 'Corrected max INL from 0 to 2.6v', 'Max DNL', 'Offset error', 'Gain error'],
-            [test.h_voltage, test.l_voltage, max_inl_abs, max_inl_abs_0_to_2_6V, max_inl_cor, max_inl_cor_0_to_2_6V, max_dnl, gain_error]
-            ]
+            [
+                "VDDIO (v)",
+                "VCCD (v)",
+                "Absolute max INL",
+                "Abs max INL from 0 to 2.6v",
+                "Corrected max INL",
+                "Corrected max INL from 0 to 2.6v",
+                "Max DNL",
+                "Offset error",
+                "Gain error",
+            ],
+            [
+                test.h_voltage,
+                test.l_voltage,
+                max_inl_abs,
+                max_inl_abs_0_to_2_6V,
+                max_inl_cor,
+                max_inl_cor_0_to_2_6V,
+                max_dnl,
+                gain_error,
+            ],
+        ]
 
         # Write data to a CSV file
-        csv_filename = f'{dac_dir}/dac_data.csv'
-        with open(csv_filename, 'w', newline='') as csvfile:
+        csv_filename = f"{dac_dir}/dac_data.csv"
+        with open(csv_filename, "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerows(data)
         return True
@@ -1907,7 +1993,7 @@ def exec_test(
     ana=False,
 ):
     """
-    Executes a test and writes the results to a CSV file. 
+    Executes a test and writes the results to a CSV file.
 
     Args:
         test: The test to be executed.
@@ -1978,11 +2064,23 @@ def exec_test(
         for result in results:
             if result[1]:
                 arr.append(
-                    [result[0], test.l_voltage, test.h_voltage, "passed", end_time / len(results)]
+                    [
+                        result[0],
+                        test.l_voltage,
+                        test.h_voltage,
+                        "passed",
+                        end_time / len(results),
+                    ]
                 )
             else:
                 arr.append(
-                    [result[0], test.l_voltage, test.h_voltage, "failed", end_time / len(results)]
+                    [
+                        result[0],
+                        test.l_voltage,
+                        test.h_voltage,
+                        "failed",
+                        end_time / len(results),
+                    ]
                 )
     elif type(results) is str:
         arr.append(
@@ -2012,7 +2110,13 @@ def get_last_test_name(test):
     tuple: A tuple containing the last flashed test name and its date directory.
     """
     # Get the last test.date_dir
-    date_dirs = sorted([d for d in os.listdir(test.runs_dir) if os.path.isdir(os.path.join(test.runs_dir, d))])
+    date_dirs = sorted(
+        [
+            d
+            for d in os.listdir(test.runs_dir)
+            if os.path.isdir(os.path.join(test.runs_dir, d))
+        ]
+    )
     last_date_dir = date_dirs[-1]
 
     # Read the results.csv file in the last test.date_dir
@@ -2070,7 +2174,7 @@ if __name__ == "__main__":
             default=False,
             help="Start the regression from the last test in the runs directory",
         )
-        parser.add_argument('--manifest', type=str, help='Path to the manifest file')
+        parser.add_argument("--manifest", type=str, help="Path to the manifest file")
         args = parser.parse_args()
         # Import specified manifest file
         if args.manifest is None:
@@ -2119,7 +2223,14 @@ if __name__ == "__main__":
         if args.last_test:
             last_test_name, last_date_dir = get_last_test_name(test)
             # Find the index of the test to start from
-            start_index = next((i for i, test in enumerate(manifest_module.TestDict) if test["test_name"] == last_test_name), None)
+            start_index = next(
+                (
+                    i
+                    for i, test in enumerate(manifest_module.TestDict)
+                    if test["test_name"] == last_test_name
+                ),
+                None,
+            )
 
             if start_index is not None:
                 # Create a new TestDict list starting from the specified test
@@ -2145,7 +2256,12 @@ if __name__ == "__main__":
         test_flag = False
 
         test.task = test.progress.add_task(
-            "SI validation", total=(len(manifest_module.TestDict) * len(manifest_module.l_voltage) * len(manifest_module.h_voltage))
+            "SI validation",
+            total=(
+                len(manifest_module.TestDict)
+                * len(manifest_module.l_voltage)
+                * len(manifest_module.h_voltage)
+            ),
         )
         test.progress.start()
         for t in manifest_module.TestDict:
@@ -2301,7 +2417,7 @@ if __name__ == "__main__":
                         test.close_devices()
                         time.sleep(1)
 
-                        with open(os.devnull, 'a') as f:
+                        with open(os.devnull, "a") as f:
                             sys.stdout = f
                             devices = device.open_devices()
                             sys.stdout = sys.__stdout__

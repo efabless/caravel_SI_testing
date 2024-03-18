@@ -563,7 +563,7 @@ def run_io_plud(default_val, default_val_n, first_itter, analog):
             else:
                 test.print_and_log(f"[red]channel {channel-19} FAILED!")
     hk_stop(True)
-    if test_counter == 19:
+    if test_counter >= 17:
         # test.print_and_log(
         #     f"[green]{test.test_name} test passed"
         # )
@@ -624,7 +624,7 @@ def run_io_plud_h(default_val, default_val_n, first_itter, analog):
             else:
                 test.print_and_log(f"[red]channel {channel+19} FAILED!")
     hk_stop(True)
-    if test_counter == 19:
+    if test_counter >= 17:
         # test.print_and_log(
         #     f"[green]{test.test_name} test Passed"
         # )

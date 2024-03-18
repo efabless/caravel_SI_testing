@@ -527,6 +527,8 @@ def run_io_plud(default_val, default_val_n, first_itter, analog):
     flag = False
     hk_stop(False)
     for channel in range(0, 38):
+        if channel - 19 == 5 or channel - 19 == 6:
+            continue
         if channel > 13 and channel < 22:
             io = test.deviced.dio_map[channel]
         elif channel > 21:
@@ -586,6 +588,8 @@ def run_io_plud_h(default_val, default_val_n, first_itter, analog):
     flag = False
     hk_stop(False)
     for channel in range(37, -1, -1):
+        if channel + 19 == 5 or channel + 19 == 6:
+            continue
         if channel > 13 and channel < 22:
             io = test.deviced.dio_map[channel]
         elif channel > 21:

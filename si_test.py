@@ -895,7 +895,7 @@ def load_bitstream(bitstream):
     Returns:
     list: The binary array representing the loaded bitstream.
     """
-    file_path = f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/blizzard/bit_streams/{bitstream}.bit"
+    file_path = f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/clear/bit_streams/{bitstream}.bit"
     binary_array = []
     with open(file_path, "r") as file:
         # Skip lines until reaching the binary data

@@ -269,14 +269,14 @@ class Test:
             inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
             inst.write("OUTP CH1, OFF")
-            time.sleep(0.5)
+            time.sleep(0.1)
             inst.write("OUTP CH2, OFF")
-            time.sleep(0.5)
+            time.sleep(0.1)
             rm.close()
         else:
             self.device1v8.supply.turn_off()
             self.device3v3.supply.turn_off()
-            time.sleep(5)
+            time.sleep(0.1)
 
     def power_up(self):
         """
@@ -295,13 +295,13 @@ class Test:
             inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
             inst.write(f"CH1:VOLT {self.l_voltage}")
-            time.sleep(0.5)
+            time.sleep(0.1)
             inst.write("OUTP CH1, ON")
-            time.sleep(0.5)
+            time.sleep(0.1)
             inst.write(f"CH2:VOLT {self.h_voltage}")
-            time.sleep(0.5)
+            time.sleep(0.1)
             inst.write("OUTP CH2, ON")
-            time.sleep(5)
+            time.sleep(0.8)
             l_volt = float(inst.query('MEAsure:VOLTage? CH1'))
             h_volt = float(inst.query('MEAsure:VOLTage? CH2'))
             l_volt_expected = self.l_voltage
@@ -315,9 +315,9 @@ class Test:
             rm.close()
         else:
             self.device3v3.supply.set_voltage(self.h_voltage)
-            time.sleep(0.1)
+            time.sleep(0.01)
             self.device1v8.supply.set_voltage(self.l_voltage)
-            time.sleep(0.1)
+            time.sleep(0.01)
 
     def power_up_1v8(self):
         """
@@ -336,13 +336,13 @@ class Test:
             inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
             inst.write("CH1:VOLT 1.8")
-            time.sleep(0.5)
+            time.sleep(0.1)
             inst.write("OUTP CH1, ON")
-            time.sleep(0.5)
+            time.sleep(0.1)
             inst.write("CH2:VOLT 3.3")
-            time.sleep(0.5)
+            time.sleep(0.1)
             inst.write("OUTP CH2, ON")
-            time.sleep(5)
+            time.sleep(0.8)
             l_volt = float(inst.query('MEAsure:VOLTage? CH1'))
             h_volt = float(inst.query('MEAsure:VOLTage? CH2'))
             l_volt_expected = 1.8
@@ -356,9 +356,9 @@ class Test:
             rm.close()
         else:
             self.device3v3.supply.set_voltage(3.3)
-            time.sleep(1)
+            time.sleep(0.1)
             self.device1v8.supply.set_voltage(1.8)
-            time.sleep(1)
+            time.sleep(0.1)
 
     def turn_off_devices(self):
         """
@@ -375,9 +375,9 @@ class Test:
             inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
             inst.write("OUTP CH1, OFF")
-            time.sleep(0.5)
+            time.sleep(0.1)
             inst.write("OUTP CH2, OFF")
-            time.sleep(0.5)
+            time.sleep(0.1)
             rm.close()
         else:
             self.device1v8.supply.turn_off()
@@ -398,9 +398,9 @@ class Test:
             inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
             inst.write("OUTP CH1, OFF")
-            time.sleep(0.5)
+            time.sleep(0.1)
             inst.write("OUTP CH2, OFF")
-            time.sleep(0.5)
+            time.sleep(0.1)
             rm.close()
         else:
             self.device1v8.supply.turn_off()

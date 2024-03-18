@@ -705,8 +705,8 @@ def flash_test(
         run_only = False
     else:
         run_only = True
-    test.reset_devices()
-    test.reset()
+    # test.reset_devices()
+    # test.reset()
     if flash_flag or flash_only:
         test.print_and_log(
             "=============================================================================="
@@ -730,10 +730,10 @@ def flash_test(
         test.release_reset()
     else:
         test.power_down()
-        time.sleep(5)
-    test.power_up()
+        time.sleep(0.1)
     test.device1v8.supply.set_voltage(test.l_voltage)
     test.device3v3.supply.set_voltage(test.h_voltage)
+    test.power_up()
     test.reset()
 
     test.print_and_log(
@@ -2085,7 +2085,7 @@ if __name__ == "__main__":
 
             if start_index is not None:
                 # Create a new TestDict list starting from the specified test
-                TestDict = manifest_module.TestDict[start_index:]
+                manifest_module.TestDict = manifest_module.TestDict[start_index:]
             test.date_dir = f"{test.runs_dir}/{last_date_dir}"
         else:
             test.make_runs_dirs()

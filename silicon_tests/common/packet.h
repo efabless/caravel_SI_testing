@@ -3,7 +3,7 @@
 
 #include <timer0.h>
 #include <mgmt_gpio.h>
-#define PULSE_WIDTH 2500000
+#define PULSE_WIDTH 250000
 
 /**
  * Performs a countdown using timer0.
@@ -71,7 +71,7 @@ void configure_mgmt_gpio()
     reg_gpio_ien = 1;
     reg_gpio_oe = 1;
     reg_gpio_out = 1; // default
-    count_down(PULSE_WIDTH * 50);
+    count_down(PULSE_WIDTH * 10);
 }
 
 void configure_mgmt_gpio_input()

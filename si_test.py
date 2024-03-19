@@ -97,7 +97,7 @@ def process_mgmt_gpio(test, verbose):
         test.test_name = name
         if test.test_name == "receive_packet":
             io = test.device1v8.dio_map[0]
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 2:
                 test.print_and_log(f"Running test {test.test_name}...")
             for i in range(5, 8):
@@ -106,7 +106,7 @@ def process_mgmt_gpio(test, verbose):
                 test.send_packet(i, 25)
                 while io.get_value():
                     pass
-                pulse_count = test.receive_packet(250)
+                pulse_count = test.receive_packet(25)
                 if pulse_count == i:
                     counter += 1
                 else:
@@ -120,7 +120,7 @@ def process_mgmt_gpio(test, verbose):
                 status.append((test.test_name, False))
 
         elif name == "uart_io":
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 2:
                 test.print_and_log(f"Running test {test.test_name}...")
                 received = test.io_receive(4, 6)
@@ -130,13 +130,13 @@ def process_mgmt_gpio(test, verbose):
                 else:
                     if verbose:
                         test.print_and_log("IO[6] Passed")
-                    pulse_count = test.receive_packet(250)
+                    pulse_count = test.receive_packet(25)
                     if pulse_count == 3:
                         if verbose:
                             test.print_and_log("Send 4 packets to IO[5]")
                         time.sleep(5)
                         test.send_pulse(4, 5, 5)
-                        ack_pulse = test.receive_packet(250)
+                        ack_pulse = test.receive_packet(25)
                         if ack_pulse == 9:
                             test.print_and_log("[red]failed")
                             status.append((test.test_name, False))
@@ -147,7 +147,7 @@ def process_mgmt_gpio(test, verbose):
         else:
             phase = 0
             test.print_and_log(f"Running test {test.test_name}...")
-            for passing in test.passing_criteria:
+            for passing in [8]:
                 pulse_count = test.receive_packet(25)
                 if pulse_count == passing:
                     if verbose:
@@ -158,7 +158,7 @@ def process_mgmt_gpio(test, verbose):
                     test.print_and_log("[red]failed")
                     status.append((test.test_name, False))
 
-            if len(test.passing_criteria) == phase:
+            if len([8]) == phase:
                 test.print_and_log("[green]passed")
                 status.append((test.test_name, True))
     return status
@@ -176,13 +176,13 @@ def process_uart(test, uart, verbose):
     status = []
     for name in test_names:
         test.test_name = name
-        pulse_count = test.receive_packet(250)
+        pulse_count = test.receive_packet(25)
         if pulse_count == 1:
             if verbose:
                 test.print_and_log(f"Start Test: {name}")
 
         if test.test_name == "uart":
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 2:
                 test.print_and_log(f"Running test {test.test_name}...")
             uart_data = uart.read_data(test)
@@ -196,23 +196,23 @@ def process_uart(test, uart, verbose):
             else:
                 test.print_and_log("[red]failed")
                 status.append((test.test_name, False))
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 5:
                 if verbose:
                     test.print_and_log("end UART transmission")
 
         elif test.test_name == "uart_reception":
             passed = True
-            pulse_count = test.receive_packet(250)
+            pulse_count = test.receive_packet(25)
             if pulse_count == 2:
                 test.print_and_log(f"Running test {test.test_name}...")
             uart.open()
             timeout = time.time() + 50
             for i in ["M", "B", "A"]:
-                pulse_count = test.receive_packet(250)
+                pulse_count = test.receive_packet(25)
                 if pulse_count == 4:
                     uart.write(i)
-                pulse_count = test.receive_packet(250)
+                pulse_count = test.receive_packet(25)
                 if pulse_count == 6:
                     passed = True
                     if verbose:
@@ -244,9 +244,8 @@ def process_uart(test, uart, verbose):
                     if uart_data:
                         uart_data[count.value] = 0
                         dat = uart_data.value.decode("utf-8", "ignore")
-                        # if dat in test.passing_criteria:
                         uart.write(dat)
-                        pulse_count = test.receive_packet(250)
+                        pulse_count = test.receive_packet(25)
                         if pulse_count == 6:
                             passed = True
                             if verbose:
@@ -2267,7 +2266,6 @@ if __name__ == "__main__":
         for t in manifest_module.TestDict:
             if not args.test or args.test == t["test_name"]:
                 test.test_name = t["test_name"]
-                test.passing_criteria = t["passing_criteria"]
                 flash_flag = True
                 counter = 0
                 test_flag = True

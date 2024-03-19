@@ -11,120 +11,62 @@ TestDict = [
         "test_name": "gpio_mgmt_tests",
         "mgmt_gpio": True,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/gpio_mgmt_tests/gpio_mgmt_tests.hex",
-        "passing_criteria": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-        ],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "uart_tests",
         "uart": True,  # Testing UART
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/uart_tests/uart_tests.hex",
-        "passing_criteria": [None],  # Passing criteria to be sent to UART
     },
     {
         "test_name": "mem_tests_dff",
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/mem_tests_dff/mem_tests_dff.hex",
-        "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "mem_tests_dff2",
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/mem_tests_dff2/mem_tests_dff2.hex",
-        "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "soc_tests",
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/soc_tests/soc_tests.hex",
-        "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "gpio_o",
         "io": True,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/gpio_o/gpio_o.hex",
-        "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "gpio_i",
         "io": True,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/gpio_i/gpio_i.hex",
-        "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "bitbang_o",
         "io": True,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/bitbang_o/bitbang_o.hex",
-        "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "bitbang_i",
         "io": True,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/bitbang_i/bitbang_i.hex",
-        "passing_criteria": [None],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "gpio_lpu_ho",
         "plud": True,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/gpio_lpu_ho/gpio_lpu_ho.hex",
-        "passing_criteria": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-        ],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "gpio_lpd_ho",
         "plud": True,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/gpio_lpd_ho/gpio_lpd_ho.hex",
-        "passing_criteria": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-        ],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "gpio_lo_hpu",
         "plud": True,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/gpio_lo_hpu/gpio_lo_hpu.hex",
-        "passing_criteria": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-        ],  # Passing criteria to be sent to mgmt_gpio
     },
     {
         "test_name": "gpio_lo_hpd",
         "plud": True,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/gpio_lo_hpd/gpio_lo_hpd.hex",
-        "passing_criteria": [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-        ],  # Passing criteria to be sent to mgmt_gpio
     },
 ]

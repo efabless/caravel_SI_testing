@@ -2270,13 +2270,13 @@ if __name__ == "__main__":
             ),
         )
         test.progress.start()
-        # if not args.run_only:
-        #     test.power_down()
-        #     test.apply_reset()
-        #     test.power_up_1v8()
-        #     test.flash(f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/blizzard/setup/setup.hex")
-        #     test.power_down()
-        #     test.release_reset()
+        if not args.run_only:
+            test.power_down()
+            test.apply_reset()
+            test.power_up_1v8()
+            test.flash(f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/setup/setup.hex")
+            test.power_down()
+            test.release_reset()
         for v in manifest_module.l_voltage:
             for h in manifest_module.h_voltage:
                 test.l_voltage = v

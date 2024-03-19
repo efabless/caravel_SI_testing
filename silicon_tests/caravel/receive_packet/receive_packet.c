@@ -16,7 +16,6 @@ loop
 void receive_packet_test()
 {
     configure_mgmt_gpio();
-    count_down(PULSE_WIDTH * 50);
     send_packet(2);
     bool is_recieved;
     configure_mgmt_gpio_input();
@@ -34,7 +33,6 @@ void receive_packet_test()
         is_recieved = recieved_pulse_num(i);
         set_gpio_l(0x0);
         configure_mgmt_gpio();
-        count_down(PULSE_WIDTH);
         if (is_recieved)
         {
             send_packet(i);

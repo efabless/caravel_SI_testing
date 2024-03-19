@@ -22,7 +22,6 @@ void uart_io()
     mask = 0x1 << 5;
     // count_down(PULSE_WIDTH * 100);
     send_packet(2); // configuration finished
-    count_down(PULSE_WIDTH * 4);
     for (i = 0; i < num_pulses; i++)
     {
         set_gpio_l(0x1 << 6);

@@ -2289,7 +2289,6 @@ if __name__ == "__main__":
                 for t in manifest_module.TestDict:
                     if not args.test or args.test == t["test_name"]:
                         test.test_name = t["test_name"]
-                        test.passing_criteria = t["passing_criteria"]
                         flash_flag = True
                         counter = 0
                         test_flag = True

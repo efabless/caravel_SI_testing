@@ -18,9 +18,7 @@ void uart_io()
     set_gpio_h(0);
     set_gpio_l(0);
     gpio_config_load();
-    // gpio_config_io();
     mask = 0x1 << 5;
-    // count_down(PULSE_WIDTH * 100);
     send_packet(2); // configuration finished
     for (i = 0; i < num_pulses; i++)
     {

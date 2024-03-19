@@ -103,7 +103,7 @@ def process_mgmt_gpio(test, verbose):
             for i in range(5, 8):
                 while not io.get_value():
                     pass
-                test.send_packet(i, 25)
+                test.send_packet(i, 1)
                 while io.get_value():
                     pass
                 pulse_count = test.receive_packet(25)

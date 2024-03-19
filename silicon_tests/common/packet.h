@@ -71,7 +71,7 @@ void configure_mgmt_gpio()
     reg_gpio_ien = 1;
     reg_gpio_oe = 1;
     reg_gpio_out = 1; // default
-    count_down(PULSE_WIDTH * 10);
+    count_down(PULSE_WIDTH * 5);
 }
 
 void configure_mgmt_gpio_input()
@@ -81,7 +81,7 @@ void configure_mgmt_gpio_input()
     reg_gpio_ien = 1;
     reg_gpio_oe = 0;
     reg_gpio_out = 0; // default
-    count_down(PULSE_WIDTH * 20);
+    count_down(PULSE_WIDTH * 5);
 }
 
 int receive_packet()

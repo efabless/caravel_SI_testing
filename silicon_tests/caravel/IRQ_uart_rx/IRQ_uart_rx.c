@@ -47,7 +47,7 @@ bool IRQ_uart_rx()
     uart_RX_enable(1);
     enable_uart_rx_irq(1);
     uart_ev_pending_write(1);
-    config_uart();
+    // config_uart();
     send_packet(2);
     // Loop, waiting for the interrupt to change reg_mprj_datah
     bool is_pass = false;

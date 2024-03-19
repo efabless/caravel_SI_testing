@@ -19,6 +19,8 @@
 // }
 void main()
 {
+    configure_mgmt_gpio_input();
+    if (reg_gpio_in == 0){
         int io_number;
         int count = 0;
         int mask;
@@ -36,51 +38,53 @@ void main()
         config_uart();
         print("Start Test: gpio_i\n");
 
-    while (true)
-    {
-        c = uart_get_line();
-        io_number = get_int_from_string(c);
-        if (io_number >= 32)
+        while (reg_gpio_in == 0)
         {
-            temp_io = io_number - 32;
-            mask = 0x1 << temp_io;
-            old_recieved = get_gpio_h() & mask;
-        }
-        else
-        {
-            mask = 0x1 << io_number;
-            old_recieved = get_gpio_l() & mask;
-        }
-        while (true)
-        {
+            c = uart_get_line();
+            io_number = get_int_from_string(c);
             if (io_number >= 32)
             {
-                recieved = get_gpio_h() & mask; // mask gpio bit
+                temp_io = io_number - 32;
+                mask = 0x1 << temp_io;
+                old_recieved = get_gpio_h() & mask;
             }
             else
             {
-                recieved = get_gpio_l() & mask; // mask gpio bit
+                mask = 0x1 << io_number;
+                old_recieved = get_gpio_l() & mask;
             }
-            if (recieved != old_recieved)
+            while (reg_gpio_in == 0)
             {
-                count++;
-                old_recieved = recieved;
-                timeout_count = 0;
+                if (io_number >= 32)
+                {
+                    recieved = get_gpio_h() & mask; // mask gpio bit
+                }
+                else
+                {
+                    recieved = get_gpio_l() & mask; // mask gpio bit
+                }
+                if (recieved != old_recieved)
+                {
+                    count++;
+                    old_recieved = recieved;
+                    timeout_count = 0;
+                }
+                else
+                {
+                    timeout_count++;
+                }
+                if (count == 10)
+                    break;
+                if (timeout_count > timeout)
+                {
+                    count_down(PULSE_WIDTH);
+                    print("f\n");
+                }
             }
-            else
-            {
-                timeout_count++;
-            }
-            if (count == 10)
-                break;
-            if (timeout_count > timeout)
-            {
-                count_down(PULSE_WIDTH);
-                print("f\n");
-            }
+            count_down(PULSE_WIDTH);
+            print("p\n");
+            count = 0;
         }
-        count_down(PULSE_WIDTH);
-        print("p\n");
-        count = 0;
     }
+    HKGpio_config();
 }

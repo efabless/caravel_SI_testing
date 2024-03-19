@@ -465,6 +465,8 @@ def process_io_plud(test, uart, analog):
     Returns:
         bool: True if the test passed, False if it failed.
     """
+    test.gpio_mgmt.set_state(True)
+    test.gpio_mgmt.set_value(0)
     p1_rt = False
     p2_rt = False
     uart_data = uart.read_data(test)
@@ -713,8 +715,8 @@ def flash_test(
         run_only = False
     else:
         run_only = True
-    # test.reset_devices()
-    # test.reset()
+    test.reset_devices()
+    test.reset()
     if flash_flag or flash_only:
         test.print_and_log(
             "=============================================================================="
@@ -730,18 +732,23 @@ def flash_test(
             test.task,
             description=f"Flashing {test.test_name}",
         )
-        test.power_down()
-        test.apply_reset()
-        test.power_up_1v8()
+        # test.power_down()
+        # test.apply_reset()
+        # test.power_up_1v8()
+        test.gpio_mgmt.set_state(True)
+        test.gpio_mgmt.set_value(1)
+        # time.sleep(1)
+        test.reset()
         test.flash(hex_file)
-        test.power_down()
-        test.release_reset()
-    else:
-        test.power_down()
-    test.device1v8.supply.set_voltage(test.l_voltage)
-    test.device3v3.supply.set_voltage(test.h_voltage)
-    test.power_up()
-    test.reset()
+        # test.power_down()
+        # test.release_reset()
+    # else:
+    #     test.power_down()
+    #     time.sleep(0.1)
+    # test.power_up()
+    # test.device1v8.supply.set_voltage(test.l_voltage)
+    # test.device3v3.supply.set_voltage(test.h_voltage)
+    # test.reset()
 
     test.print_and_log(
         "=============================================================================="
@@ -2263,17 +2270,30 @@ if __name__ == "__main__":
             ),
         )
         test.progress.start()
-        for t in manifest_module.TestDict:
-            if not args.test or args.test == t["test_name"]:
-                test.test_name = t["test_name"]
-                flash_flag = True
-                counter = 0
-                test_flag = True
-                for v in manifest_module.l_voltage:
-                    for h in manifest_module.h_voltage:
+        # if not args.run_only:
+        #     test.power_down()
+        #     test.apply_reset()
+        #     test.power_up_1v8()
+        #     test.flash(f"{os.path.dirname(os.path.realpath(__file__))}/caravel_board/firmware_vex/blizzard/setup/setup.hex")
+        #     test.power_down()
+        #     test.release_reset()
+        for v in manifest_module.l_voltage:
+            for h in manifest_module.h_voltage:
+                test.l_voltage = v
+                test.h_voltage = h
+                test.power_down()
+                test.device1v8.supply.set_voltage(test.l_voltage)
+                test.device3v3.supply.set_voltage(test.h_voltage)
+                test.power_up()
+                # test.reset()
+                for t in manifest_module.TestDict:
+                    if not args.test or args.test == t["test_name"]:
+                        test.test_name = t["test_name"]
+                        test.passing_criteria = t["passing_criteria"]
+                        flash_flag = True
+                        counter = 0
+                        test_flag = True
                         start_time = time.time()
-                        test.l_voltage = v
-                        test.h_voltage = h
                         if counter > 0 or args.run_only:
                             flash_flag = False
                         if t.get("uart"):

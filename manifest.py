@@ -26,10 +26,6 @@ TestDict = [
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/mem_tests_dff2/mem_tests_dff2.hex",
     },
     {
-        "test_name": "soc_tests",
-        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/soc_tests/soc_tests.hex",
-    },
-    {
         "test_name": "gpio_o",
         "io": True,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/gpio_o/gpio_o.hex",
@@ -68,5 +64,9 @@ TestDict = [
         "test_name": "gpio_lo_hpd",
         "plud": True,
         "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/gpio_lo_hpd/gpio_lo_hpd.hex",
+    },
+    {
+        "test_name": "soc_tests",
+        "hex_file_path": f"{os.path.dirname(os.path.realpath(__file__))}/silicon_tests/caravel/soc_tests/soc_tests.hex",
     },
 ]

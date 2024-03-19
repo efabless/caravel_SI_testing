@@ -4,6 +4,7 @@
 
 void main()
 {
+    HKGpio_config();
     configure_mgmt_gpio();
     send_packet(1); // Start uart test
     uart();

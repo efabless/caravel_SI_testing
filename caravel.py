@@ -1,4 +1,7 @@
+import datetime
 from multiprocessing.sharedctypes import Value
+
+import pyvisa
 from WF_SDK import *  # import instruments
 from WF_SDK.dmm import *
 from power_supply import PowerSupply
@@ -8,6 +11,7 @@ import sys
 from ctypes import *
 import logging
 import os
+import math
 from rich.console import Console
 from rich.progress import (
     Progress,
@@ -36,7 +40,8 @@ class Test:
         deviced=None,
         test_name=None,
         passing_criteria=[],
-        voltage=1.6,
+        l_voltage=1.8,
+        h_voltage=3.3,
         sram=1,
     ):
         self.device1v8 = device1v8
@@ -45,7 +50,8 @@ class Test:
         self.rstb = self.device1v8.dio_map["rstb"]
         self.gpio_mgmt = self.device1v8.dio_map["gpio_mgmt"]
         self.test_name = test_name
-        self.voltage = voltage
+        self.l_voltage = l_voltage
+        self.h_voltage = h_voltage
         self.sram = sram
         self.passing_criteria = passing_criteria
         self.task = None
@@ -58,6 +64,23 @@ class Test:
             TimeElapsedColumn(),
             console=self.console,
         )
+        self.runs_dir = os.path.join(os.getcwd(), "runs")
+        self.date_dir = os.path.join(self.runs_dir, datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+        self.log_file = f"{self.date_dir}/terminal_output.log"
+
+    def log_to_file(self, message):
+        if self.log_file:
+            self.log_file = f"{self.date_dir}/terminal_output.log"
+            logging.basicConfig(filename=self.log_file, level=logging.INFO, format='%(asctime)s - %(message)s')
+            logging.info(message)
+
+    def print_and_log(self, message):
+        self.console.print(message)
+        self.log_to_file(message)
+
+    def make_runs_dirs(self):
+        os.makedirs(self.runs_dir, exist_ok=True)
+        os.makedirs(self.date_dir, exist_ok=True)
 
     def receive_packet(self, pulse_width=25):
         """recieves packet using the wire protocol, uses the gpio_mgmt I/O
@@ -68,8 +91,13 @@ class Test:
         ones = 0
         pulses = 0
         self.gpio_mgmt.set_state(False)
+        timeout = time.time() + 50
         while self.gpio_mgmt.get_value() != False:
-            pass
+            if time.time() > timeout:
+                self.console.print("Timeout!")
+                self.progress.stop()
+                self.close_devices()
+                os._exit(1)
         state = "LOW"
         accurate_delay(pulse_width / 2.0)
         for i in range(0, 30):
@@ -87,7 +115,7 @@ class Test:
                 ones = ones + 1
             if ones > 3:
                 break
-        # print("A packet has been received!")
+        # test.console.print("A packet has been received!")
         return pulses
 
     def send_packet(self, num_pulses, pulse_width=25):
@@ -112,14 +140,14 @@ class Test:
         channel.set_state(True)
         channel.set_value(1)
         num_pulses = num_pulses + 1
-        time.sleep(5)
+        accurate_delay(25)
         for i in range(0, num_pulses):
             channel.set_value(0)
             accurate_delay(pulse_width)
             channel.set_value(1)
             accurate_delay(pulse_width)
 
-    def reset(self, duration=1):
+    def reset(self, duration=0.1):
         """applies reset to the caravel board
 
         Args:
@@ -156,29 +184,28 @@ class Test:
 
     def flash(self, hex_file):
         """flashes the caravel board with hex file,
-        uses caravel_board/firmware_vex/util/caravel_hkflash.py script
+        uses silicon_tests/util/caravel_hkflash.py script
 
         Args:
             hex_file (string): path to hex file
         """
-        with open("flash.log", "a") as f:
+        with open(f"{self.date_dir}/flash.log", "a") as f:
             f.write("==============================================")
             f.write(f"   Flashed {self.test_name}")
             f.write(" ==============================================\n")
             sp = subprocess.run(
                 f"python3 caravel_hkflash.py {hex_file}",
-                cwd="./caravel_board/firmware_vex/util/",
+                cwd="./silicon_tests/util/",
                 shell=True,
                 stdout=f,
                 stderr=subprocess.PIPE,
-                universal_newlines=True
+                universal_newlines=True,
             )
         ret_code = sp.returncode
         if ret_code != 0:
-            self.console.error("Can't flash!")
+            self.console.print("[red]Can't flash!")
             self.close_devices()
-            os._exit(1)
-
+            sys.exit(1)
 
         # flash.erase()
         # if flash.flash(hex_file):
@@ -205,8 +232,8 @@ class Test:
             self.flash(f"silicon_tests/{self.test_name}/{self.test_name}_dff.hex")
         self.release_reset()
         self.powerup_sequence()
-        logging.info(f"   changing VCORE voltage to {self.voltage}v")
-        self.device1v8.supply.set_voltage(self.voltage)
+        logging.info(f"   changing VCORE voltage to {self.l_voltage}v")
+        self.device1v8.supply.set_voltage(self.l_voltage)
         self.reset()
 
     def powerup_sequence(self):
@@ -219,10 +246,10 @@ class Test:
         self.device3v3.supply.turn_off()
         time.sleep(5)
         # logging.info("   Turning on VIO with 3.3v")
-        self.device3v3.supply.set_voltage(3.3)
+        self.device3v3.supply.set_voltage(self.h_voltage)
         time.sleep(1)
         # logging.info(f"   Turning on VCORE with {self.voltage}v")
-        self.device1v8.supply.set_voltage(self.voltage)
+        self.device1v8.supply.set_voltage(self.l_voltage)
         time.sleep(1)
 
     def power_down(self):
@@ -231,19 +258,25 @@ class Test:
             turns off both devices
             turns on device and change voltage to the required one
         """
-        rm = pyvisa.ResourceManager('@py')
-        if rm.list_resources():
-            inst = rm.open_resource('USB0::1155::30016::SPD3EFEX6R1193::0::INSTR')
+        rm = pyvisa.ResourceManager("@py")
+        usb_devices = [
+            resource for resource in rm.list_resources() if "SPD" in resource
+        ]
+
+        if usb_devices:
+            # Use the first USB device found with 'SPD' in its name
+            resource_name = usb_devices[0]
+            inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
-            inst.write('OUTP CH1, OFF')
-            time.sleep(0.5)
-            inst.write('OUTP CH2, OFF')
-            time.sleep(0.5)
+            inst.write("OUTP CH1, OFF")
+            time.sleep(0.1)
+            inst.write("OUTP CH2, OFF")
+            time.sleep(0.1)
             rm.close()
         else:
             self.device1v8.supply.turn_off()
             self.device3v3.supply.turn_off()
-            time.sleep(5)
+            time.sleep(0.1)
 
     def power_up(self):
         """
@@ -251,24 +284,40 @@ class Test:
             turns off both devices
             turns on device and change voltage to the required one
         """
-        rm = pyvisa.ResourceManager('@py')
-        if rm.list_resources():
-            inst = rm.open_resource('USB0::1155::30016::SPD3EFEX6R1193::0::INSTR')
+        rm = pyvisa.ResourceManager("@py")
+        usb_devices = [
+            resource for resource in rm.list_resources() if "SPD" in resource
+        ]
+
+        if usb_devices:
+            # Use the first USB device found with 'SPD' in its name
+            resource_name = usb_devices[0]
+            inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
-            inst.write(f'CH1:VOLT {self.voltage}')
-            time.sleep(0.5)
-            inst.write('OUTP CH1, ON')
-            time.sleep(0.5)
-            inst.write('CH2:VOLT 3.3')
-            time.sleep(0.5)
-            inst.write('OUTP CH2, ON')
-            time.sleep(0.5)
+            inst.write(f"CH1:VOLT {self.l_voltage}")
+            time.sleep(0.1)
+            inst.write("OUTP CH1, ON")
+            time.sleep(0.1)
+            inst.write(f"CH2:VOLT {self.h_voltage}")
+            time.sleep(0.1)
+            inst.write("OUTP CH2, ON")
+            time.sleep(0.8)
+            l_volt = float(inst.query('MEAsure:VOLTage? CH1'))
+            h_volt = float(inst.query('MEAsure:VOLTage? CH2'))
+            l_volt_expected = self.l_voltage
+            h_volt_expected = self.h_voltage
+            error_tolerance = 0.1
+
+            if not math.isclose(l_volt, l_volt_expected, abs_tol=error_tolerance) or not math.isclose(h_volt, h_volt_expected, abs_tol=error_tolerance):
+                Console.print(f"[red]Error: {resource_name} not within 0.1V of expected voltages")
+                self.turn_off_devices()
+                exit()
             rm.close()
         else:
-            self.device3v3.supply.set_voltage(3.3)
-            time.sleep(1)
-            self.device1v8.supply.set_voltage(self.voltage)
-            time.sleep(1)
+            self.device3v3.supply.set_voltage(self.h_voltage)
+            time.sleep(0.01)
+            self.device1v8.supply.set_voltage(self.l_voltage)
+            time.sleep(0.01)
 
     def power_up_1v8(self):
         """
@@ -276,37 +325,59 @@ class Test:
             turns off both devices
             turns on device and change voltage to the required one
         """
-        rm = pyvisa.ResourceManager('@py')
-        if rm.list_resources():
-            inst = rm.open_resource('USB0::1155::30016::SPD3EFEX6R1193::0::INSTR')
+        rm = pyvisa.ResourceManager("@py")
+        usb_devices = [
+            resource for resource in rm.list_resources() if "SPD" in resource
+        ]
+
+        if usb_devices:
+            # Use the first USB device found with 'SPD' in its name
+            resource_name = usb_devices[0]
+            inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
-            inst.write('CH1:VOLT 1.8')
-            time.sleep(0.5)
-            inst.write('OUTP CH1, ON')
-            time.sleep(0.5)
-            inst.write('CH2:VOLT 3.3')
-            time.sleep(0.5)
-            inst.write('OUTP CH2, ON')
-            time.sleep(0.5)
+            inst.write("CH1:VOLT 1.8")
+            time.sleep(0.1)
+            inst.write("OUTP CH1, ON")
+            time.sleep(0.1)
+            inst.write("CH2:VOLT 3.3")
+            time.sleep(0.1)
+            inst.write("OUTP CH2, ON")
+            time.sleep(0.8)
+            l_volt = float(inst.query('MEAsure:VOLTage? CH1'))
+            h_volt = float(inst.query('MEAsure:VOLTage? CH2'))
+            l_volt_expected = 1.8
+            h_volt_expected = 3.3
+            error_tolerance = 0.1
+
+            if not math.isclose(l_volt, l_volt_expected, abs_tol=error_tolerance) or not math.isclose(h_volt, h_volt_expected, abs_tol=error_tolerance):
+                Console.print(f"[red]Error: {resource_name} not within 0.1V of expected voltages")
+                self.turn_off_devices()
+                exit()
             rm.close()
         else:
             self.device3v3.supply.set_voltage(3.3)
-            time.sleep(1)
+            time.sleep(0.1)
             self.device1v8.supply.set_voltage(1.8)
-            time.sleep(1)
+            time.sleep(0.1)
 
     def turn_off_devices(self):
         """
         turns off all devices
         """
-        rm = pyvisa.ResourceManager('@py')
-        if rm.list_resources():
-            inst = rm.open_resource('USB0::1155::30016::SPD3EFEX6R1193::0::INSTR')
+        rm = pyvisa.ResourceManager("@py")
+        usb_devices = [
+            resource for resource in rm.list_resources() if "SPD" in resource
+        ]
+
+        if usb_devices:
+            # Use the first USB device found with 'SPD' in its name
+            resource_name = usb_devices[0]
+            inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
-            inst.write('OUTP CH1, OFF')
-            time.sleep(0.5)
-            inst.write('OUTP CH2, OFF')
-            time.sleep(0.5)
+            inst.write("OUTP CH1, OFF")
+            time.sleep(0.1)
+            inst.write("OUTP CH2, OFF")
+            time.sleep(0.1)
             rm.close()
         else:
             self.device1v8.supply.turn_off()
@@ -316,20 +387,27 @@ class Test:
         """
         turns off devices and closes them
         """
-        rm = pyvisa.ResourceManager('@py')
-        if rm.list_resources():
-            inst = rm.open_resource('USB0::1155::30016::SPD3EFEX6R1193::0::INSTR')
+        rm = pyvisa.ResourceManager("@py")
+        usb_devices = [
+            resource for resource in rm.list_resources() if "SPD" in resource
+        ]
+
+        if usb_devices:
+            # Use the first USB device found with 'SPD' in its name
+            resource_name = usb_devices[0]
+            inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
-            inst.write('OUTP CH1, OFF')
-            time.sleep(0.5)
-            inst.write('OUTP CH2, OFF')
-            time.sleep(0.5)
+            inst.write("OUTP CH1, OFF")
+            time.sleep(0.1)
+            inst.write("OUTP CH2, OFF")
+            time.sleep(0.1)
             rm.close()
         else:
             self.device1v8.supply.turn_off()
             self.device3v3.supply.turn_off()
         device.close(self.device1v8)
         device.close(self.device3v3)
+        device.close(self.deviced)
 
     def reset_devices(self):
         # dwf.FDwfDigitalOutReset(self.device1v8.handle)
@@ -345,6 +423,49 @@ class Test:
             self.device3v3.dio_map[c].set_state(False)
         for c in self.deviced.dio_map:
             self.deviced.dio_map[c].set_state(False)
+
+    def io_receive(self, pulses, channel):
+        io_pulse = 0
+        if channel > 13 and channel < 22:
+            io = self.deviced.dio_map[channel]
+        elif channel > 21:
+            io = self.device3v3.dio_map[channel]
+        else:
+            io = self.device1v8.dio_map[channel]
+        # self.console.print(f"recieve pulse on IO[{channel}]")
+        state = "HI"
+        timeout = time.time() + 20
+        accurate_delay(12.5)
+        while 1:
+            accurate_delay(25)
+            x = io.get_value()
+            if state == "LOW":
+                if x:
+                    state = "HI"
+            elif state == "HI":
+                if not x:
+                    state = "LOW"
+                    io_pulse = io_pulse + 1
+            if io_pulse == pulses:
+                io_pulse = 0
+                return True
+            if time.time() > timeout:
+                return False
+    
+    def setup_clock(self, clk_io, data_io):
+        dwf.FDwfDigitalOutEnableSet(self.device3v3.handle, c_int(self.device3v3.dio_map[clk_io].channel), c_int(1)) # enable DIO 0 as output (clock)
+        dwf.FDwfDigitalOutEnableSet(self.device3v3.handle, c_int(self.device3v3.dio_map[data_io].channel), c_int(1)) # enable DIO 1 as output (output)
+
+        dwf.FDwfDigitalOutDividerSet(self.device3v3.handle, c_int(1)) # set divider to 1 (fastest clock)
+        dwf.FDwfDigitalOutCounterInitSet(self.device3v3.handle, c_int(0), c_int(1)) # set counter to 1 (fastest clock)
+
+    def run_clock(self, data, clk_io, data_io):
+        self.setup_clock(clk_io, data_io)
+
+        for bit in data:
+            dwf.FDwfDigitalOutCounterSet(self.device3v3.handle, c_int(self.device3v3.dio_map[clk_io].channel), c_int(1), c_int(1)) # set output on positive edge of DIO 0
+            dwf.FDwfDigitalOutDataSet(self.device3v3.handle, c_int(self.device3v3.dio_map[data_io].channel << bit)) # set output data on DIO 1
+            time.sleep(0.001) # adjust sleep time as needed
 
 
 class Device:
@@ -425,7 +546,7 @@ class Dio:
                     - True means HIGH, False means LOW
         """
         if self.state is True:
-            print("can't set value for an input pin")
+            test.console.print("can't set value for an input pin")
         else:
             # load current state of the output state buffer
             mask = ctypes.c_uint16()
@@ -465,7 +586,7 @@ class UART:
                     - rx (DIO line used to receive data)
                     - tx (DIO line used to send data)
                     - baud_rate (communication speed, default is 9600 bits/s)
-                    - parity possible: None (default), True means even, False means odd
+                    - parity possible: None (default), True means odd, False means even
                     - data_bits (default is 8)
                     - stop_bits (default is 1)
         """
@@ -592,6 +713,23 @@ class UART:
         )
         return
 
+    def read_data(self, test, timeout=50):
+        self.open()
+        timeout = time.time() + timeout
+        rgRX = b""
+        while True:
+            uart_data, count = self.read_uart()
+            if uart_data:
+                uart_data[count.value] = 0
+                rgRX = rgRX + uart_data.value
+                if b"\n" in rgRX:
+                    return rgRX
+            if time.time() > timeout:
+                return b"UART Timeout!\n\r"
+                # test.progress.stop()
+                # self.close()
+                # os._exit(1)
+
     def close(self):
         # dwf.FDwfDeviceClose(self.device_data.handle)
         # device.open(self.device_data.handle)
@@ -614,39 +752,49 @@ class SPI:
 
     def open(self):
         """
-            initializes SPI communication
-            parameters: - device data
-                        - cs (DIO line used for chip select)
-                        - sck (DIO line used for serial clock)
-                        - miso (DIO line used for master in - slave out, optional)
-                        - mosi (DIO line used for master out - slave in, optional)
-                        - frequency (communication frequency in Hz, default is 1MHz)
-                        - mode (SPI mode: 0: CPOL=0, CPHA=0; 1: CPOL-0, CPHA=1; 2: CPOL=1, CPHA=0; 3: CPOL=1, CPHA=1)
-                        - order (endianness, True means MSB first - default, False means LSB first)
+        initializes SPI communication
+        parameters: - device data
+                    - cs (DIO line used for chip select)
+                    - sck (DIO line used for serial clock)
+                    - miso (DIO line used for master in - slave out, optional)
+                    - mosi (DIO line used for master out - slave in, optional)
+                    - frequency (communication frequency in Hz, default is 1MHz)
+                    - mode (SPI mode: 0: CPOL=0, CPHA=0; 1: CPOL-0, CPHA=1; 2: CPOL=1, CPHA=0; 3: CPOL=1, CPHA=1)
+                    - order (endianness, True means MSB first - default, False means LSB first)
         """
         # set the clock frequency
-        dwf.FDwfDigitalSpiFrequencySet(self.device_data.handle, ctypes.c_double(self.clk_frequency))
-    
+        dwf.FDwfDigitalSpiFrequencySet(
+            self.device_data.handle, ctypes.c_double(self.clk_frequency)
+        )
+
         # set the clock pin
         dwf.FDwfDigitalSpiClockSet(self.device_data.handle, ctypes.c_int(self.sck))
-    
+
         if self.mosi != None:
             # set the mosi pin
-            dwf.FDwfDigitalSpiDataSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_int(self.mosi))
-    
+            dwf.FDwfDigitalSpiDataSet(
+                self.device_data.handle, ctypes.c_int(0), ctypes.c_int(self.mosi)
+            )
+
             # set the initial state
-            dwf.FDwfDigitalSpiIdleSet(self.device_data.handle, ctypes.c_int(0), constants.DwfDigitalOutIdleZet)
-    
+            dwf.FDwfDigitalSpiIdleSet(
+                self.device_data.handle, ctypes.c_int(0), constants.DwfDigitalOutIdleZet
+            )
+
         if self.miso != None:
             # set the miso pin
-            dwf.FDwfDigitalSpiDataSet(self.device_data.handle, ctypes.c_int(1), ctypes.c_int(self.miso))
-    
+            dwf.FDwfDigitalSpiDataSet(
+                self.device_data.handle, ctypes.c_int(1), ctypes.c_int(self.miso)
+            )
+
             # set the initial state
-            dwf.FDwfDigitalSpiIdleSet(self.device_data.handle, ctypes.c_int(1), constants.DwfDigitalOutIdleZet)
-    
+            dwf.FDwfDigitalSpiIdleSet(
+                self.device_data.handle, ctypes.c_int(1), constants.DwfDigitalOutIdleZet
+            )
+
         # set the SPI mode
         dwf.FDwfDigitalSpiModeSet(self.device_data.handle, ctypes.c_int(self.mode))
-    
+
         # set endianness
         if self.order:
             # MSB first
@@ -654,66 +802,89 @@ class SPI:
         else:
             # LSB first
             dwf.FDwfDigitalSpiOrderSet(self.device_data.handle, ctypes.c_int(0))
-    
+
         # set the cs pin HIGH
-        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(1))
-    
+        dwf.FDwfDigitalSpiSelect(
+            self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(1)
+        )
+
         # dummy write
-        dwf.FDwfDigitalSpiWriteOne(self.device_data.handle, ctypes.c_int(1), ctypes.c_int(0), ctypes.c_int(0))
+        dwf.FDwfDigitalSpiWriteOne(
+            self.device_data.handle, ctypes.c_int(1), ctypes.c_int(0), ctypes.c_int(0)
+        )
         return
 
-    
     def read(self, count=1):
         """
-            receives data from SPI
-            parameters: - device data
-                        - count (number of bytes to receive)
-                        - chip select line number
-            return:     - integer list containing the received bytes
+        receives data from SPI
+        parameters: - device data
+                    - count (number of bytes to receive)
+                    - chip select line number
+        return:     - integer list containing the received bytes
         """
         # enable the chip select line
-        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(0))
-    
+        dwf.FDwfDigitalSpiSelect(
+            self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(0)
+        )
+
         # create buffer to store data
-        buffer = (ctypes.c_ubyte*count)()
-    
+        buffer = (ctypes.c_ubyte * count)()
+
         # read array of 8 bit elements
-        dwf.FDwfDigitalSpiRead(self.device_data.handle, ctypes.c_int(1), ctypes.c_int(8), buffer, ctypes.c_int(len(buffer)))
-    
+        dwf.FDwfDigitalSpiRead(
+            self.device_data.handle,
+            ctypes.c_int(1),
+            ctypes.c_int(8),
+            buffer,
+            ctypes.c_int(len(buffer)),
+        )
+
         # disable the chip select line
-        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(cs), ctypes.c_int(1))
-    
+        dwf.FDwfDigitalSpiSelect(
+            self.device_data.handle, ctypes.c_int(cs), ctypes.c_int(1)
+        )
+
         # decode data
         data = [int(element) for element in buffer]
         return data
-    
+
     def write(self, data):
         """
-            send data through SPI
-            parameters: - device data
-                        - data of type string, int, or list of characters/integers
-                        - chip select line number
+        send data through SPI
+        parameters: - device data
+                    - data of type string, int, or list of characters/integers
+                    - chip select line number
         """
         # cast data
         if type(data) == int:
-            data = "".join(chr (data))
+            data = "".join(chr(data))
         elif type(data) == list:
-            data = "".join(chr (element) for element in data)
-    
+            data = "".join(chr(element) for element in data)
+
         # enable the chip select line
-        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(0))
-    
+        dwf.FDwfDigitalSpiSelect(
+            self.device_data.handle, ctypes.c_int(self.cs), ctypes.c_int(0)
+        )
+
         # create buffer to write
         data = bytes(data, "utf-8")
         buffer = (ctypes.c_ubyte * len(data))()
         for index in range(0, len(buffer)):
             buffer[index] = ctypes.c_ubyte(data[index])
-    
+
         # write array of 8 bit elements
-        dwf.FDwfDigitalSpiWrite(self.device_data.handle, ctypes.c_int(1), ctypes.c_int(8), buffer, ctypes.c_int(len(buffer)))
-    
+        dwf.FDwfDigitalSpiWrite(
+            self.device_data.handle,
+            ctypes.c_int(1),
+            ctypes.c_int(8),
+            buffer,
+            ctypes.c_int(len(buffer)),
+        )
+
         # disable the chip select line
-        dwf.FDwfDigitalSpiSelect(self.device_data.handle, ctypes.c_int(cs), ctypes.c_int(1))
+        dwf.FDwfDigitalSpiSelect(
+            self.device_data.handle, ctypes.c_int(cs), ctypes.c_int(1)
+        )
         return
 
 
@@ -879,154 +1050,192 @@ class SPI:
         """
         dwf.FDwfDigitalSpiReset(self.device_data.handle)
         return
-    
+
 
 class FreqCounter:
     def __init__(self, device_data):
         self.device_data = device_data
         self.sampling_frequency = 100e06
         self.buffer_size = 8192
-    def open(self, sampling_frequency=100e06, buffer_size=8192, offset=0, amplitude_range=1):
+
+    def open(
+        self, sampling_frequency=100e06, buffer_size=8192, offset=0, amplitude_range=1
+    ):
         """
-            initialize the oscilloscope
-            parameters: - device data
-                        - sampling frequency in Hz, default is 20MHz
-                        - buffer size, default is 8192
-                        - offset voltage in Volts, default is 0V
-                        - amplitude range in Volts, default is ±5V
+        initialize the oscilloscope
+        parameters: - device data
+                    - sampling frequency in Hz, default is 20MHz
+                    - buffer size, default is 8192
+                    - offset voltage in Volts, default is 0V
+                    - amplitude range in Volts, default is ±5V
         """
         # enable all channels
-        dwf.FDwfAnalogInChannelEnableSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_bool(True))
-    
+        dwf.FDwfAnalogInChannelEnableSet(
+            self.device_data.handle, ctypes.c_int(0), ctypes.c_bool(True)
+        )
+
         # set offset voltage (in Volts)
-        dwf.FDwfAnalogInChannelOffsetSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_double(offset))
-    
+        dwf.FDwfAnalogInChannelOffsetSet(
+            self.device_data.handle, ctypes.c_int(0), ctypes.c_double(offset)
+        )
+
         # set range (maximum signal amplitude in Volts)
-        dwf.FDwfAnalogInChannelRangeSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_double(amplitude_range))
-    
+        dwf.FDwfAnalogInChannelRangeSet(
+            self.device_data.handle, ctypes.c_int(0), ctypes.c_double(amplitude_range)
+        )
+
         # set the buffer size (data point in a recording)
-        dwf.FDwfAnalogInBufferSizeSet(self.device_data.handle, ctypes.c_int(buffer_size))
-    
+        dwf.FDwfAnalogInBufferSizeSet(
+            self.device_data.handle, ctypes.c_int(buffer_size)
+        )
+
         # set the acquisition frequency (in Hz)
-        dwf.FDwfAnalogInFrequencySet(self.device_data.handle, ctypes.c_double(sampling_frequency))
-    
+        dwf.FDwfAnalogInFrequencySet(
+            self.device_data.handle, ctypes.c_double(sampling_frequency)
+        )
+
         # disable averaging (for more info check the documentation)
-        dwf.FDwfAnalogInChannelFilterSet(self.device_data.handle, ctypes.c_int(-1), constants.filterDecimate)
+        dwf.FDwfAnalogInChannelFilterSet(
+            self.device_data.handle, ctypes.c_int(-1), constants.filterDecimate
+        )
         self.sampling_frequency = sampling_frequency
         self.buffer_size = buffer_size
         return
-    
+
     def record(self, channel):
         """
-            record an analog signal
-            parameters: - device data
-                        - the selected oscilloscope channel (1-2, or 1-4)
-            returns:    - buffer - a list with the recorded voltages
-                        - time - a list with the time moments for each voltage in seconds (with the same index as "buffer")
+        record an analog signal
+        parameters: - device data
+                    - the selected oscilloscope channel (1-2, or 1-4)
+        returns:    - buffer - a list with the recorded voltages
+                    - time - a list with the time moments for each voltage in seconds (with the same index as "buffer")
         """
         # set up the instrument
-        dwf.FDwfAnalogInConfigure(self.device_data.handle, ctypes.c_bool(False), ctypes.c_bool(True))
-    
+        dwf.FDwfAnalogInConfigure(
+            self.device_data.handle, ctypes.c_bool(False), ctypes.c_bool(True)
+        )
+
         # read data to an internal buffer
         while True:
-            status = ctypes.c_byte()    # variable to store buffer status
-            dwf.FDwfAnalogInStatus(self.device_data.handle, ctypes.c_bool(True), ctypes.byref(status))
-    
+            status = ctypes.c_byte()  # variable to store buffer status
+            dwf.FDwfAnalogInStatus(
+                self.device_data.handle, ctypes.c_bool(True), ctypes.byref(status)
+            )
+
             # check internal buffer status
             if status.value == constants.DwfStateDone.value:
-                    # exit loop when ready
-                    break
-    
+                # exit loop when ready
+                break
+
         # copy buffer
-        buffer = (ctypes.c_double * self.buffer_size)()   # create an empty buffer
-        dwf.FDwfAnalogInStatusData(self.device_data.handle, ctypes.c_int(channel - 1), buffer, ctypes.c_int(self.buffer_size))
-    
+        buffer = (ctypes.c_double * self.buffer_size)()  # create an empty buffer
+        dwf.FDwfAnalogInStatusData(
+            self.device_data.handle,
+            ctypes.c_int(channel - 1),
+            buffer,
+            ctypes.c_int(self.buffer_size),
+        )
+
         # calculate aquisition time
         time = range(0, self.buffer_size)
         time = [moment / self.sampling_frequency for moment in time]
-    
+
         # convert into list
         buffer = [float(element) for element in buffer]
         return buffer, time
-    
+
+
 class LogicAnalyzer:
     def __init__(self, device_data):
         self.device_data = device_data
         self.sampling_frequency = 100e06
         self.buffer_size = 8
-    
+
     def open(self):
         """
-            initialize the logic analyzer
-            parameters: - device data
-                        - sampling frequency in Hz, default is 100MHz
-                        - buffer size, default is 4096
+        initialize the logic analyzer
+        parameters: - device data
+                    - sampling frequency in Hz, default is 100MHz
+                    - buffer size, default is 4096
         """
         # get internal clock frequency
         internal_frequency = ctypes.c_double()
-        dwf.FDwfDigitalInInternalClockInfo(self.device_data.handle, ctypes.byref(internal_frequency))
-    
+        dwf.FDwfDigitalInInternalClockInfo(
+            self.device_data.handle, ctypes.byref(internal_frequency)
+        )
+
         # set clock frequency divider (needed for lower frequency input signals)
-        dwf.FDwfDigitalInDividerSet(self.device_data.handle, ctypes.c_int(int(internal_frequency.value / self.sampling_frequency)))
-    
+        dwf.FDwfDigitalInDividerSet(
+            self.device_data.handle,
+            ctypes.c_int(int(internal_frequency.value / self.sampling_frequency)),
+        )
+
         # set 16-bit sample format
         dwf.FDwfDigitalInSampleFormatSet(self.device_data.handle, ctypes.c_int(16))
-    
+
         # set buffer size
-        dwf.FDwfDigitalInBufferSizeSet(self.device_data.handle, ctypes.c_int(self.buffer_size))
+        dwf.FDwfDigitalInBufferSizeSet(
+            self.device_data.handle, ctypes.c_int(self.buffer_size)
+        )
         # self.sampling_frequency = self.sampling_frequency
         # self.buffer_size = self.buffer_size
         return
 
     def record(self, channel):
         """
-            initialize the logic analyzer
-            parameters: - device data
-                        - channel - the selected DIO line number
-            returns:    - buffer - a list with the recorded logic values
-                        - time - a list with the time moments for each value in seconds (with the same index as "buffer")
+        initialize the logic analyzer
+        parameters: - device data
+                    - channel - the selected DIO line number
+        returns:    - buffer - a list with the recorded logic values
+                    - time - a list with the time moments for each value in seconds (with the same index as "buffer")
         """
         # set up the instrument
-        dwf.FDwfDigitalInConfigure(self.device_data.handle, ctypes.c_bool(False), ctypes.c_bool(True))
+        dwf.FDwfDigitalInConfigure(
+            self.device_data.handle, ctypes.c_bool(False), ctypes.c_bool(True)
+        )
         time.sleep(0.10)
-    
+
         # read data to an internal buffer
         while True:
-            status = ctypes.c_byte()    # variable to store buffer status
-            dwf.FDwfDigitalInStatus(self.device_data.handle, ctypes.c_bool(True), ctypes.byref(status))
-    
+            status = ctypes.c_byte()  # variable to store buffer status
+            dwf.FDwfDigitalInStatus(
+                self.device_data.handle, ctypes.c_bool(True), ctypes.byref(status)
+            )
+
             if status.value == constants.stsDone.value:
                 # exit loop when finished
                 break
 
         buffer = (ctypes.c_uint16 * self.buffer_size)()
-        dwf.FDwfDigitalInStatusData(self.device_data.handle, buffer, ctypes.c_int(self.buffer_size))
-    
+        dwf.FDwfDigitalInStatusData(
+            self.device_data.handle, buffer, ctypes.c_int(self.buffer_size)
+        )
+
         # convert buffer to list of lists of integers
         buffer = [int(element) for element in buffer]
         result = [[] for _ in range(16)]
         for point in buffer:
             for index in range(16):
                 result[index].append(point & (1 << index))
-    
+
         # calculate acquisition time
         # time = range(0, self.buffer_size)
         # time = [moment / self.sampling_frequency for moment in time]
-    
+
         # get channel specific data
         buffer = result[channel]
         nSamples = len(buffer)
         fFrequency = 0
-        pass_c = 2**channel
+        pass_c = 2 ** channel
         for i in range(1, nSamples):
-            if (buffer[i] == 0 and buffer[i-1] == pass_c):
+            if buffer[i] == 0 and buffer[i - 1] == pass_c:
                 fFrequency = self.sampling_frequency / (i * 2)
-                
+
         return fFrequency
-    
+
     def close(self):
         """
-            reset the instrument
+        reset the instrument
         """
         dwf.FDwfDigitalInReset(self.device_data.handle)
         return
@@ -1037,147 +1246,185 @@ class FreqCounter:
         self.device_data = device_data
         self.sampling_frequency = 100e06
         self.buffer_size = 8192
-    def open(self, sampling_frequency=100e06, buffer_size=8192, offset=0, amplitude_range=1):
+
+    def open(
+        self, sampling_frequency=100e06, buffer_size=8192, offset=0, amplitude_range=1
+    ):
         """
-            initialize the oscilloscope
-            parameters: - device data
-                        - sampling frequency in Hz, default is 20MHz
-                        - buffer size, default is 8192
-                        - offset voltage in Volts, default is 0V
-                        - amplitude range in Volts, default is ±5V
+        initialize the oscilloscope
+        parameters: - device data
+                    - sampling frequency in Hz, default is 20MHz
+                    - buffer size, default is 8192
+                    - offset voltage in Volts, default is 0V
+                    - amplitude range in Volts, default is ±5V
         """
         # enable all channels
-        dwf.FDwfAnalogInChannelEnableSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_bool(True))
-    
+        dwf.FDwfAnalogInChannelEnableSet(
+            self.device_data.handle, ctypes.c_int(0), ctypes.c_bool(True)
+        )
+
         # set offset voltage (in Volts)
-        dwf.FDwfAnalogInChannelOffsetSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_double(offset))
-    
+        dwf.FDwfAnalogInChannelOffsetSet(
+            self.device_data.handle, ctypes.c_int(0), ctypes.c_double(offset)
+        )
+
         # set range (maximum signal amplitude in Volts)
-        dwf.FDwfAnalogInChannelRangeSet(self.device_data.handle, ctypes.c_int(0), ctypes.c_double(amplitude_range))
-    
+        dwf.FDwfAnalogInChannelRangeSet(
+            self.device_data.handle, ctypes.c_int(0), ctypes.c_double(amplitude_range)
+        )
+
         # set the buffer size (data point in a recording)
-        dwf.FDwfAnalogInBufferSizeSet(self.device_data.handle, ctypes.c_int(buffer_size))
-    
+        dwf.FDwfAnalogInBufferSizeSet(
+            self.device_data.handle, ctypes.c_int(buffer_size)
+        )
+
         # set the acquisition frequency (in Hz)
-        dwf.FDwfAnalogInFrequencySet(self.device_data.handle, ctypes.c_double(sampling_frequency))
-    
+        dwf.FDwfAnalogInFrequencySet(
+            self.device_data.handle, ctypes.c_double(sampling_frequency)
+        )
+
         # disable averaging (for more info check the documentation)
-        dwf.FDwfAnalogInChannelFilterSet(self.device_data.handle, ctypes.c_int(-1), constants.filterDecimate)
+        dwf.FDwfAnalogInChannelFilterSet(
+            self.device_data.handle, ctypes.c_int(-1), constants.filterDecimate
+        )
         self.sampling_frequency = sampling_frequency
         self.buffer_size = buffer_size
         return
-    
+
     def record(self, channel):
         """
-            record an analog signal
-            parameters: - device data
-                        - the selected oscilloscope channel (1-2, or 1-4)
-            returns:    - buffer - a list with the recorded voltages
-                        - time - a list with the time moments for each voltage in seconds (with the same index as "buffer")
+        record an analog signal
+        parameters: - device data
+                    - the selected oscilloscope channel (1-2, or 1-4)
+        returns:    - buffer - a list with the recorded voltages
+                    - time - a list with the time moments for each voltage in seconds (with the same index as "buffer")
         """
         # set up the instrument
-        dwf.FDwfAnalogInConfigure(self.device_data.handle, ctypes.c_bool(False), ctypes.c_bool(True))
-    
+        dwf.FDwfAnalogInConfigure(
+            self.device_data.handle, ctypes.c_bool(False), ctypes.c_bool(True)
+        )
+
         # read data to an internal buffer
         while True:
-            status = ctypes.c_byte()    # variable to store buffer status
-            dwf.FDwfAnalogInStatus(self.device_data.handle, ctypes.c_bool(True), ctypes.byref(status))
-    
+            status = ctypes.c_byte()  # variable to store buffer status
+            dwf.FDwfAnalogInStatus(
+                self.device_data.handle, ctypes.c_bool(True), ctypes.byref(status)
+            )
+
             # check internal buffer status
             if status.value == constants.DwfStateDone.value:
-                    # exit loop when ready
-                    break
-    
+                # exit loop when ready
+                break
+
         # copy buffer
-        buffer = (ctypes.c_double * self.buffer_size)()   # create an empty buffer
-        dwf.FDwfAnalogInStatusData(self.device_data.handle, ctypes.c_int(channel - 1), buffer, ctypes.c_int(self.buffer_size))
-    
+        buffer = (ctypes.c_double * self.buffer_size)()  # create an empty buffer
+        dwf.FDwfAnalogInStatusData(
+            self.device_data.handle,
+            ctypes.c_int(channel - 1),
+            buffer,
+            ctypes.c_int(self.buffer_size),
+        )
+
         # calculate aquisition time
         time = range(0, self.buffer_size)
         time = [moment / self.sampling_frequency for moment in time]
-    
+
         # convert into list
         buffer = [float(element) for element in buffer]
         return buffer, time
-    
+
+
 class LogicAnalyzer:
     def __init__(self, device_data):
         self.device_data = device_data
         self.sampling_frequency = 100e06
         self.buffer_size = 8
-    
+
     def open(self):
         """
-            initialize the logic analyzer
-            parameters: - device data
-                        - sampling frequency in Hz, default is 100MHz
-                        - buffer size, default is 4096
+        initialize the logic analyzer
+        parameters: - device data
+                    - sampling frequency in Hz, default is 100MHz
+                    - buffer size, default is 4096
         """
         # get internal clock frequency
         internal_frequency = ctypes.c_double()
-        dwf.FDwfDigitalInInternalClockInfo(self.device_data.handle, ctypes.byref(internal_frequency))
-    
+        dwf.FDwfDigitalInInternalClockInfo(
+            self.device_data.handle, ctypes.byref(internal_frequency)
+        )
+
         # set clock frequency divider (needed for lower frequency input signals)
-        dwf.FDwfDigitalInDividerSet(self.device_data.handle, ctypes.c_int(int(internal_frequency.value / self.sampling_frequency)))
-    
+        dwf.FDwfDigitalInDividerSet(
+            self.device_data.handle,
+            ctypes.c_int(int(internal_frequency.value / self.sampling_frequency)),
+        )
+
         # set 16-bit sample format
         dwf.FDwfDigitalInSampleFormatSet(self.device_data.handle, ctypes.c_int(16))
-    
+
         # set buffer size
-        dwf.FDwfDigitalInBufferSizeSet(self.device_data.handle, ctypes.c_int(self.buffer_size))
+        dwf.FDwfDigitalInBufferSizeSet(
+            self.device_data.handle, ctypes.c_int(self.buffer_size)
+        )
         # self.sampling_frequency = self.sampling_frequency
         # self.buffer_size = self.buffer_size
         return
 
     def record(self, channel):
         """
-            initialize the logic analyzer
-            parameters: - device data
-                        - channel - the selected DIO line number
-            returns:    - buffer - a list with the recorded logic values
-                        - time - a list with the time moments for each value in seconds (with the same index as "buffer")
+        initialize the logic analyzer
+        parameters: - device data
+                    - channel - the selected DIO line number
+        returns:    - buffer - a list with the recorded logic values
+                    - time - a list with the time moments for each value in seconds (with the same index as "buffer")
         """
         # set up the instrument
-        dwf.FDwfDigitalInConfigure(self.device_data.handle, ctypes.c_bool(False), ctypes.c_bool(True))
+        dwf.FDwfDigitalInConfigure(
+            self.device_data.handle, ctypes.c_bool(False), ctypes.c_bool(True)
+        )
         time.sleep(0.10)
-    
+
         # read data to an internal buffer
         while True:
-            status = ctypes.c_byte()    # variable to store buffer status
-            dwf.FDwfDigitalInStatus(self.device_data.handle, ctypes.c_bool(True), ctypes.byref(status))
-    
+            status = ctypes.c_byte()  # variable to store buffer status
+            dwf.FDwfDigitalInStatus(
+                self.device_data.handle, ctypes.c_bool(True), ctypes.byref(status)
+            )
+
             if status.value == constants.stsDone.value:
                 # exit loop when finished
                 break
 
         buffer = (ctypes.c_uint16 * self.buffer_size)()
-        dwf.FDwfDigitalInStatusData(self.device_data.handle, buffer, ctypes.c_int(self.buffer_size))
-    
+        dwf.FDwfDigitalInStatusData(
+            self.device_data.handle, buffer, ctypes.c_int(self.buffer_size)
+        )
+
         # convert buffer to list of lists of integers
         buffer = [int(element) for element in buffer]
         result = [[] for _ in range(16)]
         for point in buffer:
             for index in range(16):
                 result[index].append(point & (1 << index))
-    
+
         # calculate acquisition time
         # time = range(0, self.buffer_size)
         # time = [moment / self.sampling_frequency for moment in time]
-    
+
         # get channel specific data
         buffer = result[channel]
         nSamples = len(buffer)
         fFrequency = 0
-        pass_c = 2**channel
+        pass_c = 2 ** channel
         for i in range(1, nSamples):
-            if (buffer[i] == 0 and buffer[i-1] == pass_c):
+            if buffer[i] == 0 and buffer[i - 1] == pass_c:
                 fFrequency = self.sampling_frequency / (i * 2)
-                
+
         return fFrequency
-    
+
     def close(self):
         """
-            reset the instrument
+        reset the instrument
         """
         dwf.FDwfDigitalInReset(self.device_data.handle)
         return
@@ -1218,7 +1465,7 @@ def connect_devices(devices, dev1_sn, dev2_sn, dev3_sn):
                 device3_data = device_info
     else:
         console = Console()
-        console.error(" No connected devices")
+        console.print("[red]No connected devices")
         sys.exit()
     return device1_data, device2_data, device3_data
 
@@ -1236,4 +1483,4 @@ def connect_devices(devices, dev1_sn, dev2_sn, dev3_sn):
 #     gpio_mgmt = device1v8.dio_map["gpio_mgmt"]
 #     for i in range(0, 7):
 #         pulse_count = receive_packet(device1v8)
-#         print(f"pulses: {pulse_count}")
+#         test.console.print(f"pulses: {pulse_count}")

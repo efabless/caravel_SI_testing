@@ -151,38 +151,28 @@ void main()
     // adc_clkdiv_reg = 5;      /* core clock / 12 = 813kHz */
     // adc_clkdiv_reg = 6; /* core clock / 14 = 714kHz */
     // adc_clkdiv_reg = 12;     /* core clock / 26 = 385kHz */
-    int clkdiv_arr[6] = {1, 2, 4, 5, 6, 12};
-    const char *clkdiv_arr_str[6] = {"1", "2", "4", "5", "6", "12"};
 
     int io22 = (reg_mprj_datal >> 22) & 1;
     count_down(PULSE_WIDTH * 10);
     config_uart();
-    print("Start Test: adc_test\n");
-
-    for (int i = 0; i < 6; i++)
+    print("ST: adc_test\n");
+    adc_clkdiv_reg = 6;
+    while (io22 == 1)
     {
-        adc_clkdiv_reg = clkdiv_arr[i];
-        config_uart();
-        print("clkdiv: ");
-        print(clkdiv_arr_str[i]);
-        print("\n");
-        while (io22 == 1)
-        {
-            io22 = (reg_mprj_datal >> 22) & 1;
-        }
-        while (io22 == 0)
-        {
-            delay(2500);
-            adc_ctrl_reg = ADC_CTRL_EN | ADC_CTRL_SOC;
-            while (adc_eoc_reg == 0)
-                ;
-            reg_mprj_datal = 0x200 | (adc_data_reg << 24);
-            reg_mprj_datah = 0x0000001; // trigger
-            delay(2500);
-            reg_mprj_datah = 0x0000000;
-
-            io22 = (reg_mprj_datal >> 22) & 1;
-        }
-        count_down(PULSE_WIDTH * 10);
+        io22 = (reg_mprj_datal >> 22) & 1;
     }
+    while (io22 == 0)
+    {
+        delay(2500);
+        adc_ctrl_reg = ADC_CTRL_EN | ADC_CTRL_SOC;
+        while (adc_eoc_reg == 0)
+            ;
+        reg_mprj_datal = 0x200 | (adc_data_reg << 24);
+        reg_mprj_datah = 0x0000001; // trigger
+        delay(2500);
+        reg_mprj_datah = 0x0000000;
+
+        io22 = (reg_mprj_datal >> 22) & 1;
+    }
+    count_down(PULSE_WIDTH * 10);
 }

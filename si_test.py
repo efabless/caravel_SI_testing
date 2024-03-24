@@ -1510,7 +1510,7 @@ def fpga_ram_test(test):
         return False
 
 
-def adc_test(test, uart, verbose):
+def adc_test_char(test, uart, verbose):
     """
     Function to perform ADC test and return True if successful, False otherwise.
     Parameters:
@@ -1967,6 +1967,122 @@ def adc_test(test, uart, verbose):
         with open(csv_filename, "w", newline="") as csvfile:
             writer = csv.writer(csvfile)
             writer.writerows(data)
+        return True
+
+
+def adc_test(test, uart, verbose):
+    """
+    Function to perform ADC test and return True if successful, False otherwise.
+    Parameters:
+    - test: object representing test parameters
+    - uart: object for UART communication
+    - verbose: boolean indicating whether to print additional information
+    Return type: boolean
+    """
+    if test.test_name == "adc_test":
+        test.device3v3.dio_map[22].set_state(True)
+        test.device3v3.dio_map[22].set_value(1)
+        logic.open(test.device3v3.ad_device, 1e5, 1)
+
+        uart_data = uart.read_data(test)
+        uart_data = uart_data.decode("utf-8", "ignore")
+        if "UART Timeout!" in uart_data:
+            test.print_and_log("[red]UART Timeout!")
+            return False
+        if "ST:" in uart_data:
+            test.test_name = uart_data.strip().split(": ")[1]
+            test.print_and_log(f"Running test {test.test_name}...")
+
+        numvals = [0.2, 0.7]
+        test.device3v3.dio_map[22].set_value(0)
+        for v in numvals:
+            inp_val = 0.2 * test.h_voltage
+            eout = 256 * inp_val / test.h_voltage
+            wavegen.generate(
+                test.device3v3.ad_device,
+                1,
+                wavegen.function.dc,
+                inp_val,
+                1e3,
+                0,
+                50,
+                0,
+                0,
+                0,
+            )
+            logic.trigger(test.device3v3.ad_device, True, 10)
+            value = 0
+            buffer = logic.recordall(test.device3v3.ad_device)
+            for i in range(2, 10):
+                value += buffer[i][0]
+
+            gain = (0.2972 * test.h_voltage) - 0.0052
+            doutcor = value * gain
+
+            if verbose:
+                test.print_and_log(
+                    "Input voltage = "
+                    + str(inp_val)
+                    + ";  captured value = "
+                    + str(value)
+                )
+            if abs(doutcor - eout) > 3.6:
+                return False
+
+        return True
+
+    elif test.test_name == "dac_test":
+        uart_data = uart.read_data(test)
+        uart_data = uart_data.decode("utf-8", "ignore")
+        if "UART Timeout!" in uart_data:
+            test.print_and_log("[red]UART Timeout!")
+            return False
+        if "ST:" in uart_data:
+            test.test_name = uart_data.strip().split(": ")[1]
+            test.print_and_log(f"Running test {test.test_name}...")
+        for k in range(2, 10):
+            static.set_mode(test.device3v3.ad_device, k, True)
+        scope.open(test.device3v3.ad_device, 20e6, 1, 0, 10)
+
+        numvals = [50, 200]
+        for v in numvals:
+            volt = test.h_voltage
+
+            scope.trigger(
+                test.device3v3.ad_device,
+                True,
+                scope.trigger_source.external[1],
+                1,
+                0,
+                True,
+                1.65,
+            )
+
+            for k in range(0, 8):
+                test.device3v3.dio_map[k + 24].set_state(True)
+                test.device3v3.dio_map[k + 24].set_value((v >> k) & 1)
+
+            time.sleep(0.05)
+            samples = 64
+            value = 0
+            for i in range(0, samples):
+                value += scope.measure(test.device3v3.ad_device, 1)
+            value /= float(samples)
+
+            if verbose:
+                test.print_and_log(
+                    "Output value = "
+                    + str(v)
+                    + ";  expected voltage = "
+                    + str(volt)
+                    + ";  captured voltage = "
+                    + str(value)
+                )
+            eout = v * volt / 256
+            voutcor = (value * 1.02311) + 0.0107354
+            if abs(voutcor - eout) > 0.06:
+                return False
+
         return True
 
 

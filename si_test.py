@@ -784,10 +784,6 @@ def flash_test(
             results = fpga_ram_test(test)
         elif ana:
             results = adc_test(test, uart_data, verbose)
-            if "adc" in test.test_name:
-                concat_csv(test.date_dir, "adc_data")
-            else:
-                concat_csv(test.date_dir, "dac_data")
         else:
             results = process_soc(test, uart_data)
         return results
@@ -2027,8 +2023,9 @@ def adc_test(test, uart, verbose):
                     + str(value)
                 )
             if abs(doutcor - eout) > 3.6:
+                test.print_and_log("[red]ADC test failed!")
                 return False
-
+        test.print_and_log("[green]ADC test passed!")
         return True
 
     elif test.test_name == "dac_test":
@@ -2081,8 +2078,10 @@ def adc_test(test, uart, verbose):
             eout = v * volt / 256
             voutcor = (value * 1.02311) + 0.0107354
             if abs(voutcor - eout) > 0.06:
+                test.print_and_log(f"[red]DAC test failed!")
                 return False
 
+        test.print_and_log(f"[green]DAC test passed!")
         return True
 
 

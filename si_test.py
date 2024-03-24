@@ -2078,10 +2078,10 @@ def adc_test(test, uart, verbose):
             eout = v * volt / 256
             voutcor = (value * 1.02311) + 0.0107354
             if abs(voutcor - eout) > 0.06:
-                test.print_and_log(f"[red]DAC test failed!")
+                test.print_and_log("[red]DAC test failed!")
                 return False
 
-        test.print_and_log(f"[green]DAC test passed!")
+        test.print_and_log("[green]DAC test passed!")
         return True
 
 
@@ -2446,6 +2446,7 @@ if __name__ == "__main__":
                                 flash_flag,
                                 flash_only=args.flash_only,
                                 uart_data=uart_data,
+                                verbose=args.verbose,
                                 and_flag=t.get("and_flag"),
                                 analog=manifest_module.analog,
                             )
@@ -2457,6 +2458,7 @@ if __name__ == "__main__":
                                 flash_flag,
                                 flash_only=args.flash_only,
                                 uart_data=uart_data,
+                                verbose=args.verbose,
                                 chain=t.get("chain"),
                                 analog=manifest_module.analog,
                             )
@@ -2468,6 +2470,7 @@ if __name__ == "__main__":
                                 flash_flag,
                                 flash_only=args.flash_only,
                                 uart_data=uart_data,
+                                verbose=args.verbose,
                                 fpga_io=t.get("fpga_io"),
                                 analog=manifest_module.analog,
                             )
@@ -2479,6 +2482,7 @@ if __name__ == "__main__":
                                 flash_flag,
                                 flash_only=args.flash_only,
                                 uart_data=uart_data,
+                                verbose=args.verbose,
                                 alu=t.get("alu"),
                                 analog=manifest_module.analog,
                             )
@@ -2490,6 +2494,7 @@ if __name__ == "__main__":
                                 flash_flag,
                                 flash_only=args.flash_only,
                                 uart_data=uart_data,
+                                verbose=args.verbose,
                                 sec_count=t.get("sec_count"),
                                 analog=manifest_module.analog,
                             )
@@ -2501,6 +2506,7 @@ if __name__ == "__main__":
                                 flash_flag,
                                 flash_only=args.flash_only,
                                 uart_data=uart_data,
+                                verbose=args.verbose,
                                 fpga_ram=t.get("fpga_ram"),
                                 analog=manifest_module.analog,
                             )
@@ -2512,6 +2518,7 @@ if __name__ == "__main__":
                                 flash_flag,
                                 flash_only=args.flash_only,
                                 uart_data=uart_data,
+                                verbose=args.verbose,
                                 ana=t.get("ana"),
                                 analog=manifest_module.analog,
                             )

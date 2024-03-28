@@ -403,7 +403,7 @@ def process_io(test, uart, verbose, analog):
                         uart_data = uart.read_data(test, 5)
                         if b"UART Timeout!" in uart_data:
                             test.print_and_log(
-                                f"[red]Timeout failure on IO[{channel}]!"
+                                f"[red]UART Timeout failure on IO[{channel}]!"
                             )
                             fail.append(channel)
                             break
@@ -690,6 +690,7 @@ def flash_test(
     sec_count,
     fpga_ram,
     ana,
+    chip_name,
 ):
     """
     A function to perform flash testing with various parameters and return the results.
@@ -771,17 +772,17 @@ def flash_test(
         elif plud:
             results = process_io_plud(test, uart_data, analog)
         elif and_flag:
-            results = and_test(test, uart_data)
+            results = and_test(test, uart_data, chip_name)
         elif chain:
-            results = chain_test(test, uart_data)
+            results = chain_test(test, uart_data, chip_name)
         elif fpga_io:
-            results = fpga_io_test(test, uart_data)
+            results = fpga_io_test(test, uart_data, chip_name)
         elif alu:
-            results = fpga_ALU_test(test, uart_data)
+            results = fpga_ALU_test(test, uart_data, chip_name)
         elif sec_count:
-            results = fpga_counter_test(test, uart_data)
+            results = fpga_counter_test(test, uart_data, chip_name)
         elif fpga_ram:
-            results = fpga_ram_test(test)
+            results = fpga_ram_test(test, chip_name)
         elif ana:
             results = adc_test(test, uart_data, verbose)
         else:
@@ -842,14 +843,17 @@ def reformat_csv(test, temp=None):
             writer.writerow(header_row)
 
 
-def config_fpga(test):
+def config_fpga(test, chip_name):
     """
     Configures the FPGA by setting the state and value of various pins. Returns the states and values of the configured pins.
     """
     prog_clk = test.device3v3.dio_map[37]
     prog_rst = test.device3v3.dio_map[29]
     io_isol_n = test.device1v8.dio_map[1]
-    op_rst = test.device1v8.dio_map[11]
+    if chip_name == "Blizzard":
+        op_rst = test.device1v8.dio_map[11]
+    elif chip_name == "Clear":
+        op_rst = test.device1v8.dio_map[9]
     ccff_head = test.device3v3.dio_map[34]
     ccff_tail = test.device3v3.dio_map[23]
     clk_sel = test.device3v3.dio_map[35]
@@ -907,7 +911,7 @@ def load_bitstream(bitstream):
     return binary_array
 
 
-def chain_test(test, uart):
+def chain_test(test, uart, chip_name):
     """
     Function to perform chain test using UART communication and FPGA programming.
 
@@ -920,6 +924,7 @@ def chain_test(test, uart):
     """
     test.gpio_mgmt.set_state(True)
     test.gpio_mgmt.set_value(0)
+    hk_stop(False)
     uart_data = uart.read_data(test)
     uart_data = uart_data.decode("utf-8", "ignore")
     if "UART Timeout!" in uart_data:
@@ -927,9 +932,9 @@ def chain_test(test, uart):
         return False
     if "ST:" in uart_data:
         test.test_name = uart_data.strip().split(": ")[1]
-        test.print_and_log(f"Running test {test.test_name}...")
+        test.print_and_log(f"Running test {test.test_name}...")    
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
-        test
+        test, chip_name
     )
     binary_array = load_bitstream("and_3")
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
@@ -946,6 +951,7 @@ def chain_test(test, uart):
         prog_clk.set_value(1)
         prog_clk.set_value(0)
 
+    hk_stop(True)
     if tail_value == binary_array:
         test.print_and_log("[green]Chain test passed")
         return True
@@ -1004,7 +1010,7 @@ def config_alu(test, arr, dir):
             a.set_state(dir)
 
 
-def fpga_ALU_test(test, uart):
+def fpga_ALU_test(test, uart, chip_name):
     """
     Function to perform testing of FPGA ALU functionality.
     """
@@ -1030,7 +1036,7 @@ def fpga_ALU_test(test, uart):
     hk_stop(False)
     binary_array = load_bitstream("ALU_4bits")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
-        test
+        test, chip_name
     )
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
@@ -1076,7 +1082,7 @@ def fpga_ALU_test(test, uart):
         return False
 
 
-def fpga_counter_test(test, uart):
+def fpga_counter_test(test, uart, chip_name):
     """
     Function for testing FPGA counter. It takes a 'test' object and a 'uart' object as parameters and returns a boolean indicating the success of the test.
     """
@@ -1094,7 +1100,7 @@ def fpga_counter_test(test, uart):
     out_io = [3, 4, 5, 6, 7, 26, 28, 24]
     binary_array = load_bitstream("seconds_decoder_2")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
-        test
+        test, chip_name
     )
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
 
@@ -1153,7 +1159,7 @@ def fpga_counter_test(test, uart):
             return False
 
 
-def fpga_io_test(test, uart):
+def fpga_io_test(test, uart, chip_name):
     """
     Test the FPGA I/O by setting states and values, checking for errors, and returning a boolean value.
     """
@@ -1178,7 +1184,7 @@ def fpga_io_test(test, uart):
         out = [5, 4, 3, 2, 0, 33, 32, 31, 30, 28, 26, 24]
         binary_array = load_bitstream("inv_all_2")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
-        test
+        test, chip_name
     )
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
@@ -1272,12 +1278,13 @@ def fpga_io_test(test, uart):
         return True
 
 
-def and_test(test, uart):
+def and_test(test, uart, chip_name):
     """
     This function performs a series of operations to test the functionality of an FPGA AND gate. It takes 'test' and 'uart' as parameters and returns a boolean value indicating the success of the test.
     """
     test.gpio_mgmt.set_state(True)
     test.gpio_mgmt.set_value(0)
+    hk_stop(False)
     uart_data = uart.read_data(test)
     uart_data = uart_data.decode("utf-8", "ignore")
     if "UART Timeout!" in uart_data:
@@ -1287,7 +1294,7 @@ def and_test(test, uart):
         test.test_name = uart_data.strip().split(": ")[1]
         test.print_and_log(f"Running test {test.test_name}...")
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
-        test
+        test, chip_name
     )
     a = test.deviced.dio_map[21]
     b = test.deviced.dio_map[20]
@@ -1310,6 +1317,7 @@ def and_test(test, uart):
     b.set_value(0)
     time.sleep(0.1)
     c_val = c.get_value()
+    hk_stop(True)
     if c_val:
         test.print_and_log(f"[red] a = 0, b = 0, c = {c_val}")
         return False
@@ -1438,7 +1446,7 @@ def ram_read_data(test, wdata_io, addr_io, we_io, rdata_io, addr):
     return rdata_bool
 
 
-def fpga_ram_test(test):
+def fpga_ram_test(test, chip_name):
     """
     This function performs a test on FPGA RAM. It sets the GPIO management state, configures the FPGA based on the test name, and then performs a series of RAM write and read operations. If the test passes, it returns True; otherwise, it returns False.
     """
@@ -1462,7 +1470,7 @@ def fpga_ram_test(test):
 
     time.sleep(0.1)
     prog_clk, prog_rst, io_isol_n, op_rst, ccff_head, ccff_tail, clk_sel = config_fpga(
-        test
+        test, chip_name
     )
     program_fpga(test, prog_clk, prog_rst, ccff_head, binary_array)
     io_isol_n.set_value(1)
@@ -2105,6 +2113,7 @@ def exec_test(
     sec_count=False,
     fpga_ram=False,
     ana=False,
+    chip_name=None,
 ):
     """
     Executes a test and writes the results to a CSV file.
@@ -2145,6 +2154,7 @@ def exec_test(
         sec_count,
         fpga_ram,
         ana,
+        chip_name,
     )
     end_time = time.time() - start_time
     arr = []
@@ -2449,6 +2459,7 @@ if __name__ == "__main__":
                                 verbose=args.verbose,
                                 and_flag=t.get("and_flag"),
                                 analog=manifest_module.analog,
+                                chip_name=t.get("chip_name"),
                             )
                         elif t.get("chain"):
                             exec_test(
@@ -2461,6 +2472,7 @@ if __name__ == "__main__":
                                 verbose=args.verbose,
                                 chain=t.get("chain"),
                                 analog=manifest_module.analog,
+                                chip_name=t.get("chip_name"),
                             )
                         elif t.get("fpga_io"):
                             exec_test(
@@ -2473,6 +2485,7 @@ if __name__ == "__main__":
                                 verbose=args.verbose,
                                 fpga_io=t.get("fpga_io"),
                                 analog=manifest_module.analog,
+                                chip_name=t.get("chip_name"),
                             )
                         elif t.get("alu"):
                             exec_test(
@@ -2485,6 +2498,7 @@ if __name__ == "__main__":
                                 verbose=args.verbose,
                                 alu=t.get("alu"),
                                 analog=manifest_module.analog,
+                                chip_name=t.get("chip_name"),
                             )
                         elif t.get("sec_count"):
                             exec_test(
@@ -2497,6 +2511,7 @@ if __name__ == "__main__":
                                 verbose=args.verbose,
                                 sec_count=t.get("sec_count"),
                                 analog=manifest_module.analog,
+                                chip_name=t.get("chip_name"),
                             )
                         elif t.get("fpga_ram"):
                             exec_test(
@@ -2509,6 +2524,7 @@ if __name__ == "__main__":
                                 verbose=args.verbose,
                                 fpga_ram=t.get("fpga_ram"),
                                 analog=manifest_module.analog,
+                                chip_name=t.get("chip_name"),
                             )
                         elif t.get("ana"):
                             exec_test(

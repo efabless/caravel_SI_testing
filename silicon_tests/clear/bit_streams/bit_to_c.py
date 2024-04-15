@@ -1,16 +1,31 @@
 import os
 
 # Directory containing the .bit files
-bit_streams_dir = '/home/marwan/blizzard_SI_testing/caravel_board/firmware_vex/blizzard/bit_streams/'
+bit_streams_dir = '../bit_streams'
 
 def file_to_c_array(input_file, output_file):
     try:
         # Read the binary file
-        with open(input_file, 'rb') as f:
-            content = f.read()
+        # with open(input_file, 'rb') as f:
+        #     content = f.read()
+        with open(input_file, 'r') as file:
+            bits = ''
+            for line in file:
+                line = line.strip()
+                if line and not line.startswith('//'):  # Skip empty lines and comments
+                    bits += line
+
+            # Convert the bitstream to bytes
+            byte_array = []
+            for i in range(0, len(bits), 8):
+                byte = bits[i:i+8]
+                if len(byte) < 8:  # Pad the last byte if necessary
+                    byte = byte.ljust(8, '0')
+                byte = byte[::-1]
+                byte_array.append(int(byte, 2))
 
         # Convert each byte to its hexadecimal representation
-        c_array = ', '.join('0x{:02x}'.format(byte) for byte in content)
+        c_array = ', '.join('0x{:02x}'.format(byte) for byte in byte_array)
 
         # Write the C array to the output file
         with open(output_file, 'w') as f:
@@ -26,7 +41,9 @@ def file_to_c_array(input_file, output_file):
     except IOError as e:
         print("An error occurred:", e)
 
+
 # Iterate over all .bit files in the specified directory and convert them
+bit_streams_dir = os.path.abspath(bit_streams_dir)
 for file_name in os.listdir(bit_streams_dir):
     if file_name.endswith('.bit'):
         input_file_path = os.path.join(bit_streams_dir, file_name)

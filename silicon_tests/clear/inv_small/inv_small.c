@@ -114,9 +114,9 @@ void main()
     configure_gpio(1, GPIO_MODE_USER_STD_INPUT_NOPULL);
     configure_gpio(9, GPIO_MODE_USER_STD_INPUT_NOPULL);
     configure_gpio(23, GPIO_MODE_USER_STD_OUTPUT);
-    configure_gpio(29, GPIO_MODE_USER_STD_INPUT_PULLUP);
+    configure_gpio(29, GPIO_MODE_USER_STD_INPUT_NOPULL);
     configure_gpio(34, GPIO_MODE_USER_STD_INPUT_NOPULL);
-    configure_gpio(35, GPIO_MODE_USER_STD_INPUT_PULLUP);
+    configure_gpio(35, GPIO_MODE_USER_STD_INPUT_NOPULL);
     configure_gpio(37, GPIO_MODE_USER_STD_INPUT_NOPULL);
 
     // ==

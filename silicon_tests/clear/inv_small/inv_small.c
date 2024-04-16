@@ -1,5 +1,5 @@
 #include <common.h>
-#include "../bit_streams/inv_1.h"
+#include "../bit_streams/and_3.h"
 
 #define clk_zero_mask 0xFFFFFF7F
 #define clk_one_mask 0x00000080
@@ -34,25 +34,73 @@ void delay(int delayTime) {
 // }
 
 void process_bit_stream() {
-    reg_mprj_datal &= 0x100;
-    for (unsigned int i = 0; i < inv_1_size; i++)
+    //Blizzard
+    // reg_mprj_datal &= 0x0;
+    // reg_mprj_datal = 0x100;
+    // delay(2);
+    // for (unsigned int i = 0; i < inv_small_size; i++)
+    // {
+    //     int xdata = inv_small[i];
+    //     // int xdata =0x0F;
+    //     unsigned int io_data = 0;
+    //     for (int j = 0; j < 8; j++) {
+    //         io_data = (xdata & 0x1) ? 0x2100 : 0x100;
+    //         // | 0x280 : io_data & 0xFFFFFDFF;
+    //         reg_mprj_datal = io_data;
+    //         // toggle prog clk
+    //         io_data = (xdata & 0x1) ? 0x2180 : 0x180;
+    //         reg_mprj_datal = io_data;
+    //         // prog clk 0
+    //         io_data = (xdata & 0x1) ? 0x2100 : 0x100;
+    //         reg_mprj_datal = io_data;
+    //         // reg_mprj_datal &= clk_zero_mask;
+    //         // reg_mprj_datal |= clk_one_mask;
+    //         xdata = xdata >> 1;
+    //     }
+    // }
+    // // prog clk 0
+    // reg_mprj_datal &= 0x2100;
+    // reg_mprj_datal |= 0x1100;
+    // delay(2);
+    // reg_mprj_datal &= 0x1100;
+    // reg_mprj_datal |= 0x5100;
+    // reg_mprj_datal |= 0x5300;
+    // delay(2);
+
+    //Clear
+    reg_mprj_datal = 0x0;
+    delay(1);
+    reg_mprj_datal = 0x100;
+    delay(2);
+    unsigned int io_data = 0;
+    for (unsigned int i = 0; i < and_3_size; i++)
     {
-        int xdata = inv_1[i];
+        int xdata = and_3[i];
         // int xdata =0x0F;
-        unsigned int io_data = 0;
+        io_data = 0;
         for (int j = 0; j < 8; j++) {
-            io_data = (xdata & 0x1) ? 0x900 : 0x100;
+            io_data = (xdata & 0x1) ? 0x2100 : 0x100;
             // | 0x280 : io_data & 0xFFFFFDFF;
             reg_mprj_datal = io_data;
-            io_data = (xdata & 0x1) ? 0x980 : 0x180;
+            // toggle prog clk
+            io_data = (xdata & 0x1) ? 0x2180 : 0x180;
+            reg_mprj_datal = io_data;
+            // prog clk 0
+            io_data = (xdata & 0x1) ? 0x2100 : 0x100;
             reg_mprj_datal = io_data;
             // reg_mprj_datal &= clk_zero_mask;
             // reg_mprj_datal |= clk_one_mask;
             xdata = xdata >> 1;
         }
     }
-    reg_mprj_datal = reg_mprj_datal | 1 << 12;
-    reg_mprj_datal = reg_mprj_datal | 1 << 13;
+    // prog clk 0
+    reg_mprj_datal = io_data & 0x2100;
+    reg_mprj_datal = io_data | 0x1100;
+    delay(2);
+    reg_mprj_datal = io_data & 0x1100;
+    reg_mprj_datal = io_data | 0x5100;
+    reg_mprj_datal = io_data | 0x5980;
+    delay(2);
 }
 
 void main()
@@ -66,21 +114,23 @@ void main()
     configure_gpio(1, GPIO_MODE_USER_STD_INPUT_NOPULL);
     configure_gpio(9, GPIO_MODE_USER_STD_INPUT_NOPULL);
     configure_gpio(23, GPIO_MODE_USER_STD_OUTPUT);
-    configure_gpio(29, GPIO_MODE_USER_STD_INPUT_NOPULL);
+    configure_gpio(29, GPIO_MODE_USER_STD_INPUT_PULLUP);
     configure_gpio(34, GPIO_MODE_USER_STD_INPUT_NOPULL);
-    configure_gpio(35, GPIO_MODE_USER_STD_INPUT_NOPULL);
+    configure_gpio(35, GPIO_MODE_USER_STD_INPUT_PULLUP);
     configure_gpio(37, GPIO_MODE_USER_STD_INPUT_NOPULL);
 
     // ==
     configure_gpio(7, GPIO_MODE_MGMT_STD_OUTPUT); // connected to prog_clk
     configure_gpio(8, GPIO_MODE_MGMT_STD_OUTPUT); // connected to prog_rst
-    configure_gpio(11, GPIO_MODE_MGMT_STD_OUTPUT); // connected to ccff_head
+    configure_gpio(11, GPIO_MODE_MGMT_STD_OUTPUT); // connected to op_rst
     configure_gpio(12, GPIO_MODE_MGMT_STD_OUTPUT); // connected to isol_n
-    configure_gpio(13, GPIO_MODE_MGMT_STD_OUTPUT); // connected to op_rst
+    configure_gpio(13, GPIO_MODE_MGMT_STD_OUTPUT); // connected to ccff_head
+    configure_gpio(14, GPIO_MODE_MGMT_STD_OUTPUT); // connected to clk_sel
 
-    // inv_small
-    configure_gpio(21, GPIO_MODE_USER_STD_OUTPUT); // 13 a[0] -> GPIO[21]
-    configure_gpio(5, GPIO_MODE_USER_STD_INPUT_PULLDOWN);  // 42 b[4] -> GPIO[5]
+    // and gate
+    configure_gpio(21, GPIO_MODE_USER_STD_INPUT_PULLDOWN);
+    configure_gpio(20, GPIO_MODE_USER_STD_INPUT_PULLDOWN);
+    configure_gpio(19, GPIO_MODE_USER_STD_OUTPUT);
 
     // gpio_config_io();
     gpio_config_load();

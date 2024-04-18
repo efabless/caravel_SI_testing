@@ -82,10 +82,7 @@ void main()
     process_bit_stream();
     configure_mgmt_gpio();
     mgmt_gpio_wr(1);
-    bool pass1 = false;
-    bool pass2 = false;
-    bool pass3 = false;
-    bool pass4 = false;
+    int pass = 0;
 
     // a = la[126] b = la[125] c=la[124]
     // configure la_reg3 as input expect la[124] = reg3[28]
@@ -97,11 +94,10 @@ void main()
     if (get_c() == 1)
     {
         send_packet(2);
-        pass1 = true;
+        pass++;
     }
     else{
         send_packet(9);
-        pass1 = false;
     }
     
     // a =1 b = 0 
@@ -109,11 +105,10 @@ void main()
     if (get_c() == 0)
     {
         send_packet(2);
-        pass2 = true;
+        pass++;
     }
     else{
         send_packet(9);
-        pass2 = false;
     }
 
     // a =0 b = 1 
@@ -121,11 +116,10 @@ void main()
     if (get_c() == 0)
     {
         send_packet(2);
-        pass3 = true;
+        pass++;
     }
     else{
         send_packet(9);
-        pass3 = false;
     }
 
     // a =0 b = 0 
@@ -133,14 +127,13 @@ void main()
     if (get_c() == 0)
     {
         send_packet(2);
-        pass4 = true;
+        pass++;
     }
     else{
         send_packet(9);
-        pass4 = false;
     }
 
-    if (pass1 == true && pass2 == true && pass3 == true && pass4 == true)
+    if (pass == 4)
     {
         mgmt_gpio_wr(0);
     }

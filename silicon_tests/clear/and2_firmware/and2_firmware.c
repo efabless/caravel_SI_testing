@@ -80,23 +80,12 @@ void main()
     configure_gpio(32, GPIO_MODE_USER_STD_INPUT_PULLDOWN); // in[120] -> GPIO[32]
     configure_gpio(30, GPIO_MODE_USER_STD_OUTPUT); // out[122] -> GPIO[30]
 
-    // configure_gpio(33, GPIO_MODE_USER_STD_OUTPUT); // 13 a[0] -> GPIO[21]
-    // configure_gpio(32, GPIO_MODE_USER_STD_INPUT_PULLDOWN); // 13 a[0] -> GPIO[21]
-    // configure_gpio(31, GPIO_MODE_USER_STD_INPUT_PULLDOWN);  // 42 b[4] -> GPIO[5]
-
-    // gpio_config_io();
     gpio_config_load();
-    // config_uart();
-    // print("ST: and_gate\n");
+
     process_bit_stream();
 
-    // print("DP\n");
     configure_mgmt_gpio();
     while (1){
         send_packet(8);
     }
-    // }
-    // else
-    // HKGpio_config();
-    // };
 } 

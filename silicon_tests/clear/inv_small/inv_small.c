@@ -1,5 +1,5 @@
 #include <common.h>
-#include "../bit_streams/and_3.h"
+#include "../bit_streams/inv_small.h"
 
 #define clk_zero_mask 0xFFFFFF7F
 #define clk_one_mask 0x00000080
@@ -17,113 +17,74 @@ void delay(int delayTime) {
 }
 
 
-// void process_bit_stream() {
-//     for (unsigned int i = 0; i < and_3_size; ++i) {
-//         // Process each bit in the byte
-//         for (int j = 7; j >= 0; --j) {
-//             int bit_zero_edge = (and_3[i] << (9-j) ) & 0x300 ;
-//             int bit_high_edge = bit_zero_edge | 0x80;
-//             // reg_mprj_datal = bit_zero_edge;
-//             reg_mprj_datal = bit_high_edge;
-//             // delay(1);
-//             reg_mprj_datal = bit_zero_edge;
-//             // delay(1);
-//         }
-//         // print("o");
-//     }
-// }
-
 void process_bit_stream() {
 
     reg_mprj_datal = 0x0;
-    reg_mprj_datal = 0x100;
+    //prog_rst 1
+    reg_mprj_datal = 0x80000;
     unsigned int io_data;
-    for (unsigned int i = 0; i < and_3_size; i++)
+    for (unsigned int i = 0; i < inv_small_size; i++)
     {
-        int xdata = and_3[i];
+        int xdata = inv_small[i];
         // int xdata =0x0F;
         io_data = 0;
         for (int j = 0; j < 8; j++) {
-            io_data = (xdata & 0x1) ? 0x2100 : 0x100;
-            // | 0x280 : io_data & 0xFFFFFDFF;
+            //ccff_head
+            io_data = (xdata & 0x1) ? 0x180000 : 0x80000;
             reg_mprj_datal = io_data;
-            // delay(10);
             // toggle prog clk
-            io_data = (xdata & 0x1) ? 0x2180 : 0x180;
+            io_data = (xdata & 0x1) ? 0x1180000 : 0x1080000;
             reg_mprj_datal = io_data;
-            // delay(10);
             // prog clk 0
-            io_data = (xdata & 0x1) ? 0x2100 : 0x100;
+            io_data = (xdata & 0x1) ? 0x180000 : 0x80000;
             reg_mprj_datal = io_data;
-            // delay(10);
-            // reg_mprj_datal &= clk_zero_mask;
-            // reg_mprj_datal |= clk_one_mask;
             xdata = xdata >> 1;
-            // delay(10);
         }
     }
     // prog clk 0
-    reg_mprj_datal = io_data & 0x2100;
-    reg_mprj_datal = io_data | 0x1100;
-    // delay(10);
-    reg_mprj_datal = io_data & 0x1100;
-    // delay(10);
-    reg_mprj_datal = io_data | 0x5100;
-    // delay(10);
-    //Blizzard
-    reg_mprj_datal = io_data | 0x5300;
-    //Clear
-    // reg_mprj_datal = io_data | 0x5900;
+    reg_mprj_datal = io_data & 0x180000;
+    // isol_n 1 prog_rst 1 while keeping ccff_head
+    reg_mprj_datal = io_data | 0xA0000;
+    // ccff_head 0 isol_n 1 prog_rst 1
+    reg_mprj_datal = io_data & 0xA0000;
+    // clk_sel 1 head 0 isol_n 1 prog_rst 1
+    reg_mprj_datal = io_data | 0x2A0000;
+    // op_rst 1 clk_sel 1 head 0 isol_n 1 prog_rst 1
+    reg_mprj_datal = io_data | 0x2E0000;
 }
 
 void main()
 {
-    // HKGpio_config();
-    // configure_mgmt_gpio_input();
-    // while (1)
-    // {
-    // if (reg_gpio_in == 0) {
+
     // FPGA IOs
     configure_gpio(1, GPIO_MODE_USER_STD_INPUT_NOPULL);
     //Clear
     configure_gpio(9, GPIO_MODE_USER_STD_INPUT_NOPULL);
-    //Blizzard
-    // configure_gpio(11, GPIO_MODE_USER_STD_INPUT_NOPULL);
+
     configure_gpio(23, GPIO_MODE_USER_STD_OUTPUT);
     configure_gpio(29, GPIO_MODE_USER_STD_INPUT_NOPULL);
     configure_gpio(34, GPIO_MODE_USER_STD_INPUT_NOPULL);
     configure_gpio(35, GPIO_MODE_USER_STD_INPUT_NOPULL);
     configure_gpio(37, GPIO_MODE_USER_STD_INPUT_NOPULL);
 
-    // ==
-    configure_gpio(7, GPIO_MODE_MGMT_STD_OUTPUT); // connected to prog_clk
-    configure_gpio(8, GPIO_MODE_MGMT_STD_OUTPUT); // connected to prog_rst
-    //Clear
-    configure_gpio(11, GPIO_MODE_MGMT_STD_OUTPUT); // connected to op_rst
-    //Blizzard
-    // configure_gpio(9, GPIO_MODE_MGMT_STD_OUTPUT); // connected to op_rst
-    configure_gpio(12, GPIO_MODE_MGMT_STD_OUTPUT); // connected to isol_n
-    configure_gpio(13, GPIO_MODE_MGMT_STD_OUTPUT); // connected to ccff_head
-    configure_gpio(14, GPIO_MODE_MGMT_STD_OUTPUT); // connected to clk_sel
+    // Caravel MGMT IOs
+    configure_gpio(24, GPIO_MODE_MGMT_STD_OUTPUT); // connected to prog_clk
+    configure_gpio(19, GPIO_MODE_MGMT_STD_OUTPUT); // connected to prog_rst
+    configure_gpio(18, GPIO_MODE_MGMT_STD_OUTPUT); // connected to op_rst
+    configure_gpio(17, GPIO_MODE_MGMT_STD_OUTPUT); // connected to isol_n
+    configure_gpio(20, GPIO_MODE_MGMT_STD_OUTPUT); // connected to ccff_head
+    configure_gpio(21, GPIO_MODE_MGMT_STD_OUTPUT); // connected to clk_sel
 
-    // and gate
-    configure_gpio(21, GPIO_MODE_USER_STD_INPUT_PULLDOWN);
-    configure_gpio(20, GPIO_MODE_USER_STD_INPUT_PULLDOWN);
-    configure_gpio(19, GPIO_MODE_USER_STD_OUTPUT);
+    // inv gate
+    configure_gpio(31, GPIO_MODE_USER_STD_INPUT_PULLDOWN); // in[121] -> GPIO[31]
+    configure_gpio(30, GPIO_MODE_USER_STD_OUTPUT); // out[122] -> GPIO[30]
 
-    // gpio_config_io();
     gpio_config_load();
-    // config_uart();
-    // print("ST: and_gate\n");
+
     process_bit_stream();
 
-    // print("DP\n");
     configure_mgmt_gpio();
     while (1){
         send_packet(8);
     }
-    // }
-    // else
-    // HKGpio_config();
-    // };
 } 

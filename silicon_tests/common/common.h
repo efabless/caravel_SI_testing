@@ -22,6 +22,8 @@
 #include <uart_api.h>
 #include <spi_master.h>
 #include <packet.h>
+#include <user_space.h>
+#include <rand.h>
 
 /**
  * Enable communication  between firmware and user project 

@@ -17,17 +17,17 @@
 
 #define USER_ADDR_SPACE_C_HEADER_FILE  // TODO disable using the other file until tag is updated and https://github.com/efabless/caravel_mgmt_soc_litex/pull/137 is merged
 
-#define MEM_SIZE 1*1024     // Note: The only functional part of the 4K memory is first quarter (due to a bug in the wrapper) word addresses: 0 to 1023
-#define ADDR_MASK 0x3FF
+#define MEM_SIZE 256     // Note: The only functional part of the 1K word memory (4KB) is first quarter (due to a bug in the wrapper) word addresses: 0 to 255
+#define ADDR_MASK 0xFF
 
-#define ADDR_STEP_1 395
-#define ADDR_STEP_2 73
-#define ADDR_STEP_3 521
+#define ADDR_STEP_1 159
+#define ADDR_STEP_2 17
+#define ADDR_STEP_3 81
 
-#define SEED_1 0x11434fab
-#define SEED_2 0xab23cf67
-#define SEED_3 0x9f4578eb
-#define SEED_4 0x729fda64
+#define SEED_1 0xa1b2c3d4
+#define SEED_2 0x743cad9f
+#define SEED_3 0xfe5638ac
+#define SEED_4 0x0387acfb
 
 
 
@@ -76,7 +76,6 @@ int test_mem_word(){
     for (int i=0; i<MEM_SIZE; i++){
         x = x + ADDR_STEP_1;
         addr = x & ADDR_MASK;
-        addr = addr | 0x4000;
         data = rand_num_gen(&seed);
         USER_writeWord(data, addr);
     }
@@ -87,7 +86,6 @@ int test_mem_word(){
     for (int i=0; i<MEM_SIZE; i++){
         x = x + ADDR_STEP_1;
         addr = x & ADDR_MASK;
-        addr = addr | 0x4000;
         if (USER_readWord(addr) != rand_num_gen(&seed)){
             send_packet(4);
             mgmt_gpio_wr(0); // finish test (failure)
@@ -105,9 +103,7 @@ int test_mem_word_inv(){
     for (int i=0; i<MEM_SIZE; i++){
         x = x + ADDR_STEP_1;
         addr = x & ADDR_MASK;
-        addr = addr | 0x4000;
         data = ~rand_num_gen(&seed);
-        // USER_writeWord(data, (i|0x4000));
         USER_writeWord(data, addr);
     }
 
@@ -116,8 +112,6 @@ int test_mem_word_inv(){
     for (int i=0; i<MEM_SIZE; i++){
         x = x + ADDR_STEP_1;
         addr = x & ADDR_MASK;
-        addr = addr | 0x4000;
-        // if (USER_readWord((i|0x4000)) != rand_num_gen(&seed, 32)){
         if (USER_readWord(addr) != ~rand_num_gen(&seed)){
             send_packet(4);
             mgmt_gpio_wr(0); // finish test (failure)
@@ -138,7 +132,6 @@ int test_mem_halfword(){
     for (int i=0; i<MEM_SIZE; i++){
         x = x + ADDR_STEP_2;
         addr = x & ADDR_MASK;
-        addr = addr | 0x4000;
         data = rand_num_gen(&seed)&0xFF;
         first_or_second_half = rand_num_gen(&seed)&1;
         USER_writeHalfWord(data, addr, first_or_second_half);
@@ -149,7 +142,6 @@ int test_mem_halfword(){
     for (int i=0; i<MEM_SIZE; i++){
         x = x + ADDR_STEP_2;
         addr = x & ADDR_MASK;
-        addr = addr | 0x4000;
         data = rand_num_gen(&seed)&0xFF;
         first_or_second_half = rand_num_gen(&seed)&1;
         if (USER_readHalfWord(addr, first_or_second_half) != data){
@@ -173,7 +165,6 @@ int test_mem_byte(){
     for (int i=0; i<MEM_SIZE; i++){
         x = x + ADDR_STEP_3;
         addr = x & ADDR_MASK;
-        addr = addr | 0x4000;
         data = rand_num_gen(&seed)&0xFF;
         byte_num = rand_num_gen(&seed)&0b11;
         USER_writeByte(data, addr, byte_num);
@@ -184,7 +175,6 @@ int test_mem_byte(){
     for (int i=0; i<MEM_SIZE; i++){
         x = x + ADDR_STEP_3;
         addr = x & ADDR_MASK;
-        addr = addr | 0x4000;
         data = rand_num_gen(&seed)&0xFF;
         byte_num = rand_num_gen(&seed)&0b11;
         if (USER_readByte(addr, byte_num) != data){
@@ -195,7 +185,7 @@ int test_mem_byte(){
     }
 
 }
-// change to consec addresses 
+
 int test_mem_consec(){
 
     seed = SEED_4;
@@ -203,10 +193,9 @@ int test_mem_consec(){
 
     // writing 
     for (int i=0; i<MEM_SIZE; i++){
-        addr = i | 0x4000;
         data = rand_num_gen(&seed);
-        USER_writeWord(data, addr);
-        if (USER_readWord(addr) != data){
+        USER_writeWord(data, i);
+        if (USER_readWord(i) != data){
             send_packet(10);
             mgmt_gpio_wr(0); // finish test (failure)
             return 0;

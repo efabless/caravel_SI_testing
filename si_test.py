@@ -352,7 +352,7 @@ def hk_stop(close):
         pid = None
 
 
-def process_io(test, uart, verbose, analog):
+def process_io(test, uart, verbose, analog, dft):
     """
     Function that tests the GPIO Input and Output.
 
@@ -378,6 +378,8 @@ def process_io(test, uart, verbose, analog):
         test.print_and_log(f"Running test {test.test_name}...")
     for i in range(38):
         if i == 5 or i == 6:
+            pass
+        elif dft and 26 < i < 32:
             pass
         else:
             io_pulse = 0
@@ -454,7 +456,7 @@ def process_io(test, uart, verbose, analog):
         return False, fail
 
 
-def process_io_plud(test, uart, analog):
+def process_io_plud(test, uart, analog, dft):
     """
     Process IO polarity test function to handle IO operations and test results.
 
@@ -483,23 +485,23 @@ def process_io_plud(test, uart, analog):
     if test.test_name == "gpio_lpu_ho":
         default_val = 1
         default_val_n = 0
-        p1_rt = run_io_plud(default_val, default_val_n, False, analog)
-        p2_rt = run_io_plud(default_val, default_val_n, True, analog)
+        p1_rt = run_io_plud(default_val, default_val_n, False, analog, dft)
+        p2_rt = run_io_plud(default_val, default_val_n, True, analog, dft)
     elif test.test_name == "gpio_lpd_ho":
         default_val = 0
         default_val_n = 1
-        p1_rt = run_io_plud(default_val, default_val_n, False, analog)
-        p2_rt = run_io_plud(default_val, default_val_n, True, analog)
+        p1_rt = run_io_plud(default_val, default_val_n, False, analog, dft)
+        p2_rt = run_io_plud(default_val, default_val_n, True, analog, dft)
     elif test.test_name == "gpio_lo_hpu":
         default_val = 1
         default_val_n = 0
-        p1_rt = run_io_plud_h(default_val, default_val_n, False, analog)
-        p2_rt = run_io_plud_h(default_val, default_val_n, True, analog)
+        p1_rt = run_io_plud_h(default_val, default_val_n, False, analog, dft)
+        p2_rt = run_io_plud_h(default_val, default_val_n, True, analog, dft)
     elif test.test_name == "gpio_lo_hpd":
         default_val = 0
         default_val_n = 1
-        p1_rt = run_io_plud_h(default_val, default_val_n, False, analog)
-        p2_rt = run_io_plud_h(default_val, default_val_n, True, analog)
+        p1_rt = run_io_plud_h(default_val, default_val_n, False, analog, dft)
+        p2_rt = run_io_plud_h(default_val, default_val_n, True, analog, dft)
     test.gpio_mgmt.set_state(True)
     test.gpio_mgmt.set_value(1)
     if p1_rt and p2_rt:
@@ -510,7 +512,7 @@ def process_io_plud(test, uart, analog):
         return False
 
 
-def run_io_plud(default_val, default_val_n, first_itter, analog):
+def run_io_plud(default_val, default_val_n, first_itter, analog, dft):
     """
     A function to run the IO_PLUD test.
 
@@ -548,6 +550,8 @@ def run_io_plud(default_val, default_val_n, first_itter, analog):
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
+            elif dft and 26 < channel < 32:
+                test_counter += 1
             else:
                 test.print_and_log(f"[red]channel {channel-19} FAILED!")
         else:
@@ -558,6 +562,8 @@ def run_io_plud(default_val, default_val_n, first_itter, analog):
             if io_state == default_val:
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
+                test_counter += 1
+            elif dft and 26 < channel < 32:
                 test_counter += 1
             else:
                 test.print_and_log(f"[red]channel {channel-19} FAILED!")
@@ -571,7 +577,7 @@ def run_io_plud(default_val, default_val_n, first_itter, analog):
         return False
 
 
-def run_io_plud_h(default_val, default_val_n, first_itter, analog):
+def run_io_plud_h(default_val, default_val_n, first_itter, analog, dft):
     """
     Function to run a series of IO operations based on specified conditions.
 
@@ -609,6 +615,8 @@ def run_io_plud_h(default_val, default_val_n, first_itter, analog):
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
                 test_counter += 1
+            elif dft and (26-19) < channel < (32-19):
+                test_counter += 1
             else:
                 test.print_and_log(f"[red]channel {channel+19} FAILED!")
         else:
@@ -619,6 +627,8 @@ def run_io_plud_h(default_val, default_val_n, first_itter, analog):
             if io_state == default_val:
                 test_counter += 1
             elif analog and channel > 13 and channel < 25:
+                test_counter += 1
+            elif dft and (26-19) < channel < (32-19):
                 test_counter += 1
             else:
                 test.print_and_log(f"[red]channel {channel+19} FAILED!")
@@ -683,6 +693,7 @@ def flash_test(
     flash_only,
     verbose,
     analog,
+    dft,
     and_flag,
     chain,
     fpga_io,
@@ -767,9 +778,9 @@ def flash_test(
         elif mgmt_gpio:
             results = process_mgmt_gpio(test, verbose)
         elif io:
-            results = process_io(test, uart_data, verbose, analog)
+            results = process_io(test, uart_data, verbose, analog, dft)
         elif plud:
-            results = process_io_plud(test, uart_data, analog)
+            results = process_io_plud(test, uart_data, analog, dft)
         elif and_flag:
             results = and_test(test, uart_data)
         elif chain:
@@ -2098,6 +2109,7 @@ def exec_test(
     flash_only=False,
     verbose=False,
     analog=False,
+    dft=False,
     and_flag=False,
     chain=False,
     fpga_io=False,
@@ -2138,6 +2150,7 @@ def exec_test(
         flash_only,
         verbose,
         analog,
+        dft,
         and_flag,
         chain,
         fpga_io,
@@ -2289,6 +2302,12 @@ if __name__ == "__main__":
             help="Start the regression from the last test in the runs directory",
         )
         parser.add_argument("--manifest", type=str, help="Path to the manifest file")
+        parser.add_argument(
+            "--dft",
+            action="store_true",
+            default=False,
+            help="Flag to skip JTAG IOs testing in caravel-dft chips",
+        )
         args = parser.parse_args()
         # Import specified manifest file
         if args.manifest is None:
@@ -2425,6 +2444,7 @@ if __name__ == "__main__":
                                 uart_data=uart_data,
                                 verbose=args.verbose,
                                 analog=manifest_module.analog,
+                                dft=args.dft,
                             )
                         elif t.get("plud"):
                             exec_test(
@@ -2437,6 +2457,7 @@ if __name__ == "__main__":
                                 uart_data=uart_data,
                                 verbose=args.verbose,
                                 analog=manifest_module.analog,
+                                dft=args.dft,
                             )
                         elif t.get("and_flag"):
                             exec_test(

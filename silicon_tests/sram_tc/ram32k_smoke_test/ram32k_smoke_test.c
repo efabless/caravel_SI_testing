@@ -17,7 +17,7 @@
 
 #define USER_ADDR_SPACE_C_HEADER_FILE  // TODO disable using the other file until tag is updated and https://github.com/efabless/caravel_mgmt_soc_litex/pull/137 is merged
 
-#define MEM_SIZE 2*1024     // Note: The only functional part of the 8K memory is first quarter (due to a bug in the wrapper) word addresses: 0 to 2047
+#define MEM_SIZE 2*1024     // Note: The only functional part of the 8K word memory (32KB) is first quarter (due to a bug in the wrapper) word addresses: 0 to 2047
 #define ADDR_MASK 0x7FF
 
 #define ADDR_STEP_1 385

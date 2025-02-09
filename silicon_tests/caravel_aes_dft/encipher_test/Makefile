@@ -1,5 +1,5 @@
 .SUFFIXES:
-TESTNAME = ram4k_smoke_test
+TESTNAME = encipher_test
 
 
 include ../../common/common_makefile.mk

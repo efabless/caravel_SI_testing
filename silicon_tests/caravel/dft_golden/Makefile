@@ -1,5 +1,7 @@
 .SUFFIXES:
-TESTNAME = ram4k_smoke_test
+TESTNAME = dft_golden
 
 
 include ../../common/common_makefile.mk
+
+

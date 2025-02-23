@@ -1,7 +1,8 @@
 TOOLCHAIN_PATH ?=
 TOOLCHAIN_ARCH ?= rv32i
-TOOLCHAIN_PREFIX ?= riscv64-unknown-elf
+TOOLCHAIN_PREFIX ?= riscv32-unknown-elf
 PATTERN = $(TESTNAME)
+DEFINES ?=
 
 hex:  ${PATTERN:=.hex}
 
@@ -13,7 +14,7 @@ $(info generating hex for [${TESTNAME}])
 SOURCE_FILES = ../../common/crt0_vex.S ../../common/isr.c
 LINKER_SCRIPT ?= ../../common/sections.lds
 $(TESTNAME).elf: $(TESTNAME).c  $(LINKER_SCRIPT) $(SOURCE_FILES)
-	$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)-gcc -I../../common/ -O0 -mabi=ilp32 -march=$(TOOLCHAIN_ARCH) -D__vexriscv__ -Wl,-Bstatic,-T,$(LINKER_SCRIPT),--strip-debug -ffreestanding -nostdlib -o $@ $(SOURCE_FILES) ../../common/gpio_program.c $<
+	$(TOOLCHAIN_PATH)$(TOOLCHAIN_PREFIX)-gcc -I../../common/ -O0 -mabi=ilp32 -march=$(TOOLCHAIN_ARCH) -D__vexriscv__ -Wl,-Bstatic,-T,$(LINKER_SCRIPT),--strip-debug -ffreestanding -nostdlib $(DEFINES) -o $@ $(SOURCE_FILES) ../../common/gpio_program.c $<
 
 	${TOOLCHAIN_PATH}$(TOOLCHAIN_PREFIX)-objdump -s  $(TESTNAME).elf > $(TESTNAME).lst
 

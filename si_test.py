@@ -11,7 +11,7 @@ import subprocess
 import signal
 import sys
 from rich.table import Table
-from WF_SDK import logic, wavegen, static, scope
+from WF_SDK import logic, wavegen, static, scope, pattern
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -68,14 +68,14 @@ def init_ad_ios(device1_data, device2_data, device3_data):
     }
 
     device3_dio_map = {
-        14: Dio(2, device3_data),
-        15: Dio(3, device3_data),
-        16: Dio(4, device3_data),
-        17: Dio(5, device3_data),
-        18: Dio(6, device3_data),
-        19: Dio(7, device3_data),
-        20: Dio(8, device3_data),
-        21: Dio(9, device3_data),
+        14: Dio(0, device3_data),
+        15: Dio(1, device3_data),
+        16: Dio(2, device3_data),
+        17: Dio(3, device3_data),
+        18: Dio(4, device3_data),
+        19: Dio(5, device3_data),
+        20: Dio(6, device3_data),
+        21: Dio(7, device3_data),
     }
 
     return device1_dio_map, device2_dio_map, device3_dio_map
@@ -2101,6 +2101,7 @@ def exec_test(
     start_time,
     hex_file,
     flash_flag=True,
+    freq_40MHz=False,
     uart=False,
     uart_data=None,
     mgmt_gpio=False,
@@ -2137,6 +2138,8 @@ def exec_test(
     Returns:
         None
     """
+    if freq_40MHz:
+        pattern.generate(test.deviced.ad_device, 15 , function=pattern.function.pulse, frequency=40000000, duty_cycle=50)
     results = False
     results = flash_test(
         test,
@@ -2308,6 +2311,12 @@ if __name__ == "__main__":
             default=False,
             help="Flag to skip JTAG IOs testing in caravel-dft chips",
         )
+        parser.add_argument(
+            "--freq_40MHz",
+            action="store_true",
+            default=False,
+            help="Flag when running with clock frequency 40 MHz (Note: if this flasg is not set, it is assumed that the clock frequency is 10 MHz)",
+        )
         args = parser.parse_args()
         # Import specified manifest file
         if args.manifest is None:
@@ -2342,7 +2351,11 @@ if __name__ == "__main__":
         device3 = Device(device3_data, 2, device3_dio_map)
 
         test = Test(device1, device2, device3)
-        uart_data = UART(device1_data)
+        if args.freq_40MHz:
+            uart_data = UART(device1_data, 48017)
+        else:
+            uart_data = UART(device1_data, 9600)
+
         spi = SPI(device1_data)
 
         csv_header = [
@@ -2421,6 +2434,7 @@ if __name__ == "__main__":
                                 flash_only=args.flash_only,
                                 verbose=args.verbose,
                                 analog=manifest_module.analog,
+                                freq_40MHz=args.freq_40MHz,
                             )
                         elif t.get("mgmt_gpio"):
                             exec_test(
@@ -2432,6 +2446,7 @@ if __name__ == "__main__":
                                 flash_only=args.flash_only,
                                 verbose=args.verbose,
                                 analog=manifest_module.analog,
+                                freq_40MHz=args.freq_40MHz,
                             )
                         elif t.get("io"):
                             exec_test(
@@ -2445,6 +2460,7 @@ if __name__ == "__main__":
                                 verbose=args.verbose,
                                 analog=manifest_module.analog,
                                 dft=args.dft,
+                                freq_40MHz=args.freq_40MHz,
                             )
                         elif t.get("plud"):
                             exec_test(
@@ -2458,6 +2474,7 @@ if __name__ == "__main__":
                                 verbose=args.verbose,
                                 analog=manifest_module.analog,
                                 dft=args.dft,
+                                freq_40MHz=args.freq_40MHz,
                             )
                         elif t.get("and_flag"):
                             exec_test(
@@ -2553,6 +2570,7 @@ if __name__ == "__main__":
                                 uart_data=uart_data,
                                 verbose=args.verbose,
                                 analog=manifest_module.analog,
+                                freq_40MHz=args.freq_40MHz,
                             )
                         counter += 1
                         test.close_devices()

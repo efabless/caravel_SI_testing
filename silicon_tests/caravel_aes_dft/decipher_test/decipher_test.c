@@ -1,5 +1,4 @@
 #include <common.h>
-#define PULSE_WIDTH 250000
 
 void single_block_decipher(int* key, int* text, int* expected , bool is_128key);
 void main() {

@@ -1,6 +1,5 @@
 #include <common.h>
 #include <bitbang.h>
-#define PULSE_WIDTH 250000
 
 void main()
 {

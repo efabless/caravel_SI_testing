@@ -27,6 +27,11 @@ void main()
     set_registers();
     set_gpio_h(0);
     set_gpio_l(0);
+
+    #ifdef DFT // do not pull up jtag trstn if it is caravel dft
+    configure_gpio(28, GPIO_MODE_MGMT_STD_INPUT_NOPULL);
+    #endif
+
     gpio_config_load();
     int mask = 0xFFF80000;
     int mask_h = 0x7E000;

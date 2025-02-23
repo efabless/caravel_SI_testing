@@ -2,8 +2,10 @@ import os
 
 from devices import *
 
-l_voltage = [1.62, 1.8, 1.98]
+l_voltage = [1.6, 1.8, 1.95]
 h_voltage = [3.0, 3.3, 3.6]
+# l_voltage = [1.8]
+# h_voltage = [3.3]
 # voltage = [1.62, 1.70, 1.75, 1.80, 1.85, 1.90, 1.98]
 
 TestDict = [

@@ -268,9 +268,9 @@ class Test:
             resource_name = usb_devices[0]
             inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
-            inst.write("OUTP CH1, OFF")
+            inst.write("OUTP CH1,OFF")
             time.sleep(0.1)
-            inst.write("OUTP CH2, OFF")
+            inst.write("OUTP CH2,OFF")
             time.sleep(0.1)
             rm.close()
         else:
@@ -296,11 +296,11 @@ class Test:
             inst.query_delay = 0.1
             inst.write(f"CH1:VOLT {self.l_voltage}")
             time.sleep(0.1)
-            inst.write("OUTP CH1, ON")
+            inst.write("OUTP CH1,ON")
             time.sleep(0.1)
             inst.write(f"CH2:VOLT {self.h_voltage}")
             time.sleep(0.1)
-            inst.write("OUTP CH2, ON")
+            inst.write("OUTP CH2,ON")
             time.sleep(0.8)
             l_volt = float(inst.query('MEAsure:VOLTage? CH1'))
             h_volt = float(inst.query('MEAsure:VOLTage? CH2'))
@@ -309,7 +309,7 @@ class Test:
             error_tolerance = 0.1
 
             if not math.isclose(l_volt, l_volt_expected, abs_tol=error_tolerance) or not math.isclose(h_volt, h_volt_expected, abs_tol=error_tolerance):
-                Console.print(f"[red]Error: {resource_name} not within 0.1V of expected voltages")
+                self.console.print(f"[red]Error: {resource_name} not within 0.1V of expected voltages")
                 self.turn_off_devices()
                 exit()
             rm.close()
@@ -335,14 +335,14 @@ class Test:
             resource_name = usb_devices[0]
             inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
-            inst.write("CH1:VOLT 1.8")
+            inst.write("CH1:VOLTage 1.8")
             time.sleep(0.1)
-            inst.write("OUTP CH1, ON")
+            inst.write("OUTPut CH1,ON")
             time.sleep(0.1)
-            inst.write("CH2:VOLT 3.3")
+            inst.write("CH2:VOLTage 3.3")
             time.sleep(0.1)
-            inst.write("OUTP CH2, ON")
-            time.sleep(0.8)
+            inst.write("OUTPut CH2,ON")
+            time.sleep(1.5)
             l_volt = float(inst.query('MEAsure:VOLTage? CH1'))
             h_volt = float(inst.query('MEAsure:VOLTage? CH2'))
             l_volt_expected = 1.8
@@ -350,7 +350,7 @@ class Test:
             error_tolerance = 0.1
 
             if not math.isclose(l_volt, l_volt_expected, abs_tol=error_tolerance) or not math.isclose(h_volt, h_volt_expected, abs_tol=error_tolerance):
-                Console.print(f"[red]Error: {resource_name} not within 0.1V of expected voltages")
+                self.console.print(f"[red]Error: {resource_name} not within 0.1V of expected voltages")
                 self.turn_off_devices()
                 exit()
             rm.close()
@@ -374,9 +374,9 @@ class Test:
             resource_name = usb_devices[0]
             inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
-            inst.write("OUTP CH1, OFF")
+            inst.write("OUTP CH1,OFF")
             time.sleep(0.1)
-            inst.write("OUTP CH2, OFF")
+            inst.write("OUTP CH2,OFF")
             time.sleep(0.1)
             rm.close()
         else:
@@ -397,9 +397,9 @@ class Test:
             resource_name = usb_devices[0]
             inst = rm.open_resource(resource_name)
             inst.query_delay = 0.1
-            inst.write("OUTP CH1, OFF")
+            inst.write("OUTP CH1,OFF")
             time.sleep(0.1)
-            inst.write("OUTP CH2, OFF")
+            inst.write("OUTP CH2,OFF")
             time.sleep(0.1)
             rm.close()
         else:
@@ -572,13 +572,14 @@ class Dio:
 
 
 class UART:
-    def __init__(self, device_data):
+    def __init__(self, device_data, baud_rate):
         self.device_data = device_data
         self.rx = 8
         # self.tx = 5
         self.tx = 7
+        self.baud_rate = baud_rate
 
-    def open(self, baud_rate=9600, parity=None, data_bits=8, stop_bits=1):
+    def open(self, parity=None, data_bits=8, stop_bits=1):
         """
         initializes UART communication
 
@@ -591,7 +592,7 @@ class UART:
                     - stop_bits (default is 1)
         """
         # set baud rate
-        dwf.FDwfDigitalUartRateSet(self.device_data.handle, ctypes.c_double(baud_rate))
+        dwf.FDwfDigitalUartRateSet(self.device_data.handle, ctypes.c_double(self.baud_rate))
 
         # set communication channels
         dwf.FDwfDigitalUartTxSet(self.device_data.handle, ctypes.c_int(self.tx))

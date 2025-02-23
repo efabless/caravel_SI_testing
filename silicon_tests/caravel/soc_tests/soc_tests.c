@@ -18,16 +18,21 @@ void main()
 
     config_uart();
     print("Start Test: hk_regs_wr_wb_cpu\n");
-    if (hk_regs_wr_wb_cpu())
+    // mgmt_gpio_o_enable();
+    // send_packet(2);
+    if (hk_regs_wr_wb_cpu()) 
     {
         config_uart();
         print("passed\n");
+        // send_packet(3);
     }
     else
     {
         config_uart();
         print("failed\n");
+        // send_packet(8);
     }
+    // send_packet(15);
 
     if (IRQ_external())
     {

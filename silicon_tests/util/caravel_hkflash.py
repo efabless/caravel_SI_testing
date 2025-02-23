@@ -197,6 +197,12 @@ print(" ")
 print("Resetting Flash...")
 slave.write([CARAVEL_PASSTHRU, CMD_RESET_CHIP])
 
+
+slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
+slave.write([CARAVEL_PASSTHRU, 0x01, 0x00])
+slave.write([CARAVEL_PASSTHRU, CMD_WRITE_ENABLE])
+slave.write([CARAVEL_PASSTHRU, 0x31, 0x00])
+
 print("status = 0x{:02x}".format(get_status(slave), "02x"))
 
 print(" ")

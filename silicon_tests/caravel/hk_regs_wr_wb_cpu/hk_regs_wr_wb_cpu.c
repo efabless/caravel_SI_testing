@@ -223,8 +223,23 @@ bool hk_regs_wr_wb_cpu()
         return false;
     if (reg_hkspi_disable!= 0x1) // size 1
         return false;
-    if (reg_clk_out_dest!= 0x5) // trap and clocks redirect
+    if ((reg_clk_out_dest&0x7)!= 0x5) // trap and clocks redirect
         return false;
+    
+    // int read_data = reg_clk_out_dest;
+    // if (read_data!= 0x5) // trap and clocks redirect
+    // {
+    //     while (read_data!=0)
+    //         {
+    //             if (read_data&1)
+    //                 send_packet(4);
+    //             else
+    //                 send_packet(1);
+
+    //             read_data = read_data >> 1;
+    //         }
+    //     return false;
+    // }
     // // write 01 to all registers
     data_in = 0xAAAAAAAA;
     wr_all_gpio_ctrl_regs(data_in);
@@ -279,8 +294,22 @@ bool hk_regs_wr_wb_cpu()
         return false;
     if (reg_hkspi_disable!= 0x0) // size 1
         return false;
-    if (reg_clk_out_dest!= 0x2) // trap and clocks redirect
+    if ((reg_clk_out_dest&0x7)!= 0x2) // trap and clocks redirect
         return false;
 
+    // read_data = reg_clk_out_dest;
+    // if (read_data!= 0x2) // trap and clocks redirect
+    // {
+    //     while (read_data!=0)
+    //         {
+    //             if (read_data&1)
+    //                 send_packet(4);
+    //             else
+    //                 send_packet(1);
+
+    //             read_data = read_data >> 1;
+    //         }
+    //     return false;
+    // }
     return true;
 }

@@ -1,5 +1,4 @@
 #include <common.h>
-#define PULSE_WIDTH 100000
 
 /*
 @ send on the next io (start from 0 to 18)

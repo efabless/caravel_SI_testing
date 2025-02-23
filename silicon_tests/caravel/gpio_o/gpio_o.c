@@ -1,5 +1,4 @@
 #include <common.h>
-#define PULSE_WIDTH 250000
 
 void main()
 {
@@ -13,6 +12,7 @@ void main()
     gpio_config_load();
     config_uart();
     print("Start Test: gpio_o\n");
+    // j = 0;
     while (true)
     {
         c = uart_get_line();
@@ -41,5 +41,35 @@ void main()
                 count_down(PULSE_WIDTH);
             }
         }
+
+        // j++;
     }
+
+    // mgmt_gpio_o_enable();
+    // set_gpio_h(0xFF);
+    // set_gpio_l(0xFFFFFFFF);
+    // send_packet(10);
+
+    // set_gpio_h(0);
+    // set_gpio_l(0);
+    // send_packet(10);
+
+    // set_gpio_h(0x55);
+    // set_gpio_l(0x55555555);
+    // send_packet(10);
+
+    // set_gpio_h(0xAA);
+    // set_gpio_l(0xAAAAAAAA);
+    // send_packet(10);
+
+    // // only IO 36 = 1
+    // set_gpio_h(0x10);
+    // set_gpio_l(0);
+    // send_packet(10);
+
+    // // only IO 37 = 1
+    // set_gpio_h(0x20);
+    // set_gpio_l(0);
+    // send_packet(10);
+
 }

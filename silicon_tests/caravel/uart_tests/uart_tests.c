@@ -1,8 +1,7 @@
 #include "uart_tests.h"
 #include <common.h>
-#define PULSE_WIDTH 250000
 
-void main()
+void main() 
 {
     configure_mgmt_gpio();
     send_packet(1); // Start uart test

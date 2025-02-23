@@ -3,7 +3,12 @@
 
 #include <timer0.h>
 #include <mgmt_gpio.h>
+
+#ifdef FREQ_40MHz
+#define PULSE_WIDTH 1250000 
+#else 
 #define PULSE_WIDTH 250000
+#endif
 
 /**
  * Performs a countdown using timer0.
